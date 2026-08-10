@@ -126,7 +126,7 @@ export const Contact = () => {
                 <div className="cf-row">
                   <div className="cf-field">
                     <label htmlFor="name">{TEXTS.name[lang]}</label>
-                    <input id="name" name="name" type="text" placeholder="Sok Heng" value={form.name} onChange={handleChange} required />
+                    <input id="name" name="name" type="text" placeholder="Your Name" value={form.name} onChange={handleChange} required />
                   </div>
                   <div className="cf-field">
                     <label htmlFor="email">{TEXTS.email[lang]}</label>
