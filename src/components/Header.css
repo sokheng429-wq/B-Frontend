@@ -1,0 +1,165 @@
+/* Brand colors - B'Groceries theme */
+:root {
+  --navy-900: #0B0F14;
+  --navy-800: #232F3F;
+  --navy-700: #34455c;
+
+  --brand-600: #5a9e1a;
+  --brand-500: #77BC1F;
+  --brand-400: #8fd13a;
+
+  --accent-500: #FF9900;
+}
+
+/* Header shell */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--navy-800);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.logo-img {
+  height: 25px;
+  width: auto;
+  border-radius: 4px;
+}
+
+/* Desktop nav */
+.nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.nav-link:hover {
+  color: var(--brand-400);
+}
+
+.controls-desktop {
+  display: none;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.lang-btn:hover {
+  border-color: var(--brand-400);
+  color: var(--brand-400);
+}
+
+.btn-brand {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--navy-900);
+  background: var(--brand-500);
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.btn-brand:hover {
+  background: var(--brand-400);
+}
+
+/* Mobile hamburger */
+.mobile-toggle {
+  display: inline-flex;
+  padding: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Mobile menu panel */
+.mobile-menu {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--navy-800);
+  padding: 0 1rem 1rem;
+}
+
+.nav-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+}
+
+.nav-link-mobile {
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+.nav-link-mobile:hover {
+  color: var(--brand-400);
+}
+
+.controls-mobile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-brand-mobile {
+  margin-left: auto;
+}
+
+/* Breakpoint: show desktop nav / hide mobile toggle from 768px up */
+@media (min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+  }
+  .controls-desktop {
+    display: flex;
+  }
+  .mobile-toggle {
+    display: none;
+  }
+  .mobile-menu {
+    display: none;
+  }
+}
