@@ -6,7 +6,7 @@ import './Member.css'
 const TEAM = [
   {
     id: 1,
-    name: { en: 'Sok Heng', kh: 'សុខ​ ហេង' },
+    name: { en: 'Unknow', kh: 'Unknow' },
     role: { en: 'CEO & Founder', kh: 'នាយកប្រតិបត្តិ និងស្ថាបនិក' },
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face',
     dept: { en: 'Executive', kh: 'នាយកប្រតិបត្តិ' },

@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run:*)",
-      "Bash(ls -la src/Pages/Popular Products*)"
+      "Bash(ls -la src/Pages/Popular Products*)",
+      "Bash(npx vite:*)"
     ]
   }
 }

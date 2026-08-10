@@ -28,7 +28,7 @@ const LINK_COLUMNS = [
       { label: { en: 'FAQ', kh: 'សំណួរញឹកញាប់' }, href: '/faq' },
       { label: { en: 'Shipping & Delivery', kh: 'ការដឹកជញ្ជូន' }, href: '/shipping' },
       { label: { en: 'Returns', kh: 'ការប្រគល់ទំនិញ' }, href: '/returns' },
-      { label: { en: 'Terms & Privacy', kh: 'លក្ខខណ្ឌ និងឯកជនភាព' }, href: '/terms' },
+      { label: { en: 'Terms & Privacy', kh: 'លក្ខខណ្ឌ និងឯកជនភាព' }, href: '/terms-privacy' },
     ],
   },
 ]
@@ -110,8 +110,8 @@ export const Footer = () => {
           &copy; {year} {TEXTS.copyright[lang]}
         </p>
         <div className="footer-bottom-links">
-          <Link to="/terms" className="footer-link-small">{TEXTS.terms[lang]}</Link>
-          <Link to="/privacy" className="footer-link-small">{TEXTS.privacy[lang]}</Link>
+          <Link to="/terms-privacy" className="footer-link-small">{TEXTS.terms[lang]}</Link>
+          <Link to="/terms-privacy" className="footer-link-small">{TEXTS.privacy[lang]}</Link>
           <Link to="/sitemap" className="footer-link-small">{TEXTS.sitemap[lang]}</Link>
         </div>
       </div>

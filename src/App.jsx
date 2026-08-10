@@ -14,6 +14,7 @@ import  Career  from './Pages/Career'
 import Member  from './Pages/Member'
 import Contact  from './Pages/Contact'
 import About  from './Pages/AboutUs'
+import TermsPrivacy  from './Pages/Terms&Privacy'
 
 function App() {
   const location = useLocation()
@@ -34,6 +35,7 @@ function App() {
           <Route path="/member" element={<Member />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/terms-privacy" element={<TermsPrivacy />} />
         </Routes>
       </PageTransition>
       <Footer />
