@@ -1,5 +1,5 @@
 
-import './logo.css'
+import './Logo.css'
 
 export const Logo = () => (
   <div className="brand-logo">
