@@ -5,9 +5,9 @@ import Footer from './components/Footer'
 import PageTransition from './components/PageTransition'
 import ScrollToTop from './components/ScrollToTop'
 import Home from './Pages/Home'
-import Login from './Pages/Login'
-import Register from './Pages/Register'
-import ForgotPassword from './Pages/Forgotpassword'
+import Login from './Pages/Auth/Login'
+import Register from './Pages/Auth/Register'
+import ForgotPassword from './Pages/Auth/Forgotpassword'
 import PopularProducts  from './Pages/Popular Products'
 import Promotion  from './Pages/Promotion'
 import Career  from './Pages/Career'
@@ -28,7 +28,7 @@ function App() {
       <Header />
       <PageTransition key={location.pathname}>
         <Routes location={location}>
-          
+
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

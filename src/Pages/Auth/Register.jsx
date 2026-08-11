@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useLanguage } from '../context/LanguageContext'
-import { Logo } from '../components/Logo'
+import { useLanguage } from '../../context/LanguageContext'
+import { Logo } from '../../components/Logo'
 import './Register.css'
 
 const TEXTS = {
@@ -118,9 +118,9 @@ export const Register = () => {
               <input type="checkbox" name="agree" checked={form.agree} onChange={handleChange} required />
               <span className="terms-text">
                 {TEXTS.agree1[lang]}
-                <a href="/terms">{TEXTS.terms[lang]}</a>
+                <Link to="/terms-privacy">{TEXTS.terms[lang]}</Link>
                 {TEXTS.agree2[lang]}
-                <a href="/privacy">{TEXTS.privacy[lang]}</a>
+                <Link to="/terms-privacy">{TEXTS.privacy[lang]}</Link>
               </span>
             </label>
 

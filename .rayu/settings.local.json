@@ -4,7 +4,8 @@
       "Bash(npm run:*)",
       "Bash(ls -la src/Pages/Popular Products*)",
       "Bash(npx vite:*)",
-      "Bash(grep -rnP --include=*.js --include=*.jsx --include=*.ts --include=*.tsx [x{1780}-x{17FF}] D:1.B.GroceriesFrontendB-Frontendsrc)"
+      "Bash(grep -rnP --include=*.js --include=*.jsx --include=*.ts --include=*.tsx [x{1780}-x{17FF}] D:1.B.GroceriesFrontendB-Frontendsrc)",
+      "Bash(ls dist/Logo.jpg dist/favicon*)"
     ]
   }
 }

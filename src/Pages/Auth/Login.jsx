@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useLanguage } from '../context/LanguageContext'
-import { Logo } from '../components/Logo'
+import { useLanguage } from '../../context/LanguageContext'
+import { Logo } from '../../components/Logo'
 import './Login.css'
 
 const TEXTS = {
