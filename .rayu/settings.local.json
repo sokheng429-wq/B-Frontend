@@ -5,7 +5,8 @@
       "Bash(ls -la src/Pages/Popular Products*)",
       "Bash(npx vite:*)",
       "Bash(grep -rnP --include=*.js --include=*.jsx --include=*.ts --include=*.tsx [x{1780}-x{17FF}] D:1.B.GroceriesFrontendB-Frontendsrc)",
-      "Bash(ls dist/Logo.jpg dist/favicon*)"
+      "Bash(ls dist/Logo.jpg dist/favicon*)",
+      "Bash(grep -n \"edit-btn\\\\|remove-btn\" *.css)"
     ]
   }
 }

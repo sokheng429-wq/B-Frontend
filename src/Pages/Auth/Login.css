@@ -292,6 +292,102 @@
   line-height: 1.5;
 }
 
+/* Login tabs */
+.login-tabs {
+  display: flex;
+  gap: 0;
+  background: #f0f2f5;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.login-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #888;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.login-tab:hover {
+  color: #555;
+}
+
+.login-tab--active {
+  background: #fff;
+  color: #232F3F;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* OTP input */
+.login-otp-input {
+  font-size: 1.5rem !important;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.login-otp-sent-text {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.login-otp-sent-text strong {
+  color: #232F3F;
+}
+
+.login-otp-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login-link-btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #77BC1F;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.login-link-btn:hover {
+  color: #5a9e1a;
+}
+
+.login-back-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: -4px;
+  transition: color 0.15s;
+}
+
+.login-back-link:hover {
+  color: #555;
+}
+
 /* Responsive */
 @media (min-width: 900px) {
   .auth {

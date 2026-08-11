@@ -82,6 +82,155 @@
   color: #e08800;
 }
 
+/* Toolbar */
+.popular-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.popular-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  max-width: 380px;
+}
+
+.popular-search-wrap svg:first-child {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  pointer-events: none;
+}
+
+.popular-search {
+  width: 100%;
+  padding: 11px 40px 11px 42px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #333;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.popular-search:focus {
+  outline: none;
+  border-color: #77BC1F;
+  box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.1);
+}
+
+.popular-search::placeholder {
+  color: #bbb;
+}
+
+.popular-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #eee;
+  color: #888;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.popular-search-clear:hover {
+  background: #ddd;
+  color: #333;
+}
+
+.popular-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.popular-filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.popular-filter-tab {
+  padding: 7px 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #777;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.popular-filter-tab:hover {
+  color: #444;
+}
+
+.popular-filter-tab--active {
+  background: #fff;
+  color: #232F3F;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.popular-sort {
+  padding: 8px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #555;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.popular-sort:focus {
+  outline: none;
+  border-color: #77BC1F;
+}
+
+.popular-results-count {
+  font-size: 0.82rem;
+  color: #999;
+  margin: 0 0 18px;
+}
+
+.popular-no-results {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.popular-no-results-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.popular-no-results p {
+  font-size: 1rem;
+  color: #999;
+  margin: 0;
+}
+
 /* Grid */
 .products-grid {
   display: grid;

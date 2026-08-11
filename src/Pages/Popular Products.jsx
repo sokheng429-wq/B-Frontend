@@ -32,6 +32,17 @@ const TEXTS = {
   viewAll: { en: 'View All Products', kh: 'មើលផលិតផលទាំងអស់' },
   addToCart: { en: 'Add to Cart', kh: 'ដាក់ក្នុងកន្ត្រក' },
   sold: { en: 'sold', kh: 'បានលក់' },
+  searchPlaceholder: { en: 'Search products...', kh: 'ស្វែងរកផលិតផល...' },
+  filterAll: { en: 'All Products', kh: 'ផលិតផលទាំងអស់' },
+  filterOnSale: { en: 'On Sale', kh: 'បញ្ចុះតម្លៃ' },
+  filterBestSeller: { en: 'Best Sellers', kh: 'លក់ដាច់បំផុត' },
+  filterNew: { en: 'New Arrivals', kh: 'មកដល់ថ្មី' },
+  sortDefault: { en: 'Sort: Default', kh: 'តម្រៀប៖ លំនាំដើម' },
+  sortPriceLow: { en: 'Price: Low to High', kh: 'តម្លៃ៖ ទាបទៅខ្ពស់' },
+  sortPriceHigh: { en: 'Price: High to Low', kh: 'តម្លៃ៖ ខ្ពស់ទៅទាប' },
+  sortRating: { en: 'Top Rated', kh: 'ពិន្ទុខ្ពស់' },
+  noResults: { en: 'No products match your search.', kh: 'រកមិនឃើញផលិតផលដែលត្រូវគ្នា។' },
+  resultsCount: { en: 'results', kh: 'ផលិតផល' },
 }
 
 const StarRating = ({ rating }) => (
@@ -45,6 +56,28 @@ const StarRating = ({ rating }) => (
 export const PopularProducts = () => {
   const { lang } = useLanguage()
   const [hovered, setHovered] = useState(null)
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('all')
+  const [sort, setSort] = useState('default')
+
+  const filtered = PRODUCTS
+    .filter((p) => {
+      const matchesSearch = p.name.en.toLowerCase().includes(search.toLowerCase()) ||
+        p.name.kh.includes(search)
+      if (filter === 'all') return matchesSearch
+      if (filter === 'sale') return matchesSearch && p.oldPrice
+      if (filter === 'bestseller') return matchesSearch && p.badge?.en === 'Best Seller'
+      if (filter === 'new') return matchesSearch && p.badge?.en === 'New'
+      return matchesSearch
+    })
+    .sort((a, b) => {
+      const priceA = parseFloat(a.price.replace('$', ''))
+      const priceB = parseFloat(b.price.replace('$', ''))
+      if (sort === 'price-low') return priceA - priceB
+      if (sort === 'price-high') return priceB - priceA
+      if (sort === 'rating') return b.rating - a.rating
+      return 0
+    })
 
   return (
     <section className="popular-products">
@@ -62,51 +95,103 @@ export const PopularProducts = () => {
           </Link>
         </div>
 
-        <div className="products-grid">
-          {PRODUCTS.map((product) => (
-            <article
-              key={product.id}
-              className={`product-card ${hovered === product.id ? 'product-card--hovered' : ''}`}
-              onMouseEnter={() => setHovered(product.id)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              <div className="product-image-wrap">
-                <img
-                  src={product.image}
-                  alt={product.name[lang]}
-                  className="product-image"
-                  loading="lazy"
-                />
-                <div className="product-image-gradient" />
-                {product.badge && (
-                  <span className="product-badge">{product.badge[lang]}</span>
-                )}
-                {product.oldPrice && (
-                  <span className="product-sale-badge">SALE</span>
-                )}
-                <div className="product-quick-add">
-                  <button className="product-add-btn">
-                    <CartIcon />
-                    {TEXTS.addToCart[lang]}
-                  </button>
-                </div>
-              </div>
-              <div className="product-info">
-                <div className="product-meta">
-                  <StarRating rating={product.rating} />
-                  <span className="product-sold">{product.sold} {TEXTS.sold[lang]}</span>
-                </div>
-                <h3 className="product-name">{product.name[lang]}</h3>
-                <div className="product-price-row">
-                  <span className="product-price">{product.price}</span>
-                  {product.oldPrice && (
-                    <span className="product-old-price">{product.oldPrice}</span>
-                  )}
-                </div>
-              </div>
-            </article>
-          ))}
+        {/* Search & Filter bar */}
+        <div className="popular-toolbar">
+          <div className="popular-search-wrap">
+            <SearchIcon />
+            <input
+              type="text"
+              className="popular-search"
+              placeholder={TEXTS.searchPlaceholder[lang]}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button className="popular-search-clear" onClick={() => setSearch('')} aria-label="Clear search">
+                <XIcon />
+              </button>
+            )}
+          </div>
+          <div className="popular-filter-group">
+            <div className="popular-filter-tabs">
+              {[
+                { key: 'all', label: TEXTS.filterAll[lang] },
+                { key: 'sale', label: TEXTS.filterOnSale[lang] },
+                { key: 'bestseller', label: TEXTS.filterBestSeller[lang] },
+                { key: 'new', label: TEXTS.filterNew[lang] },
+              ].map((f) => (
+                <button
+                  key={f.key}
+                  className={`popular-filter-tab ${filter === f.key ? 'popular-filter-tab--active' : ''}`}
+                  onClick={() => setFilter(f.key)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <select className="popular-sort" value={sort} onChange={(e) => setSort(e.target.value)}>
+              <option value="default">{TEXTS.sortDefault[lang]}</option>
+              <option value="price-low">{TEXTS.sortPriceLow[lang]}</option>
+              <option value="price-high">{TEXTS.sortPriceHigh[lang]}</option>
+              <option value="rating">{TEXTS.sortRating[lang]}</option>
+            </select>
+          </div>
         </div>
+
+        <p className="popular-results-count">{filtered.length} {TEXTS.resultsCount[lang]}</p>
+
+        {filtered.length === 0 ? (
+          <div className="popular-no-results">
+            <span className="popular-no-results-icon">🔍</span>
+            <p>{TEXTS.noResults[lang]}</p>
+          </div>
+        ) : (
+          <div className="products-grid">
+            {filtered.map((product) => (
+              <article
+                key={product.id}
+                className={`product-card ${hovered === product.id ? 'product-card--hovered' : ''}`}
+                onMouseEnter={() => setHovered(product.id)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                <div className="product-image-wrap">
+                  <img
+                    src={product.image}
+                    alt={product.name[lang]}
+                    className="product-image"
+                    loading="lazy"
+                  />
+                  <div className="product-image-gradient" />
+                  {product.badge && (
+                    <span className="product-badge">{product.badge[lang]}</span>
+                  )}
+                  {product.oldPrice && (
+                    <span className="product-sale-badge">SALE</span>
+                  )}
+                  <div className="product-quick-add">
+                    <button className="product-add-btn">
+                      <CartIcon />
+                      {TEXTS.addToCart[lang]}
+                    </button>
+                  </div>
+                </div>
+                <div className="product-info">
+                  <div className="product-meta">
+                    <StarRating rating={product.rating} />
+                    <span className="product-sold">{product.sold} {TEXTS.sold[lang]}</span>
+                  </div>
+                  <h3 className="product-name">{product.name[lang]}</h3>
+                  <div className="product-price-row">
+                    <span className="product-price">{product.price}</span>
+                    {product.oldPrice && (
+                      <span className="product-old-price">{product.oldPrice}</span>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -122,6 +207,20 @@ const CartIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+  </svg>
+)
+
+const SearchIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+)
+
+const XIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 )
 

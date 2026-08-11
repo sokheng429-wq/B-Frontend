@@ -167,7 +167,7 @@ export const Career = () => {
                     </div>
                   </div>
                 </div>
-                <Link to={`/career/${job.id}`} className="career-apply-btn">
+                <Link to="/apply-now" className="career-apply-btn">
                   {TEXTS.apply[lang]}
                   <ChevronIcon />
                 </Link>

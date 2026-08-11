@@ -1,0 +1,620 @@
+/* ===== ADD PROMOTION PAGE ===== */
+.adpro-page {
+  min-height: 100vh;
+  background: #fafbf9;
+}
+
+.adpro-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ===== HERO ===== */
+.adpro-hero {
+  position: relative;
+  padding: 64px 24px 52px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.adpro-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 40%, #f48fb1 100%);
+  z-index: 0;
+}
+
+.adpro-hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 60%, rgba(255,255,255,0.32) 0%, transparent 45%),
+    radial-gradient(circle at 75% 35%, rgba(255,255,255,0.28) 0%, transparent 45%);
+}
+
+.adpro-hero > .adpro-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.adpro-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #880e4f;
+  text-decoration: none;
+  margin-bottom: 16px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(6px);
+  transition: background 0.2s, transform 0.15s;
+}
+
+.adpro-back-link:hover {
+  background: rgba(255,255,255,0.8);
+  transform: translateX(-3px);
+}
+
+.adpro-hero-icon {
+  font-size: 2.6rem;
+  display: block;
+  margin-bottom: 14px;
+  animation: adproBounce 2s ease-in-out infinite;
+}
+
+@keyframes adproBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+.adpro-hero-title {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #880e4f;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+
+.adpro-hero-sub {
+  font-size: 1.05rem;
+  color: #ad1457;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* ===== BODY ===== */
+.adpro-body {
+  padding: 0 24px 80px;
+  margin-top: -28px;
+}
+
+.adpro-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* ===== FORM CARD ===== */
+.adpro-form-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 20px;
+  padding: 34px 36px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.adpro-form-header {
+  margin-bottom: 28px;
+}
+
+.adpro-form-title {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #232F3F;
+  margin: 0 0 6px;
+}
+
+.adpro-form-sub {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0;
+}
+
+/* ===== FORM ===== */
+.adpro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.adpro-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.adpro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adpro-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.adpro-req {
+  font-size: 0.7rem;
+  color: #e53935;
+  font-weight: 500;
+}
+
+.adpro-opt {
+  font-size: 0.7rem;
+  color: #bbb;
+  font-weight: 400;
+}
+
+.adpro-field input,
+.adpro-field select,
+.adpro-field textarea {
+  padding: 11px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.93rem;
+  font-family: inherit;
+  color: #333;
+  background: #fafbfc;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.adpro-field input:focus,
+.adpro-field select:focus,
+.adpro-field textarea:focus {
+  outline: none;
+  border-color: #e91e63;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.adpro-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.adpro-input--err {
+  border-color: #e53935 !important;
+  background: #fff5f5 !important;
+}
+
+.adpro-err {
+  font-size: 0.78rem;
+  color: #e53935;
+  font-weight: 500;
+}
+
+/* ===== COLOR PICKER ===== */
+.adpro-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.adpro-color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.adpro-color-swatch:hover {
+  transform: scale(1.2);
+}
+
+.adpro-color-swatch--active {
+  border-color: #333;
+  transform: scale(1.15);
+}
+
+.adpro-color-picker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  background: none;
+}
+
+.adpro-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.adpro-color-picker::-webkit-color-swatch {
+  border-radius: 50%;
+  border: none;
+}
+
+/* ===== IMAGE DROPZONE / PREVIEW ===== */
+.adpro-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  border: 2px dashed #d0d0d0;
+  border-radius: 12px;
+  background: #fafbfc;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.adpro-dropzone:hover {
+  border-color: #e91e63;
+  background: #fdf2f7;
+}
+
+.adpro-dropzone--over {
+  border-color: #e91e63;
+  background: #fce4ec;
+}
+
+.adpro-file-hidden {
+  display: none;
+}
+
+.adpro-dropzone-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.adpro-photo-preview {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.adpro-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 2px solid #e0e0e0;
+}
+
+.adpro-photo-change {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  padding: 4px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.adpro-photo-change:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+/* ===== SUBMIT ===== */
+.adpro-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 14px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: #e91e63;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.adpro-submit-btn:hover {
+  background: #c2185b;
+  transform: scale(1.02);
+}
+
+.adpro-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.adpro-cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #888;
+  background: #f5f5f5;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.adpro-cancel-btn:hover {
+  background: #eee;
+  color: #555;
+}
+
+/* ===== SIDEBAR LIST ===== */
+.adpro-sidebar {
+  position: sticky;
+  top: 84px;
+}
+
+.adpro-list-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.adpro-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.adpro-list-title {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #232F3F;
+  margin: 0;
+}
+
+.adpro-list-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e91e63;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* ===== EMPTY ===== */
+.adpro-empty {
+  text-align: center;
+  padding: 36px 16px;
+}
+
+.adpro-empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.adpro-empty p {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ===== PROMO CARDS ===== */
+.adpro-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.adpro-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.adpro-card:hover {
+  border-color: rgba(233, 30, 99, 0.2);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.adpro-card-img-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f0f2f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adpro-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adpro-card-placeholder {
+  font-size: 1.4rem;
+}
+
+.adpro-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.adpro-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #232F3F;
+  margin: 0 0 6px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adpro-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.adpro-card-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.adpro-card-code {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #666;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.adpro-card-badge {
+  font-size: 0.72rem;
+  color: #999;
+  margin: 0;
+}
+
+.adpro-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.adpro-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.adpro-edit-btn:hover {
+  color: #1976d2;
+  background: #eef6ff;
+}
+
+.adpro-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.adpro-remove-btn:hover {
+  color: #e53935;
+  background: #fff5f5;
+}
+
+/* ===== VIEW LINK ===== */
+.adpro-view-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e91e63;
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+
+.adpro-view-link:hover {
+  gap: 10px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 800px) {
+  .adpro-layout {
+    grid-template-columns: 1fr;
+  }
+  .adpro-sidebar {
+    position: static;
+  }
+  .adpro-form-card {
+    padding: 24px 18px;
+  }
+  .adpro-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .adpro-hero {
+    padding: 48px 16px 40px;
+  }
+  .adpro-hero-title {
+    font-size: 1.8rem;
+  }
+}
