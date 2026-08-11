@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import './Header.css'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo } from './Logo'
@@ -17,7 +17,15 @@ const NAV_LINKS = [
 
 export const Header = () => {
   const { lang } = useLanguage()
+  const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = (href) => {
+    if (href === '/') return location.pathname === '/'
+    return location.pathname.startsWith(href)
+  }
+
+  const cartCount = 0 // placeholder — wire to real cart state later
 
   const t = {
     login: { en: 'Login', kh: 'ចូលគណនី' },
@@ -36,7 +44,11 @@ export const Header = () => {
         {/* Desktop nav links */}
         <nav className="nav-desktop">
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} to={link.href} className="nav-link">
+            <Link
+              key={link.href}
+              to={link.href}
+              className={`nav-link ${isActive(link.href) ? 'nav-link--active' : ''}`}
+            >
               {link.label[lang]}
             </Link>
           ))}
@@ -46,7 +58,16 @@ export const Header = () => {
         <div className="controls-desktop">
           <LanguageSwitcher />
 
-          <Link to="/login" className="nav-link">
+          <Link
+            to="/cart"
+            className={`nav-cart ${isActive('/cart') ? 'nav-cart--active' : ''}`}
+            aria-label="Shopping cart"
+          >
+            <CartIcon />
+            {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+          </Link>
+
+          <Link to="/login" className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}>
             {t.login[lang]}
           </Link>
 
@@ -73,7 +94,7 @@ export const Header = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="nav-link-mobile"
+                className={`nav-link-mobile ${isActive(link.href) ? 'nav-link-mobile--active' : ''}`}
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label[lang]}
@@ -83,7 +104,20 @@ export const Header = () => {
 
           <div className="controls-mobile">
             <LanguageSwitcher />
-            <Link to="/login" className="nav-link" onClick={() => setMobileOpen(false)}>
+            <Link
+              to="/cart"
+              className={`nav-cart ${isActive('/cart') ? 'nav-cart--active' : ''}`}
+              onClick={() => setMobileOpen(false)}
+              aria-label="Shopping cart"
+            >
+              <CartIcon />
+              {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
+            </Link>
+            <Link
+              to="/login"
+              className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}
+              onClick={() => setMobileOpen(false)}
+            >
               {t.login[lang]}
             </Link>
             <Link to="/register" className="btn-brand btn-brand-mobile" onClick={() => setMobileOpen(false)}>
@@ -108,6 +142,14 @@ const CloseIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+)
+
+const CartIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
   </svg>
 )
 

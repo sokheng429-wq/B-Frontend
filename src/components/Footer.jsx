@@ -9,8 +9,8 @@ const LINK_COLUMNS = [
     links: [
       { label: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' }, href: '/products' },
       { label: { en: 'Promotion', kh: 'ការផ្សព្វផ្សាយ' }, href: '/promotion' },
-      { label: { en: 'New Arrivals', kh: 'មកដល់ថ្មី' }, href: '/new' },
-      { label: { en: 'Categories', kh: 'ប្រភេទ' }, href: '/categories' },
+      { label: { en: 'New Arrivals', kh: 'មកដល់ថ្មី' }, href: '/products' },
+      { label: { en: 'Categories', kh: 'ប្រភេទ' }, href: '/products' },
     ],
   },
   {
@@ -27,7 +27,7 @@ const LINK_COLUMNS = [
     links: [
       { label: { en: 'FAQ', kh: 'សំណួរញឹកញាប់' }, href: '/faq' },
       { label: { en: 'Shipping & Delivery', kh: 'ការដឹកជញ្ជូន' }, href: '/shipping' },
-      { label: { en: 'Returns', kh: 'ការប្រគល់ទំនិញ' }, href: '/returns' },
+      { label: { en: 'Discounts', kh: 'ការបញ្ចុះតម្លៃ' }, href: '/promotion' },
       { label: { en: 'Terms & Privacy', kh: 'លក្ខខណ្ឌ និងឯកជនភាព' }, href: '/terms-privacy' },
     ],
   },
@@ -94,11 +94,11 @@ export const Footer = () => {
               </li>
               <li className="footer-contact-item">
                 <PhoneIcon />
-                <span>+855 12 345 678</span>
+                <span>+855 11 628 818</span>
               </li>
               <li className="footer-contact-item">
                 <MailIcon />
-                <span>hello@bgroceries.com</span>
+                <span>bgroceriescompany@gmail.com</span>
               </li>
             </ul>
           </div>

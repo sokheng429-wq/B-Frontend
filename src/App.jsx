@@ -10,11 +10,14 @@ import Register from './Pages/Register'
 import ForgotPassword from './Pages/Forgotpassword'
 import PopularProducts  from './Pages/Popular Products'
 import Promotion  from './Pages/Promotion'
-import  Career  from './Pages/Career'
+import Career  from './Pages/Career'
 import Member  from './Pages/Member'
 import Contact  from './Pages/Contact'
 import About  from './Pages/AboutUs'
 import TermsPrivacy  from './Pages/Terms&Privacy'
+import FAQ  from './Pages/FAQ'
+import ShippingDelivery  from './Pages/Shipping&Delivery'
+import Cart  from './Pages/Cart'
 
 function App() {
   const location = useLocation()
@@ -25,6 +28,7 @@ function App() {
       <Header />
       <PageTransition key={location.pathname}>
         <Routes location={location}>
+          
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -36,6 +40,10 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms-privacy" element={<TermsPrivacy />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/shipping" element={<ShippingDelivery />} />
+          <Route path="/cart" element={<Cart />} />
+
         </Routes>
       </PageTransition>
       <Footer />

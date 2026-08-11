@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import homeHero from '../assets/Home.png'
 import './Home.css'
 
 const CATEGORIES = [
@@ -14,19 +15,20 @@ const CATEGORIES = [
 
 const PRODUCTS = [
   { name: { en: 'Fresh Strawberries', kh: 'ផ្លែស្ត្របឺរីស្រស់' }, price: '$3.50', oldPrice: null, unit: { en: 'box', kh: 'ប្រអប់' }, tag: 'New', rating: 4.8, image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&h=400&fit=crop' },
-  { name: { en: 'Jasmine Rice 5kg', kh: 'អង្ករផ្កាម្លិះ ៥គក' }, price: '$6.20', oldPrice: '$7.50', unit: { en: 'bag', kh: 'កាបូប' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop' },
-  { name: { en: 'Free-range Eggs (12)', kh: 'ស៊ុតសេរី (១២)' }, price: '$2.80', oldPrice: null, unit: { en: 'pack', kh: 'កញ្ចប់' }, tag: 'Popular', rating: 4.9, image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&h=400&fit=crop' },
-  { name: { en: 'Cold-pressed Orange Juice', kh: 'ទឹកក្រូចច្របាច់ស្រស់' }, price: '$4.10', oldPrice: '$4.90', unit: { en: 'bottle', kh: 'ដប' }, tag: null, rating: 4.5, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=400&fit=crop' },
-  { name: { en: 'Grilled Chicken Breast', kh: 'សុដន់មាន់អាំង' }, price: '$5.90', oldPrice: null, unit: { en: 'kg', kh: 'គក' }, tag: 'Popular', rating: 4.7, image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&h=400&fit=crop' },
-  { name: { en: 'Sourdough Loaf', kh: 'នំប៉័ងសូរដូ' }, price: '$3.20', oldPrice: null, unit: { en: 'loaf', kh: 'ដុំ' }, tag: 'New', rating: 4.4, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop' },
-  { name: { en: 'Cherry Tomatoes', kh: 'ប៉េងប៉ោះ cherry' }, price: '$1.90', oldPrice: '$2.40', unit: { en: 'box', kh: 'ប្រអប់' }, tag: null, rating: 4.3, image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=400&h=400&fit=crop' },
-  { name: { en: 'Greek Yogurt', kh: 'យ៉ាអួក្រិក' }, price: '$2.50', oldPrice: null, unit: { en: 'tub', kh: 'ពែង' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=400&fit=crop' },
+  { name: { en: 'Jasmine Rice 5kg', kh: 'អង្ករផ្កាម្លិះ ៥គក' }, price: '$6.20', oldPrice: '$7.50', unit: { en: 'bag', kh: 'កាបូប' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400&h=400&fit=crop' },
+  { name: { en: 'Free-range Eggs (12)', kh: 'ស៊ុតសេរី (១២)' }, price: '$2.80', oldPrice: null, unit: { en: 'pack', kh: 'កញ្ចប់' }, tag: 'Popular', rating: 4.9, image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&h=400&fit=crop' },
+  { name: { en: 'Cold-pressed Orange Juice', kh: 'ទឹកក្រូចច្របាច់ស្រស់' }, price: '$4.10', oldPrice: '$4.90', unit: { en: 'bottle', kh: 'ដប' }, tag: null, rating: 4.5, image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=400&fit=crop' },
+  { name: { en: 'Grilled Chicken Breast', kh: 'សុដន់មាន់អាំង' }, price: '$5.90', oldPrice: null, unit: { en: 'kg', kh: 'គក' }, tag: 'Popular', rating: 4.7, image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=400&fit=crop' },
+  { name: { en: 'Sourdough Loaf', kh: 'នំប៉័ងសូរដូ' }, price: '$3.20', oldPrice: null, unit: { en: 'loaf', kh: 'ដុំ' }, tag: 'New', rating: 4.4, image: 'https://images.unsplash.com/photo-1549931319-a545769f3e9c?w=400&h=400&fit=crop' },
+  { name: { en: 'Cherry Tomatoes', kh: 'ប៉េងប៉ោះ cherry' }, price: '$1.90', oldPrice: '$2.40', unit: { en: 'box', kh: 'ប្រអប់' }, tag: null, rating: 4.3, image: 'https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?w=400&h=400&fit=crop' },
+  { name: { en: 'Greek Yogurt', kh: 'យ៉ាអួក្រិក' }, price: '$2.50', oldPrice: null, unit: { en: 'tub', kh: 'ពែង' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1571212513979-0c1e2c4e8b4a?w=400&h=400&fit=crop' },
 ]
 
 const FEATURES = [
-  { icon: '🚀', title: { en: 'Delivery in 45 min', kh: 'ដឹកជញ្ជូនក្នុង ៤៥នាទី' }, desc: { en: 'Order before 8pm, get it same day across Phnom Penh.', kh: 'បញ្ជាទិញមុនម៉ោង ៨យប់ ទទួលបានក្នុងថ្ងៃតែមួយទូទាំងភ្នំពេញ។' } },
-  { icon: '✨', title: { en: 'Freshness Guaranteed', kh: 'ធានាភាពស្រស់' }, desc: { en: "Not happy? We'll replace or refund — no questions asked.", kh: 'មិនពេញចិត្ត? យើងនឹងជំនួស ឬបង្វិលប្រាក់ — គ្មានសំណួរ។' } },
-  { icon: '🔄', title: { en: 'Easy Returns', kh: 'ការប្រគល់ទំនិញងាយស្រួល' }, desc: { en: 'Simple in-app returns on damaged or wrong items.', kh: 'ការប្រគល់ទំនិញងាយស្រួលក្នុងកម្មវិធី លើទំនិញខូច ឬខុស។' } },
+  { image: 'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=400&h=300&fit=crop', title: { en: 'Delivery in 45 min', kh: 'ដឹកជញ្ជូនក្នុង ៤៥នាទី' }, desc: { en: 'From our hub to your doorstep in under an hour — 10,000+ orders daily across Phnom Penh.', kh: 'ពីឃ្លាំងរបស់យើងដល់មាត់ទ្វារអ្នកក្នុងរយៈពេលក្រោមមួយម៉ោង — ការបញ្ជាទិញជាង ១០,០០០ ក្នុងមួយថ្ងៃទូទាំងភ្នំពេញ។' }, stat: { en: '10K+', kh: 'ជាង ១០,០០០' }, statLabel: { en: 'Deliveries daily', kh: 'ការដឹកជញ្ជូន/ថ្ងៃ' } },
+  { image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', title: { en: '100% Freshness Guaranteed', kh: 'ធានាភាពស្រស់ ១០០%' }, desc: { en: "Our team hand-picks every item. If anything arrives less than perfect, it's free — no questions asked.", kh: 'ក្រុមការងារយើងជ្រើសរើសទំនិញនីមួយៗដោយដៃ។ ប្រសិនបើអ្វីមួយមិនល្អឥតខ្ចោះ វាឥតគិតថ្លៃ — គ្មានសំណួរ។' }, stat: { en: '99%', kh: '៩៩%' }, statLabel: { en: 'Satisfaction rate', kh: 'អត្រាពេញចិត្ត' } },
+  { image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop', title: { en: 'Locally Sourced', kh: 'ពីកសិដ្ឋានក្នុងស្រុក' }, desc: { en: 'We partner with 200+ Cambodian farms and producers — fresher food, stronger communities.', kh: 'យើងសហការជាមួយកសិដ្ឋាននិងអ្នកផលិតកម្ពុជាជាង ២០០ — អាហារស្រស់ជាង សហគមន៍រឹងមាំជាង។' }, stat: { en: '200+', kh: 'ជាង ២០០' }, statLabel: { en: 'Local partners', kh: 'ដៃគូក្នុងស្រុក' } },
+  { image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop', title: { en: 'Pay Your Way', kh: 'បង់តាមវិធីរបស់អ្នក' }, desc: { en: 'ABA Pay, Wing, TrueMoney, Visa, Mastercard, or cash on delivery — whatever works for you.', kh: 'ABA Pay, Wing, TrueMoney, Visa, Mastercard ឬសាច់ប្រាក់ — អ្វីដែលងាយស្រួលសម្រាប់អ្នក។' }, stat: { en: '7+', kh: 'ជាង ៧' }, statLabel: { en: 'Payment options', kh: 'ជម្រើសទូទាត់' } },
 ]
 
 const TEXTS = {
@@ -47,10 +49,14 @@ const TEXTS = {
   promoSub1: { en: 'Use code ', kh: 'ប្រើកូដ ' },
   promoSub2: { en: ' at checkout. Valid on orders over $15.', kh: ' នៅពេលទូទាត់។ មានសុពលភាពលើការបញ្ជាទិញលើស ១៥ ដុល្លារ។' },
   grabDeal: { en: 'Grab the Deal', kh: 'ទទួលការផ្តល់ជូន' },
-  becomeMember: { en: 'Become a Member', kh: 'ក្លាយជាសមាជិក' },
-  memberSub: { en: 'Free delivery, member-only prices, and early access to promotions.', kh: 'ដឹកជញ្ជូនឥតគិតថ្លៃ តម្លៃសម្រាប់សមាជិក និងចូលប្រើការផ្សព្វផ្សាយមុនគេ។' },
-  joinFree: { en: 'Join for Free', kh: 'ចូលរួមដោយឥតគិតថ្លៃ' },
+  becomeMember: { en: 'Join Our Team', kh: 'ចូលរួមជាមួយក្រុមការងារយើង' },
+  memberSub: { en: 'Grow your career with us — competitive pay, benefits, and a great work environment.', kh: 'រីកចម្រើនអាជីពជាមួយយើង — ប្រាក់ខែប្រកួតប្រជែង អត្ថប្រយោជន៍ និងបរិយាកាសការងារល្អ។' },
+  joinFree: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវនេះ' },
   whyChooseUs: { en: 'Why Choose Us', kh: 'ហេតុអ្វីជ្រើសរើសយើង' },
+  whyChooseEyebrow: { en: "Why B'Groceries?", kh: 'ហេតុអ្វី B\'Groceries?' },
+  statOrders: { en: 'Orders/day', kh: 'ការបញ្ជា/ថ្ងៃ' },
+  statDelivery: { en: 'Avg delivery', kh: 'ជាមធ្យម' },
+  statSatisfaction: { en: 'Satisfaction', kh: 'ការពេញចិត្ត' },
 }
 
 const TAG_LABELS = {
@@ -89,15 +95,13 @@ export const Home = () => {
               <Link to="/promotion" className="home-btn-outline">{TEXTS.viewPromos[lang]}</Link>
             </div>
             <div className="home-hero-stats">
-              <div className="home-hero-stat"><strong>10K+</strong><span>{lang === 'en' ? 'Orders/day' : 'ការបញ្ជា/ថ្ងៃ'}</span></div>
-              <div className="home-hero-stat"><strong>45min</strong><span>{lang === 'en' ? 'Avg delivery' : 'ជាមធ្យម'}</span></div>
-              <div className="home-hero-stat"><strong>99%</strong><span>{lang === 'en' ? 'Satisfaction' : 'ការពេញចិត្ត'}</span></div>
+              <div className="home-hero-stat"><strong>10K+</strong><span>{TEXTS.statOrders[lang]}</span></div>
+              <div className="home-hero-stat"><strong>45min</strong><span>{TEXTS.statDelivery[lang]}</span></div>
+              <div className="home-hero-stat"><strong>99%</strong><span>{TEXTS.statSatisfaction[lang]}</span></div>
             </div>
           </div>
           <div className="home-hero-visual">
-            <div className="home-hero-img-wrap">
-              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=700&h=500&fit=crop" alt="Fresh groceries" className="home-hero-img" />
-            </div>
+            <img src={homeHero} alt="Fresh groceries" className="home-hero-img" />
             <div className="home-hero-float home-hero-float--1">🥑</div>
             <div className="home-hero-float home-hero-float--2">🍎</div>
             <div className="home-hero-float home-hero-float--3">🥖</div>
@@ -194,20 +198,31 @@ export const Home = () => {
       {/* ===== FEATURES ===== */}
       <section className="home-features">
         <div className="home-inner">
-          <h2 className="home-section-title home-section-title--center">{TEXTS.whyChooseUs[lang]}</h2>
+          <div className="home-section-header home-section-header--center">
+            <div>
+              <span className="home-section-eyebrow">{TEXTS.whyChooseEyebrow[lang]}</span>
+              <h2 className="home-section-title">{TEXTS.whyChooseUs[lang]}</h2>
+            </div>
+          </div>
           <div className="home-feat-grid">
             {FEATURES.map((f) => (
               <div key={f.title.en} className="home-feat-card">
-                <div className="home-feat-icon">{f.icon}</div>
+                <div className="home-feat-img-wrap">
+                  <img src={f.image} alt={f.title[lang]} className="home-feat-img" loading="lazy" />
+                </div>
                 <h3 className="home-feat-title">{f.title[lang]}</h3>
                 <p className="home-feat-desc">{f.desc[lang]}</p>
+                <div className="home-feat-stat">
+                  <span className="home-feat-stat-num">{f.stat[lang]}</span>
+                  <span className="home-feat-stat-label">{f.statLabel[lang]}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== MEMBER CTA ===== */}
+      {/* ===== CAREER CTA ===== */}
       <section className="home-member-section">
         <div className="home-inner">
           <div className="home-member-wrap">
@@ -215,13 +230,13 @@ export const Home = () => {
               <h2 className="home-member-title">{TEXTS.becomeMember[lang]}</h2>
               <p className="home-member-text">{TEXTS.memberSub[lang]}</p>
               <div className="home-member-perks">
-                <span>🚚 Free Delivery</span>
-                <span>💰 Member Prices</span>
-                <span>⚡ Early Access</span>
-                <span>🎂 Birthday Gift</span>
+                <span>💼 Competitive Salary</span>
+                <span>📈 Career Growth</span>
+                <span>🏥 Health Benefits</span>
+                <span>🎓 Training Programs</span>
               </div>
             </div>
-            <Link to="/member" className="home-btn-primary home-join-btn">{TEXTS.joinFree[lang]}</Link>
+            <Link to="/career" className="home-btn-primary home-join-btn">{TEXTS.joinFree[lang]}</Link>
           </div>
         </div>
       </section>

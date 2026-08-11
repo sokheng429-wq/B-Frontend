@@ -1,0 +1,398 @@
+/* ===== SHIPPING PAGE ===== */
+.shipping-page {
+  min-height: 100vh;
+  background: #fafbfc;
+}
+
+.shipping-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ===== HERO ===== */
+.shipping-hero {
+  position: relative;
+  padding: 80px 20px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.shipping-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+  z-index: 0;
+}
+
+.shipping-hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.35) 0%, transparent 45%);
+}
+
+.shipping-hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.shipping-hero-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+  animation: shipBounce 2.2s ease-in-out infinite;
+}
+
+@keyframes shipBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.08); }
+}
+
+.shipping-hero-title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #1b5e20;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.shipping-hero-sub {
+  font-size: 1.1rem;
+  color: #2e7d32;
+  margin: 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ===== DELIVERY TIERS ===== */
+.shipping-tiers {
+  padding: 0 20px;
+  margin-top: -32px;
+}
+
+.shipping-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.shipping-tier-card {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 24px 28px;
+  text-align: center;
+  border: 2px solid #e8e8e8;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+
+.shipping-tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+}
+
+.shipping-tier-card--featured {
+  border-color: #4caf50;
+  box-shadow: 0 8px 32px rgba(27, 94, 32, 0.12);
+  transform: scale(1.03);
+}
+
+.shipping-tier-card--featured:hover {
+  transform: scale(1.03) translateY(-4px);
+  box-shadow: 0 16px 42px rgba(27, 94, 32, 0.16);
+}
+
+.shipping-tier-tag {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1b5e20;
+  color: #fff;
+  padding: 4px 18px;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.shipping-tier-icon {
+  font-size: 2.6rem;
+  margin-bottom: 12px;
+}
+
+.shipping-tier-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 6px;
+}
+
+.shipping-tier-time {
+  font-size: 0.92rem;
+  color: #666;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+
+.shipping-tier-cost {
+  display: inline-block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #2e7d32;
+  background: #e8f5e9;
+  padding: 8px 20px;
+  border-radius: 50px;
+}
+
+.shipping-tier-card--featured .shipping-tier-cost {
+  background: #1b5e20;
+  color: #fff;
+}
+
+/* ===== SECTION HEADERS ===== */
+.shipping-section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.shipping-section-eyebrow {
+  font-size: 1.6rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.shipping-section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1b5e20;
+  margin: 0 0 8px;
+}
+
+.shipping-section-sub {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ===== HOW IT WORKS ===== */
+.shipping-how {
+  padding: 80px 20px;
+}
+
+.shipping-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+.shipping-step {
+  text-align: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.shipping-step-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1b5e20;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.shipping-step-icon {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.shipping-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 8px;
+}
+
+.shipping-step-text {
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.shipping-step-line {
+  display: none;
+}
+
+/* ===== FRESHNESS PROMISE ===== */
+.shipping-freshness {
+  padding: 0 20px 60px;
+}
+
+.shipping-freshness-card {
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border-radius: 20px;
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.shipping-freshness-icon {
+  font-size: 3.5rem;
+  flex-shrink: 0;
+  animation: shipBounce 2.2s ease-in-out infinite;
+}
+
+.shipping-freshness-copy h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1b5e20;
+  margin: 0 0 8px;
+}
+
+.shipping-freshness-copy p {
+  margin: 0;
+  color: #2e7d32;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ===== DELIVERY ZONES ===== */
+.shipping-zones {
+  padding: 0 20px 80px;
+}
+
+.shipping-zone-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shipping-zone-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 28px;
+  border: 1px solid #e8e8e8;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.shipping-zone-card:hover {
+  border-color: #c8e6c9;
+  box-shadow: 0 4px 20px rgba(27, 94, 32, 0.06);
+}
+
+.shipping-zone-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  min-width: 240px;
+}
+
+.shipping-zone-area {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.shipping-zone-time {
+  display: inline-block;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 50px;
+  white-space: nowrap;
+}
+
+.shipping-zone-districts {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #777;
+  line-height: 1.4;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .shipping-tier-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shipping-tier-card--featured {
+    transform: none;
+  }
+
+  .shipping-tier-card--featured:hover {
+    transform: translateY(-4px);
+  }
+
+  .shipping-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .shipping-step {
+    padding: 0 0 32px;
+  }
+
+  .shipping-step:last-child {
+    padding-bottom: 0;
+  }
+
+  .shipping-freshness-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 24px;
+  }
+
+  .shipping-zone-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 18px 20px;
+  }
+
+  .shipping-zone-meta {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .shipping-hero {
+    padding: 56px 16px 44px;
+  }
+
+  .shipping-hero-title {
+    font-size: 1.8rem;
+  }
+
+  .shipping-section-title {
+    font-size: 1.6rem;
+  }
+
+  .shipping-how,
+  .shipping-zones {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .shipping-zone-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}

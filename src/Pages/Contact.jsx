@@ -5,8 +5,8 @@ import './Contact.css'
 
 const INFO = [
   { icon: '📍', label: { en: 'Our Address', kh: 'អាសយដ្ឋាន' }, value: { en: 'Street 271, Sangkat Toul Tompoung, Phnom Penh', kh: 'ផ្លូវ២៧១, សង្កាត់ទួលទំពូង, ភ្នំពេញ' }, bg: '#f0f7e8' },
-  { icon: '📞', label: { en: 'Phone', kh: 'ទូរស័ព្ទ' }, value: { en: '+855 12 345 678', kh: '+៨៥៥ ១២ ៣៤៥ ៦៧៨' }, bg: '#fff8ed' },
-  { icon: '✉️', label: { en: 'Email', kh: 'អ៊ីមែល' }, value: { en: 'hello@bgroceries.com', kh: 'hello@bgroceries.com' }, bg: '#f0f2f4' },
+  { icon: '📞', label: { en: 'Phone', kh: 'ទូរស័ព្ទ' }, value: { en: '+855 11 628 818', kh: '+855 11 628 818' }, bg: '#fff8ed' },
+  { icon: '✉️', label: { en: 'Email', kh: 'អ៊ីមែល' }, value: { en: 'bgroceriescompany@gmail.com', kh: 'bgroceriescompany@gmail.com' }, bg: '#f0f2f4' },
   { icon: '🕐', label: { en: 'Business Hours', kh: 'ម៉ោងធ្វើការ' }, value: { en: 'Mon–Sat 8AM–9PM · Sun 9AM–6PM', kh: 'ច័ន្ទ-សៅរ៍ ៨ព្រឹក-៩យប់ · អាទិត្យ ៩ព្រឹក-៦ល្ងាច' }, bg: '#eef6ff' },
 ]
 

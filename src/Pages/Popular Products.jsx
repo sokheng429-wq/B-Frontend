@@ -23,7 +23,7 @@ const PRODUCTS = [
   { id: 17, name: { en: 'Cola Can 12-Pack', kh: 'កូឡាកំប៉ុង ១២កំប៉ុង' }, price: '$7.50', oldPrice: '$9.00', rating: 4.9, sold: '4.1k', badge: { en: 'Best Value', kh: 'តម្លៃពិសេស' }, image: 'https://images.unsplash.com/photo-1558645836-e44122a743ee?w=400&h=400&fit=crop' },
   { id: 18, name: { en: 'Cola Bottle 1.5L', kh: 'កូឡាដប ១.៥លីត្រ' }, price: '$1.80', rating: 4.6, sold: '2.7k', badge: null, image: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=400&h=400&fit=crop' },
   { id: 19, name: { en: 'Soda Water 330ml', kh: 'ទឹកសូដា ៣៣០ម.ល' }, price: '$0.65', rating: 4.1, sold: '550', badge: null, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=400&fit=crop' },
-  { id: 20, name: { en: 'Sports Drink 500ml', kh: 'ភេសជ្ជៈកីឡា ៥០០ម.ល' }, price: '$1.30', rating: 4.7, sold: '2.9k', badge: { en: 'Hot Deal', kh: 'កាន់តែពេញនិយម' }, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=400&fit=crop' },
+  { id: 20, name: { en: 'Sports Drink 500ml', kh: 'ភេសជ្ជៈកីឡា ៥០០ម.ល' }, price: '$1.30', rating: 4.7, sold: '2.9k', badge: { en: 'Hot Deal', kh: 'ការផ្តល់ជូនពិសេស' }, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=400&fit=crop' },
 ]
 
 const TEXTS = {

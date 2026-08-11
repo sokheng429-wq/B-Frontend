@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import careerHero from '../assets/Career.png'
 import './Career.css'
 
 const DEPARTMENTS = [
@@ -44,14 +45,16 @@ const STATS = [
 ]
 
 const TEXTS = {
+  heroEyebrow: { en: "B'Groceries Careers", kh: "B'Groceries ការងារ" },
   title: { en: 'Join Our Team', kh: 'ចូលរួមជាមួយក្រុមការងារយើង' },
-  subtitle: { en: 'Build your career with Cambodia\'s fastest-growing grocery delivery service', kh: 'កសាងអាជីពរបស់អ្នកជាមួយសេវាកម្មដឹកជញ្ជូនគ្រឿងទេសដែលរីកចម្រើនលឿនបំផុតនៅកម្ពុជា' },
+  subtitle: { en: "Build your career with Cambodia's fastest-growing grocery delivery service", kh: 'កសាងអាជីពរបស់អ្នកជាមួយសេវាកម្មដឹកជញ្ជូនគ្រឿងទេសដែលរីកចម្រើនលឿនបំផុតនៅកម្ពុជា' },
+  benefitsEyebrow: { en: 'Perks & Benefits', kh: 'អត្ថប្រយោជន៍' },
   benefits: { en: 'Why Work With Us', kh: 'ហេតុអ្វីត្រូវធ្វើការជាមួយយើង' },
+  benefitsSub: { en: 'We take care of our people — because great service starts with a great team.', kh: 'យើងថែរក្សាបុគ្គលិករបស់យើង — ព្រោះសេវាកម្មដ៏អស្ចារ្យចាប់ផ្តើមពីក្រុមការងារដ៏អស្ចារ្យ។' },
   apply: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវនេះ' },
   viewAll: { en: 'View All Positions', kh: 'មើលមុខតំណែងទាំងអស់' },
-  filters: { en: 'Filter by department', kh: 'តម្រងតាមផ្នែក' },
   urgent: { en: 'Urgent', kh: 'បន្ទាន់' },
-  salary: { en: 'Salary', kh: 'ប្រាក់ខែ' },
+  noResults: { en: 'No open positions in this department right now — check back soon!', kh: 'មិនមានមុខតំណែងបើកក្នុងផ្នែកនេះទេឥឡូវ — សូមពិនិត្យម្តងទៀតនាពេលឆាប់ៗ!' },
 }
 
 export const Career = () => {
@@ -69,38 +72,59 @@ export const Career = () => {
         <div className="career-hero-bg" />
         <div className="career-hero-inner">
           <div className="career-hero-copy">
-            <span className="career-hero-eyebrow">B'Groceries Careers</span>
+            <span className="career-hero-eyebrow">{TEXTS.heroEyebrow[lang]}</span>
             <h1 className="career-hero-title">{TEXTS.title[lang]}</h1>
             <p className="career-hero-subtitle">{TEXTS.subtitle[lang]}</p>
           </div>
-          <div className="career-hero-stats">
-            {STATS.map((stat) => (
-              <div key={stat.value} className="career-stat">
-                <span className="career-stat-value">{stat.value}</span>
-                <span className="career-stat-label">{stat[lang]}</span>
+          <div className="career-hero-visual">
+            <img
+              src={careerHero}
+              alt="B'Groceries team"
+              className="career-hero-img"
+            />
+          </div>
+        </div>
+        <div className="career-hero-stats">
+          {STATS.map((stat) => (
+            <div key={stat.value} className="career-stat">
+              <span className="career-stat-value">{stat.value}</span>
+              <span className="career-stat-label">{stat[lang]}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="career-benefits">
+        <div className="career-inner">
+          <div className="career-section-header">
+            <span className="career-section-eyebrow">{TEXTS.benefitsEyebrow[lang]}</span>
+            <h2 className="career-section-title">{TEXTS.benefits[lang]}</h2>
+            <p className="career-section-sub">{TEXTS.benefitsSub[lang]}</p>
+          </div>
+          <div className="benefits-grid">
+            {BENEFITS.map((b) => (
+              <div key={b.en} className="benefit-card">
+                <div className="benefit-icon-wrap">
+                  <span className="benefit-icon">{b.icon}</span>
+                </div>
+                <span className="benefit-label">{b[lang]}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="career-benefits">
-        <h2 className="career-section-title">{TEXTS.benefits[lang]}</h2>
-        <div className="benefits-grid">
-          {BENEFITS.map((b) => (
-            <div key={b.en} className="benefit-card">
-              <span className="benefit-icon">{b.icon}</span>
-              <span className="benefit-label">{b[lang]}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Jobs */}
       <section className="career-jobs">
-        <div className="career-jobs-header">
-          <h2 className="career-section-title">Open Positions</h2>
+        <div className="career-inner">
+          <div className="career-jobs-header">
+            <div>
+              <span className="career-section-eyebrow">{lang === 'en' ? `${filteredJobs.length} Openings` : `${filteredJobs.length} មុខតំណែង`}</span>
+              <h2 className="career-section-title">{lang === 'en' ? 'Open Positions' : 'មុខតំណែងដែលកំពុងទទួល'}</h2>
+            </div>
+          </div>
+
           <div className="career-filters">
             {DEPARTMENTS.map((dept) => (
               <button
@@ -112,51 +136,52 @@ export const Career = () => {
               </button>
             ))}
           </div>
-        </div>
 
-        <div className="career-list">
-          {filteredJobs.map((job) => (
-            <div key={job.id} className="career-card">
-              <div className="career-card-left">
-                <div className="career-card-icon">
-                  <JobIcon />
-                </div>
-                <div className="career-card-info">
-                  <div className="career-card-header">
-                    <h3 className="career-card-title">{job.title[lang]}</h3>
-                    {job.urgent && (
-                      <span className="career-urgent-tag">{TEXTS.urgent[lang]}</span>
-                    )}
+          <div className="career-list">
+            {filteredJobs.map((job) => (
+              <div key={job.id} className="career-card">
+                <div className="career-card-left">
+                  <div className="career-card-icon">
+                    <JobIcon />
                   </div>
-                  <div className="career-card-meta">
-                    <span className="career-meta-item">
-                      <PinIcon /> {job.location[lang]}
-                    </span>
-                    <span className="career-meta-item">
-                      <ClockIcon /> {job.type}
-                    </span>
-                    <span className="career-meta-item">
-                      <DollarIcon /> {job.salary[lang]}
-                    </span>
-                    <span className="career-meta-item career-meta-posted">
-                      {job.posted}
-                    </span>
+                  <div className="career-card-info">
+                    <div className="career-card-header">
+                      <h3 className="career-card-title">{job.title[lang]}</h3>
+                      {job.urgent && (
+                        <span className="career-urgent-tag">{TEXTS.urgent[lang]}</span>
+                      )}
+                    </div>
+                    <div className="career-card-meta">
+                      <span className="career-meta-item">
+                        <PinIcon /> {job.location[lang]}
+                      </span>
+                      <span className="career-meta-item">
+                        <ClockIcon /> {job.type}
+                      </span>
+                      <span className="career-meta-item">
+                        <DollarIcon /> {job.salary[lang]}
+                      </span>
+                      <span className="career-meta-item career-meta-posted">
+                        {job.posted}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <Link to={`/career/${job.id}`} className="career-apply-btn">
+                  {TEXTS.apply[lang]}
+                  <ChevronIcon />
+                </Link>
               </div>
-              <Link to={`/career/${job.id}`} className="career-apply-btn">
-                {TEXTS.apply[lang]}
-                <ChevronIcon />
-              </Link>
-            </div>
-          ))}
-        </div>
-
-        {filteredJobs.length === 0 && (
-          <div className="career-empty">
-            <p>No positions found in this department. Check back soon!</p>
+            ))}
           </div>
-        )}
+
+          {filteredJobs.length === 0 && (
+            <div className="career-empty">
+              <span className="career-empty-icon">📭</span>
+              <p>{TEXTS.noResults[lang]}</p>
+            </div>
+          )}
+        </div>
       </section>
     </div>
   )
