@@ -1,7 +1,7 @@
 /* ===== ADD PROMOTION PAGE ===== */
 .adpro-page {
   min-height: 100vh;
-  background: #fafbf9;
+  background: #0B0F14;
 }
 
 .adpro-inner {
@@ -21,7 +21,7 @@
 .adpro-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 40%, #f48fb1 100%);
+  background: linear-gradient(135deg, #2a1a22 0%, #f8bbd0 40%, #f48fb1 100%);
   z-index: 0;
 }
 
@@ -73,7 +73,7 @@
 }
 
 .adpro-hero-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
   color: #880e4f;
@@ -103,7 +103,7 @@
 
 /* ===== FORM CARD ===== */
 .adpro-form-card {
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.06);
   border-radius: 20px;
   padding: 34px 36px;
@@ -115,16 +115,16 @@
 }
 
 .adpro-form-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
   margin: 0 0 6px;
 }
 
 .adpro-form-sub {
   font-size: 0.9rem;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   margin: 0;
 }
 
@@ -150,7 +150,7 @@
 .adpro-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #333;
+  color: rgba(255,255,255,0.85);
 }
 
 .adpro-req {
@@ -161,7 +161,7 @@
 
 .adpro-opt {
   font-size: 0.7rem;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   font-weight: 400;
 }
 
@@ -169,12 +169,12 @@
 .adpro-field select,
 .adpro-field textarea {
   padding: 11px 14px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   font-size: 0.93rem;
   font-family: inherit;
-  color: #333;
-  background: #fafbfc;
+  color: rgba(255,255,255,0.85);
+  background: #1a2635;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
@@ -183,7 +183,7 @@
 .adpro-field textarea:focus {
   outline: none;
   border-color: #e91e63;
-  background: #fff;
+  background: #232F3F;
   box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
 }
 
@@ -194,7 +194,7 @@
 
 .adpro-input--err {
   border-color: #e53935 !important;
-  background: #fff5f5 !important;
+  background: #2a1515 !important;
 }
 
 .adpro-err {
@@ -227,7 +227,7 @@
 }
 
 .adpro-color-swatch--active {
-  border-color: #333;
+  border-color: rgba(255,255,255,0.85);
   transform: scale(1.15);
 }
 
@@ -259,19 +259,19 @@
   padding: 28px 20px;
   border: 2px dashed #d0d0d0;
   border-radius: 12px;
-  background: #fafbfc;
+  background: #1a2635;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .adpro-dropzone:hover {
   border-color: #e91e63;
-  background: #fdf2f7;
+  background: #2a1a25;
 }
 
 .adpro-dropzone--over {
   border-color: #e91e63;
-  background: #fce4ec;
+  background: #2a1a22;
 }
 
 .adpro-file-hidden {
@@ -283,7 +283,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #999;
+  color: rgba(255,255,255,0.4);
 }
 
 .adpro-photo-preview {
@@ -299,7 +299,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #1a2635;
 }
 
 .adpro-photo-change {
@@ -359,17 +359,17 @@
   padding: 12px 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #888;
-  background: #f5f5f5;
-  border: 1.5px solid #e0e0e0;
+  color: rgba(255,255,255,0.45);
+  background: #1a2635;
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .adpro-cancel-btn:hover {
-  background: #eee;
-  color: #555;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.65);
 }
 
 /* ===== SIDEBAR LIST ===== */
@@ -379,7 +379,7 @@
 }
 
 .adpro-list-card {
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.06);
   border-radius: 18px;
   padding: 24px;
@@ -394,10 +394,10 @@
 }
 
 .adpro-list-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
   margin: 0;
 }
 
@@ -450,7 +450,7 @@
   padding: 12px;
   border-radius: 14px;
   border: 1px solid rgba(0,0,0,0.06);
-  background: #fafbfc;
+  background: #1a2635;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -465,7 +465,7 @@
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #f0f2f4;
+  background: #1a2635;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -489,7 +489,7 @@
 .adpro-card-title {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
   margin: 0 0 6px;
   line-height: 1.3;
   white-space: nowrap;
@@ -516,8 +516,8 @@
 .adpro-card-code {
   font-size: 0.68rem;
   font-weight: 600;
-  color: #666;
-  background: #f0f0f0;
+  color: rgba(255,255,255,0.55);
+  background: #1a2635;
   padding: 2px 8px;
   border-radius: 4px;
   font-family: monospace;
@@ -526,7 +526,7 @@
 
 .adpro-card-badge {
   font-size: 0.72rem;
-  color: #999;
+  color: rgba(255,255,255,0.4);
   margin: 0;
 }
 
@@ -546,7 +546,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -554,7 +554,7 @@
 
 .adpro-edit-btn:hover {
   color: #1976d2;
-  background: #eef6ff;
+  background: #1a2530;
 }
 
 .adpro-remove-btn {
@@ -566,7 +566,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -574,7 +574,7 @@
 
 .adpro-remove-btn:hover {
   color: #e53935;
-  background: #fff5f5;
+  background: #2a1515;
 }
 
 /* ===== VIEW LINK ===== */

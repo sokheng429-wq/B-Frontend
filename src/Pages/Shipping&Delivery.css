@@ -1,7 +1,7 @@
 /* ===== SHIPPING PAGE ===== */
 .shipping-page {
   min-height: 100vh;
-  background: #fafbfc;
+  background: #1a2635;
 }
 
 .shipping-inner {
@@ -20,7 +20,7 @@
 .shipping-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
   z-index: 0;
 }
 
@@ -80,7 +80,7 @@
 
 .shipping-tier-card {
   position: relative;
-  background: #fff;
+  background: #232F3F;
   border-radius: 16px;
   padding: 32px 24px 28px;
   text-align: center;
@@ -133,7 +133,7 @@
 
 .shipping-tier-time {
   font-size: 0.92rem;
-  color: #666;
+  color: rgba(255,255,255,0.55);
   margin: 0 0 16px;
   line-height: 1.4;
 }
@@ -143,7 +143,7 @@
   font-size: 1.25rem;
   font-weight: 800;
   color: #2e7d32;
-  background: #e8f5e9;
+  background: #1a2a1a;
   padding: 8px 20px;
   border-radius: 50px;
 }
@@ -174,7 +174,7 @@
 
 .shipping-section-sub {
   font-size: 1rem;
-  color: #666;
+  color: rgba(255,255,255,0.55);
   margin: 0;
 }
 
@@ -224,7 +224,7 @@
 
 .shipping-step-text {
   font-size: 0.88rem;
-  color: #666;
+  color: rgba(255,255,255,0.55);
   line-height: 1.6;
   margin: 0;
 }
@@ -239,7 +239,7 @@
 }
 
 .shipping-freshness-card {
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  background: linear-gradient(135deg, #1a2a1a, #c8e6c9);
   border-radius: 20px;
   padding: 36px 40px;
   display: flex;
@@ -279,7 +279,7 @@
 }
 
 .shipping-zone-card {
-  background: #fff;
+  background: #232F3F;
   border-radius: 14px;
   padding: 22px 28px;
   border: 1px solid #e8e8e8;
@@ -311,7 +311,7 @@
 
 .shipping-zone-time {
   display: inline-block;
-  background: #e8f5e9;
+  background: #1a2a1a;
   color: #2e7d32;
   font-size: 0.82rem;
   font-weight: 700;
@@ -323,7 +323,7 @@
 .shipping-zone-districts {
   margin: 0;
   font-size: 0.9rem;
-  color: #777;
+  color: rgba(255,255,255,0.5);
   line-height: 1.4;
 }
 

@@ -60,7 +60,7 @@
 
 .tp-hero-subtitle {
   font-size: 16px;
-  color: #666;
+  color: rgba(255,255,255,0.55);
   max-width: 480px;
   margin: 0 auto;
   line-height: 1.6;
@@ -76,7 +76,7 @@
 
 .tp-tabs {
   display: flex;
-  background: #f2f2f5;
+  background: #1a1a20;
   border-radius: 14px;
   padding: 5px;
   gap: 4px;
@@ -90,18 +90,18 @@
   padding: 12px 28px;
   font-size: 14px;
   font-weight: 600;
-  color: #777;
+  color: rgba(255,255,255,0.5);
   border-radius: 11px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
 .tp-tab:hover {
-  color: #444;
+  color: rgba(255,255,255,0.7);
 }
 
 .tp-tab.active {
-  background: #fff;
+  background: #232F3F;
   color: var(--brand-color, #e63946);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
@@ -131,7 +131,7 @@
 .tp-card {
   display: flex;
   gap: 20px;
-  background: #fff;
+  background: #232F3F;
   border: 1px solid #f0f0f3;
   border-radius: 16px;
   padding: 24px 28px;
@@ -206,7 +206,7 @@
 .tp-card-text {
   font-size: 14px;
   line-height: 1.75;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   margin: 0;
 }
 
@@ -217,7 +217,7 @@
   gap: 12px;
   margin-top: 48px;
   padding: 20px 24px;
-  background: linear-gradient(135deg, #fdf2f3, #fafafa);
+  background: linear-gradient(135deg, #1a1818, #1a2635);
   border: 1px solid #fce4e6;
   border-radius: 14px;
 }
@@ -231,7 +231,7 @@
 .tp-footnote p {
   margin: 0;
   font-size: 13px;
-  color: #777;
+  color: rgba(255,255,255,0.5);
   line-height: 1.7;
 }
 

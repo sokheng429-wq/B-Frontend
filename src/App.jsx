@@ -1,6 +1,7 @@
 
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
+import Header2 from './components/Header2'
 import Footer from './components/Footer'
 import PageTransition from './components/PageTransition'
 import ScrollToTop from './components/ScrollToTop'
@@ -29,11 +30,12 @@ import Addpromotion from './Pages/Addpromotion'
 function App() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
+  const useHeader2 = location.pathname === '/products' || location.pathname === '/promotion'
 
   return (
     <>
       <ScrollToTop />
-      {!isAdmin && <Header />}
+      {!isAdmin && (useHeader2 ? <Header2 /> : <Header />)}
       <PageTransition key={location.pathname}>
         <Routes location={location}>
 

@@ -48,7 +48,7 @@ const TEAM = [
     id: 6,
     name: { en: 'Neang MengChheang', kh: 'នាង​ ម៉េងឈាង' },
     role: { en: 'IT Networking Engineer', kh: 'វិស្វករបណ្តាញ IT' },
-    image: new URL('../assets/Profile.avif', import.meta.url).href,
+    image: new URL('../assets/Chheang.jpg', import.meta.url).href,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
     bio: { en: 'Connects local farms and producers directly to our shelves. Passionate about reducing food waste and supporting Cambodian farmers.', kh: 'ភ្ជាប់កសិករក្នុងស្រុក និងអ្នកផលិតដោយផ្ទាល់ទៅកាន់ធ្នើរយើង។ ចូលចិត្តកាត់បន្ថយកាកសំណល់អាហារ និងគាំទ្រកសិករខ្មែរ។' },
   },

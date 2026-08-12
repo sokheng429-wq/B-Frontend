@@ -1,7 +1,7 @@
 /* ===== APPLY NOW PAGE ===== */
 .apply-page {
   min-height: 100vh;
-  background: #fafbf9;
+  background: #0B0F14;
 }
 
 .apply-inner {
@@ -21,7 +21,7 @@
 .apply-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
   z-index: 0;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .apply-hero-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
   color: #1b5e20;
@@ -82,7 +82,7 @@
 
 /* ===== FORM CARD ===== */
 .apply-form-card {
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.06);
   border-radius: 20px;
   padding: 36px 38px;
@@ -94,16 +94,16 @@
 }
 
 .apply-form-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
   margin: 0 0 6px;
 }
 
 .apply-form-sub {
   font-size: 0.9rem;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   margin: 0;
 }
 
@@ -129,7 +129,7 @@
 .apply-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #333;
+  color: rgba(255,255,255,0.85);
 }
 
 .apply-required {
@@ -140,7 +140,7 @@
 
 .apply-optional {
   font-size: 0.7rem;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   font-weight: 400;
 }
 
@@ -148,12 +148,12 @@
 .apply-field select,
 .apply-field textarea {
   padding: 12px 14px;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   font-size: 0.93rem;
   font-family: inherit;
-  color: #333;
-  background: #fafbfc;
+  color: rgba(255,255,255,0.85);
+  background: #1a2635;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
@@ -162,7 +162,7 @@
 .apply-field textarea:focus {
   outline: none;
   border-color: #77BC1F;
-  background: #fff;
+  background: #232F3F;
   box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.1);
 }
 
@@ -173,7 +173,7 @@
 
 .apply-input--err {
   border-color: #e53935 !important;
-  background: #fff5f5 !important;
+  background: #2a1515 !important;
 }
 
 .apply-err {
@@ -190,7 +190,7 @@
   padding: 28px 20px;
   border: 2px dashed #d0d0d0;
   border-radius: 12px;
-  background: #fafbfc;
+  background: #1a2635;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
   text-align: center;
@@ -198,22 +198,22 @@
 
 .apply-dropzone:hover {
   border-color: #77BC1F;
-  background: #f7fdf4;
+  background: #1a2515;
 }
 
 .apply-dropzone--over {
   border-color: #77BC1F;
-  background: #e8f5e9;
+  background: #1a2a1a;
 }
 
 .apply-dropzone--err {
   border-color: #e53935;
-  background: #fff5f5;
+  background: #2a1515;
 }
 
 .apply-dropzone--has {
   border-color: #77BC1F;
-  background: #f0f7e8;
+  background: #1a2515;
   border-style: solid;
 }
 
@@ -226,7 +226,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: #999;
+  color: rgba(255,255,255,0.4);
 }
 
 .apply-file-name {
@@ -281,13 +281,13 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e0e0e0;
+  background: #1a2635;
 }
 
 .apply-divider span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -333,7 +333,7 @@
 }
 
 .apply-perks-card {
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.06);
   border-radius: 18px;
   padding: 26px 24px;
@@ -341,10 +341,10 @@
 }
 
 .apply-perks-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
   margin: 0 0 18px;
 }
 
@@ -360,12 +360,12 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: #fafbfc;
+  background: #1a2635;
   transition: background 0.2s, transform 0.15s;
 }
 
 .apply-perk-item:hover {
-  background: #f0f7e8;
+  background: #1a2515;
   transform: translateX(3px);
 }
 
@@ -377,7 +377,7 @@
 .apply-perk-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #444;
+  color: rgba(255,255,255,0.7);
 }
 
 /* ===== SUCCESS STATE ===== */
@@ -386,7 +386,7 @@
   max-width: 540px;
   margin: 0 auto;
   padding: 100px 24px;
-  background: #fafbf9;
+  background: #0B0F14;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -401,7 +401,7 @@
 }
 
 .apply-success-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2rem;
   font-weight: 800;
   color: #1b5e20;
@@ -411,7 +411,7 @@
 .apply-success-text {
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   margin: 0 0 32px;
 }
 

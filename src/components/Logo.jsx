@@ -1,13 +1,10 @@
 
+import logoImg from '../assets/Logo1.png'
 import './Logo.css'
 
 export const Logo = () => (
   <div className="brand-logo">
-    <span className="brand-logo-store">Hyperstore</span>
-    <span className="brand-logo-word">
-      B<span className="brand-logo-apostrophe">’</span>GROCERIES
-      <sup className="brand-logo-reg">®</sup>
-    </span>
+    <img src={logoImg} alt="B'GROCERIES" className="brand-logo-img" />
   </div>
 )
 

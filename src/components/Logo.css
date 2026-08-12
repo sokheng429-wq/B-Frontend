@@ -1,42 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap');
-
 .brand-logo {
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1;
+  align-items: center;
   user-select: none;
 }
 
-.brand-logo-store {
-  font-family: 'Poppins', 'Inter', sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 3px;
+.brand-logo-img {
+  height: 52px;
+  width: auto;
+  max-height: 56px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease;
 }
 
-.brand-logo-word {
-  font-family: 'Baloo 2', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  color: var(--brand-500, #7eb631);
-  display: inline-flex;
-  align-items: flex-start;
-}
-
-.brand-logo-apostrophe {
-  color: var(--accent-500, #e69d32);
-  margin: 0 1px;
-}
-
-.brand-logo-reg {
-  font-family: 'Poppins', 'Inter', sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
-  margin-left: 3px;
-  line-height: 1;
+.brand-logo-img:hover {
+  transform: scale(1.05);
 }

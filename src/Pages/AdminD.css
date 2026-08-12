@@ -3,7 +3,7 @@
   display: flex;
   min-height: 100vh;
   height: 100vh;
-  background: #f5f6f8;
+  background: #1a2635;
 }
 
 /* ===== SIDEBAR ===== */
@@ -36,7 +36,7 @@
   border-radius: 10px;
   background: linear-gradient(135deg, #77BC1F, #5a9e1a);
   color: #fff;
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.1rem;
   font-weight: 800;
   display: flex;
@@ -46,7 +46,7 @@
 }
 
 .admind-sidebar-name {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   color: #f1f5f9;
@@ -178,7 +178,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 32px;
-  background: #fff;
+  background: #232F3F;
   border-bottom: 1px solid rgba(0,0,0,0.06);
   position: sticky;
   top: 0;
@@ -192,7 +192,7 @@
 }
 
 .admind-topbar-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
   color: #1a1f2e;
@@ -201,7 +201,7 @@
 
 .admind-topbar-date {
   font-size: 0.8rem;
-  color: #999;
+  color: rgba(255,255,255,0.4);
   margin: 0;
 }
 
@@ -216,12 +216,12 @@
   cursor: pointer;
   padding: 8px;
   border-radius: 10px;
-  background: #f5f6f8;
+  background: #1a2635;
   transition: background 0.2s;
 }
 
 .admind-topbar-badge:hover {
-  background: #eef0f2;
+  background: #1a2635;
 }
 
 .admind-topbar-avatar {
@@ -255,7 +255,7 @@
 
 .admind-stat-card {
   display: block;
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
   padding: 22px 24px;
@@ -296,16 +296,16 @@
 
 .admind-stat-change--up {
   color: #2e7d32;
-  background: #e8f5e9;
+  background: #1a2a1a;
 }
 
 .admind-stat-change--down {
   color: #c62828;
-  background: #ffebee;
+  background: #2a1a1a;
 }
 
 .admind-stat-value {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2rem;
   font-weight: 800;
   color: #1a1f2e;
@@ -314,7 +314,7 @@
 }
 
 .admind-stat-label {
-  color: #999;
+  color: rgba(255,255,255,0.4);
   font-size: 0.82rem;
   font-weight: 500;
   margin: 0;
@@ -330,7 +330,7 @@
 
 /* ===== PANELS ===== */
 .admind-panel {
-  background: #fff;
+  background: #232F3F;
   border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
   padding: 24px;
@@ -345,7 +345,7 @@
 }
 
 .admind-panel-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: #1a1f2e;
@@ -373,7 +373,7 @@
 .admind-bar-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   width: 100px;
   flex-shrink: 0;
   text-align: right;
@@ -382,7 +382,7 @@
 .admind-bar-track {
   flex: 1;
   height: 8px;
-  background: #f0f2f5;
+  background: #1a2635;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -397,7 +397,7 @@
 .admind-bar-value {
   font-size: 0.78rem;
   font-weight: 700;
-  color: #333;
+  color: rgba(255,255,255,0.85);
   width: 20px;
   text-align: left;
   flex-shrink: 0;
@@ -426,7 +426,7 @@
   flex: 1;
   width: 100%;
   max-width: 36px;
-  background: #f0f2f5;
+  background: #1a2635;
   border-radius: 6px 6px 0 0;
   display: flex;
   align-items: flex-end;
@@ -444,7 +444,7 @@
 .admind-col-value {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #555;
+  color: rgba(255,255,255,0.65);
 }
 
 .admind-col-label {
@@ -477,14 +477,14 @@
   border-radius: 12px;
   text-decoration: none;
   border: 1px solid rgba(0,0,0,0.05);
-  background: #fafbfc;
+  background: #1a2635;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .admind-action-item:hover {
   border-color: rgba(119, 188, 31, 0.2);
   box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-  background: #fff;
+  background: #232F3F;
 }
 
 .admind-action-dot {
@@ -558,14 +558,14 @@
   justify-content: center;
   font-size: 0.8rem;
   flex-shrink: 0;
-  border: 2px solid #fff;
+  border: 2px solid rgba(255,255,255,0.1);
   box-shadow: 0 0 0 2px currentColor;
 }
 
 .admind-timeline-track {
   width: 2px;
   flex: 1;
-  background: #eee;
+  background: rgba(255,255,255,0.06);
   margin: 5px 0;
   border-radius: 1px;
 }
@@ -578,7 +578,7 @@
 
 .admind-timeline-action {
   font-size: 0.85rem;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   margin: 0 0 2px;
   line-height: 1.4;
 }
@@ -589,7 +589,7 @@
 
 .admind-timeline-time {
   font-size: 0.75rem;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   margin: 0;
 }
 

@@ -1,14 +1,14 @@
 :root {
-  --navy-900: #161e29;
-  --navy-800: #243040;
+  --navy-900: #232F3F;
+  --navy-800: #232F3F;
   --navy-700: #34455c;
 
-  --brand-600: #649423;
-  --brand-500: #7eb631;
-  --brand-400: #97cc53;
+  --brand-600: #5a9e1a;
+  --brand-500: #77BC1F;
+  --brand-400: #8fd13a;
 
-  --accent-500: #e69d32;
-  --accent-400: #f0b45e;
+  --accent-500: #FF9900;
+  --accent-400: #ffad33;
 }
 
 .footer {

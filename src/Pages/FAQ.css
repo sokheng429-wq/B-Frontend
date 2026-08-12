@@ -1,7 +1,7 @@
 /* ===== FAQ PAGE ===== */
 .faq-page {
   min-height: 100vh;
-  background: #fafbfc;
+  background: #1a2635;
 }
 
 /* ===== HERO ===== */
@@ -15,7 +15,7 @@
 .faq-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
   z-index: 0;
 }
 
@@ -68,14 +68,14 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  background: #fff;
+  background: #232F3F;
   border-radius: 50px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   padding: 0 20px;
 }
 
 .faq-search-wrap svg {
-  color: #999;
+  color: rgba(255,255,255,0.4);
   flex-shrink: 0;
 }
 
@@ -86,7 +86,7 @@
   padding: 16px 12px;
   font-size: 1rem;
   background: transparent;
-  color: #333;
+  color: rgba(255,255,255,0.85);
 }
 
 .faq-search::placeholder {
@@ -97,7 +97,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #999;
+  color: rgba(255,255,255,0.4);
   font-size: 1rem;
   padding: 4px 8px;
   border-radius: 50%;
@@ -105,7 +105,7 @@
 }
 
 .faq-search-clear:hover {
-  background: #f0f0f0;
+  background: #1a2635;
 }
 
 /* ===== BODY ===== */
@@ -128,12 +128,12 @@
   gap: 8px;
   padding: 12px 20px;
   border-radius: 50px;
-  border: 2px solid #e0e0e0;
-  background: #fff;
+  border: 2px solid #1a2635;
+  background: #232F3F;
   cursor: pointer;
   font-size: 0.92rem;
   font-weight: 500;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   transition: all 0.25s ease;
 }
 
@@ -177,7 +177,7 @@
 
 /* ===== FAQ CARD ===== */
 .faq-card {
-  background: #fff;
+  background: #232F3F;
   border-radius: 14px;
   border: 1px solid #e8e8e8;
   overflow: hidden;
@@ -213,7 +213,7 @@
 .faq-chevron {
   flex-shrink: 0;
   transition: transform 0.3s ease;
-  color: #999;
+  color: rgba(255,255,255,0.4);
 }
 
 .faq-chevron--up {
@@ -234,7 +234,7 @@
 .faq-a {
   padding: 0 24px 20px;
   margin: 0;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   line-height: 1.7;
   font-size: 0.95rem;
 }
@@ -243,7 +243,7 @@
 .faq-empty {
   text-align: center;
   padding: 60px 20px;
-  color: #888;
+  color: rgba(255,255,255,0.45);
 }
 
 .faq-empty-icon {
@@ -258,7 +258,7 @@
 }
 
 .faq-contact-card {
-  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  background: linear-gradient(135deg, #1a2a1a, #c8e6c9);
   border-radius: 16px;
   padding: 32px 36px;
   display: flex;

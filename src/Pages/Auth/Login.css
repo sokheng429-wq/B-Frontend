@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
-  background: #fff;
+  background: #232F3F;
 }
 
 /* Brand side panel */
@@ -59,7 +59,7 @@
 }
 
 .auth-panel-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.875rem;
   font-weight: 800;
   line-height: 1.2;
@@ -108,7 +108,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 2.5rem 1.5rem;
-  background: #fafbf9;
+  background: #0B0F14;
 }
 
 .auth-form-wrap {
@@ -122,16 +122,16 @@
 }
 
 .auth-title {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.75rem;
   font-weight: 800;
-  color: #232F3F;
+  color: #fff;
   margin: 0 0 0.5rem;
 }
 
 .auth-subtitle {
   font-size: 0.9375rem;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   margin: 0 0 2rem;
 }
 
@@ -160,23 +160,23 @@
 .field label {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #232F3F;
+  color: #fff;
 }
 
 .field input {
   font-family: inherit;
   font-size: 0.9375rem;
   padding: 0.7rem 0.9rem;
-  border: 1.5px solid #e8e6df;
+  border: 1.5px solid #2a2825;
   border-radius: 12px;
-  color: #232F3F;
-  background: #fff;
+  color: #fff;
+  background: #232F3F;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .field input::placeholder {
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
 }
 
 .field input:focus {
@@ -195,7 +195,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #555;
+  color: rgba(255,255,255,0.65);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
@@ -243,7 +243,7 @@
   align-items: center;
   gap: 0.75rem;
   margin: 1.5rem 0;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   font-size: 0.8125rem;
 }
 
@@ -252,7 +252,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e8e6df;
+  background: #2a2825;
 }
 
 /* Social buttons */
@@ -270,8 +270,8 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #232F3F;
-  background: #fff;
+  color: #fff;
+  background: #232F3F;
   border: 1px solid #e0ded6;
   border-radius: 12px;
   padding: 0.7rem;
@@ -281,13 +281,13 @@
 
 .btn-social:hover {
   border-color: #77BC1F;
-  background: #fafef6;
+  background: #1a2515;
 }
 
 .auth-footer-note {
   margin-top: 2rem;
   font-size: 0.75rem;
-  color: #bbb;
+  color: rgba(255,255,255,0.25);
   text-align: center;
   line-height: 1.5;
 }
@@ -296,7 +296,7 @@
 .login-tabs {
   display: flex;
   gap: 0;
-  background: #f0f2f5;
+  background: #1a2635;
   border-radius: 12px;
   padding: 4px;
   margin-bottom: 1.5rem;
@@ -312,7 +312,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   font-family: inherit;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   background: transparent;
   border: none;
   border-radius: 9px;
@@ -321,12 +321,12 @@
 }
 
 .login-tab:hover {
-  color: #555;
+  color: rgba(255,255,255,0.65);
 }
 
 .login-tab--active {
-  background: #fff;
-  color: #232F3F;
+  background: #232F3F;
+  color: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
@@ -340,12 +340,12 @@
 
 .login-otp-sent-text {
   font-size: 0.82rem;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   margin-top: 4px;
 }
 
 .login-otp-sent-text strong {
-  color: #232F3F;
+  color: #fff;
 }
 
 .login-otp-links {
@@ -375,7 +375,7 @@
   text-align: center;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #888;
+  color: rgba(255,255,255,0.45);
   background: none;
   border: none;
   cursor: pointer;
@@ -385,7 +385,7 @@
 }
 
 .login-back-link:hover {
-  color: #555;
+  color: rgba(255,255,255,0.65);
 }
 
 /* Responsive */
