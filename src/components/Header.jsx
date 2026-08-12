@@ -7,10 +7,10 @@ import { useLanguage } from '../context/LanguageContext'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
-  { label: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' }, href: '/products' },
-  { label: { en: 'Promotion', kh: 'ការផ្សព្វផ្សាយ' }, href: '/promotion' },
-  { label: { en: 'Career', kh: 'ការងារ' }, href: '/career' },
+  //{ label: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' }, href: '/products' },
+  //{ label: { en: 'Promotion', kh: 'ការផ្សព្វផ្សាយ' }, href: '/promotion' },
   { label: { en: 'Member', kh: 'សមាជិក' }, href: '/member' },
+  { label: { en: 'Career', kh: 'ការងារ' }, href: '/career' },
   { label: { en: 'Contact', kh: 'ទំនាក់ទំនង' }, href: '/contact' },
   { label: { en: 'About Us', kh: 'អំពីយើង' }, href: '/about' },
 ]
@@ -58,14 +58,16 @@ export const Header = () => {
         <div className="controls-desktop">
           <LanguageSwitcher />
 
-          <Link
+          {/* Shopping Cart */}
+          {/* <Link
             to="/cart"
             className={`nav-cart ${isActive('/cart') ? 'nav-cart--active' : ''}`}
             aria-label="Shopping cart"
           >
             <CartIcon />
             {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
-          </Link>
+          </Link> 
+          */}
 
           <Link to="/login" className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}>
             {t.login[lang]}

@@ -1,80 +1,83 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
-import homeHero from '../assets/Home.png'
+import homeHero from '../assets/Store.png'
+import homeHero2 from '../assets/Home.png'
+import inside from '../assets/Inside.png'
 import './Home.css'
 
-const CATEGORIES = [
-  { label: { en: 'Fruits & Vegetables', kh: 'ផ្លែឈើ និងបន្លែ' }, emoji: '🥦', icon: '🥬', image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=200&h=200&fit=crop' },
-  { label: { en: 'Meat & Seafood', kh: 'សាច់ និងគ្រឿងសមុទ្រ' }, emoji: '🍗', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200&h=200&fit=crop' },
-  { label: { en: 'Dairy & Eggs', kh: 'ទឹកដោះគោ និងស៊ុត' }, emoji: '🥚', image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=200&h=200&fit=crop' },
-  { label: { en: 'Bakery & Bread', kh: 'នំប៉័ង និងនំ' }, emoji: '🍞', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop' },
-  { label: { en: 'Drinks', kh: 'ភេសជ្ជៈ' }, emoji: '🧃', image: 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=200&h=200&fit=crop' },
-  { label: { en: 'Snacks', kh: 'អាហារសម្រន់' }, emoji: '🍪', image: 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=200&h=200&fit=crop' },
+const VALUES = [
+  {
+    icon: '🌱',
+    title: { en: 'Freshness First', kh: 'ភាពស្រស់មកមុន' },
+    desc: { en: 'We hand-pick every item from trusted local farms to ensure only the freshest produce reaches your table.', kh: 'យើងជ្រើសរើសទំនិញនីមួយៗដោយដៃពីកសិដ្ឋានក្នុងស្រុកដែលទុកចិត្តបាន ដើម្បីធានាថាមានតែផលិតផលស្រស់ៗប៉ុណ្ណោះដែលទៅដល់តុរបស់អ្នក។' },
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=400&fit=crop',
+  },
+  {
+    icon: '🤝',
+    title: { en: 'Community Driven', kh: 'ជំរុញដោយសហគមន៍' },
+    desc: { en: 'We partner with over 200 Cambodian farmers and producers — growing together, thriving together.', kh: 'យើងសហការជាមួយកសិករ និងអ្នកផលិតកម្ពុជាជាង ២០០នាក់ — រីកចម្រើនជាមួយគ្នា ជោគជ័យជាមួយគ្នា។' },
+    image: 'https://images.unsplash.com/photo-1593115057322-e94b77572f20?w=600&h=400&fit=crop',
+  },
+  {
+    icon: '⚡',
+    title: { en: 'Lightning Fast', kh: 'រហ័សដូចផ្លេកបន្ទោរ' },
+    desc: { en: 'From our hub to your doorstep in under 45 minutes — because fresh food deserves fast delivery.', kh: 'ពីឃ្លាំងរបស់យើងដល់មាត់ទ្វារអ្នកក្នុងរយៈពេលក្រោម ៤៥ នាទី — ព្រោះអាហារស្រស់ៗត្រូវការការដឹកជញ្ជូនរហ័ស។' },
+    image: 'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=600&h=400&fit=crop',
+  },
+  {
+    icon: '💚',
+    title: { en: '100% Satisfaction', kh: 'ការពេញចិត្ត ១០០%' },
+    desc: { en: "If anything arrives less than perfect, it's free — no questions asked. That's our promise to you.", kh: 'ប្រសិនបើអ្វីមួយមិនល្អឥតខ្ចោះ វាឥតគិតថ្លៃ — គ្មានសំណួរ។ នោះគឺជាការសន្យារបស់យើងចំពោះអ្នក។' },
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop',
+  },
 ]
 
-const PRODUCTS = [
-  { name: { en: 'Fresh Strawberries', kh: 'ផ្លែស្ត្របឺរីស្រស់' }, price: '$3.50', oldPrice: null, unit: { en: 'box', kh: 'ប្រអប់' }, tag: 'New', rating: 4.8, image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&h=400&fit=crop' },
-  { name: { en: 'Jasmine Rice 5kg', kh: 'អង្ករផ្កាម្លិះ ៥គក' }, price: '$6.20', oldPrice: '$7.50', unit: { en: 'bag', kh: 'កាបូប' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400&h=400&fit=crop' },
-  { name: { en: 'Free-range Eggs (12)', kh: 'ស៊ុតសេរី (១២)' }, price: '$2.80', oldPrice: null, unit: { en: 'pack', kh: 'កញ្ចប់' }, tag: 'Popular', rating: 4.9, image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&h=400&fit=crop' },
-  { name: { en: 'Cold-pressed Orange Juice', kh: 'ទឹកក្រូចច្របាច់ស្រស់' }, price: '$4.10', oldPrice: '$4.90', unit: { en: 'bottle', kh: 'ដប' }, tag: null, rating: 4.5, image: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?w=400&h=400&fit=crop' },
-  { name: { en: 'Grilled Chicken Breast', kh: 'សុដន់មាន់អាំង' }, price: '$5.90', oldPrice: null, unit: { en: 'kg', kh: 'គក' }, tag: 'Popular', rating: 4.7, image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400&h=400&fit=crop' },
-  { name: { en: 'Sourdough Loaf', kh: 'នំប៉័ងសូរដូ' }, price: '$3.20', oldPrice: null, unit: { en: 'loaf', kh: 'ដុំ' }, tag: 'New', rating: 4.4, image: 'https://images.unsplash.com/photo-1549931319-a545769f3e9c?w=400&h=400&fit=crop' },
-  { name: { en: 'Cherry Tomatoes', kh: 'ប៉េងប៉ោះ cherry' }, price: '$1.90', oldPrice: '$2.40', unit: { en: 'box', kh: 'ប្រអប់' }, tag: null, rating: 4.3, image: 'https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?w=400&h=400&fit=crop' },
-  { name: { en: 'Greek Yogurt', kh: 'យ៉ាអួក្រិក' }, price: '$2.50', oldPrice: null, unit: { en: 'tub', kh: 'ពែង' }, tag: null, rating: 4.6, image: 'https://images.unsplash.com/photo-1571212513979-0c1e2c4e8b4a?w=400&h=400&fit=crop' },
+const MILESTONES = [
+  { year: '2026', title: { en: 'Founded', kh: 'បង្កើតឡើង' }, desc: { en: 'Started as a small neighborhood grocery store in Phnom Penh with a simple mission: make fresh food accessible to everyone.', kh: 'ចាប់ផ្តើមជាហាងលក់គ្រឿងទេសតូចមួយនៅភ្នំពេញ ជាមួយបេសកកម្មសាមញ្ញ៖ ធ្វើឱ្យអាហារស្រស់ៗអាចចូលប្រើប្រាស់បានសម្រាប់មនុស្សគ្រប់គ្នា។' }, image: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&h=400&fit=crop' },
+  { year: '2026', title: { en: 'Went Digital', kh: 'ប្តូរទៅឌីជីថល' }, desc: { en: 'Launched our online platform, bringing thousands of products to customers across Phnom Penh with same-day delivery.', kh: 'បើកដំណើរការវេទិកាអនឡាញរបស់យើង នាំយកផលិតផលរាប់ពាន់មុខទៅកាន់អតិថិជនទូទាំងភ្នំពេញ ជាមួយការដឹកជញ្ជូននៅថ្ងៃតែមួយ។' }, image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&h=400&fit=crop' },
+  { year: '2026', title: { en: '200+ Partners', kh: 'ដៃគូ ២០០+' }, desc: { en: 'Built a network of over 200 local farms and producers, becoming Cambodia\'s largest online grocery platform.', kh: 'បង្កើតបណ្តាញកសិដ្ឋាន និងអ្នកផលិតក្នុងស្រុកជាង ២០០ ក្លាយជាវេទិកាលក់គ្រឿងទេសអនឡាញធំបំផុតនៅកម្ពុជា។' }, image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&h=400&fit=crop' },
+  { year: '2026', title: { en: 'Nationwide', kh: 'ទូទាំងប្រទេស' }, desc: { en: 'Expanded to all 25 provinces, serving over 50,000 happy customers every single day.', kh: 'ពង្រីកទៅកាន់ខេត្តទាំង ២៥ បម្រើអតិថិជនជាង ៥០,០០០ នាក់ជារៀងរាល់ថ្ងៃ។' }, image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop' },
 ]
 
-const FEATURES = [
-  { image: 'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=400&h=300&fit=crop', title: { en: 'Delivery in 45 min', kh: 'ដឹកជញ្ជូនក្នុង ៤៥នាទី' }, desc: { en: 'From our hub to your doorstep in under an hour — 10,000+ orders daily across Phnom Penh.', kh: 'ពីឃ្លាំងរបស់យើងដល់មាត់ទ្វារអ្នកក្នុងរយៈពេលក្រោមមួយម៉ោង — ការបញ្ជាទិញជាង ១០,០០០ ក្នុងមួយថ្ងៃទូទាំងភ្នំពេញ។' }, stat: { en: '10K+', kh: 'ជាង ១០,០០០' }, statLabel: { en: 'Deliveries daily', kh: 'ការដឹកជញ្ជូន/ថ្ងៃ' } },
-  { image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=300&fit=crop', title: { en: '100% Freshness Guaranteed', kh: 'ធានាភាពស្រស់ ១០០%' }, desc: { en: "Our team hand-picks every item. If anything arrives less than perfect, it's free — no questions asked.", kh: 'ក្រុមការងារយើងជ្រើសរើសទំនិញនីមួយៗដោយដៃ។ ប្រសិនបើអ្វីមួយមិនល្អឥតខ្ចោះ វាឥតគិតថ្លៃ — គ្មានសំណួរ។' }, stat: { en: '99%', kh: '៩៩%' }, statLabel: { en: 'Satisfaction rate', kh: 'អត្រាពេញចិត្ត' } },
-  { image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop', title: { en: 'Locally Sourced', kh: 'ពីកសិដ្ឋានក្នុងស្រុក' }, desc: { en: 'We partner with 200+ Cambodian farms and producers — fresher food, stronger communities.', kh: 'យើងសហការជាមួយកសិដ្ឋាននិងអ្នកផលិតកម្ពុជាជាង ២០០ — អាហារស្រស់ជាង សហគមន៍រឹងមាំជាង។' }, stat: { en: '200+', kh: 'ជាង ២០០' }, statLabel: { en: 'Local partners', kh: 'ដៃគូក្នុងស្រុក' } },
-  { image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop', title: { en: 'Pay Your Way', kh: 'បង់តាមវិធីរបស់អ្នក' }, desc: { en: 'ABA Pay, Wing, TrueMoney, Visa, Mastercard, or cash on delivery — whatever works for you.', kh: 'ABA Pay, Wing, TrueMoney, Visa, Mastercard ឬសាច់ប្រាក់ — អ្វីដែលងាយស្រួលសម្រាប់អ្នក។' }, stat: { en: '7+', kh: 'ជាង ៧' }, statLabel: { en: 'Payment options', kh: 'ជម្រើសទូទាត់' } },
+const STATS = [
+  { num: { en: '50K+', kh: 'ជាង ៥០,០០០' }, label: { en: 'Happy Customers', kh: 'អតិថិជនពេញចិត្ត' }, icon: '😊' },
+  { num: { en: '200+', kh: 'ជាង ២០០' }, label: { en: 'Local Partners', kh: 'ដៃគូក្នុងស្រុក' }, icon: '🤝' },
+  { num: { en: '1', kh: '១' }, label: { en: 'Provinces', kh: 'ខេត្ត' }, icon: '📍' },
+  { num: { en: '99%', kh: '៩៩%' }, label: { en: 'Satisfaction Rate', kh: 'អត្រាពេញចិត្ត' }, icon: '⭐' },
 ]
 
 const TEXTS = {
-  heroEyebrow: { en: "B'Groceries Hyperstore", kh: 'ហាងទំនិញ B\'Groceries' },
-  heroTitle1: { en: 'Fresh groceries, ', kh: 'គ្រឿងទេសស្រស់ៗ ' },
-  heroHighlight: { en: 'delivered', kh: 'ដឹកជញ្ជូន' },
-  heroTitle2: { en: ' to your door', kh: ' ដល់មាត់ទ្វារអ្នក' },
-  heroSub: { en: 'Thousands of essentials from local farms and trusted brands — browse, order, and have it at your door in under an hour.', kh: 'ទំនិញប្រចាំថ្ងៃរាប់ពាន់មុខពីកសិដ្ឋានក្នុងស្រុក — ជ្រើសរើស បញ្ជាទិញ និងទទួលបាននៅមាត់ទ្វារក្នុងរយៈពេលក្រោមមួយម៉ោង។' },
-  shopNow: { en: 'Shop Now', kh: 'ទិញឥឡូវនេះ' },
-  viewPromos: { en: 'View Promotions', kh: 'មើលការផ្សព្វផ្សាយ' },
-  shopByCategory: { en: 'Shop by Category', kh: 'ទិញតាមប្រភេទ' },
-  freshPicks: { en: 'Fresh Picks', kh: 'ការជ្រើសរើសស្រស់ៗ' },
-  popularProducts: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' },
-  seeAll: { en: 'See all products', kh: 'មើលផលិតផលទាំងអស់' },
-  add: { en: 'Add to Cart', kh: 'ដាក់ក្នុងកន្ត្រក' },
-  limitedTime: { en: 'Limited Time Offer', kh: 'ការផ្តល់ជូនពិសេស' },
-  promoTitle: { en: 'Up to 30% off your first order', kh: 'បញ្ចុះតម្លៃរហូតដល់ ៣០%' },
-  promoSub1: { en: 'Use code ', kh: 'ប្រើកូដ ' },
-  promoSub2: { en: ' at checkout. Valid on orders over $15.', kh: ' នៅពេលទូទាត់។ មានសុពលភាពលើការបញ្ជាទិញលើស ១៥ ដុល្លារ។' },
-  grabDeal: { en: 'Grab the Deal', kh: 'ទទួលការផ្តល់ជូន' },
-  becomeMember: { en: 'Join Our Team', kh: 'ចូលរួមជាមួយក្រុមការងារយើង' },
-  memberSub: { en: 'Grow your career with us — competitive pay, benefits, and a great work environment.', kh: 'រីកចម្រើនអាជីពជាមួយយើង — ប្រាក់ខែប្រកួតប្រជែង អត្ថប្រយោជន៍ និងបរិយាកាសការងារល្អ។' },
-  joinFree: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវនេះ' },
-  whyChooseUs: { en: 'Why Choose Us', kh: 'ហេតុអ្វីជ្រើសរើសយើង' },
-  whyChooseEyebrow: { en: "Why B'Groceries?", kh: 'ហេតុអ្វី B\'Groceries?' },
-  statOrders: { en: 'Orders/day', kh: 'ការបញ្ជា/ថ្ងៃ' },
-  statDelivery: { en: 'Avg delivery', kh: 'ជាមធ្យម' },
-  statSatisfaction: { en: 'Satisfaction', kh: 'ការពេញចិត្ត' },
-}
+  heroEyebrow: { en: "Cambodia's Trusted Grocer", kh: 'ហាងទំនិញដែលកម្ពុជាទុកចិត្ត' },
+  heroTitle1: { en: 'Bringing fresh, quality groceries ', kh: 'នាំយកគ្រឿងទេសស្រស់ៗ មានគុណភាព ' },
+  heroHighlight: { en: 'to every home', kh: 'ទៅគ្រប់គេហដ្ឋាន' },
+  heroTitle2: { en: '', kh: '' },
+  heroSub: { en: "B'Groceries is Cambodia's leading online grocery platform. We connect local farms to your kitchen — making fresh, affordable food accessible to families across the country.", kh: 'B\'Groceries គឺជាវេទិកាលក់គ្រឿងទេសអនឡាញឈានមុខគេនៅកម្ពុជា។ យើងភ្ជាប់កសិដ្ឋានក្នុងស្រុកទៅកាន់ផ្ទះបាយរបស់អ្នក — ធ្វើឱ្យអាហារស្រស់ៗ តម្លៃសមរម្យ អាចចូលប្រើប្រាស់បានសម្រាប់គ្រួសារទូទាំងប្រទេស។' },
+  learnMore: { en: 'Learn More', kh: 'ស្វែងយល់បន្ថែម' },
+  contactUs: { en: 'Contact Us', kh: 'ទាក់ទងយើង' },
 
-const TAG_LABELS = {
-  New: { en: 'New', kh: 'ថ្មី' },
-  Popular: { en: 'Popular', kh: 'ពេញនិយម' },
-}
+  ourStory: { en: 'Our Story', kh: 'រឿងរ៉ាវរបស់យើង' },
+  ourStoryEyebrow: { en: 'How We Started', kh: 'របៀបដែលយើងចាប់ផ្តើម' },
+  ourStoryText: { en: "What began as a small family-run grocery store in the heart of Phnom Penh has grown into Cambodia's most trusted online grocery platform. We saw how busy families struggled to find time for quality grocery shopping — so we decided to bring the store to them.", kh: 'អ្វីដែលចាប់ផ្តើមជាហាងលក់គ្រឿងទេសគ្រួសារតូចមួយនៅកណ្តាលភ្នំពេញ បានរីកចម្រើនទៅជាវេទិកាលក់គ្រឿងទេសអនឡាញដែលគួរឱ្យទុកចិត្តបំផុតនៅកម្ពុជា។ យើងបានឃើញពីរបៀបដែលគ្រួសាររវល់តស៊ូក្នុងការស្វែងរកពេលវេលាសម្រាប់ការទិញគ្រឿងទេសដែលមានគុណភាព — ដូច្នេះយើងសម្រេចចិត្តនាំហាងទៅកាន់ពួកគេ។' },
 
-const StarRating = ({ rating }) => (
-  <span className="stars-inline">
-    {'★★★★★'.split('').map((star, i) => (
-      <span key={i} className={i < Math.round(rating) ? 'star-on' : 'star-off'}>{star}</span>
-    ))}
-  </span>
-)
+  missionTitle: { en: 'Our Mission', kh: 'បេសកកម្មរបស់យើង' },
+  missionText: { en: 'To make fresh, high-quality groceries accessible and affordable for every Cambodian family — while supporting local farmers and building a sustainable food ecosystem.', kh: 'ធ្វើឱ្យគ្រឿងទេសស្រស់ៗ មានគុណភាពខ្ពស់ អាចចូលប្រើប្រាស់បាន និងតម្លៃសមរម្យសម្រាប់គ្រួសារកម្ពុជាគ្រប់រូប — ខណៈពេលដែលគាំទ្រកសិករក្នុងស្រុក និងកសាងប្រព័ន្ធអាហារប្រកបដោយនិរន្តរភាព។' },
+
+  valuesTitle: { en: 'What We Stand For', kh: 'អ្វីដែលយើងឈរលើ' },
+  valuesEyebrow: { en: 'Our Values', kh: 'គុណតម្លៃរបស់យើង' },
+
+  byTheNumbers: { en: 'By the Numbers', kh: 'តាមតួលេខ' },
+  numbersEyebrow: { en: 'Our Impact', kh: 'ផលប៉ះពាល់របស់យើង' },
+
+  journeyTitle: { en: 'Our Journey', kh: 'ដំណើររបស់យើង' },
+
+  readyToJoin: { en: 'Ready to experience the difference?', kh: 'ត្រៀមខ្លួនទទួលបទពិសោធន៍ថ្មីហើយឬនៅ?' },
+  ctaSub: { en: 'Join 50,000+ happy customers and discover why B\'Groceries is Cambodia\'s favorite online grocery store.', kh: 'ចូលរួមជាមួយអតិថិជនពេញចិត្តជាង ៥០,០០០ នាក់ ហើយស្វែងយល់ពីមូលហេតុដែល B\'Groceries ជាហាងលក់គ្រឿងទេសអនឡាញពេញនិយមបំផុតនៅកម្ពុជា។' },
+  getInTouch: { en: 'Get in Touch', kh: 'ទំនាក់ទំនងមកយើង' },
+  browseProducts: { en: 'Browse Products', kh: 'មើលផលិតផល' },
+}
 
 export const Home = () => {
   const { lang } = useLanguage()
-  const [hoveredProduct, setHoveredProduct] = useState(null)
 
   return (
     <div className="home-page">
@@ -91,130 +94,79 @@ export const Home = () => {
             </h1>
             <p className="home-hero-sub">{TEXTS.heroSub[lang]}</p>
             <div className="home-hero-actions">
-              <Link to="/products" className="home-btn-primary">{TEXTS.shopNow[lang]}</Link>
-              <Link to="/promotion" className="home-btn-outline">{TEXTS.viewPromos[lang]}</Link>
+              <Link to="/about" className="home-btn-primary">{TEXTS.learnMore[lang]}</Link>
+              <Link to="/contact" className="home-btn-outline">{TEXTS.contactUs[lang]}</Link>
             </div>
             <div className="home-hero-stats">
-              <div className="home-hero-stat"><strong>10K+</strong><span>{TEXTS.statOrders[lang]}</span></div>
-              <div className="home-hero-stat"><strong>45min</strong><span>{TEXTS.statDelivery[lang]}</span></div>
-              <div className="home-hero-stat"><strong>99%</strong><span>{TEXTS.statSatisfaction[lang]}</span></div>
+              {STATS.map((s) => (
+                <div key={s.label.en} className="home-hero-stat">
+                  <strong>{s.num[lang]}</strong>
+                  <span>{s.label[lang]}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="home-hero-visual">
-            <img src={homeHero} alt="Fresh groceries" className="home-hero-img" />
-            <div className="home-hero-float home-hero-float--1">🥑</div>
-            <div className="home-hero-float home-hero-float--2">🍎</div>
-            <div className="home-hero-float home-hero-float--3">🥖</div>
+            <img src={homeHero} alt="B'Groceries" className="home-hero-img" />
           </div>
         </div>
       </section>
 
-      {/* ===== CATEGORIES ===== */}
-      <section className="home-categories">
+      {/* ===== OUR STORY ===== */}
+      <section className="home-story">
         <div className="home-inner">
-          <h2 className="home-section-title">{TEXTS.shopByCategory[lang]}</h2>
-          <div className="home-cat-grid">
-            {CATEGORIES.map((cat) => (
-              <Link to="/products" key={cat.label.en} className="home-cat-card">
-                <div className="home-cat-img-wrap">
-                  <img src={cat.image} alt={cat.label[lang]} className="home-cat-img" loading="lazy" />
-                </div>
-                <span className="home-cat-label">{cat.emoji} {cat.label[lang]}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== POPULAR PRODUCTS ===== */}
-      <section className="home-products">
-        <div className="home-inner">
-          <div className="home-section-header">
-            <div>
-              <span className="home-section-eyebrow">{TEXTS.freshPicks[lang]}</span>
-              <h2 className="home-section-title">{TEXTS.popularProducts[lang]}</h2>
-            </div>
-            <Link to="/products" className="home-see-all">
-              {TEXTS.seeAll[lang]}
-              <ArrowRight />
-            </Link>
-          </div>
-
-          <div className="home-prod-grid">
-            {PRODUCTS.map((p) => (
-              <div
-                key={p.name.en}
-                className={`home-prod-card ${hoveredProduct === p.name.en ? 'home-prod-card--hovered' : ''}`}
-                onMouseEnter={() => setHoveredProduct(p.name.en)}
-                onMouseLeave={() => setHoveredProduct(null)}
-              >
-                <div className="home-prod-img-wrap">
-                  <img src={p.image} alt={p.name[lang]} className="home-prod-img" loading="lazy" />
-                  {p.tag && <span className="home-prod-tag">{TAG_LABELS[p.tag][lang]}</span>}
-                  {p.oldPrice && <span className="home-prod-sale">SALE</span>}
-                  <div className="home-prod-quick">
-                    <button className="home-prod-quick-btn">
-                      <CartIcon /> {TEXTS.add[lang]}
-                    </button>
-                  </div>
-                </div>
-                <div className="home-prod-info">
-                  <StarRating rating={p.rating} />
-                  <h3 className="home-prod-name">{p.name[lang]}</h3>
-                  <div className="home-prod-prices">
-                    <span className="home-prod-price">{p.price}</span>
-                    {p.oldPrice && <span className="home-prod-old">{p.oldPrice}</span>}
-                    <span className="home-prod-unit">/ {p.unit[lang]}</span>
-                  </div>
-                </div>
+          <div className="home-story-grid">
+            <div className="home-story-image">
+              <div className="home-story-frame">
+                <img src={homeHero2} alt="B'Groceries" className="home-story-img" />
               </div>
-            ))}
+            </div>
+            <div className="home-story-copy">
+              <span className="home-section-eyebrow">{TEXTS.ourStoryEyebrow[lang]}</span>
+              <h2 className="home-section-title">{TEXTS.ourStory[lang]}</h2>
+              <p className="home-story-text">{TEXTS.ourStoryText[lang]}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ===== PROMO BANNER ===== */}
-      <section className="home-promo-section">
+      {/* ===== MISSION ===== */}
+      <section className="home-mission">
         <div className="home-inner">
-          <div className="home-promo-banner">
-            <div className="home-promo-bg-shape" />
-            <div className="home-promo-content">
-              <span className="home-promo-eyebrow">🔥 {TEXTS.limitedTime[lang]}</span>
-              <h2 className="home-promo-title">{TEXTS.promoTitle[lang]}</h2>
-              <p className="home-promo-text">
-                {TEXTS.promoSub1[lang]}<strong>FRESH30</strong>{TEXTS.promoSub2[lang]}
-              </p>
-              <Link to="/promotion" className="home-btn-accent">{TEXTS.grabDeal[lang]}</Link>
+          <div className="home-mission-grid">
+            <div className="home-mission-image">
+              <div className="home-story-frame">
+                <img src={inside} alt="Inside B'Groceries" className="home-story-img" />
+              </div>
             </div>
-            <div className="home-promo-visual">
-              <span className="home-promo-emoji">🏷️</span>
-              <div className="home-promo-circle home-promo-circle--1">-30%</div>
-              <div className="home-promo-circle home-promo-circle--2">+Free Delivery</div>
+            <div className="home-mission-copy">
+              <span className="home-section-eyebrow">🎯</span>
+              <h2 className="home-section-title">{TEXTS.missionTitle[lang]}</h2>
+              <p className="home-mission-text">{TEXTS.missionText[lang]}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ===== FEATURES ===== */}
-      <section className="home-features">
+      {/* ===== VALUES ===== */}
+      <section className="home-values">
         <div className="home-inner">
           <div className="home-section-header home-section-header--center">
             <div>
-              <span className="home-section-eyebrow">{TEXTS.whyChooseEyebrow[lang]}</span>
-              <h2 className="home-section-title">{TEXTS.whyChooseUs[lang]}</h2>
+              <span className="home-section-eyebrow">{TEXTS.valuesEyebrow[lang]}</span>
+              <h2 className="home-section-title">{TEXTS.valuesTitle[lang]}</h2>
             </div>
           </div>
-          <div className="home-feat-grid">
-            {FEATURES.map((f) => (
-              <div key={f.title.en} className="home-feat-card">
-                <div className="home-feat-img-wrap">
-                  <img src={f.image} alt={f.title[lang]} className="home-feat-img" loading="lazy" />
+          <div className="home-values-grid">
+            {VALUES.map((v) => (
+              <div key={v.title.en} className="home-value-card">
+                <div className="home-value-img-wrap">
+                  <img src={v.image} alt={v.title[lang]} className="home-value-img" loading="lazy" />
+                  <span className="home-value-icon-overlay">{v.icon}</span>
                 </div>
-                <h3 className="home-feat-title">{f.title[lang]}</h3>
-                <p className="home-feat-desc">{f.desc[lang]}</p>
-                <div className="home-feat-stat">
-                  <span className="home-feat-stat-num">{f.stat[lang]}</span>
-                  <span className="home-feat-stat-label">{f.statLabel[lang]}</span>
+                <div className="home-value-body">
+                  <h3 className="home-value-title">{v.title[lang]}</h3>
+                  <p className="home-value-desc">{v.desc[lang]}</p>
                 </div>
               </div>
             ))}
@@ -222,39 +174,69 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* ===== CAREER CTA ===== */}
-      <section className="home-member-section">
+      {/* ===== BY THE NUMBERS ===== */}
+      <section className="home-numbers">
         <div className="home-inner">
-          <div className="home-member-wrap">
-            <div className="home-member-copy">
-              <h2 className="home-member-title">{TEXTS.becomeMember[lang]}</h2>
-              <p className="home-member-text">{TEXTS.memberSub[lang]}</p>
-              <div className="home-member-perks">
-                <span>💼 Competitive Salary</span>
-                <span>📈 Career Growth</span>
-                <span>🏥 Health Benefits</span>
-                <span>🎓 Training Programs</span>
-              </div>
+          <div className="home-section-header home-section-header--center">
+            <div>
+              <span className="home-section-eyebrow">{TEXTS.numbersEyebrow[lang]}</span>
+              <h2 className="home-section-title">{TEXTS.byTheNumbers[lang]}</h2>
             </div>
-            <Link to="/career" className="home-btn-primary home-join-btn">{TEXTS.joinFree[lang]}</Link>
+          </div>
+          <div className="home-numbers-grid">
+            {STATS.map((s) => (
+              <div key={s.label.en} className="home-number-card">
+                <span className="home-number-icon">{s.icon}</span>
+                <span className="home-number-num">{s.num[lang]}</span>
+                <span className="home-number-label">{s.label[lang]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== OUR JOURNEY / TIMELINE ===== */}
+      <section className="home-journey">
+        <div className="home-inner">
+          <div className="home-section-header home-section-header--center">
+            <div>
+              <h2 className="home-section-title">{TEXTS.journeyTitle[lang]}</h2>
+            </div>
+          </div>
+          <div className="home-timeline">
+            {MILESTONES.map((m) => (
+              <div key={m.year} className="home-timeline-item">
+                <div className="home-timeline-card">
+                  <div className="home-timeline-img-wrap">
+                    <img src={m.image} alt={m.title[lang]} className="home-timeline-img" loading="lazy" />
+                    <span className="home-timeline-year-badge">{m.year}</span>
+                  </div>
+                  <div className="home-timeline-body">
+                    <h3 className="home-timeline-title">{m.title[lang]}</h3>
+                    <p className="home-timeline-desc">{m.desc[lang]}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CTA ===== */}
+      <section className="home-cta">
+        <div className="home-inner">
+          <div className="home-cta-card">
+            <h2 className="home-cta-title">{TEXTS.readyToJoin[lang]}</h2>
+            <p className="home-cta-sub">{TEXTS.ctaSub[lang]}</p>
+            <div className="home-cta-actions">
+              <Link to="/contact" className="home-btn-primary">{TEXTS.getInTouch[lang]}</Link>
+              <Link to="/products" className="home-btn-outline home-btn-outline--dark">{TEXTS.browseProducts[lang]}</Link>
+            </div>
           </div>
         </div>
       </section>
     </div>
   )
 }
-
-const ArrowRight = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-)
-
-const CartIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-  </svg>
-)
 
 export default Home
