@@ -116,8 +116,13 @@
 }
 
 @keyframes orbPulse {
-  0% { transform: scale(1) translate(0, 0); }
-  100% { transform: scale(1.15) translate(30px, -20px); }
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+
+  100% {
+    transform: scale(1.15) translate(30px, -20px);
+  }
 }
 
 .home-hero-inner {
@@ -128,7 +133,7 @@
   margin: 0 auto;
   padding: 0 24px;
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: 0.85fr 1.15fr;
   gap: 48px;
   align-items: center;
 }
@@ -179,8 +184,13 @@
 }
 
 @keyframes markShimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
 }
 
 .home-hero-sub {
@@ -224,8 +234,15 @@
 }
 
 @keyframes arrowBounce {
-  0%, 100% { transform: translateY(0) rotate(-6deg); }
-  50% { transform: translateY(8px) rotate(2deg); }
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+
+  50% {
+    transform: translateY(8px) rotate(2deg);
+  }
 }
 
 .home-hero-cta-buttons {
@@ -269,14 +286,29 @@
 }
 
 @keyframes btnGreenShimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes greenGlowPulse {
-  0%, 100% { box-shadow: 0 0 35px rgba(119, 188, 31, 0.5), 0 0 70px rgba(119, 188, 31, 0.2), 0 8px 24px rgba(0,0,0,0.4); }
-  50% { box-shadow: 0 0 50px rgba(119, 188, 31, 0.7), 0 0 95px rgba(119, 188, 31, 0.3), 0 8px 24px rgba(0,0,0,0.4); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 35px rgba(119, 188, 31, 0.5), 0 0 70px rgba(119, 188, 31, 0.2), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 50px rgba(119, 188, 31, 0.7), 0 0 95px rgba(119, 188, 31, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* Orange Contact Button */
@@ -314,14 +346,29 @@
 }
 
 @keyframes btnOrangeShimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes orangeGlowPulse {
-  0%, 100% { box-shadow: 0 0 30px rgba(255, 153, 0, 0.45), 0 0 60px rgba(255, 153, 0, 0.18), 0 8px 24px rgba(0,0,0,0.4); }
-  50% { box-shadow: 0 0 45px rgba(255, 153, 0, 0.65), 0 0 85px rgba(255, 153, 0, 0.28), 0 8px 24px rgba(0,0,0,0.4); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 30px rgba(255, 153, 0, 0.45), 0 0 60px rgba(255, 153, 0, 0.18), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 45px rgba(255, 153, 0, 0.65), 0 0 85px rgba(255, 153, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .home-btn-chevron {
@@ -422,8 +469,13 @@
 }
 
 @keyframes badgeFloat {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-10px); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-10px);
+  }
 }
 
 .home-hero-badge-icon {
@@ -448,7 +500,7 @@
    ============================================================ */
 .home-categories {
   padding: 60px 0 80px;
-  background: linear-gradient(to bottom, #FF9900 0%, #FF9900 50%, #232F3F 60%, #232F3F 100%);
+  background: linear-gradient(to bottom, #232F3F 0%, #232F3F 50%, #232F3F 60%, #232F3F 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -903,50 +955,105 @@
   z-index: 1;
 }
 
-/* Scroll reveal */
+/* Scroll reveal (disabled) */
 .home-reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.home-reveal--visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 /* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
-  .home-categories-grid { grid-template-columns: repeat(3, 1fr); }
-  .home-values-grid { grid-template-columns: repeat(2, 1fr); }
-  .home-numbers-grid { grid-template-columns: repeat(2, 1fr); }
-  .home-timeline { grid-template-columns: repeat(2, 1fr); }
-  .home-timeline::before { display: none; }
+  .home-categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .home-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-numbers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-timeline {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .home-timeline::before {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {
-  .home-hero-inner { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-  .home-hero-copy { max-width: 100%; }
-  .home-hero-cta-wrapper { align-items: center; }
-  .home-hero-arrow-container { margin-left: 0; justify-content: center; }
-  .home-hero-cta-buttons { justify-content: center; }
-  .home-hero-tags { justify-content: center; }
-  .home-hero-floating-badge { display: none; }
+  .home-hero-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .home-hero-copy {
+    max-width: 100%;
+  }
+
+  .home-hero-cta-wrapper {
+    align-items: center;
+  }
+
+  .home-hero-arrow-container {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .home-hero-cta-buttons {
+    justify-content: center;
+  }
+
+  .home-hero-tags {
+    justify-content: center;
+  }
+
+  .home-hero-floating-badge {
+    display: none;
+  }
 
   .home-story-grid,
-  .home-mission-card { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-  .home-mission-card { padding: 40px 24px; }
-  .home-accent-line { margin: 0 auto 20px; }
+  .home-mission-card {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .home-mission-card {
+    padding: 40px 24px;
+  }
+
+  .home-accent-line {
+    margin: 0 auto 20px;
+  }
 }
 
 @media (max-width: 600px) {
-  .home-categories-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .home-values-grid,
   .home-numbers-grid,
-  .home-timeline { grid-template-columns: 1fr; }
-  .home-cta-card { padding: 44px 20px; }
+  .home-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .home-cta-card {
+    padding: 44px 20px;
+  }
+
   .home-btn-shop,
-  .home-btn-contact { width: 100%; justify-content: center; padding: 16px 24px; font-size: 0.95rem; }
+  .home-btn-contact {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 24px;
+    font-size: 0.95rem;
+  }
 }

@@ -25,7 +25,774 @@
 }
 
 body {
-  @apply bg-navy-900 text-white font-sans antialiased;
+  @apply bg-navy-900 text-white font-sans antialiased transition-colors duration-300;
+}
+
+:root[data-theme="light"] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Global Light Mode Overrides for All Pages */
+:root[data-theme="light"] {
+  --navy-900: #ffffff;
+  --navy-800: #f1f5f9;
+  --navy-700: #e2e8f0;
+}
+
+:root[data-theme="light"] .home-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .home-hero {
+  background: radial-gradient(circle at 70% 30%, rgba(241, 245, 249, 0.9) 0%, #f8fafc 100%);
+}
+
+:root[data-theme="light"] .home-categories {
+  background: #f8fafc;
+  border-top-color: rgba(0, 0, 0, 0.05);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .home-section-title,
+:root[data-theme="light"] .home-hero-title,
+:root[data-theme="light"] .home-hero-badge-title,
+:root[data-theme="light"] .home-category-name,
+:root[data-theme="light"] .home-value-title,
+:root[data-theme="light"] .home-timeline-title,
+:root[data-theme="light"] .home-cta-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .home-section-body,
+:root[data-theme="light"] .home-hero-sub,
+:root[data-theme="light"] .home-hero-badge-sub,
+:root[data-theme="light"] .home-value-desc,
+:root[data-theme="light"] .home-number-lbl,
+:root[data-theme="light"] .home-timeline-desc,
+:root[data-theme="light"] .home-cta-sub {
+  color: #475569;
+}
+
+:root[data-theme="light"] .home-category-card,
+:root[data-theme="light"] .home-value-card,
+:root[data-theme="light"] .home-number-card,
+:root[data-theme="light"] .home-timeline-card,
+:root[data-theme="light"] .home-mission-card,
+:root[data-theme="light"] .home-hero-tag {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .home-hero-floating-badge {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .home-cta-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+  border-color: #77BC1F;
+}
+
+:root[data-theme="light"] .footer {
+  background: #ffffff;
+  color: #475569;
+  border-top-color: #77BC1F;
+}
+
+:root[data-theme="light"] .footer-tagline,
+:root[data-theme="light"] .footer-link,
+:root[data-theme="light"] .footer-contact-item,
+:root[data-theme="light"] .footer-copyright,
+:root[data-theme="light"] .footer-link-small {
+  color: #475569;
+}
+
+:root[data-theme="light"] .footer-link:hover,
+:root[data-theme="light"] .footer-link-small:hover {
+  color: #5a9e1a;
+}
+
+:root[data-theme="light"] .social-icon {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+/* Popular Products & Products Page Light Mode */
+:root[data-theme="light"] .popular-products {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .popular-section-bg {
+  background: #f8fafc;
+}
+
+:root[data-theme="light"] .popular-title,
+:root[data-theme="light"] .product-name,
+:root[data-theme="light"] .product-price {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .popular-search {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="light"] .popular-search::placeholder {
+  color: #94a3b8;
+}
+
+:root[data-theme="light"] .popular-filter-tabs {
+  background: #e2e8f0;
+}
+
+:root[data-theme="light"] .popular-filter-tab {
+  color: #475569;
+}
+
+:root[data-theme="light"] .popular-filter-tab--active {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .popular-sort {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+:root[data-theme="light"] .product-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* General Light Mode Styling for Pages & Cards */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .member-page,
+:root[data-theme="light"] .career-page,
+:root[data-theme="light"] .about-page,
+:root[data-theme="light"] .contact-page,
+:root[data-theme="light"] .cart-page,
+:root[data-theme="light"] .promotion-page,
+:root[data-theme="light"] .faq-page,
+:root[data-theme="light"] .shipping-page,
+:root[data-theme="light"] .terms-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .member-hero,
+:root[data-theme="light"] .member-cta-bg {
+  background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+}
+
+:root[data-theme="light"] .member-hero-title,
+:root[data-theme="light"] .member-card-name,
+:root[data-theme="light"] .member-cta-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .member-hero-sub,
+:root[data-theme="light"] .member-hero-count-label,
+:root[data-theme="light"] .member-card-bio,
+:root[data-theme="light"] .member-cta-text {
+  color: #475569;
+}
+
+:root[data-theme="light"] .member-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .member-filter-chip {
+  background: #ffffff;
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="light"] .member-filter-chip--active {
+  background: #77BC1F;
+  color: #ffffff;
+}
+
+/* Auth Pages (Login, Register, ForgotPassword) Light Mode */
+:root[data-theme="light"] .auth {
+  background: #f8fafc;
+}
+
+:root[data-theme="light"] .auth-panel {
+  background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .auth-panel-title,
+:root[data-theme="light"] .auth-title,
+:root[data-theme="light"] .field label {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .auth-panel-subtitle,
+:root[data-theme="light"] .auth-subtitle,
+:root[data-theme="light"] .auth-footer-note,
+:root[data-theme="light"] .checkbox-label {
+  color: #475569;
+}
+
+:root[data-theme="light"] .auth-form-side {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .auth-panel-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .auth-panel-card p {
+  color: #334155;
+}
+
+:root[data-theme="light"] .field input {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .field input::placeholder {
+  color: #94a3b8;
+}
+
+:root[data-theme="light"] .login-tabs {
+  background: #e2e8f0;
+}
+
+:root[data-theme="light"] .login-tab {
+  color: #475569;
+}
+
+:root[data-theme="light"] .login-tab--active {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Cart Page Light Mode */
+:root[data-theme="light"] .cart-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .cart-hero-bg {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+}
+
+:root[data-theme="light"] .cart-section-title,
+:root[data-theme="light"] .cart-prod-name,
+:root[data-theme="light"] .cart-item-name,
+:root[data-theme="light"] .cart-item-line-total,
+:root[data-theme="light"] .cart-summary-title,
+:root[data-theme="light"] .cart-summary-row--total,
+:root[data-theme="light"] .cart-qty span,
+:root[data-theme="light"] .cart-empty-text {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .cart-prod-price,
+:root[data-theme="light"] .cart-item-price,
+:root[data-theme="light"] .cart-summary-row,
+:root[data-theme="light"] .cart-empty-hint,
+:root[data-theme="light"] .cart-count {
+  color: #475569;
+}
+
+:root[data-theme="light"] .cart-prod-card,
+:root[data-theme="light"] .cart-item,
+:root[data-theme="light"] .cart-summary,
+:root[data-theme="light"] .cart-empty {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .cart-prod-img-wrap,
+:root[data-theme="light"] .cart-item-img-wrap,
+:root[data-theme="light"] .cart-qty,
+:root[data-theme="light"] .cart-qty button {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Career Page Light Mode */
+:root[data-theme="light"] .career-hero {
+  background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+}
+
+:root[data-theme="light"] .career-hero-title,
+:root[data-theme="light"] .career-section-title,
+:root[data-theme="light"] .career-card-title,
+:root[data-theme="light"] .benefit-label {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .career-hero-subtitle,
+:root[data-theme="light"] .career-stat-label,
+:root[data-theme="light"] .career-section-sub,
+:root[data-theme="light"] .career-meta-item,
+:root[data-theme="light"] .career-empty {
+  color: #475569;
+}
+
+:root[data-theme="light"] .career-hero-stats,
+:root[data-theme="light"] .benefits-grid,
+:root[data-theme="light"] .career-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .career-filter-btn {
+  background: #ffffff;
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="light"] .career-filter-btn--active {
+  background: #77BC1F;
+  color: #ffffff;
+}
+
+/* About Page Light Mode */
+:root[data-theme="light"] .about-hero,
+:root[data-theme="light"] .about-stats-bg {
+  background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+}
+
+:root[data-theme="light"] .about-hero-title,
+:root[data-theme="light"] .about-section-title,
+:root[data-theme="light"] .about-timeline-title,
+:root[data-theme="light"] .about-value-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .about-hero-sub,
+:root[data-theme="light"] .about-section-sub,
+:root[data-theme="light"] .about-mission-text,
+:root[data-theme="light"] .about-timeline-text,
+:root[data-theme="light"] .about-stat-label,
+:root[data-theme="light"] .about-value-desc {
+  color: #475569;
+}
+
+:root[data-theme="light"] .about-mission-card,
+:root[data-theme="light"] .about-timeline-card,
+:root[data-theme="light"] .about-stat-card,
+:root[data-theme="light"] .about-value-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Contact Page Light Mode */
+:root[data-theme="light"] .contact-hero {
+  background: linear-gradient(160deg, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+}
+
+:root[data-theme="light"] .contact-hero-title,
+:root[data-theme="light"] .contact-info-value,
+:root[data-theme="light"] .contact-form-title,
+:root[data-theme="light"] .contact-map-title,
+:root[data-theme="light"] .cf-field label {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .contact-hero-sub,
+:root[data-theme="light"] .contact-info-label,
+:root[data-theme="light"] .contact-faq-title {
+  color: #475569;
+}
+
+:root[data-theme="light"] .contact-info-card,
+:root[data-theme="light"] .contact-faq,
+:root[data-theme="light"] .contact-form-card,
+:root[data-theme="light"] .contact-map-wrap {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .contact-social-chip {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="light"] .cf-field input,
+:root[data-theme="light"] .cf-field select,
+:root[data-theme="light"] .cf-field textarea {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .cf-field input::placeholder,
+:root[data-theme="light"] .cf-field textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Promotion Page Light Mode */
+:root[data-theme="light"] .promotion {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .promo-title,
+:root[data-theme="light"] .promo-title-text {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .promo-desc {
+  color: #475569;
+}
+
+:root[data-theme="light"] .promo-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .promo-copy-code {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* FAQ Page Light Mode */
+:root[data-theme="light"] .faq-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .faq-search-wrap,
+:root[data-theme="light"] .faq-cat-tab,
+:root[data-theme="light"] .faq-card {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .faq-search {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .faq-q {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .faq-a {
+  color: #475569;
+}
+
+:root[data-theme="light"] .faq-cat-tab--active {
+  background: #77BC1F;
+  border-color: #77BC1F;
+  color: #ffffff;
+}
+
+/* Shipping Page Light Mode */
+:root[data-theme="light"] .shipping-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .shipping-tier-card,
+:root[data-theme="light"] .shipping-zone-card {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .shipping-tier-name,
+:root[data-theme="light"] .shipping-step-title,
+:root[data-theme="light"] .shipping-zone-area {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .shipping-tier-time,
+:root[data-theme="light"] .shipping-step-text,
+:root[data-theme="light"] .shipping-section-sub,
+:root[data-theme="light"] .shipping-zone-districts {
+  color: #475569;
+}
+
+/* Terms & Privacy Page Light Mode */
+:root[data-theme="light"] .tp-hero-title,
+:root[data-theme="light"] .tp-card-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .tp-hero-subtitle,
+:root[data-theme="light"] .tp-updated,
+:root[data-theme="light"] .tp-card-text,
+:root[data-theme="light"] .tp-footnote p {
+  color: #475569;
+}
+
+:root[data-theme="light"] .tp-tabs {
+  background: #e2e8f0;
+}
+
+:root[data-theme="light"] .tp-tab {
+  color: #475569;
+}
+
+:root[data-theme="light"] .tp-tab.active {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .tp-card,
+:root[data-theme="light"] .tp-footnote {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Admin Dashboard Light Mode */
+:root[data-theme="light"] .admind-page {
+  background: #f1f5f9;
+}
+
+:root[data-theme="light"] .admind-sidebar {
+  background: #ffffff;
+  color: #0f172a;
+  border-right: 1px solid #e2e8f0;
+}
+
+:root[data-theme="light"] .admind-sidebar-name {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .admind-sidebar-role,
+:root[data-theme="light"] .admind-nav-section-label {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .admind-nav-item {
+  color: #475569;
+}
+
+:root[data-theme="light"] .admind-nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .admind-back-site-btn {
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .admind-topbar {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+:root[data-theme="light"] .admind-topbar-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .admind-topbar-date {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .admind-topbar-badge {
+  background: #f1f5f9;
+}
+
+:root[data-theme="light"] .admind-stat-card,
+:root[data-theme="light"] .admind-panel {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .admind-stat-value,
+:root[data-theme="light"] .admind-panel-title,
+:root[data-theme="light"] .admind-action-item h4 {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .admind-stat-label,
+:root[data-theme="light"] .admind-panel-subtitle,
+:root[data-theme="light"] .admind-bar-label,
+:root[data-theme="light"] .admind-bar-value,
+:root[data-theme="light"] .admind-col-value,
+:root[data-theme="light"] .admind-col-label,
+:root[data-theme="light"] .admind-timeline-action,
+:root[data-theme="light"] .admind-timeline-time {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .admind-timeline-action strong {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .admind-action-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+:root[data-theme="light"] .admind-action-item:hover {
+  background: #f1f5f9;
+}
+
+/* Add Products, Add Jobs, Add Member, Add Promotion, Manage Users Light Mode */
+:root[data-theme="light"] .adp-page,
+:root[data-theme="light"] .addj-page,
+:root[data-theme="light"] .addm-page,
+:root[data-theme="light"] .mu-page,
+:root[data-theme="light"] .adpro-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .adp-form-card,
+:root[data-theme="light"] .adp-list-card,
+:root[data-theme="light"] .addj-form-card,
+:root[data-theme="light"] .addj-list-card,
+:root[data-theme="light"] .addm-form-card,
+:root[data-theme="light"] .addm-list-card,
+:root[data-theme="light"] .mu-topbar,
+:root[data-theme="light"] .mu-role-badge,
+:root[data-theme="light"] .mu-table-card,
+:root[data-theme="light"] .mu-form-panel,
+:root[data-theme="light"] .adpro-form-card,
+:root[data-theme="light"] .adpro-list-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .adp-form-title,
+:root[data-theme="light"] .adp-list-title,
+:root[data-theme="light"] .adp-card-name,
+:root[data-theme="light"] .adp-card-price,
+:root[data-theme="light"] .addj-form-title,
+:root[data-theme="light"] .addj-list-title,
+:root[data-theme="light"] .addj-card-title,
+:root[data-theme="light"] .addm-form-title,
+:root[data-theme="light"] .addm-list-title,
+:root[data-theme="light"] .addm-card-name,
+:root[data-theme="light"] .mu-title,
+:root[data-theme="light"] .mu-role-name,
+:root[data-theme="light"] .mu-user-name,
+:root[data-theme="light"] .mu-form-panel-header h2,
+:root[data-theme="light"] .adpro-form-title,
+:root[data-theme="light"] .adpro-list-title,
+:root[data-theme="light"] .adpro-card-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .adp-form-sub,
+:root[data-theme="light"] .adp-field label,
+:root[data-theme="light"] .addj-form-sub,
+:root[data-theme="light"] .addj-field label,
+:root[data-theme="light"] .addj-card-desc,
+:root[data-theme="light"] .addm-form-sub,
+:root[data-theme="light"] .addm-field label,
+:root[data-theme="light"] .addm-card-bio,
+:root[data-theme="light"] .mu-subtitle,
+:root[data-theme="light"] .mu-role-desc,
+:root[data-theme="light"] .mu-date,
+:root[data-theme="light"] .mu-field label,
+:root[data-theme="light"] .adpro-form-sub,
+:root[data-theme="light"] .adpro-field label {
+  color: #475569;
+}
+
+:root[data-theme="light"] .adp-field input,
+:root[data-theme="light"] .adp-field select,
+:root[data-theme="light"] .adp-field textarea,
+:root[data-theme="light"] .adp-dropzone,
+:root[data-theme="light"] .adp-card,
+:root[data-theme="light"] .addj-field input,
+:root[data-theme="light"] .addj-field select,
+:root[data-theme="light"] .addj-field textarea,
+:root[data-theme="light"] .addj-card,
+:root[data-theme="light"] .addm-field input,
+:root[data-theme="light"] .addm-field select,
+:root[data-theme="light"] .addm-field textarea,
+:root[data-theme="light"] .addm-dropzone,
+:root[data-theme="light"] .addm-card,
+:root[data-theme="light"] .mu-table th,
+:root[data-theme="light"] .mu-field input,
+:root[data-theme="light"] .adpro-field input,
+:root[data-theme="light"] .adpro-field select,
+:root[data-theme="light"] .adpro-field textarea,
+:root[data-theme="light"] .adpro-dropzone,
+:root[data-theme="light"] .adpro-card {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* Apply Now Page Light Mode */
+:root[data-theme="light"] .apply-page,
+:root[data-theme="light"] .apply-success {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .apply-hero {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 40%, #a5d6a7 100%);
+}
+
+:root[data-theme="light"] .apply-form-card,
+:root[data-theme="light"] .apply-perks-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .apply-form-title,
+:root[data-theme="light"] .apply-field label,
+:root[data-theme="light"] .apply-perks-title,
+:root[data-theme="light"] .apply-perk-label,
+:root[data-theme="light"] .apply-success-title {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .apply-form-sub,
+:root[data-theme="light"] .apply-dropzone-hint,
+:root[data-theme="light"] .apply-telegram-hint,
+:root[data-theme="light"] .apply-success-text {
+  color: #475569;
+}
+
+:root[data-theme="light"] .apply-field input,
+:root[data-theme="light"] .apply-field select,
+:root[data-theme="light"] .apply-field textarea,
+:root[data-theme="light"] .apply-dropzone,
+:root[data-theme="light"] .apply-perk-item {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .apply-field input::placeholder,
+:root[data-theme="light"] .apply-field textarea::placeholder {
+  color: #94a3b8;
 }
 
 #root {

@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { ThemeToggle } from '../components/ThemeToggle'
 import './AdminD.css'
 
 const stats = [
@@ -113,6 +114,7 @@ function AdminD() {
             <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
           <div className="admind-topbar-right">
+            <ThemeToggle />
             <span className="admind-topbar-badge">🔔</span>
             <div className="admind-topbar-avatar">A</div>
           </div>

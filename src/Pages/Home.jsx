@@ -126,8 +126,7 @@ function AnimatedNumber({ value }) {
 }
 
 function Reveal({ children }) {
-  const [ref, visible] = useScrollReveal()
-  return <div ref={ref} className={`home-reveal ${visible ? 'home-reveal--visible' : ''}`}>{children}</div>
+  return <div>{children}</div>
 }
 
 export const Home = () => {
@@ -142,6 +141,30 @@ export const Home = () => {
         <div className="home-hero-glow-orange" />
 
         <div className="home-hero-inner">
+          {/* Hero Visual Stack (Picture on Left) */}
+          <div className="home-hero-visual">
+            <div className="home-hero-floating-badge home-hero-floating-badge--top">
+              <span className="home-hero-badge-icon">⚡</span>
+              <div>
+                <span className="home-hero-badge-title">45 Min Delivery</span>
+                <span className="home-hero-badge-sub">Fast Phnom Penh Express</span>
+              </div>
+            </div>
+
+            <div className="home-hero-floating-badge home-hero-floating-badge--bottom">
+              <span className="home-hero-badge-icon">🌿</span>
+              <div>
+                <span className="home-hero-badge-title">100% Organic</span>
+                <span className="home-hero-badge-sub">Certified Local Farms</span>
+              </div>
+            </div>
+
+            <div className="home-hero-img-frame">
+              <img src={homeHero} alt="B'Groceries Store" className="home-hero-img" />
+            </div>
+          </div>
+
+          {/* Hero Copy (Text on Right) */}
           <div className="home-hero-copy">
             <span className="home-hero-eyebrow">
               <span>🌟</span> {TEXTS.heroEyebrow[lang]}
@@ -154,12 +177,8 @@ export const Home = () => {
 
             <p className="home-hero-sub">{TEXTS.heroSub[lang]}</p>
 
-            {/* CTA Wrapper with Animated Arrow */}
+            {/* CTA Buttons */}
             <div className="home-hero-cta-wrapper">
-              <div className="home-hero-arrow-container">
-                <span className="home-hero-arrow-text">Click Here</span>
-                <HeroBouncingArrow />
-              </div>
               <div className="home-hero-cta-buttons">
                 <Link to="/products" className="home-btn-shop">
                   <span>🛒</span>
@@ -180,29 +199,6 @@ export const Home = () => {
               <span className="home-hero-tag">🍎 Organic Fruits</span>
               <span className="home-hero-tag">🥩 Meat & Poultry</span>
               <span className="home-hero-tag">⚡ 45m Delivery</span>
-            </div>
-          </div>
-
-          {/* Hero Visual Stack */}
-          <div className="home-hero-visual">
-            <div className="home-hero-floating-badge home-hero-floating-badge--top">
-              <span className="home-hero-badge-icon">⚡</span>
-              <div>
-                <span className="home-hero-badge-title">45 Min Delivery</span>
-                <span className="home-hero-badge-sub">Fast Phnom Penh Express</span>
-              </div>
-            </div>
-
-            <div className="home-hero-floating-badge home-hero-floating-badge--bottom">
-              <span className="home-hero-badge-icon">🌿</span>
-              <div>
-                <span className="home-hero-badge-title">100% Organic</span>
-                <span className="home-hero-badge-sub">Certified Local Farms</span>
-              </div>
-            </div>
-
-            <div className="home-hero-img-frame">
-              <img src={homeHero} alt="B'Groceries Store" className="home-hero-img" />
             </div>
           </div>
         </div>
@@ -377,18 +373,5 @@ export const Home = () => {
     </div>
   )
 }
-
-const HeroBouncingArrow = () => (
-  <svg width="40" height="54" viewBox="0 0 44 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="home-hero-arrow-svg">
-    <defs>
-      <linearGradient id="arrowGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#FF9900" />
-        <stop offset="100%" stopColor="#77BC1F" />
-      </linearGradient>
-    </defs>
-    <path d="M22 4V46" stroke="url(#arrowGrad)" strokeWidth="4" strokeLinecap="round" strokeDasharray="6 4" />
-    <path d="M9 34L22 52L35 34" stroke="#FF9900" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
 
 export default Home

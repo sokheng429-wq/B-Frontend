@@ -1,7 +1,7 @@
 /* ===== ADD PROMOTION PAGE ===== */
 .adpro-page {
   min-height: 100vh;
-  background: #0B0F14;
+  background: #232F3F;
 }
 
 .adpro-inner {
@@ -21,7 +21,7 @@
 .adpro-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #2a1a22 0%, #f8bbd0 40%, #f48fb1 100%);
+  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
   z-index: 0;
 }
 
@@ -30,11 +30,11 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 60%, rgba(255,255,255,0.32) 0%, transparent 45%),
-    radial-gradient(circle at 75% 35%, rgba(255,255,255,0.28) 0%, transparent 45%);
+    radial-gradient(circle at 20% 60%, rgba(255, 255, 255, 0.32) 0%, transparent 45%),
+    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.28) 0%, transparent 45%);
 }
 
-.adpro-hero > .adpro-inner {
+.adpro-hero>.adpro-inner {
   position: relative;
   z-index: 1;
 }
@@ -42,22 +42,24 @@
 .adpro-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #880e4f;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0B0F14;
   text-decoration: none;
-  margin-bottom: 16px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.5);
-  backdrop-filter: blur(6px);
-  transition: background 0.2s, transform 0.15s;
+  margin-bottom: 20px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #FF9900 0%, #ffad33 100%);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .adpro-back-link:hover {
-  background: rgba(255,255,255,0.8);
-  transform: translateX(-3px);
+  transform: translateX(-5px) scale(1.04);
+  background: linear-gradient(135deg, #77BC1F 0%, #8fd13a 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(119, 188, 31, 0.5);
 }
 
 .adpro-hero-icon {
@@ -68,22 +70,29 @@
 }
 
 @keyframes adproBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
 }
 
 .adpro-hero-title {
   font-family: 'Montserrat', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
-  color: #880e4f;
+  color: #f7f4f5;
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .adpro-hero-sub {
   font-size: 1.05rem;
-  color: #ad1457;
+  color: #ebebeb;
   max-width: 540px;
   margin: 0 auto;
 }
@@ -104,10 +113,10 @@
 /* ===== FORM CARD ===== */
 .adpro-form-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 34px 36px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .adpro-form-header {
@@ -124,7 +133,7 @@
 
 .adpro-form-sub {
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   margin: 0;
 }
 
@@ -150,7 +159,7 @@
 .adpro-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .adpro-req {
@@ -161,7 +170,7 @@
 
 .adpro-opt {
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   font-weight: 400;
 }
 
@@ -169,11 +178,11 @@
 .adpro-field select,
 .adpro-field textarea {
   padding: 11px 14px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   font-size: 0.93rem;
   font-family: inherit;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   background: #1a2635;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
@@ -227,7 +236,7 @@
 }
 
 .adpro-color-swatch--active {
-  border-color: rgba(255,255,255,0.85);
+  border-color: rgba(255, 255, 255, 0.85);
   transform: scale(1.15);
 }
 
@@ -283,7 +292,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .adpro-photo-preview {
@@ -310,7 +319,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   border: none;
   padding: 4px 14px;
   border-radius: 20px;
@@ -320,7 +329,7 @@
 }
 
 .adpro-photo-change:hover {
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 /* ===== SUBMIT ===== */
@@ -359,17 +368,17 @@
   padding: 12px 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   background: #1a2635;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .adpro-cancel-btn:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.65);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* ===== SIDEBAR LIST ===== */
@@ -380,10 +389,10 @@
 
 .adpro-list-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .adpro-list-header {
@@ -449,14 +458,14 @@
   gap: 12px;
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   background: #1a2635;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .adpro-card:hover {
   border-color: rgba(233, 30, 99, 0.2);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .adpro-card-img-wrap {
@@ -516,7 +525,7 @@
 .adpro-card-code {
   font-size: 0.68rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   background: #1a2635;
   padding: 2px 8px;
   border-radius: 4px;
@@ -526,7 +535,7 @@
 
 .adpro-card-badge {
   font-size: 0.72rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
 }
 
@@ -546,7 +555,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -566,7 +575,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -599,12 +608,15 @@
   .adpro-layout {
     grid-template-columns: 1fr;
   }
+
   .adpro-sidebar {
     position: static;
   }
+
   .adpro-form-card {
     padding: 24px 18px;
   }
+
   .adpro-row {
     grid-template-columns: 1fr;
   }
@@ -614,6 +626,7 @@
   .adpro-hero {
     padding: 48px 16px 40px;
   }
+
   .adpro-hero-title {
     font-size: 1.8rem;
   }

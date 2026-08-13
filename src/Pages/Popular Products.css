@@ -7,7 +7,7 @@
 .popular-section-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0B0F14 0%, #0B0F14 100%);
+  background: linear-gradient(180deg, #232F3F 0%, #232F3F 100%);
   z-index: -1;
 }
 
@@ -103,14 +103,14 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   pointer-events: none;
 }
 
 .popular-search {
   width: 100%;
   padding: 11px 40px 11px 42px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   font-size: 0.9rem;
   font-family: inherit;
@@ -141,15 +141,15 @@
   height: 24px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: rgba(231, 155, 5, 0.45);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .popular-search-clear:hover {
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .popular-filter-group {
@@ -181,23 +181,23 @@
 }
 
 .popular-filter-tab:hover {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .popular-filter-tab--active {
   background: #232F3F;
   color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .popular-sort {
   padding: 8px 12px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   font-size: 0.82rem;
   font-weight: 600;
   font-family: inherit;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   background: #232F3F;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -210,7 +210,7 @@
 
 .popular-results-count {
   font-size: 0.82rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0 0 18px;
 }
 
@@ -227,7 +227,7 @@
 
 .popular-no-results p {
   font-size: 1rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
 }
 
@@ -245,9 +245,9 @@
   border-radius: 16px;
   overflow: hidden;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .product-card:hover {
@@ -296,7 +296,7 @@
   padding: 4px 10px;
   border-radius: 20px;
   backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .product-sale-badge {
@@ -314,8 +314,15 @@
 }
 
 @keyframes sale-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
 }
 
 /* Quick add on hover */
@@ -328,7 +335,7 @@
   transform: translateY(100%);
   opacity: 0;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              opacity 0.3s ease;
+    opacity 0.3s ease;
 }
 
 .product-card:hover .product-quick-add {
@@ -382,12 +389,12 @@
 }
 
 .star-empty {
-  color: rgba(255,255,255,0.15);
+  color: rgba(255, 255, 255, 0.15);
 }
 
 .product-sold {
   font-size: 0.6875rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .product-name {
@@ -417,7 +424,7 @@
 .product-old-price {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   text-decoration: line-through;
 }
 
@@ -432,13 +439,16 @@
   .popular-products {
     padding: 40px 0 60px;
   }
+
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
+
   .popular-title {
     font-size: 1.5rem;
   }
+
   .popular-header {
     margin-bottom: 24px;
   }
@@ -448,9 +458,11 @@
   .products-grid {
     gap: 10px;
   }
+
   .product-info {
     padding: 10px 12px 12px;
   }
+
   .product-name {
     font-size: 0.8125rem;
   }

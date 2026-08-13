@@ -1,11 +1,11 @@
 .contact-page {
-  background: #0B0F14;
+  background: #232F3F;
 }
 
 /* Hero */
 .contact-hero {
   position: relative;
-  background: linear-gradient(160deg, #0B0F14 0%, #232F3F 60%, #2d3f50 100%);
+  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #2d3f50 100%);
   padding: 72px 0 100px;
   overflow: hidden;
 }
@@ -54,8 +54,15 @@
 }
 
 @keyframes contact-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .contact-hero-title {
@@ -131,7 +138,7 @@
 
 .contact-info-card {
   background: #232F3F;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 20px 22px;
   display: flex;
@@ -153,7 +160,7 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--card-bg, #1a2515);
+  background: var(--card-bg, #232F3F);
   font-size: 1.2rem;
   flex-shrink: 0;
 }
@@ -163,7 +170,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0 0 3px;
 }
 
@@ -178,7 +185,7 @@
 /* FAQ */
 .contact-faq {
   background: #232F3F;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 22px 22px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -189,7 +196,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0 0 14px;
 }
 
@@ -213,13 +220,13 @@
 }
 
 .contact-faq-link:hover {
-  background: #1a2515;
+  background: #232F3F;
 }
 
 /* Form column */
 .contact-form-card {
   background: #232F3F;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 36px 34px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
@@ -254,7 +261,7 @@
 .cf-field label {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .cf-field input,
@@ -273,7 +280,7 @@
 
 .cf-field input::placeholder,
 .cf-field textarea::placeholder {
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .cf-field input:focus,
@@ -333,7 +340,9 @@
 
 /* Spinner */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
@@ -365,7 +374,7 @@
 .contact-map-wrap {
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
@@ -381,12 +390,15 @@
   .contact-main-inner {
     grid-template-columns: 1fr;
   }
+
   .contact-hero-title {
     font-size: 2.125rem;
   }
+
   .cf-row {
     grid-template-columns: 1fr;
   }
+
   .contact-form-card {
     padding: 28px 22px;
   }
@@ -396,18 +408,23 @@
   .contact-hero {
     padding: 48px 0 72px;
   }
+
   .contact-hero-title {
     font-size: 1.75rem;
   }
+
   .contact-hero-emoji {
     font-size: 2rem;
   }
+
   .contact-form-card {
     padding: 22px 18px;
   }
+
   .contact-map {
     height: 260px;
   }
+
   .contact-main {
     margin-top: -32px;
   }

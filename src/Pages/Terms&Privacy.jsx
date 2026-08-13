@@ -1,5 +1,5 @@
 // src/Pages/TermsPrivacy.jsx
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import './Terms&Privacy.css'
 

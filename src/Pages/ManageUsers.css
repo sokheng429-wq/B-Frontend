@@ -10,22 +10,32 @@
 .mu-topbar {
   padding: 14px 32px;
   background: #232F3F;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .mu-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.55);
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0B0F14;
   text-decoration: none;
-  transition: color 0.15s;
+  padding: 6px 16px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #FF9900 0%, #ffad33 100%);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .mu-back-link:hover {
-  color: #77BC1F;
+  transform: translateX(-5px) scale(1.04);
+  background: linear-gradient(135deg, #77BC1F 0%, #8fd13a 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(119, 188, 31, 0.45);
 }
 
 /* ===== CONTENT ===== */
@@ -47,13 +57,13 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 1.35rem;
   font-weight: 700;
-  color: #1a1f2e;
+  color: #f5f6f8;
   margin: 0 0 4px;
 }
 
 .mu-subtitle {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
 }
 
@@ -107,12 +117,12 @@
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1a1f2e;
+  color: #f2f3f5;
 }
 
 .mu-role-badge .mu-role-desc {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .mu-role-badge .mu-role-perms {
@@ -133,16 +143,16 @@
 
 .mu-perm-none {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   font-style: italic;
 }
 
 /* ===== TABLE ===== */
 .mu-table-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
@@ -160,12 +170,12 @@
   text-align: left;
   padding: 14px 20px;
   background: #1a2635;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .mu-table td {
   padding: 14px 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .mu-table tr:last-child td {
@@ -194,7 +204,7 @@
 
 .mu-user-name {
   font-weight: 700;
-  color: #1a1f2e;
+  color: #f4f5f6;
   margin: 0;
   font-size: 0.88rem;
 }
@@ -267,7 +277,7 @@
 .mu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   z-index: 199;
 }
 
@@ -279,7 +289,7 @@
   width: 440px;
   max-width: 100vw;
   background: #232F3F;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.12);
   z-index: 200;
   display: flex;
   flex-direction: column;
@@ -296,7 +306,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 22px 28px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .mu-form-panel-header h2 {
@@ -316,14 +326,14 @@
   border-radius: 8px;
   border: none;
   background: #1a2635;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .mu-form-close:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.85);
+  background: rgba(239, 5, 5, 0.06);
+  color: rgba(248, 6, 6, 0.85);
 }
 
 /* Form */
@@ -345,7 +355,7 @@
 .mu-field label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .mu-req {
@@ -354,11 +364,11 @@
 
 .mu-field input {
   padding: 11px 14px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   font-size: 0.9rem;
   font-family: inherit;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   background: #1a2635;
   transition: border-color 0.2s;
 }
@@ -367,7 +377,7 @@
   outline: none;
   border-color: #77BC1F;
   background: #232F3F;
-  box-shadow: 0 0 0 3px rgba(119,188,31,0.08);
+  box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.08);
 }
 
 .mu-input-err {
@@ -405,7 +415,7 @@
 
 .mu-role-option--active {
   border-color: var(--role-color);
-  background: color-mix(in srgb, var(--role-color) 15%, #232F3F);
+  background: color-mix(in srgb, var(--role-color) 15%, #77BC1F);
 }
 
 .mu-radio-label {
@@ -422,7 +432,7 @@
 
 .mu-radio-label .mu-role-hint {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(10, 10, 10, 0.4);
 }
 
 /* Permissions preview */
@@ -439,7 +449,7 @@
 .mu-preview-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .mu-submit-btn {
@@ -474,9 +484,11 @@
   .mu-role-legend {
     grid-template-columns: 1fr;
   }
+
   .mu-content {
     padding: 0 16px 24px;
   }
+
   .mu-table th:nth-child(4),
   .mu-table td:nth-child(4) {
     display: none;
@@ -487,10 +499,12 @@
   .mu-header {
     flex-direction: column;
   }
+
   .mu-table th:nth-child(3),
   .mu-table td:nth-child(3) {
     display: none;
   }
+
   .mu-form-panel {
     width: 100vw;
   }

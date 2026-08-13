@@ -1,6 +1,6 @@
 /* Career Page */
 .career-page {
-  background: #0B0F14;
+  background: #232F3F;
 }
 
 .career-inner {
@@ -12,7 +12,7 @@
 /* Hero */
 .career-hero {
   position: relative;
-  background: linear-gradient(160deg, #0B0F14 0%, #232F3F 60%, #34455c 100%);
+  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #232F3F 100%);
   padding: 80px 24px 100px;
   overflow: hidden;
 }
@@ -100,8 +100,8 @@
   border-radius: 20px;
   object-fit: cover;
   aspect-ratio: 3 / 2;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Stats row */
@@ -114,8 +114,8 @@
   justify-content: center;
   gap: 0;
   flex-wrap: wrap;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 24px 0;
   backdrop-filter: blur(10px);
@@ -127,7 +127,7 @@
   align-items: center;
   gap: 4px;
   padding: 0 36px;
-  border-right: 1px solid rgba(255,255,255,0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .career-stat:last-child {
@@ -174,7 +174,7 @@
 
 .career-section-sub {
   font-size: 0.95rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
   max-width: 500px;
   margin: 0 auto;
@@ -192,8 +192,8 @@
   background: #232F3F;
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 24px #FF9900(0, 0, 0, 0.05);
+  border: 1px solid #77BC1F(0, 0, 0, 0.05);
 }
 
 .benefit-card {
@@ -207,7 +207,7 @@
 }
 
 .benefit-card:hover {
-  background: #1a2515;
+  background: #FF9900;
   transform: translateY(-2px);
 }
 
@@ -260,9 +260,9 @@
 .career-filter-btn {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   background: #232F3F;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 9px 20px;
   cursor: pointer;
@@ -294,7 +294,7 @@
   justify-content: space-between;
   gap: 20px;
   background: #232F3F;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 22px 28px;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -359,8 +359,15 @@
 }
 
 @keyframes urgent-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.65; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.65;
+  }
 }
 
 .career-card-meta {
@@ -375,7 +382,7 @@
   align-items: center;
   gap: 5px;
   font-size: 0.8125rem;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   white-space: nowrap;
 }
 
@@ -384,7 +391,7 @@
 }
 
 .career-meta-posted {
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   font-style: italic;
 }
 
@@ -418,7 +425,7 @@
 .career-empty {
   text-align: center;
   padding: 60px 24px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .career-empty-icon {
@@ -438,20 +445,25 @@
     grid-template-columns: 1fr;
     gap: 32px;
   }
+
   .career-hero-visual {
     order: -1;
   }
+
   .career-hero-img {
     max-width: 100%;
   }
+
   .career-hero-title {
     font-size: 2.25rem;
   }
+
   .benefits-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     padding: 22px 18px;
   }
+
   .career-stat {
     padding: 0 24px;
   }
@@ -461,34 +473,42 @@
   .career-hero {
     padding: 56px 16px 80px;
   }
+
   .career-hero-title {
     font-size: 1.75rem;
   }
+
   .career-hero-subtitle {
     font-size: 0.95rem;
   }
+
   .career-hero-stats {
     gap: 12px;
     padding: 16px 12px;
   }
+
   .career-stat {
     padding: 8px 18px;
     border-right: none;
     flex: 1 1 40%;
   }
+
   .career-stat-value {
     font-size: 1.4rem;
   }
+
   .career-card {
     flex-direction: column;
     align-items: flex-start;
     padding: 18px 20px;
     gap: 14px;
   }
+
   .career-apply-btn {
     width: 100%;
     justify-content: center;
   }
+
   .career-card-meta {
     gap: 10px;
   }
@@ -498,9 +518,11 @@
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .career-filters {
     gap: 6px;
   }
+
   .career-filter-btn {
     font-size: 0.75rem;
     padding: 7px 14px;

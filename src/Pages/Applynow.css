@@ -1,7 +1,7 @@
 /* ===== APPLY NOW PAGE ===== */
 .apply-page {
   min-height: 100vh;
-  background: #0B0F14;
+  background: #232F3F;
 }
 
 .apply-inner {
@@ -21,7 +21,7 @@
 .apply-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
   z-index: 0;
 }
 
@@ -30,11 +30,11 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.35) 0%, transparent 45%),
-    radial-gradient(circle at 80% 40%, rgba(255,255,255,0.3) 0%, transparent 45%);
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 45%);
 }
 
-.apply-hero > .apply-inner {
+.apply-hero>.apply-inner {
   position: relative;
   z-index: 1;
 }
@@ -47,22 +47,29 @@
 }
 
 @keyframes applyBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
 }
 
 .apply-hero-title {
   font-family: 'Montserrat', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
-  color: #1b5e20;
+  color: #fcfdfc;
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .apply-hero-sub {
   font-size: 1.05rem;
-  color: #2e7d32;
+  color: #eff6f0;
   max-width: 520px;
   margin: 0 auto;
 }
@@ -83,10 +90,10 @@
 /* ===== FORM CARD ===== */
 .apply-form-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 36px 38px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .apply-form-header {
@@ -103,7 +110,7 @@
 
 .apply-form-sub {
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   margin: 0;
 }
 
@@ -129,7 +136,7 @@
 .apply-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .apply-required {
@@ -140,7 +147,7 @@
 
 .apply-optional {
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   font-weight: 400;
 }
 
@@ -148,11 +155,11 @@
 .apply-field select,
 .apply-field textarea {
   padding: 12px 14px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   font-size: 0.93rem;
   font-family: inherit;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   background: #1a2635;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
@@ -226,7 +233,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .apply-file-name {
@@ -287,7 +294,7 @@
 .apply-divider span {
   font-size: 0.8rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -334,10 +341,10 @@
 
 .apply-perks-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 26px 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .apply-perks-title {
@@ -377,7 +384,7 @@
 .apply-perk-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ===== SUCCESS STATE ===== */
@@ -411,7 +418,7 @@
 .apply-success-text {
   font-size: 1.05rem;
   line-height: 1.7;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   margin: 0 0 32px;
 }
 
@@ -435,12 +442,15 @@
   .apply-layout {
     grid-template-columns: 1fr;
   }
+
   .apply-sidebar {
     position: static;
   }
+
   .apply-form-card {
     padding: 26px 22px;
   }
+
   .apply-row {
     grid-template-columns: 1fr;
   }
@@ -450,18 +460,22 @@
   .apply-hero {
     padding: 52px 16px 44px;
   }
+
   .apply-hero-title {
     font-size: 1.8rem;
   }
+
   .apply-form-card {
     padding: 20px 16px;
     border-radius: 14px;
   }
+
   .apply-perks-list {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 8px;
   }
+
   .apply-perk-item {
     flex: 1 1 40%;
   }

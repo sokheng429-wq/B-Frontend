@@ -1,7 +1,7 @@
 /* ===== ADD PRODUCTS PAGE ===== */
 .adp-page {
   min-height: 100vh;
-  background: #0B0F14;
+  background: #232F3F;
 }
 
 .adp-inner {
@@ -21,7 +21,7 @@
 .adp-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
   z-index: 0;
 }
 
@@ -30,11 +30,11 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 60%, rgba(255,255,255,0.32) 0%, transparent 45%),
-    radial-gradient(circle at 75% 35%, rgba(255,255,255,0.28) 0%, transparent 45%);
+    radial-gradient(circle at 20% 60%, rgba(255, 255, 255, 0.32) 0%, transparent 45%),
+    radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.28) 0%, transparent 45%);
 }
 
-.adp-hero > .adp-inner {
+.adp-hero>.adp-inner {
   position: relative;
   z-index: 1;
 }
@@ -42,22 +42,24 @@
 .adp-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #2e7d32;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0B0F14;
   text-decoration: none;
-  margin-bottom: 16px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.5);
-  backdrop-filter: blur(6px);
-  transition: background 0.2s, transform 0.15s;
+  margin-bottom: 20px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #FF9900 0%, #ffad33 100%);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .adp-back-link:hover {
-  background: rgba(255,255,255,0.8);
-  transform: translateX(-3px);
+  transform: translateX(-5px) scale(1.04);
+  background: linear-gradient(135deg, #77BC1F 0%, #8fd13a 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(119, 188, 31, 0.5);
 }
 
 .adp-hero-icon {
@@ -68,22 +70,29 @@
 }
 
 @keyframes adpBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
 }
 
 .adp-hero-title {
   font-family: 'Montserrat', sans-serif;
   font-size: 2.4rem;
   font-weight: 800;
-  color: #1b5e20;
+  color: #f4f7f4;
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .adp-hero-sub {
   font-size: 1.05rem;
-  color: #2e7d32;
+  color: #f5f7f5;
   max-width: 540px;
   margin: 0 auto;
 }
@@ -104,10 +113,10 @@
 /* ===== FORM CARD ===== */
 .adp-form-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 34px 36px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .adp-form-header {
@@ -124,7 +133,7 @@
 
 .adp-form-sub {
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   margin: 0;
 }
 
@@ -150,7 +159,7 @@
 .adp-field label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .adp-req {
@@ -161,7 +170,7 @@
 
 .adp-opt {
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   font-weight: 400;
 }
 
@@ -169,11 +178,11 @@
 .adp-field select,
 .adp-field textarea {
   padding: 11px 14px;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   font-size: 0.93rem;
   font-family: inherit;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   background: #1a2635;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
@@ -235,7 +244,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .adp-photo-preview {
@@ -262,7 +271,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.55);
   border: none;
   padding: 4px 14px;
   border-radius: 20px;
@@ -272,7 +281,7 @@
 }
 
 .adp-photo-change:hover {
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 /* ===== SUBMIT ===== */
@@ -310,10 +319,10 @@
 
 .adp-list-card {
   background: #232F3F;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .adp-list-header {
@@ -379,14 +388,14 @@
   gap: 12px;
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   background: #1a2635;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .adp-card:hover {
   border-color: rgba(119, 188, 31, 0.2);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .adp-card-img-wrap {
@@ -468,7 +477,7 @@
 .adp-card-old-price {
   font-size: 0.78rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
   text-decoration: line-through;
 }
 
@@ -502,7 +511,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -522,7 +531,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, background 0.15s;
@@ -542,17 +551,17 @@
   padding: 12px 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   background: #1a2635;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .adp-cancel-btn:hover {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.65);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* ===== VIEW LINK ===== */
@@ -577,12 +586,15 @@
   .adp-layout {
     grid-template-columns: 1fr;
   }
+
   .adp-sidebar {
     position: static;
   }
+
   .adp-form-card {
     padding: 24px 18px;
   }
+
   .adp-row {
     grid-template-columns: 1fr;
   }
@@ -592,6 +604,7 @@
   .adp-hero {
     padding: 48px 16px 40px;
   }
+
   .adp-hero-title {
     font-size: 1.8rem;
   }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ThemeToggle } from '../components/ThemeToggle'
 import './ManageUsers.css'
 
 const ROLES = {
@@ -100,6 +101,7 @@ export function ManageUsers() {
         <Link to="/admin" className="mu-back-link">
           <ChevronLeftIcon /> Back to Dashboard
         </Link>
+        <ThemeToggle />
       </div>
 
       <div className="mu-content">
