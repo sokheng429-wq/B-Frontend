@@ -795,6 +795,140 @@ body {
   color: #94a3b8;
 }
 
+/* Profile Page Light & Dark Mode */
+.profile-page {
+  background: #232F3F;
+  color: #ffffff;
+}
+
+.profile-account-bar,
+.profile-sidebar,
+.profile-card,
+.profile-collapse-row {
+  background: #1a2635;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.profile-account-name,
+.profile-nav-item,
+.profile-field-value,
+.profile-field-input,
+.profile-collapse-row {
+  color: #ffffff;
+}
+
+.profile-field-row {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.profile-field-label,
+.profile-collapse-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-field-input {
+  background: #232F3F;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-nav-item.active {
+  background: #77BC1F;
+  color: #0B0F14;
+}
+
+.profile-danger-zone {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.profile-danger-title {
+  color: #ef4444;
+}
+
+.profile-danger-desc {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-danger-btn {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+}
+
+.profile-danger-btn:hover {
+  background: #dc2626;
+}
+
+/* Profile Page Light Mode */
+:root[data-theme="light"] .profile-page {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .profile-account-bar,
+:root[data-theme="light"] .profile-sidebar,
+:root[data-theme="light"] .profile-card,
+:root[data-theme="light"] .profile-collapse-row {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .profile-account-name,
+:root[data-theme="light"] .profile-nav-item,
+:root[data-theme="light"] .profile-field-value,
+:root[data-theme="light"] .profile-field-input,
+:root[data-theme="light"] .profile-collapse-row {
+  color: #0f172a;
+}
+
+:root[data-theme="light"] .profile-field-row {
+  border-bottom-color: #f1f5f9;
+}
+
+:root[data-theme="light"] .profile-field-label,
+:root[data-theme="light"] .profile-collapse-label {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .profile-field-input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="light"] .profile-nav-item:hover {
+  background: #f1f5f9;
+}
+
+:root[data-theme="light"] .profile-nav-item.active {
+  background: #77BC1F;
+  color: #ffffff;
+}
+
+:root[data-theme="light"] .profile-danger-zone {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+:root[data-theme="light"] .profile-danger-desc {
+  color: #64748b;
+}
+
+:root[data-theme="light"] .profile-danger-btn {
+  background: #ffffff;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+:root[data-theme="light"] .profile-danger-btn:hover {
+  background: #fef2f2;
+}
+
 #root {
   display: flex;
   flex-direction: column;

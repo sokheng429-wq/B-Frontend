@@ -12,6 +12,7 @@ export const LanguageSwitcher = ({ className = '' }) => {
       className={`lang-pill ${className}`}
       onClick={() => setLanguage(isKH ? 'en' : 'kh')}
       aria-label={`Switch language to ${isKH ? 'English' : 'Khmer'}`}
+      title={`Switch language to ${isKH ? 'English' : 'Khmer'}`}
     >
       <div className="lang-pill-track">
         <span className={`lang-pill-side ${!isKH ? 'lang-pill-side--on' : ''}`}>
@@ -23,7 +24,6 @@ export const LanguageSwitcher = ({ className = '' }) => {
       </div>
       <div className={`lang-pill-thumb ${isKH ? 'lang-pill-thumb--right' : ''}`}>
         <span className={isKH ? 'fi fi-kh' : 'fi fi-gb'} />
-        <span className="lang-pill-code">{isKH ? 'KH' : 'EN'}</span>
       </div>
     </button>
   )

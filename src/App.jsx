@@ -26,6 +26,7 @@ import AddProducts from './Pages/AddProducts'
 import AdminD from './Pages/AdminD'
 import ManageUsers from './Pages/ManageUsers'
 import Addpromotion from './Pages/Addpromotion'
+import Profile from './Pages/Profile'
 
 function App() {
   const location = useLocation()
@@ -68,6 +69,8 @@ function App() {
           <Route path="/admin" element={<AdminD />} />
           <Route path="/admin/users" element={<ManageUsers />} />
           <Route path="/add-promotion" element={<Addpromotion />} />
+
+          <Route path="/profile" element={<Profile />} />
 
         </Routes>
       </PageTransition>

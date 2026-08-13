@@ -59,6 +59,7 @@ export const PopularProducts = () => {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('default')
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
 
   const filtered = PRODUCTS
     .filter((p) => {
@@ -98,7 +99,7 @@ export const PopularProducts = () => {
         {/* Search & Filter bar */}
         <div className="popular-toolbar">
           <div className="popular-search-wrap">
-            <SearchIcon />
+            <span className="popular-search-icon-anim"><SearchIcon /></span>
             <input
               type="text"
               className="popular-search"
@@ -112,29 +113,61 @@ export const PopularProducts = () => {
               </button>
             )}
           </div>
+
           <div className="popular-filter-group">
             <div className="popular-filter-tabs">
               {[
-                { key: 'all', label: TEXTS.filterAll[lang] },
-                { key: 'sale', label: TEXTS.filterOnSale[lang] },
-                { key: 'bestseller', label: TEXTS.filterBestSeller[lang] },
-                { key: 'new', label: TEXTS.filterNew[lang] },
+                { key: 'all', icon: '⚡', label: TEXTS.filterAll[lang] },
+                { key: 'sale', icon: '🔥', label: TEXTS.filterOnSale[lang] },
+                { key: 'bestseller', icon: '🏆', label: TEXTS.filterBestSeller[lang] },
+                { key: 'new', icon: '✨', label: TEXTS.filterNew[lang] },
               ].map((f) => (
                 <button
                   key={f.key}
                   className={`popular-filter-tab ${filter === f.key ? 'popular-filter-tab--active' : ''}`}
                   onClick={() => setFilter(f.key)}
                 >
-                  {f.label}
+                  <span className="popular-filter-icon">{f.icon}</span>
+                  <span>{f.label}</span>
                 </button>
               ))}
             </div>
-            <select className="popular-sort" value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="default">{TEXTS.sortDefault[lang]}</option>
-              <option value="price-low">{TEXTS.sortPriceLow[lang]}</option>
-              <option value="price-high">{TEXTS.sortPriceHigh[lang]}</option>
-              <option value="rating">{TEXTS.sortRating[lang]}</option>
-            </select>
+
+            {/* Custom Modern Dropdown Sort */}
+            <div className="popular-sort-custom-wrap">
+              <button
+                className={`popular-sort-custom-btn ${sortDropdownOpen ? 'active' : ''}`}
+                onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+              >
+                <SortIcon />
+                <span>
+                  {sort === 'default' && TEXTS.sortDefault[lang]}
+                  {sort === 'price-low' && TEXTS.sortPriceLow[lang]}
+                  {sort === 'price-high' && TEXTS.sortPriceHigh[lang]}
+                  {sort === 'rating' && TEXTS.sortRating[lang]}
+                </span>
+                <ChevronDownIcon />
+              </button>
+
+              {sortDropdownOpen && (
+                <div className="popular-sort-menu">
+                  {[
+                    { key: 'default', label: TEXTS.sortDefault[lang] },
+                    { key: 'price-low', label: TEXTS.sortPriceLow[lang] },
+                    { key: 'price-high', label: TEXTS.sortPriceHigh[lang] },
+                    { key: 'rating', label: TEXTS.sortRating[lang] },
+                  ].map((s) => (
+                    <button
+                      key={s.key}
+                      className={`popular-sort-menu-item ${sort === s.key ? 'selected' : ''}`}
+                      onClick={() => { setSort(s.key); setSortDropdownOpen(false) }}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -196,6 +229,22 @@ export const PopularProducts = () => {
     </section>
   )
 }
+
+const SortIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="11" y1="5" x2="21" y2="5" />
+    <line x1="11" y1="12" x2="19" y2="12" />
+    <line x1="11" y1="19" x2="16" y2="19" />
+    <polyline points="3 8 6 5 9 8" />
+    <line x1="6" y1="5" x2="6" y2="19" />
+  </svg>
+)
+
+const ChevronDownIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+)
 
 const ArrowIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

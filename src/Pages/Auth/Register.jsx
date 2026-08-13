@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { useAuth } from '../../context/AuthContext'
 import { Logo } from '../../components/Logo'
 import './Register.css'
 
@@ -32,6 +33,8 @@ const TEXTS = {
 
 export const Register = () => {
   const { lang } = useLanguage()
+  const { login } = useAuth()
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     name: '', phone: '', password: '', confirmPassword: '', agree: false,
   })
@@ -48,6 +51,8 @@ export const Register = () => {
       return
     }
     console.log('Register submit', form)
+    login({ name: form.name, phone: form.phone })
+    navigate('/profile')
   }
 
   return (

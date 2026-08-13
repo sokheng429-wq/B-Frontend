@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ThemeToggle } from '../components/ThemeToggle'
 import './AdminD.css'
@@ -34,11 +35,12 @@ const recentActivity = [
 
 function AdminD() {
   const location = useLocation()
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   return (
-    <div className="admind-page">
+    <div className={`admind-page ${!sidebarOpen ? 'admind-page--collapsed' : ''}`}>
       {/* Sidebar */}
-      <aside className="admind-sidebar">
+      <aside className={`admind-sidebar ${!sidebarOpen ? 'admind-sidebar--collapsed' : ''}`}>
         <div className="admind-sidebar-brand">
           <span className="admind-sidebar-logo">G</span>
           <div>
@@ -110,8 +112,18 @@ function AdminD() {
         {/* Top bar */}
         <header className="admind-topbar">
           <div className="admind-topbar-left">
-            <h1 className="admind-topbar-title">Dashboard Overview</h1>
-            <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <button
+              className="admind-toggle-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle Sidebar"
+              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            >
+              <MenuToggleIcon />
+            </button>
+            <div>
+              <h1 className="admind-topbar-title">Dashboard Overview</h1>
+              <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
           </div>
           <div className="admind-topbar-right">
             <ThemeToggle />
@@ -265,6 +277,14 @@ function AdminD() {
     </div>
   )
 }
+
+const MenuToggleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+)
 
 const ChevronIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

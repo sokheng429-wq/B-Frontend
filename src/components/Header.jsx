@@ -5,6 +5,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { Logo } from './Logo'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
@@ -18,6 +19,7 @@ const NAV_LINKS = [
 
 export const Header = () => {
   const { lang } = useLanguage()
+  const { isLoggedIn, logout } = useAuth()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -31,6 +33,7 @@ export const Header = () => {
   const t = {
     login: { en: 'Login', kh: 'ចូលគណនី' },
     register: { en: 'Register', kh: 'ចុះឈ្មោះ' },
+    profile: { en: 'Profile', kh: 'គណនី' },
   }
 
   return (
@@ -68,16 +71,29 @@ export const Header = () => {
           >
             <CartIcon />
             {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
-          </Link> 
+          </Link>
           */}
 
-          <Link to="/login" className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}>
-            {t.login[lang]}
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'nav-link--active' : ''}`}>
+                {t.profile[lang]}
+              </Link>
+              <button type="button" onClick={logout} className="nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit' }}>
+                {lang === 'en' ? 'Log Out' : 'ចាកចេញ'}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}>
+                {t.login[lang]}
+              </Link>
 
-          <Link to="/register" className="btn-brand">
-            {t.register[lang]}
-          </Link>
+              <Link to="/register" className="btn-brand">
+                {t.register[lang]}
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -118,16 +134,38 @@ export const Header = () => {
               <CartIcon />
               {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
             </Link>
-            <Link
-              to="/login"
-              className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}
-              onClick={() => setMobileOpen(false)}
-            >
-              {t.login[lang]}
-            </Link>
-            <Link to="/register" className="btn-brand btn-brand-mobile" onClick={() => setMobileOpen(false)}>
-              {t.register[lang]}
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/profile"
+                  className={`nav-link ${isActive('/profile') ? 'nav-link--active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {t.profile[lang]}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => { logout(); setMobileOpen(false); }}
+                  className="nav-link"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit', textAlign: 'left', padding: '0.5rem 0' }}
+                >
+                  {lang === 'en' ? 'Log Out' : 'ចាកចេញ'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={`nav-link ${isActive('/login') ? 'nav-link--active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {t.login[lang]}
+                </Link>
+                <Link to="/register" className="btn-brand btn-brand-mobile" onClick={() => setMobileOpen(false)}>
+                  {t.register[lang]}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

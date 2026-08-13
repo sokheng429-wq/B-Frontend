@@ -19,6 +19,13 @@
   height: 100vh;
   overflow-y: auto;
   z-index: 100;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+}
+
+.admind-sidebar--collapsed {
+  margin-left: -248px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .admind-sidebar-brand {
@@ -187,8 +194,35 @@
 
 .admind-topbar-left {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 16px;
+}
+
+.admind-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FF9900;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+:root[data-theme="light"] .admind-toggle-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0B0F14;
+}
+
+.admind-toggle-btn:hover {
+  background: #77BC1F;
+  border-color: #77BC1F;
+  color: #ffffff;
+  transform: scale(1.05);
 }
 
 .admind-topbar-title {

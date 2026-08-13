@@ -5,6 +5,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 import { Logo } from './Logo'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
@@ -14,6 +15,7 @@ const NAV_LINKS = [
 
 export const Header2 = () => {
   const { lang } = useLanguage()
+  const { isLoggedIn, logout } = useAuth()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -27,6 +29,7 @@ export const Header2 = () => {
   const t = {
     login: { en: 'Login', kh: 'ចូលគណនី' },
     register: { en: 'Register', kh: 'ចុះឈ្មោះ' },
+    profile: { en: 'Profile', kh: 'គណនី' },
   }
 
   return (
@@ -66,13 +69,26 @@ export const Header2 = () => {
             {cartCount > 0 && <span className="h2-nav-cart-badge">{cartCount}</span>}
           </Link>
 
-          <Link to="/login" className={`h2-nav-link ${isActive('/login') ? 'h2-nav-link--active' : ''}`}>
-            {t.login[lang]}
-          </Link>
+          {isLoggedIn ? (
+            <>
+              <Link to="/profile" className={`h2-nav-link ${isActive('/profile') ? 'h2-nav-link--active' : ''}`}>
+                {t.profile[lang]}
+              </Link>
+              <button type="button" onClick={logout} className="h2-nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit' }}>
+                {lang === 'en' ? 'Log Out' : 'ចាកចេញ'}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className={`h2-nav-link ${isActive('/login') ? 'h2-nav-link--active' : ''}`}>
+                {t.login[lang]}
+              </Link>
 
-          <Link to="/register" className="h2-btn-brand">
-            {t.register[lang]}
-          </Link>
+              <Link to="/register" className="h2-btn-brand">
+                {t.register[lang]}
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -113,16 +129,39 @@ export const Header2 = () => {
               <CartIcon />
               {cartCount > 0 && <span className="h2-nav-cart-badge">{cartCount}</span>}
             </Link>
-            <Link
-              to="/login"
-              className={`h2-nav-link-mobile ${isActive('/login') ? 'h2-nav-link-mobile--active' : ''}`}
-              onClick={() => setMobileOpen(false)}
-            >
-              {t.login[lang]}
-            </Link>
-            <Link to="/register" className="h2-btn-brand h2-btn-brand-mobile" onClick={() => setMobileOpen(false)}>
-              {t.register[lang]}
-            </Link>
+
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/profile"
+                  className={`h2-nav-link-mobile ${isActive('/profile') ? 'h2-nav-link-mobile--active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {t.profile[lang]}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => { logout(); setMobileOpen(false); }}
+                  className="h2-nav-link-mobile"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit', textAlign: 'left', width: '100%' }}
+                >
+                  {lang === 'en' ? 'Log Out' : 'ចាកចេញ'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={`h2-nav-link-mobile ${isActive('/login') ? 'h2-nav-link-mobile--active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {t.login[lang]}
+                </Link>
+                <Link to="/register" className="h2-btn-brand h2-btn-brand-mobile" onClick={() => setMobileOpen(false)}>
+                  {t.register[lang]}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

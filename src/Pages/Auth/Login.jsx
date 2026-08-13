@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { useAuth } from '../../context/AuthContext'
 import { Logo } from '../../components/Logo'
 import './Login.css'
 
@@ -35,6 +36,8 @@ const TEXTS = {
 
 export const Login = () => {
   const { lang } = useLanguage()
+  const { login } = useAuth()
+  const navigate = useNavigate()
   const [mode, setMode] = useState('password') // 'password' | 'otp'
   const [form, setForm] = useState({ phone: '', password: '', remember: false })
   const [otpPhone, setOtpPhone] = useState('')
@@ -49,6 +52,8 @@ export const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log('Login submit', form)
+    login({ phone: form.phone })
+    navigate('/profile')
   }
 
   const handleSendOtp = (e) => {
@@ -60,6 +65,8 @@ export const Login = () => {
   const handleOtpLogin = (e) => {
     e.preventDefault()
     console.log('OTP login', otpPhone, otp)
+    login({ phone: otpPhone })
+    navigate('/profile')
   }
 
   const switchMode = (m) => {
