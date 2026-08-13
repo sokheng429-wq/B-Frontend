@@ -54,10 +54,10 @@ const TEAM = [
   },
   {
     id: 7,
-    name: { en: 'Molika Prak', kh: 'ម៉ាលីកា​ ប្រាក់' },
-    role: { en: 'UI/UX Designer', kh: 'អ្នករចនា UI/UX' },
-    image: new URL('../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
+    name: { en: 'Phal SophaNith', kh: 'ផល សុផានិត' },
+    role: { en: 'Warehouse Supervisor', kh: 'អ្នកគ្រប់គ្រងឃ្លាំង' },
+    image: new URL('../assets/poulsophanith.jpg', import.meta.url).href,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
     bio: { en: 'Designs the beautiful, easy-to-use experience you see on screen. Former artist turned product designer with an eye for detail.', kh: 'រចនាបទពិសោធន៍ដ៏ស្រស់ស្អាត និងងាយស្រួលប្រើដែលអ្នកឃើញនៅលើអេក្រង់។ អតីតសិល្បករដែលក្លាយជាអ្នករចនាផលិតផល។' },
   },
   {
