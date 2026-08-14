@@ -64,7 +64,7 @@ const TEAM = [
     id: 8,
     name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
     role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../assets/Mean.jpg', import.meta.url).href,
+    image: new URL('../assets/Mean.JPG', import.meta.url).href,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
     bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
   },
