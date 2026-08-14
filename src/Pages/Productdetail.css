@@ -1,0 +1,306 @@
+/* ============================================================
+   B'GROCERIES PRODUCT DETAIL — Dark Green Theme
+   Brand: var(--brand) (Green) · var(--accent) (Orange) · var(--navy) (Navy)
+   Font: var(--font-family) (EN/KH)
+   ============================================================ */
+
+.pd-page {
+  padding: 2rem 0 4rem;
+  background: var(--surface-0);
+  color: #ffffff;
+}
+.pd-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.pd-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 1.5rem;
+}
+.pd-breadcrumb a {
+  color: var(--brand);
+  text-decoration: none;
+}
+.pd-breadcrumb a:hover {
+  color: var(--brand-light);
+}
+.pd-breadcrumb-current {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.pd-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Gallery */
+.pd-gallery-main {
+  height: 300px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--surface-3), var(--surface-4));
+  margin-bottom: 0.75rem;
+}
+.pd-gallery-thumbs {
+  display: flex;
+  gap: 0.6rem;
+}
+.pd-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.pd-thumb-active {
+  border-color: var(--brand);
+}
+
+/* Info */
+.pd-tag {
+  display: inline-block;
+  font-family: var(--font-family);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+  background: var(--accent);
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  margin-bottom: 0.6rem;
+}
+
+.pd-name {
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.6rem;
+}
+
+.pd-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.pd-stars {
+  display: flex;
+  gap: 2px;
+  color: var(--accent);
+}
+.pd-rating-value {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.pd-rating-count {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pd-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.pd-price {
+  font-family: var(--font-family);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--brand);
+}
+.pd-unit {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+.pd-stock {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--brand-tint);
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.pd-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.pd-qty-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+.pd-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--brand-border-strong);
+  border-radius: 9999px;
+  padding: 0.35rem 0.9rem;
+}
+.pd-stepper button {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brand);
+  cursor: pointer;
+}
+.pd-stepper span {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 16px;
+  text-align: center;
+}
+
+.pd-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.btn-outline-pd,
+.btn-primary-pd {
+  flex: 1;
+  font-family: var(--font-family);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.btn-outline-pd {
+  background: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+}
+.btn-outline-pd:hover {
+  background: var(--brand-tint);
+}
+.btn-primary-pd {
+  background: var(--brand);
+  color: var(--navy-dark);
+  border: none;
+}
+.btn-primary-pd:hover {
+  background: var(--brand-light);
+}
+
+.pd-perks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid var(--brand-border);
+  padding-top: 1rem;
+}
+.pd-perk {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+.pd-perk svg {
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+/* Sections */
+.pd-section {
+  padding-top: 2rem;
+  border-top: 1px solid var(--brand-border);
+  margin-top: 2rem;
+}
+.pd-section-title {
+  font-family: var(--font-family);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 1rem;
+}
+.pd-description {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 640px;
+}
+
+.pd-specs {
+  max-width: 480px;
+}
+.pd-spec-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--brand-tint-soft);
+}
+.pd-spec-row span:first-child {
+  color: rgba(255, 255, 255, 0.45);
+}
+.pd-spec-row span:last-child {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.pd-related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.pd-related-card {
+  background: var(--surface-2);
+  border: 1px solid var(--brand-border);
+  border-radius: 14px;
+  padding: 0.85rem;
+}
+.pd-related-thumb {
+  height: 80px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--surface-3), var(--surface-4));
+  margin-bottom: 0.6rem;
+}
+.pd-related-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.25rem;
+}
+.pd-related-price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .pd-related-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .pd-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pd-gallery-main {
+    height: 380px;
+  }
+}

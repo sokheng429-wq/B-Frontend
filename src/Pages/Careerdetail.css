@@ -1,0 +1,181 @@
+/* ============================================================
+   B'GROCERIES CAREER DETAIL — Dark Green Theme
+   Brand: var(--brand) (Green) · var(--accent) (Orange) · var(--navy) (Navy)
+   Font: Montserrat (EN) · Kantumruy Pro (KH)
+   ============================================================ */
+
+.cd-page {
+  padding: 2rem 0 4rem;
+  background: var(--surface-0);
+  color: #ffffff;
+}
+.cd-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cd-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 1.5rem;
+}
+.cd-breadcrumb a {
+  color: var(--brand);
+  text-decoration: none;
+}
+.cd-breadcrumb a:hover {
+  color: var(--brand-light);
+}
+.cd-breadcrumb-current {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cd-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--brand-border);
+  margin-bottom: 2rem;
+}
+
+.cd-department-tag {
+  display: inline-block;
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+  background: var(--accent);
+  border-radius: 9999px;
+  padding: 0.2rem 0.7rem;
+  margin-bottom: 0.75rem;
+}
+
+.cd-title {
+  font-family: var(--font-family);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.75rem;
+}
+
+.cd-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.cd-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.cd-meta svg {
+  color: var(--brand);
+}
+
+.btn-apply {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--font-family);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+  background: var(--brand);
+  border-radius: 9999px;
+  padding: 0.7rem 1.75rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.btn-apply:hover {
+  background: var(--brand-light);
+}
+.btn-apply-block {
+  width: 100%;
+  text-align: center;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.cd-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.cd-section {
+  margin-bottom: 2rem;
+}
+.cd-section-title {
+  font-family: var(--font-family);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 0 0 0.85rem;
+}
+.cd-text {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+}
+.cd-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.cd-list li {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.65);
+}
+.cd-list li::marker {
+  color: var(--brand);
+}
+
+.cd-sidebar-card {
+  background: var(--surface-2);
+  border: 1px solid var(--brand-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  height: fit-content;
+}
+.cd-sidebar-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0.9rem 0 0.2rem;
+}
+.cd-sidebar-label:first-child {
+  margin-top: 0;
+}
+.cd-sidebar-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .cd-header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 900px) {
+  .cd-layout {
+    grid-template-columns: 1fr 280px;
+  }
+}

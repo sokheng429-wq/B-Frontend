@@ -1,7 +1,9 @@
 /* ===== ADD PROMOTION PAGE ===== */
 .adpro-page {
   min-height: 100vh;
-  background: #232F3F;
+  background: var(--navy);
+  color: #ffffff;
+  padding-bottom: 60px;
 }
 
 .adpro-inner {
@@ -21,7 +23,7 @@
 .adpro-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
+  background: var(--navy);
   z-index: 0;
 }
 
@@ -45,21 +47,21 @@
   gap: 8px;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #0B0F14;
+  color: var(--navy-dark);
   text-decoration: none;
   margin-bottom: 20px;
   padding: 8px 18px;
   border-radius: 30px;
-  background: linear-gradient(135deg, #FF9900 0%, #ffad33 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
   box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .adpro-back-link:hover {
   transform: translateX(-5px) scale(1.04);
-  background: linear-gradient(135deg, #77BC1F 0%, #8fd13a 100%);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
   color: #ffffff;
-  box-shadow: 0 6px 20px rgba(119, 188, 31, 0.5);
+  box-shadow: 0 6px 20px rgba(35, 47, 63, 0.5);
 }
 
 .adpro-hero-icon {
@@ -82,17 +84,17 @@
 }
 
 .adpro-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.4rem;
   font-weight: 800;
-  color: #f7f4f5;
+  color: var(--text-strong);
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .adpro-hero-sub {
   font-size: 1.05rem;
-  color: #ebebeb;
+  color: var(--text-strong);
   max-width: 540px;
   margin: 0 auto;
 }
@@ -112,7 +114,7 @@
 
 /* ===== FORM CARD ===== */
 .adpro-form-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 34px 36px;
@@ -124,7 +126,7 @@
 }
 
 .adpro-form-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.35rem;
   font-weight: 700;
   color: #fff;
@@ -164,7 +166,7 @@
 
 .adpro-req {
   font-size: 0.7rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -183,7 +185,7 @@
   font-size: 0.93rem;
   font-family: inherit;
   color: rgba(255, 255, 255, 0.85);
-  background: #1a2635;
+  background: #2d3f50;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
@@ -191,9 +193,9 @@
 .adpro-field select:focus,
 .adpro-field textarea:focus {
   outline: none;
-  border-color: #e91e63;
-  background: #232F3F;
-  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+  border-color: var(--brand);
+  background: var(--navy);
+  box-shadow: 0 0 15px rgba(35, 47, 63, 0.4), 0 0 0 3px rgba(35, 47, 63, 0.2);
 }
 
 .adpro-field textarea {
@@ -202,13 +204,13 @@
 }
 
 .adpro-input--err {
-  border-color: #e53935 !important;
-  background: #2a1515 !important;
+  border-color: var(--danger) !important;
+  background: var(--danger-tint) !important;
 }
 
 .adpro-err {
   font-size: 0.78rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -244,7 +246,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 2px solid #ddd;
+  border: 2px solid var(--border-default);
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
@@ -266,21 +268,21 @@
   align-items: center;
   justify-content: center;
   padding: 28px 20px;
-  border: 2px dashed #d0d0d0;
+  border: 2px dashed var(--border-default);
   border-radius: 12px;
-  background: #1a2635;
+  background: #2d3f50;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .adpro-dropzone:hover {
-  border-color: #e91e63;
-  background: #2a1a25;
+  border-color: var(--brand);
+  background: var(--brand-tint-soft);
 }
 
 .adpro-dropzone--over {
-  border-color: #e91e63;
-  background: #2a1a22;
+  border-color: var(--brand);
+  background: var(--brand-tint-soft);
 }
 
 .adpro-file-hidden {
@@ -308,7 +310,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
-  border: 2px solid #1a2635;
+  border: 2px solid #2d3f50;
 }
 
 .adpro-photo-change {
@@ -343,7 +345,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  background: #e91e63;
+  background: var(--brand);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -351,7 +353,7 @@
 }
 
 .adpro-submit-btn:hover {
-  background: #c2185b;
+  background: var(--brand-dark);
   transform: scale(1.02);
 }
 
@@ -369,7 +371,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.45);
-  background: #1a2635;
+  background: #2d3f50;
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   cursor: pointer;
@@ -388,7 +390,7 @@
 }
 
 .adpro-list-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 24px;
@@ -403,7 +405,7 @@
 }
 
 .adpro-list-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
@@ -417,7 +419,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #e91e63;
+  background: var(--brand);
   color: #fff;
   font-size: 0.8rem;
   font-weight: 800;
@@ -437,7 +439,7 @@
 
 .adpro-empty p {
   font-size: 0.85rem;
-  color: #aaa;
+  color: var(--text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -459,12 +461,12 @@
   padding: 12px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #1a2635;
+  background: #2d3f50;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .adpro-card:hover {
-  border-color: rgba(233, 30, 99, 0.2);
+  border-color: var(--brand-border);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
@@ -474,7 +476,7 @@
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #1a2635;
+  background: #2d3f50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -526,7 +528,7 @@
   font-size: 0.68rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.55);
-  background: #1a2635;
+  background: #2d3f50;
   padding: 2px 8px;
   border-radius: 4px;
   font-family: monospace;
@@ -562,8 +564,8 @@
 }
 
 .adpro-edit-btn:hover {
-  color: #1976d2;
-  background: #1a2530;
+  color: var(--info);
+  background: var(--surface-2);
 }
 
 .adpro-remove-btn {
@@ -582,8 +584,8 @@
 }
 
 .adpro-remove-btn:hover {
-  color: #e53935;
-  background: #2a1515;
+  color: var(--danger);
+  background: var(--danger-tint);
 }
 
 /* ===== VIEW LINK ===== */
@@ -594,7 +596,7 @@
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #e91e63;
+  color: var(--brand);
   text-decoration: none;
   transition: gap 0.2s;
 }

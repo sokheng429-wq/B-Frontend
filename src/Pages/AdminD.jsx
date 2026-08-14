@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ThemeToggle } from '../components/ThemeToggle'
+import { useLanguage } from '../context/LanguageContext'
 import AddProducts from './AddProducts'
 import Addjobs from './Addjobs'
 import AddMember from './Addmember'
@@ -9,19 +9,19 @@ import Addpromotion from './Addpromotion'
 import './AdminD.css'
 
 const stats = [
-  { label: 'Total Products', value: 24, change: '+3', up: true, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
-  { label: 'Open Jobs', value: 6, change: '+1', up: true, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
-  { label: 'Team Members', value: 12, change: '+2', up: true, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
-  { label: 'Applications', value: 9, change: '-2', up: false, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/career' },
+  { label: { en: 'Total Products', kh: 'ផលិតផលសរុប' }, value: 24, change: '+3', up: true, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
+  { label: { en: 'Open Jobs', kh: 'ការងារកំពុងរើស' }, value: 6, change: '+1', up: true, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
+  { label: { en: 'Team Members', kh: 'សមាជិកក្រុម' }, value: 12, change: '+2', up: true, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
+  { label: { en: 'Applications', kh: 'ពាក្យសុំការងារ' }, value: 9, change: '-2', up: false, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/career' },
 ]
 
 const categoryData = [
-  { label: 'Fruits & Veg', value: 8, max: 10, color: '#4caf50' },
-  { label: 'Meat & Seafood', value: 4, max: 10, color: '#f44336' },
-  { label: 'Dairy & Eggs', value: 5, max: 10, color: '#ff9800' },
-  { label: 'Bakery', value: 3, max: 10, color: '#795548' },
-  { label: 'Drinks', value: 2, max: 10, color: '#2196f3' },
-  { label: 'Snacks', value: 2, max: 10, color: '#9c27b0' },
+  { label: { en: 'Fruits & Veg', kh: 'បន្លែ និងផ្លែឈើ' }, value: 8, max: 10, color: '#4caf50' },
+  { label: { en: 'Meat & Seafood', kh: 'សាច់ និងគ្រឿងសមុទ្រ' }, value: 4, max: 10, color: '#f44336' },
+  { label: { en: 'Dairy & Eggs', kh: 'ទឹកដោះគោ និងស៊ុត' }, value: 5, max: 10, color: '#ff9800' },
+  { label: { en: 'Bakery', kh: 'នំប៉័ង' }, value: 3, max: 10, color: '#795548' },
+  { label: { en: 'Drinks', kh: 'ភេសជ្ជៈ' }, value: 2, max: 10, color: '#2196f3' },
+  { label: { en: 'Snacks', kh: 'អាហារសម្រន់' }, value: 2, max: 10, color: '#9c27b0' },
 ]
 
 const monthlyData = [
@@ -31,14 +31,57 @@ const monthlyData = [
 ]
 
 const recentActivity = [
-  { action: 'New product added', detail: 'Canvas Backpack', time: '2 hours ago', icon: '📦', color: '#4caf50' },
-  { action: 'Job posted', detail: 'Senior Frontend Developer', time: '5 hours ago', icon: '💼', color: '#ff9800' },
-  { action: 'New application received', detail: 'UI/UX Designer position', time: '1 day ago', icon: '📋', color: '#9c27b0' },
-  { action: 'Team member added', detail: 'Sarah Chen — Marketing', time: '2 days ago', icon: '👤', color: '#2196f3' },
-  { action: 'Product updated', detail: 'Organic Avocados price changed', time: '3 days ago', icon: '✏️', color: '#ff5722' },
+  { action: { en: 'New product added', kh: 'បានបន្ថែមផលិតផលថ្មី' }, detail: 'Canvas Backpack', time: '2 hours ago', icon: '📦', color: '#4caf50' },
+  { action: { en: 'Job posted', kh: 'បានប្រកាសការងារ' }, detail: 'Senior Frontend Developer', time: '5 hours ago', icon: '💼', color: '#ff9800' },
+  { action: { en: 'New application received', kh: 'បានទទួលពាក្យសុំថ្មី' }, detail: 'UI/UX Designer position', time: '1 day ago', icon: '📋', color: '#9c27b0' },
+  { action: { en: 'Team member added', kh: 'បានបន្ថែមសមាជិកក្រុម' }, detail: 'Sarah Chen — Marketing', time: '2 days ago', icon: '👤', color: '#2196f3' },
+  { action: { en: 'Product updated', kh: 'បានធ្វើបច្ចុប្បន្នភាពផលិតផល' }, detail: 'Organic Avocados price changed', time: '3 days ago', icon: '✏️', color: '#ff5722' },
 ]
 
+const TEXTS = {
+  dashboard: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+  products: { en: 'Products', kh: 'ផលិតផល' },
+  jobs: { en: 'Jobs', kh: 'ការងារ' },
+  members: { en: 'Members', kh: 'សមាជិក' },
+  users: { en: 'Users', kh: 'អ្នកប្រើប្រាស់' },
+  promotions: { en: 'Promotions', kh: 'ការផ្សព្វផ្សាយ' },
+  addProduct: { en: 'Add Product', kh: 'បន្ថែមផលិតផល' },
+  editProduct: { en: 'Edit Product', kh: 'កែប្រែផលិតផល' },
+  deleteProduct: { en: 'Delete Product', kh: 'លុបផលិតផល' },
+  updateProduct: { en: 'Update Product', kh: 'ធ្វើបច្ចុប្បន្នភាពផលិតផល' },
+  addJob: { en: 'Add Job', kh: 'បន្ថែមការងារ' },
+  editJob: { en: 'Edit Job', kh: 'កែប្រែការងារ' },
+  deleteJob: { en: 'Delete Job', kh: 'លុបការងារ' },
+  updateJob: { en: 'Update Job', kh: 'ធ្វើបច្ចុប្បន្នភាពការងារ' },
+  addMember: { en: 'Add Member', kh: 'បន្ថែមសមាជិក' },
+  editMember: { en: 'Edit Member', kh: 'កែប្រែសមាជិក' },
+  deleteMember: { en: 'Delete Member', kh: 'លុបសមាជិក' },
+  updateMember: { en: 'Update Member', kh: 'ធ្វើបច្ចុប្បន្នភាពសមាជិក' },
+  addUser: { en: 'Add User', kh: 'បន្ថែមអ្នកប្រើប្រាស់' },
+  editUser: { en: 'Edit User', kh: 'កែប្រែអ្នកប្រើប្រាស់' },
+  deleteUser: { en: 'Delete User', kh: 'លុបអ្នកប្រើប្រាស់' },
+  updateUser: { en: 'Update User', kh: 'ធ្វើបច្ចុប្បន្នភាពអ្នកប្រើប្រាស់' },
+  addPromotion: { en: 'Add Promotion', kh: 'បន្ថែមការផ្សព្វផ្សាយ' },
+  editPromotion: { en: 'Edit Promotion', kh: 'កែប្រែការផ្សព្វផ្សាយ' },
+  deletePromotion: { en: 'Delete Promotion', kh: 'លុបការផ្សព្វផ្សាយ' },
+  updatePromotion: { en: 'Update Promotion', kh: 'ធ្វើបច្ចុប្បន្នភាពការផ្សព្វផ្សាយ' },
+  shop: { en: 'Shop', kh: 'ហាង' },
+  career: { en: 'Career', kh: 'ការងារ' },
+  team: { en: 'Team', kh: 'ក្រុម' },
+  backToSite: { en: 'Back to Site', kh: 'ត្រឡប់ទៅគេហទំព័រ' },
+  overviewTitle: { en: 'Dashboard Overview', kh: 'ទិដ្ឋភាពទូទៅនៃផ្ទាំងគ្រប់គ្រង' },
+  prodCategoryTitle: { en: 'Products by Category', kh: 'ផលិតផលតាមប្រភេទ' },
+  prodCategorySub: { en: 'Distribution across categories', kh: 'ការបែងចែកតាមប្រភេទនីមួយៗ' },
+  monthlyTitle: { en: 'Monthly Activity', kh: 'សកម្មភាពប្រចាំខែ' },
+  monthlySub: { en: 'Products added this year', kh: 'ផលិតផលដែលបានបន្ថែមក្នុងឆ្នាំនេះ' },
+  quickActions: { en: 'Quick Actions', kh: 'សកម្មភាពរហ័ស' },
+  quickActionsSub: { en: 'Frequently used shortcuts', kh: 'ផ្លូវកាត់ដែលប្រើប្រាស់ញឹកញាប់' },
+  recentTitle: { en: 'Recent Activity', kh: 'សកម្មភាពថ្មីៗ' },
+  recentSub: { en: 'Latest actions across the platform', kh: 'សកម្មភាពចុងក្រោយនៅលើប្រព័ន្ធ' },
+}
+
 function AdminD() {
+  const { lang } = useLanguage()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [openDropdowns, setOpenDropdowns] = useState({
@@ -67,7 +110,7 @@ function AdminD() {
     if (path === '/add-member' || path.startsWith('/admin/members')) {
       return <AddMember />
     }
-    if (path === '/admin/users') {
+    if (path === '/manage-users' || path.startsWith('/admin/users') || path === '/admin/manage-users') {
       return <ManageUsers />
     }
     if (path === '/add-promotion' || path.startsWith('/admin/promotions')) {
@@ -79,7 +122,7 @@ function AdminD() {
         {/* Stats row */}
         <div className="admind-stats-grid">
           {stats.map((stat) => (
-            <Link to={stat.link} className="admind-stat-card" key={stat.label}>
+            <Link to={stat.link} className="admind-stat-card" key={stat.label.en}>
               <div className="admind-stat-top">
                 <span className="admind-stat-icon" style={{ background: stat.bg, color: stat.color }}>{stat.icon}</span>
                 <span className={`admind-stat-change ${stat.up ? 'admind-stat-change--up' : 'admind-stat-change--down'}`}>
@@ -87,7 +130,7 @@ function AdminD() {
                 </span>
               </div>
               <p className="admind-stat-value">{stat.value}</p>
-              <p className="admind-stat-label">{stat.label}</p>
+              <p className="admind-stat-label">{stat.label[lang]}</p>
             </Link>
           ))}
         </div>
@@ -97,13 +140,13 @@ function AdminD() {
           {/* Category chart */}
           <div className="admind-panel">
             <div className="admind-panel-header">
-              <h3 className="admind-panel-title">Products by Category</h3>
-              <span className="admind-panel-subtitle">Distribution across categories</span>
+              <h3 className="admind-panel-title">{TEXTS.prodCategoryTitle[lang]}</h3>
+              <span className="admind-panel-subtitle">{TEXTS.prodCategorySub[lang]}</span>
             </div>
             <div className="admind-bar-chart">
               {categoryData.map((cat) => (
-                <div className="admind-bar-row" key={cat.label}>
-                  <span className="admind-bar-label">{cat.label}</span>
+                <div className="admind-bar-row" key={cat.label.en}>
+                  <span className="admind-bar-label">{cat.label[lang]}</span>
                   <div className="admind-bar-track">
                     <div
                       className="admind-bar-fill"
@@ -119,8 +162,8 @@ function AdminD() {
           {/* Monthly overview */}
           <div className="admind-panel">
             <div className="admind-panel-header">
-              <h3 className="admind-panel-title">Monthly Activity</h3>
-              <span className="admind-panel-subtitle">Products added this year</span>
+              <h3 className="admind-panel-title">{TEXTS.monthlyTitle[lang]}</h3>
+              <span className="admind-panel-subtitle">{TEXTS.monthlySub[lang]}</span>
             </div>
             <div className="admind-column-chart">
               {monthlyData.map((m) => (
@@ -144,47 +187,47 @@ function AdminD() {
           {/* Quick actions */}
           <div className="admind-panel">
             <div className="admind-panel-header">
-              <h3 className="admind-panel-title">Quick Actions</h3>
-              <span className="admind-panel-subtitle">Frequently used shortcuts</span>
+              <h3 className="admind-panel-title">{TEXTS.quickActions[lang]}</h3>
+              <span className="admind-panel-subtitle">{TEXTS.quickActionsSub[lang]}</span>
             </div>
             <div className="admind-action-list">
               <Link to="/admin/products/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#4caf50' }}>📦</span>
                 <div>
-                  <h4>Add a Product</h4>
-                  <p>List new grocery items in the shop</p>
+                  <h4>{TEXTS.addProduct[lang]}</h4>
+                  <p>{lang === 'en' ? 'List new grocery items in the shop' : 'បន្ថែមទំនិញថ្មីទៅក្នុងហាង'}</p>
                 </div>
                 <ChevronIcon />
               </Link>
               <Link to="/admin/jobs/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#ff9800' }}>💼</span>
                 <div>
-                  <h4>Post a Job</h4>
-                  <p>Create a new career opening</p>
+                  <h4>{TEXTS.addJob[lang]}</h4>
+                  <p>{lang === 'en' ? 'Create a new career opening' : 'ប្រកាសការងារថ្មី'}</p>
                 </div>
                 <ChevronIcon />
               </Link>
               <Link to="/admin/members/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#2196f3' }}>👤</span>
                 <div>
-                  <h4>Add Team Member</h4>
-                  <p>Onboard a new team member</p>
+                  <h4>{TEXTS.addMember[lang]}</h4>
+                  <p>{lang === 'en' ? 'Onboard a new team member' : 'បន្ថែមសមាជិកក្រុមថ្មី'}</p>
                 </div>
                 <ChevronIcon />
               </Link>
               <Link to="/admin/promotions/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#e91e63' }}>🏷️</span>
                 <div>
-                  <h4>Manage Promotions</h4>
-                  <p>Create and edit promotional deals</p>
+                  <h4>{TEXTS.promotions[lang]}</h4>
+                  <p>{lang === 'en' ? 'Create and edit promotional deals' : 'បង្កើត និងកែប្រែការផ្សព្វផ្សាយ'}</p>
                 </div>
                 <ChevronIcon />
               </Link>
               <Link to="/products" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#607d8b' }}>🛒</span>
                 <div>
-                  <h4>View Public Shop</h4>
-                  <p>See the storefront as customers do</p>
+                  <h4>{lang === 'en' ? 'View Public Shop' : 'មើលហាងទំនិញ'}</h4>
+                  <p>{lang === 'en' ? 'See the storefront as customers do' : 'មើលហាងដូចអតិថិជនមើល'}</p>
                 </div>
                 <ChevronIcon />
               </Link>
@@ -194,8 +237,8 @@ function AdminD() {
           {/* Recent activity */}
           <div className="admind-panel">
             <div className="admind-panel-header">
-              <h3 className="admind-panel-title">Recent Activity</h3>
-              <span className="admind-panel-subtitle">Latest actions across the platform</span>
+              <h3 className="admind-panel-title">{TEXTS.recentTitle[lang]}</h3>
+              <span className="admind-panel-subtitle">{TEXTS.recentSub[lang]}</span>
             </div>
             <div className="admind-timeline">
               {recentActivity.map((item, index) => (
@@ -208,7 +251,7 @@ function AdminD() {
                   </div>
                   <div className="admind-timeline-body">
                     <p className="admind-timeline-action">
-                      {item.action}: <strong>{item.detail}</strong>
+                      {item.action[lang]}: <strong>{item.detail}</strong>
                     </p>
                     <p className="admind-timeline-time">{item.time}</p>
                   </div>
@@ -229,21 +272,21 @@ function AdminD() {
           <span className="admind-sidebar-logo">G</span>
           <div>
             <h3 className="admind-sidebar-name">Groceries</h3>
-            <p className="admind-sidebar-role">Admin Panel</p>
+            <p className="admind-sidebar-role">{lang === 'en' ? 'Admin Panel' : 'ផ្ទាំងគ្រប់គ្រង'}</p>
           </div>
         </div>
 
         <nav className="admind-sidebar-nav">
           <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Main</span>
+            <span className="admind-nav-section-label">{lang === 'en' ? 'Main' : 'មេ'}</span>
             <Link to="/admin" className={`admind-nav-item ${location.pathname === '/admin' ? 'admind-nav-item--active' : ''}`}>
               <span className="admind-nav-icon"><HomeIcon /></span>
-              <span className="admind-nav-label">Dashboard</span>
+              <span className="admind-nav-label">{TEXTS.dashboard[lang]}</span>
             </Link>
           </div>
 
           <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Management</span>
+            <span className="admind-nav-section-label">{lang === 'en' ? 'Management' : 'ការគ្រប់គ្រង'}</span>
 
             {/* Products Dropdown */}
             <div className="admind-nav-group">
@@ -253,7 +296,7 @@ function AdminD() {
                 onClick={() => toggleDropdown('products')}
               >
                 <span className="admind-nav-icon"><PackageIcon /></span>
-                <span className="admind-nav-label">Products</span>
+                <span className="admind-nav-label">{TEXTS.products[lang]}</span>
                 <span className={`admind-dropdown-arrow ${openDropdowns.products ? 'admind-dropdown-arrow--open' : ''}`}>
                   <ChevronDownIcon />
                 </span>
@@ -261,16 +304,16 @@ function AdminD() {
               {openDropdowns.products && (
                 <div className="admind-dropdown-menu">
                   <Link to="/admin/products/add" className="admind-dropdown-item">
-                    <span className="admind-subicon">➕</span> Add Product
+                    <span className="admind-subicon">➕</span> {TEXTS.addProduct[lang]}
                   </Link>
                   <Link to="/admin/products/edit" className="admind-dropdown-item">
-                    <span className="admind-subicon">✏️</span> Edit Product
+                    <span className="admind-subicon">✏️</span> {TEXTS.editProduct[lang]}
                   </Link>
                   <Link to="/admin/products/delete" className="admind-dropdown-item">
-                    <span className="admind-subicon">🗑️</span> Delete Product
+                    <span className="admind-subicon">🗑️</span> {TEXTS.deleteProduct[lang]}
                   </Link>
                   <Link to="/admin/products/update" className="admind-dropdown-item">
-                    <span className="admind-subicon">🔄</span> Update Product
+                    <span className="admind-subicon">🔄</span> {TEXTS.updateProduct[lang]}
                   </Link>
                 </div>
               )}
@@ -284,7 +327,7 @@ function AdminD() {
                 onClick={() => toggleDropdown('jobs')}
               >
                 <span className="admind-nav-icon"><BriefcaseIcon /></span>
-                <span className="admind-nav-label">Jobs</span>
+                <span className="admind-nav-label">{TEXTS.jobs[lang]}</span>
                 <span className={`admind-dropdown-arrow ${openDropdowns.jobs ? 'admind-dropdown-arrow--open' : ''}`}>
                   <ChevronDownIcon />
                 </span>
@@ -292,16 +335,16 @@ function AdminD() {
               {openDropdowns.jobs && (
                 <div className="admind-dropdown-menu">
                   <Link to="/admin/jobs/add" className="admind-dropdown-item">
-                    <span className="admind-subicon">➕</span> Add Job
+                    <span className="admind-subicon">➕</span> {TEXTS.addJob[lang]}
                   </Link>
                   <Link to="/admin/jobs/edit" className="admind-dropdown-item">
-                    <span className="admind-subicon">✏️</span> Edit Job
+                    <span className="admind-subicon">✏️</span> {TEXTS.editJob[lang]}
                   </Link>
                   <Link to="/admin/jobs/delete" className="admind-dropdown-item">
-                    <span className="admind-subicon">🗑️</span> Delete Job
+                    <span className="admind-subicon">🗑️</span> {TEXTS.deleteJob[lang]}
                   </Link>
                   <Link to="/admin/jobs/update" className="admind-dropdown-item">
-                    <span className="admind-subicon">🔄</span> Update Job
+                    <span className="admind-subicon">🔄</span> {TEXTS.updateJob[lang]}
                   </Link>
                 </div>
               )}
@@ -315,7 +358,7 @@ function AdminD() {
                 onClick={() => toggleDropdown('members')}
               >
                 <span className="admind-nav-icon"><UsersIcon /></span>
-                <span className="admind-nav-label">Members</span>
+                <span className="admind-nav-label">{TEXTS.members[lang]}</span>
                 <span className={`admind-dropdown-arrow ${openDropdowns.members ? 'admind-dropdown-arrow--open' : ''}`}>
                   <ChevronDownIcon />
                 </span>
@@ -323,16 +366,16 @@ function AdminD() {
               {openDropdowns.members && (
                 <div className="admind-dropdown-menu">
                   <Link to="/admin/members/add" className="admind-dropdown-item">
-                    <span className="admind-subicon">➕</span> Add Member
+                    <span className="admind-subicon">➕</span> {TEXTS.addMember[lang]}
                   </Link>
                   <Link to="/admin/members/edit" className="admind-dropdown-item">
-                    <span className="admind-subicon">✏️</span> Edit Member
+                    <span className="admind-subicon">✏️</span> {TEXTS.editMember[lang]}
                   </Link>
                   <Link to="/admin/members/delete" className="admind-dropdown-item">
-                    <span className="admind-subicon">🗑️</span> Delete Member
+                    <span className="admind-subicon">🗑️</span> {TEXTS.deleteMember[lang]}
                   </Link>
                   <Link to="/admin/members/update" className="admind-dropdown-item">
-                    <span className="admind-subicon">🔄</span> Update Member
+                    <span className="admind-subicon">🔄</span> {TEXTS.updateMember[lang]}
                   </Link>
                 </div>
               )}
@@ -346,7 +389,7 @@ function AdminD() {
                 onClick={() => toggleDropdown('users')}
               >
                 <span className="admind-nav-icon"><ShieldIcon /></span>
-                <span className="admind-nav-label">Users</span>
+                <span className="admind-nav-label">{TEXTS.users[lang]}</span>
                 <span className={`admind-dropdown-arrow ${openDropdowns.users ? 'admind-dropdown-arrow--open' : ''}`}>
                   <ChevronDownIcon />
                 </span>
@@ -354,16 +397,16 @@ function AdminD() {
               {openDropdowns.users && (
                 <div className="admind-dropdown-menu">
                   <Link to="/admin/users/add" className="admind-dropdown-item">
-                    <span className="admind-subicon">➕</span> Add User
+                    <span className="admind-subicon">➕</span> {TEXTS.addUser[lang]}
                   </Link>
                   <Link to="/admin/users/edit" className="admind-dropdown-item">
-                    <span className="admind-subicon">✏️</span> Edit User
+                    <span className="admind-subicon">✏️</span> {TEXTS.editUser[lang]}
                   </Link>
                   <Link to="/admin/users/delete" className="admind-dropdown-item">
-                    <span className="admind-subicon">🗑️</span> Delete User
+                    <span className="admind-subicon">🗑️</span> {TEXTS.deleteUser[lang]}
                   </Link>
                   <Link to="/admin/users/update" className="admind-dropdown-item">
-                    <span className="admind-subicon">🔄</span> Update User
+                    <span className="admind-subicon">🔄</span> {TEXTS.updateUser[lang]}
                   </Link>
                 </div>
               )}
@@ -377,7 +420,7 @@ function AdminD() {
                 onClick={() => toggleDropdown('promotions')}
               >
                 <span className="admind-nav-icon"><TagIcon /></span>
-                <span className="admind-nav-label">Promotions</span>
+                <span className="admind-nav-label">{TEXTS.promotions[lang]}</span>
                 <span className={`admind-dropdown-arrow ${openDropdowns.promotions ? 'admind-dropdown-arrow--open' : ''}`}>
                   <ChevronDownIcon />
                 </span>
@@ -385,16 +428,16 @@ function AdminD() {
               {openDropdowns.promotions && (
                 <div className="admind-dropdown-menu">
                   <Link to="/admin/promotions/add" className="admind-dropdown-item">
-                    <span className="admind-subicon">➕</span> Add Promotion
+                    <span className="admind-subicon">➕</span> {TEXTS.addPromotion[lang]}
                   </Link>
                   <Link to="/admin/promotions/edit" className="admind-dropdown-item">
-                    <span className="admind-subicon">✏️</span> Edit Promotion
+                    <span className="admind-subicon">✏️</span> {TEXTS.editPromotion[lang]}
                   </Link>
                   <Link to="/admin/promotions/delete" className="admind-dropdown-item">
-                    <span className="admind-subicon">🗑️</span> Delete Promotion
+                    <span className="admind-subicon">🗑️</span> {TEXTS.deletePromotion[lang]}
                   </Link>
                   <Link to="/admin/promotions/update" className="admind-dropdown-item">
-                    <span className="admind-subicon">🔄</span> Update Promotion
+                    <span className="admind-subicon">🔄</span> {TEXTS.updatePromotion[lang]}
                   </Link>
                 </div>
               )}
@@ -402,18 +445,18 @@ function AdminD() {
           </div>
 
           <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Public Pages</span>
+            <span className="admind-nav-section-label">{lang === 'en' ? 'Public Pages' : 'ទំព័រសាធារណៈ'}</span>
             <Link to="/products" className="admind-nav-item">
               <span className="admind-nav-icon"><ShopIcon /></span>
-              <span className="admind-nav-label">Shop</span>
+              <span className="admind-nav-label">{TEXTS.shop[lang]}</span>
             </Link>
             <Link to="/career" className="admind-nav-item">
               <span className="admind-nav-icon"><GlobeIcon /></span>
-              <span className="admind-nav-label">Career</span>
+              <span className="admind-nav-label">{TEXTS.career[lang]}</span>
             </Link>
             <Link to="/member" className="admind-nav-item">
               <span className="admind-nav-icon"><TeamIcon /></span>
-              <span className="admind-nav-label">Team</span>
+              <span className="admind-nav-label">{TEXTS.team[lang]}</span>
             </Link>
           </div>
         </nav>
@@ -421,7 +464,7 @@ function AdminD() {
         <div className="admind-sidebar-footer">
           <Link to="/" className="admind-back-site-btn">
             <ArrowLeftIcon />
-            <span>Back to Site</span>
+            <span>{TEXTS.backToSite[lang]}</span>
           </Link>
         </div>
       </aside>
@@ -440,8 +483,8 @@ function AdminD() {
               <MenuToggleIcon />
             </button>
             <div>
-              <h1 className="admind-topbar-title">Dashboard Overview</h1>
-              <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <h1 className="admind-topbar-title">{TEXTS.overviewTitle[lang]}</h1>
+              <p className="admind-topbar-date">{new Date().toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             </div>
           </div>
           <div className="admind-topbar-right">

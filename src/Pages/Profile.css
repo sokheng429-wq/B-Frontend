@@ -1,19 +1,5 @@
-:root {
-    --navy-900: #161e29;
-    --navy-800: #243040;
-    --navy-700: #34455c;
-
-    --brand-600: #649423;
-    --brand-500: #7eb631;
-    --brand-400: #97cc53;
-    --brand-100: #e6f3d6;
-
-    --accent-500: #e69d32;
-    --accent-100: #fbe8cc;
-}
-
 .profile-page {
-    background: #f7f6f1;
+    background: var(--surface-0);
     min-height: 100vh;
     padding: 2rem 1rem 4rem;
 }
@@ -29,7 +15,7 @@
     align-items: center;
     justify-content: space-between;
     background: white;
-    border: 1px solid #eae7db;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     padding: 1rem 1.25rem;
     margin-bottom: 1.25rem;
@@ -45,7 +31,7 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: var(--brand-500);
+    background: var(--brand);
     color: white;
     font-weight: 700;
     font-size: 0.9375rem;
@@ -57,7 +43,7 @@
 .profile-account-name {
     font-size: 0.9375rem;
     font-weight: 700;
-    color: var(--navy-800);
+    color: var(--navy);
 }
 
 .profile-logout {
@@ -66,14 +52,14 @@
     gap: 0.4rem;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #d9502e;
+    color: var(--danger);
     background: transparent;
     border: none;
     cursor: pointer;
 }
 
 .profile-logout:hover {
-    color: #b8401f;
+    color: #c62828;
 }
 
 /* ---------- Layout ---------- */
@@ -86,7 +72,7 @@
 /* ---------- Sidebar ---------- */
 .profile-sidebar {
     background: white;
-    border: 1px solid #eae7db;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     padding: 0.5rem;
     display: flex;
@@ -101,7 +87,7 @@
     gap: 0.6rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--navy-800);
+    color: var(--navy);
     background: transparent;
     border: none;
     border-radius: 10px;
@@ -112,12 +98,12 @@
 }
 
 .profile-nav-item:hover {
-    background: #f5f4ee;
+    background: var(--surface-1);
 }
 
 .profile-nav-item.active {
-    background: var(--brand-100);
-    color: var(--brand-600);
+    background: var(--brand-tint-soft);
+    color: var(--brand-dark);
     font-weight: 700;
 }
 
@@ -134,7 +120,7 @@
 
 .profile-card {
     background: white;
-    border: 1px solid #eae7db;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     padding: 1.5rem;
 }
@@ -151,7 +137,7 @@
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #9a988c;
+    color: var(--text-muted);
 }
 
 .profile-edit-btn {
@@ -160,14 +146,14 @@
     gap: 0.35rem;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--brand-600);
+    color: var(--brand-dark);
     background: transparent;
     border: none;
     cursor: pointer;
 }
 
 .profile-edit-btn:hover {
-    color: var(--brand-500);
+    color: var(--brand);
 }
 
 .profile-edit-actions {
@@ -178,23 +164,23 @@
 .profile-cancel-btn {
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #77766f;
+    color: var(--text-muted);
     background: transparent;
-    border: 1px solid #ded9c9;
+    border: 1px solid var(--border-default);
     border-radius: 8px;
     padding: 0.4rem 0.85rem;
     cursor: pointer;
 }
 
 .profile-cancel-btn:hover {
-    background: #f5f4ee;
+    background: var(--surface-1);
 }
 
 .profile-save-btn {
     font-size: 0.8125rem;
     font-weight: 700;
     color: white;
-    background: var(--brand-500);
+    background: var(--brand);
     border: none;
     border-radius: 8px;
     padding: 0.4rem 0.95rem;
@@ -202,7 +188,7 @@
 }
 
 .profile-save-btn:hover {
-    background: var(--brand-600);
+    background: var(--brand-dark);
 }
 
 /* Field rows */
@@ -212,7 +198,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.85rem 0;
-    border-bottom: 1px solid #f0eee4;
+    border-bottom: 1px solid var(--border-subtle);
 }
 
 .profile-field-row:last-child {
@@ -221,23 +207,23 @@
 
 .profile-field-label {
     font-size: 0.875rem;
-    color: #77766f;
+    color: var(--text-muted);
     flex-shrink: 0;
 }
 
 .profile-field-value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--navy-800);
+    color: var(--navy);
     text-align: right;
 }
 
 .profile-field-input {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--navy-800);
+    color: var(--navy);
     text-align: right;
-    border: 1px solid #ded9c9;
+    border: 1px solid var(--border-default);
     border-radius: 8px;
     padding: 0.4rem 0.65rem;
     outline: none;
@@ -246,8 +232,8 @@
 }
 
 .profile-field-input:focus {
-    border-color: var(--brand-500);
-    box-shadow: 0 0 0 3px var(--brand-100);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-tint-soft);
 }
 
 /* ---------- Collapsible row (Change Password) ---------- */
@@ -257,15 +243,15 @@
     align-items: center;
     justify-content: space-between;
     background: white;
-    border: 1px solid #eae7db;
+    border: 1px solid var(--border-default);
     border-radius: 16px;
     padding: 1rem 1.25rem;
     cursor: pointer;
-    color: var(--navy-800);
+    color: var(--navy);
 }
 
 .profile-collapse-row:hover {
-    border-color: var(--brand-400);
+    border-color: var(--brand-light);
 }
 
 .profile-collapse-label {
@@ -276,11 +262,11 @@
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #77766f;
+    color: var(--text-muted);
 }
 
 .profile-collapse-label svg {
-    color: var(--brand-500);
+    color: var(--brand);
 }
 
 /* ---------- Danger zone ---------- */
@@ -288,8 +274,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background: #fdf6f2;
-    border: 1px solid #f3ddd1;
+    background: var(--danger-tint);
+    border: 1px solid var(--danger-border);
     border-radius: 16px;
     padding: 1.25rem;
 }
@@ -299,13 +285,13 @@
     font-weight: 700;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    color: #c8492a;
+    color: var(--danger);
     margin: 0 0 0.3rem;
 }
 
 .profile-danger-desc {
     font-size: 0.8125rem;
-    color: #8a7d75;
+    color: var(--text-muted);
     margin: 0;
 }
 
@@ -316,7 +302,7 @@
     gap: 0.4rem;
     font-size: 0.8125rem;
     font-weight: 700;
-    color: #c8492a;
+    color: var(--danger);
     background: white;
     border: 1px solid #f0c3ae;
     border-radius: 10px;
@@ -326,12 +312,12 @@
 }
 
 .profile-danger-btn:hover {
-    background: #fbeae2;
+    background: var(--danger-tint);
 }
 
 /* Placeholder for non-info tabs */
 .profile-placeholder {
-    color: #9a988c;
+    color: var(--text-muted);
     font-size: 0.875rem;
     text-align: center;
     padding: 3rem 1rem;

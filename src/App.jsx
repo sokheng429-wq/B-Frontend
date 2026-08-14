@@ -1,4 +1,3 @@
-
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Header2 from './components/Header2'
@@ -20,18 +19,17 @@ import FAQ from './Pages/FAQ'
 import ShippingDelivery from './Pages/Shipping&Delivery'
 import Cart from './Pages/Cart'
 import ApplyNow from './Pages/Applynow'
-import AddMember from './Pages/Addmember'
-import Addjobs from './Pages/Addjobs'
-import AddProducts from './Pages/AddProducts'
 import AdminD from './Pages/AdminD'
-import ManageUsers from './Pages/ManageUsers'
-import Addpromotion from './Pages/Addpromotion'
 import Profile from './Pages/Profile'
+import Memberdetail from './Pages/Memberdetail'
+import Productdetail from './Pages/Productdetail'
+import Careerdetail from './Pages/Careerdetail'
+import Partners from './Pages/Partners'
 
 function App() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
-  const useHeader2 = location.pathname === '/products' || location.pathname === '/promotion'
+  const useHeader2 = location.pathname === '/products' || location.pathname === '/promotion' || location.pathname === '/partners'
 
   return (
     <>
@@ -45,15 +43,22 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* Only Admin Emp or marchent Have permission to access this route can add more products*/}
+          {/* Customer Standard & Interactive Pages */}
           <Route path="/products" element={<PopularProducts />} />
-          {/* Only Admin Have permission to access this route add promotion */}
-          <Route path="/promotion" element={<Promotion />} />
-          {/* Only Admin Have permission to access this route to add more members */}
-          <Route path="/career" element={<Career />} />
-          {/* Only Admin Have permission to access this route add or remove members */}
-          <Route path="/member" element={<Member />} />
+          <Route path="/product-detail" element={<Productdetail />} />
+          <Route path="/product-details" element={<Productdetail />} />
 
+          <Route path="/promotion" element={<Promotion />} />
+
+          <Route path="/career" element={<Career />} />
+          <Route path="/career-detail" element={<Careerdetail />} />
+          <Route path="/career-details" element={<Careerdetail />} />
+
+          <Route path="/member" element={<Member />} />
+          <Route path="/member-detail" element={<Memberdetail />} />
+          <Route path="/member-details" element={<Memberdetail />} />
+
+          <Route path="/partners" element={<Partners />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms-privacy" element={<TermsPrivacy />} />
@@ -62,13 +67,14 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/apply-now" element={<ApplyNow />} />
 
-          {/* Only Admin Have permission to access this route */}
+          {/* Admin Backoffice Management */}
           <Route path="/admin" element={<AdminD />} />
           <Route path="/admin/*" element={<AdminD />} />
           <Route path="/add-member" element={<AdminD />} />
           <Route path="/add-jobs" element={<AdminD />} />
           <Route path="/add-products" element={<AdminD />} />
           <Route path="/add-promotion" element={<AdminD />} />
+          <Route path="/manage-users" element={<AdminD />} />
 
           <Route path="/profile" element={<Profile />} />
 

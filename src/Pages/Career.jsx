@@ -146,7 +146,9 @@ export const Career = () => {
                   </div>
                   <div className="career-card-info">
                     <div className="career-card-header">
-                      <h3 className="career-card-title">{job.title[lang]}</h3>
+                      <Link to="/career-detail" state={{ job }} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <h3 className="career-card-title">{job.title[lang]}</h3>
+                      </Link>
                       {job.urgent && (
                         <span className="career-urgent-tag">{TEXTS.urgent[lang]}</span>
                       )}
@@ -167,10 +169,15 @@ export const Career = () => {
                     </div>
                   </div>
                 </div>
-                <Link to="/apply-now" className="career-apply-btn">
-                  {TEXTS.apply[lang]}
-                  <ChevronIcon />
-                </Link>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <Link to="/career-detail" state={{ job }} className="career-apply-btn" style={{ background: '#232F3F', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
+                    {lang === 'en' ? 'Details' : 'ព័ត៌មានលម្អិត'}
+                  </Link>
+                  <Link to="/apply-now" className="career-apply-btn">
+                    {TEXTS.apply[lang]}
+                    <ChevronIcon />
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

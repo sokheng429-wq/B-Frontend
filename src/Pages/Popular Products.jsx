@@ -181,47 +181,53 @@ export const PopularProducts = () => {
         ) : (
           <div className="products-grid">
             {filtered.map((product) => (
-              <article
+              <Link
                 key={product.id}
-                className={`product-card ${hovered === product.id ? 'product-card--hovered' : ''}`}
-                onMouseEnter={() => setHovered(product.id)}
-                onMouseLeave={() => setHovered(null)}
+                to="/product-detail"
+                state={{ product }}
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
               >
-                <div className="product-image-wrap">
-                  <img
-                    src={product.image}
-                    alt={product.name[lang]}
-                    className="product-image"
-                    loading="lazy"
-                  />
-                  <div className="product-image-gradient" />
-                  {product.badge && (
-                    <span className="product-badge">{product.badge[lang]}</span>
-                  )}
-                  {product.oldPrice && (
-                    <span className="product-sale-badge">SALE</span>
-                  )}
-                  <div className="product-quick-add">
-                    <button className="product-add-btn">
-                      <CartIcon />
-                      {TEXTS.addToCart[lang]}
-                    </button>
-                  </div>
-                </div>
-                <div className="product-info">
-                  <div className="product-meta">
-                    <StarRating rating={product.rating} />
-                    <span className="product-sold">{product.sold} {TEXTS.sold[lang]}</span>
-                  </div>
-                  <h3 className="product-name">{product.name[lang]}</h3>
-                  <div className="product-price-row">
-                    <span className="product-price">{product.price}</span>
-                    {product.oldPrice && (
-                      <span className="product-old-price">{product.oldPrice}</span>
+                <article
+                  className={`product-card ${hovered === product.id ? 'product-card--hovered' : ''}`}
+                  onMouseEnter={() => setHovered(product.id)}
+                  onMouseLeave={() => setHovered(null)}
+                >
+                  <div className="product-image-wrap">
+                    <img
+                      src={product.image}
+                      alt={product.name[lang]}
+                      className="product-image"
+                      loading="lazy"
+                    />
+                    <div className="product-image-gradient" />
+                    {product.badge && (
+                      <span className="product-badge">{product.badge[lang]}</span>
                     )}
+                    {product.oldPrice && (
+                      <span className="product-sale-badge">SALE</span>
+                    )}
+                    <div className="product-quick-add">
+                      <button className="product-add-btn" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                        <CartIcon />
+                        {TEXTS.addToCart[lang]}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
+                  <div className="product-info">
+                    <div className="product-meta">
+                      <StarRating rating={product.rating} />
+                      <span className="product-sold">{product.sold} {TEXTS.sold[lang]}</span>
+                    </div>
+                    <h3 className="product-name">{product.name[lang]}</h3>
+                    <div className="product-price-row">
+                      <span className="product-price">{product.price}</span>
+                      {product.oldPrice && (
+                        <span className="product-old-price">{product.oldPrice}</span>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              </Link>
             ))}
           </div>
         )}

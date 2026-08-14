@@ -268,6 +268,24 @@ export const Addpromotion = () => {
                 <span className="adpro-list-count">{promotions.length}</span>
               </div>
 
+              {/* Action Shortcuts */}
+              <div className="adp-shortcuts">
+                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
+                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Promotion">
+                  ➕ {TEXTS.addBtn[lang]}
+                </button>
+                {editingId && (
+                  <>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
+                      ✏️ {TEXTS.updateBtn[lang]}
+                    </button>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removePromotion(editingId)} title="Delete editing promotion">
+                      🗑️ {TEXTS.remove[lang]}
+                    </button>
+                  </>
+                )}
+              </div>
+
               {promotions.length === 0 ? (
                 <div className="adpro-empty">
                   <span className="adpro-empty-icon">🏷️</span>

@@ -64,6 +64,8 @@ const TEXTS = {
   outOfStock: { en: 'Out of stock', kh: 'អស់ស្តុក' },
   remove: { en: 'Remove', kh: 'លុប' },
   edit: { en: 'Edit', kh: 'កែប្រែ' },
+  delete: { en: 'Delete', kh: 'លុប' },
+  update: { en: 'Update', kh: 'ធ្វើបច្ចុប្បន្នភាព' },
   back: { en: '← Back to Dashboard', kh: '← ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង' },
 }
 
@@ -278,6 +280,24 @@ export const AddProducts = () => {
               <div className="adp-list-header">
                 <h3 className="adp-list-title">{TEXTS.listTitle[lang]}</h3>
                 <span className="adp-list-count">{products.length}</span>
+              </div>
+
+              {/* Action Shortcuts */}
+              <div className="adp-shortcuts">
+                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
+                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Product">
+                  ➕ {TEXTS.addBtn[lang]}
+                </button>
+                {editingId && (
+                  <>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
+                      ✏️ {TEXTS.updateBtn[lang]}
+                    </button>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removeProduct(editingId)} title="Delete editing item">
+                      🗑️ {TEXTS.delete[lang]}
+                    </button>
+                  </>
+                )}
               </div>
 
               {products.length === 0 ? (

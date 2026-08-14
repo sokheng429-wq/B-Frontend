@@ -1,11 +1,11 @@
 .member-page {
-  background: #232F3F;
+  background: var(--navy);
 }
 
 /* Hero */
 .member-hero {
   position: relative;
-  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #232F3F 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 60%, var(--navy) 100%);
   padding: 80px 24px 90px;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
   right: -80px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(119, 188, 31, 0.14) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--brand-tint) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -33,7 +33,7 @@
   left: -50px;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.1) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--accent-tint) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -70,16 +70,16 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #FF9900;
-  background: rgba(255, 153, 0, 0.1);
-  border: 1px solid rgba(255, 153, 0, 0.2);
+  color: var(--accent);
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-border);
   padding: 5px 14px;
   border-radius: 20px;
   margin-bottom: 20px;
 }
 
 .member-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.75rem;
   font-weight: 800;
   color: #fff;
@@ -103,10 +103,10 @@
 }
 
 .member-hero-count {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.5rem;
   font-weight: 800;
-  color: #FF9900;
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -137,7 +137,7 @@
   font-size: 0.8125rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.65);
-  background: #232F3F;
+  background: var(--navy);
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 9px 22px;
@@ -147,16 +147,16 @@
 }
 
 .member-filter-chip:hover {
-  border-color: #77BC1F;
-  color: #77BC1F;
-  box-shadow: 0 4px 16px rgba(119, 188, 31, 0.12);
+  border-color: var(--brand);
+  color: var(--brand);
+  box-shadow: 0 4px 16px var(--brand-tint);
 }
 
 .member-filter-chip--active {
-  background: #77BC1F;
+  background: var(--brand);
   color: #fff;
-  border-color: #77BC1F;
-  box-shadow: 0 4px 18px rgba(119, 188, 31, 0.28);
+  border-color: var(--brand);
+  box-shadow: 0 4px 18px var(--brand-tint);
 }
 
 /* Team grid */
@@ -174,7 +174,7 @@
 
 /* Card */
 .member-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   overflow: hidden;
@@ -187,7 +187,7 @@
 .member-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.14);
-  border-color: rgba(119, 188, 31, 0.25);
+  border-color: var(--brand-border);
 }
 
 .member-card-img-wrap {
@@ -195,7 +195,7 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #1a2635;
+  background: #2d3f50;
 }
 
 .member-card-img {
@@ -229,7 +229,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #232F3F;
+  background: var(--navy);
   color: #fff;
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@
 }
 
 .member-card-social-icon:hover {
-  background: #77BC1F;
+  background: var(--brand);
   color: #fff;
 }
 
@@ -254,8 +254,8 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #77BC1F;
-  background: #1a2515;
+  color: var(--brand);
+  background: #34455c;
   padding: 3px 10px;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -263,7 +263,7 @@
 }
 
 .member-card-name {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
@@ -273,7 +273,7 @@
 .member-card-role {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #FF9900;
+  color: var(--accent);
   margin: 0 0 10px;
 }
 
@@ -297,7 +297,7 @@
 .member-cta-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #232F3F 0%, #232F3F 100%);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy) 100%);
 }
 
 .member-cta-inner {
@@ -318,7 +318,7 @@
 }
 
 .member-cta-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.75rem;
   font-weight: 700;
   color: #fff;
@@ -337,8 +337,8 @@
   gap: 6px;
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #0B0F14;
-  background: #77BC1F;
+  color: var(--navy-dark);
+  background: var(--brand);
   padding: 14px 28px;
   border-radius: 14px;
   text-decoration: none;
@@ -348,7 +348,7 @@
 }
 
 .member-cta-btn:hover {
-  background: #8fd13a;
+  background: var(--brand-light);
   transform: scale(1.04);
 }
 

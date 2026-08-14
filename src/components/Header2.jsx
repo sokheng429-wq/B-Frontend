@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
   { label: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' }, href: '/products' },
   { label: { en: 'Promotion', kh: 'ការផ្សព្វផ្សាយ' }, href: '/promotion' },
+  { label: { en: 'Partners', kh: 'ដៃគូ' }, href: '/partners' },
 ]
 
 export const Header2 = () => {

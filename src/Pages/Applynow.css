@@ -1,7 +1,7 @@
 /* ===== APPLY NOW PAGE ===== */
 .apply-page {
   min-height: 100vh;
-  background: #232F3F;
+  background: var(--navy);
 }
 
 .apply-inner {
@@ -21,7 +21,7 @@
 .apply-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
+  background: var(--navy);
   z-index: 0;
 }
 
@@ -59,17 +59,17 @@
 }
 
 .apply-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.4rem;
   font-weight: 800;
-  color: #fcfdfc;
+  color: var(--text-strong);
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .apply-hero-sub {
   font-size: 1.05rem;
-  color: #eff6f0;
+  color: var(--text-strong);
   max-width: 520px;
   margin: 0 auto;
 }
@@ -89,7 +89,7 @@
 
 /* ===== FORM CARD ===== */
 .apply-form-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 36px 38px;
@@ -101,7 +101,7 @@
 }
 
 .apply-form-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.4rem;
   font-weight: 700;
   color: #fff;
@@ -141,7 +141,7 @@
 
 .apply-required {
   font-size: 0.7rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -160,7 +160,7 @@
   font-size: 0.93rem;
   font-family: inherit;
   color: rgba(255, 255, 255, 0.85);
-  background: #1a2635;
+  background: #2d3f50;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
@@ -168,9 +168,9 @@
 .apply-field select:focus,
 .apply-field textarea:focus {
   outline: none;
-  border-color: #77BC1F;
-  background: #232F3F;
-  box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.1);
+  border-color: var(--brand);
+  background: var(--navy);
+  box-shadow: 0 0 0 3px rgba(35, 47, 63, 0.1);
 }
 
 .apply-field textarea {
@@ -179,13 +179,13 @@
 }
 
 .apply-input--err {
-  border-color: #e53935 !important;
+  border-color: var(--danger) !important;
   background: #2a1515 !important;
 }
 
 .apply-err {
   font-size: 0.78rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -195,32 +195,32 @@
   align-items: center;
   justify-content: center;
   padding: 28px 20px;
-  border: 2px dashed #d0d0d0;
+  border: 2px dashed var(--border-default);
   border-radius: 12px;
-  background: #1a2635;
+  background: #2d3f50;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
   text-align: center;
 }
 
 .apply-dropzone:hover {
-  border-color: #77BC1F;
-  background: #1a2515;
+  border-color: var(--brand);
+  background: #34455c;
 }
 
 .apply-dropzone--over {
-  border-color: #77BC1F;
-  background: #1a2a1a;
+  border-color: var(--brand);
+  background: #2d3f50;
 }
 
 .apply-dropzone--err {
-  border-color: #e53935;
+  border-color: var(--danger);
   background: #2a1515;
 }
 
 .apply-dropzone--has {
-  border-color: #77BC1F;
-  background: #1a2515;
+  border-color: var(--brand);
+  background: #34455c;
   border-style: solid;
 }
 
@@ -241,11 +241,11 @@
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
-  color: #2e7d32;
+  color: var(--brand);
 }
 
 .apply-file-name strong {
-  color: #1b5e20;
+  color: var(--brand-dark);
 }
 
 /* ===== SUBMIT ===== */
@@ -259,7 +259,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  background: #77BC1F;
+  background: var(--brand);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -267,7 +267,7 @@
 }
 
 .apply-submit-btn:hover {
-  background: #5a9e1a;
+  background: var(--brand-dark);
   transform: scale(1.02);
 }
 
@@ -288,7 +288,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #1a2635;
+  background: #2d3f50;
 }
 
 .apply-divider span {
@@ -328,7 +328,7 @@
 
 .apply-telegram-hint {
   font-size: 0.8rem;
-  color: #aaa;
+  color: var(--text-muted);
   text-align: center;
   margin: 0;
 }
@@ -340,7 +340,7 @@
 }
 
 .apply-perks-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 26px 24px;
@@ -348,7 +348,7 @@
 }
 
 .apply-perks-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
@@ -367,12 +367,12 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: #1a2635;
+  background: #2d3f50;
   transition: background 0.2s, transform 0.15s;
 }
 
 .apply-perk-item:hover {
-  background: #1a2515;
+  background: #34455c;
   transform: translateX(3px);
 }
 
@@ -393,7 +393,7 @@
   max-width: 540px;
   margin: 0 auto;
   padding: 100px 24px;
-  background: #0B0F14;
+  background: var(--navy-dark);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -408,10 +408,10 @@
 }
 
 .apply-success-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2rem;
   font-weight: 800;
-  color: #1b5e20;
+  color: var(--brand-dark);
   margin: 0 0 14px;
 }
 
@@ -428,7 +428,7 @@
   gap: 6px;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #77BC1F;
+  color: var(--brand);
   text-decoration: none;
   transition: gap 0.2s;
 }

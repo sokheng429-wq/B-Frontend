@@ -1,6 +1,6 @@
 /* Career Page */
 .career-page {
-  background: #232F3F;
+  background: var(--navy);
 }
 
 .career-inner {
@@ -12,7 +12,7 @@
 /* Hero */
 .career-hero {
   position: relative;
-  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #232F3F 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 60%, var(--navy) 100%);
   padding: 80px 24px 100px;
   overflow: hidden;
 }
@@ -29,7 +29,7 @@
   right: -100px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(119, 188, 31, 0.15) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--brand-tint) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -40,7 +40,7 @@
   left: -60px;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.1) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--accent-tint-soft) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -65,16 +65,16 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #FF9900;
-  background: rgba(255, 153, 0, 0.1);
-  border: 1px solid rgba(255, 153, 0, 0.2);
+  color: var(--accent);
+  background: var(--accent-tint-soft);
+  border: 1px solid var(--accent-border);
   padding: 5px 14px;
   border-radius: 20px;
   margin-bottom: 20px;
 }
 
 .career-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 3rem;
   font-weight: 800;
   color: #fff;
@@ -135,10 +135,10 @@
 }
 
 .career-stat-value {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2rem;
   font-weight: 800;
-  color: #FF9900;
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -160,12 +160,12 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #77BC1F;
+  color: var(--brand);
   margin-bottom: 8px;
 }
 
 .career-section-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.75rem;
   font-weight: 700;
   color: #fff;
@@ -189,11 +189,11 @@
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 16px;
-  background: #232F3F;
+  background: var(--navy);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 4px 24px #FF9900(0, 0, 0, 0.05);
-  border: 1px solid #77BC1F(0, 0, 0, 0.05);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-subtle);
 }
 
 .benefit-card {
@@ -207,7 +207,7 @@
 }
 
 .benefit-card:hover {
-  background: #FF9900;
+  background: var(--accent);
   transform: translateY(-2px);
 }
 
@@ -215,7 +215,7 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: #1a2515;
+  background: #34455c;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -261,7 +261,7 @@
   font-size: 0.8125rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.65);
-  background: #232F3F;
+  background: var(--navy);
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 9px 20px;
@@ -270,15 +270,15 @@
 }
 
 .career-filter-btn:hover {
-  border-color: #77BC1F;
-  color: #77BC1F;
-  background: #1a2515;
+  border-color: var(--brand);
+  color: var(--brand);
+  background: #34455c;
 }
 
 .career-filter-btn--active {
-  background: #77BC1F;
+  background: var(--brand);
   color: #fff;
-  border-color: #77BC1F;
+  border-color: var(--brand);
 }
 
 /* Job cards */
@@ -293,7 +293,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 22px 28px;
@@ -303,7 +303,7 @@
 .career-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-  border-color: rgba(119, 188, 31, 0.25);
+  border-color: var(--brand-border);
 }
 
 .career-card-left {
@@ -321,8 +321,8 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: #1a2515;
-  color: #5a9e1a;
+  background: #34455c;
+  color: var(--brand-dark);
   flex-shrink: 0;
 }
 
@@ -351,7 +351,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #fff;
-  background: #FF9900;
+  background: var(--accent);
   padding: 3px 10px;
   border-radius: 12px;
   white-space: nowrap;
@@ -387,7 +387,7 @@
 }
 
 .career-meta-item svg {
-  color: #aaa;
+  color: var(--text-muted);
 }
 
 .career-meta-posted {
@@ -403,7 +403,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   color: #fff;
-  background: #77BC1F;
+  background: var(--brand);
   padding: 11px 24px;
   border-radius: 12px;
   text-decoration: none;
@@ -413,7 +413,7 @@
 }
 
 .career-apply-btn:hover {
-  background: #5a9e1a;
+  background: var(--brand-dark);
   transform: scale(1.04);
 }
 

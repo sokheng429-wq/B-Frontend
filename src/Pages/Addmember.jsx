@@ -224,6 +224,24 @@ export const AddMember = () => {
                 <span className="addm-list-count">{members.length}</span>
               </div>
 
+              {/* Action Shortcuts */}
+              <div className="adp-shortcuts">
+                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
+                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Member">
+                  ➕ {TEXTS.addBtn[lang]}
+                </button>
+                {editingId && (
+                  <>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
+                      ✏️ {TEXTS.updateBtn[lang]}
+                    </button>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removeMember(editingId)} title="Delete editing member">
+                      🗑️ {TEXTS.remove[lang]}
+                    </button>
+                  </>
+                )}
+              </div>
+
               {members.length === 0 ? (
                 <div className="addm-empty">
                   <span className="addm-empty-icon">🧑‍🤝‍🧑</span>

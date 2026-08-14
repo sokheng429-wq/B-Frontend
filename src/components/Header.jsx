@@ -8,8 +8,6 @@ import { useAuth } from '../context/AuthContext'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
-  //{ label: { en: 'Popular Products', kh: 'ផលិតផលពេញនិយម' }, href: '/products' },
-  //{ label: { en: 'Promotion', kh: 'ការផ្សព្វផ្សាយ' }, href: '/promotion' },
   { label: { en: 'Member', kh: 'សមាជិក' }, href: '/member' },
   { label: { en: 'Career', kh: 'ការងារ' }, href: '/career' },
   { label: { en: 'Contact', kh: 'ទំនាក់ទំនង' }, href: '/contact' },

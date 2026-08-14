@@ -1,11 +1,11 @@
 .about-page {
-  background: #232F3F;
+  background: var(--navy);
 }
 
 /* ===== HERO ===== */
 .about-hero {
   position: relative;
-  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #2d3f50 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 60%, #2d3f50 100%);
   padding: 80px 24px 90px;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
   right: -100px;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(119, 188, 31, 0.15) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--brand-tint) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -33,7 +33,7 @@
   left: -60px;
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.1) 0%, transparent 60%);
+  background: radial-gradient(circle, var(--accent-tint-soft) 0%, transparent 60%);
   border-radius: 50%;
 }
 
@@ -58,16 +58,16 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #FF9900;
-  background: rgba(255, 153, 0, 0.1);
-  border: 1px solid rgba(255, 153, 0, 0.2);
+  color: var(--accent);
+  background: var(--accent-tint-soft);
+  border: 1px solid var(--accent-border);
   padding: 5px 14px;
   border-radius: 20px;
   margin-bottom: 20px;
 }
 
 .about-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 3rem;
   font-weight: 800;
   color: #fff;
@@ -109,16 +109,16 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #77BC1F;
+  color: var(--brand);
   margin-bottom: 8px;
 }
 
 .about-section-eyebrow--light {
-  color: rgba(255, 153, 0, 0.8);
+  color: var(--accent);
 }
 
 .about-section-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.75rem;
   font-weight: 700;
   color: #fff;
@@ -157,7 +157,7 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 22px;
   padding: 34px 36px;
@@ -168,7 +168,7 @@
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: #2a2010;
+  background: #2d3f50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,10 +185,10 @@
 }
 
 .about-mission-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #FF9900;
+  color: var(--accent);
   margin: 0 0 8px;
 }
 
@@ -233,11 +233,11 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #77BC1F;
-  border: 4px solid #d4efb5;
+  background: var(--brand);
+  border: 4px solid var(--brand-light);
   flex-shrink: 0;
   margin-top: 8px;
-  box-shadow: 0 0 0 5px rgba(119, 188, 31, 0.1);
+  box-shadow: 0 0 0 5px var(--brand-tint-soft);
   transition: transform 0.25s ease;
 }
 
@@ -248,14 +248,14 @@
 .about-timeline-line {
   width: 3px;
   flex: 1;
-  background: linear-gradient(180deg, #77BC1F 0%, #c8e6c9 100%);
+  background: linear-gradient(180deg, var(--brand) 0%, var(--brand-light) 100%);
   min-height: 44px;
   border-radius: 2px;
 }
 
 .about-timeline-card {
   flex: 1;
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 22px 26px;
@@ -266,7 +266,7 @@
 .about-timeline-card:hover {
   transform: translateX(6px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-color: rgba(119, 188, 31, 0.2);
+  border-color: var(--brand-border);
 }
 
 .about-timeline-header {
@@ -277,11 +277,11 @@
 }
 
 .about-timeline-year {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.1rem;
   font-weight: 800;
-  color: #77BC1F;
-  background: #1a2515;
+  color: var(--brand);
+  background: #34455c;
   padding: 4px 14px;
   border-radius: 20px;
 }
@@ -307,7 +307,7 @@
 .about-stats-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #232F3F 0%, #232F3F 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 100%);
 }
 
 .about-stats-inner {
@@ -338,7 +338,7 @@
 
 .about-stat-card:hover {
   transform: translateY(-6px);
-  border-color: rgba(255, 153, 0, 0.35);
+  border-color: var(--accent-border-strong);
   background: rgba(255, 255, 255, 0.07);
 }
 
@@ -348,10 +348,10 @@
 }
 
 .about-stat-value {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.25rem;
   font-weight: 800;
-  color: #FF9900;
+  color: var(--accent);
   line-height: 1;
 }
 
@@ -382,7 +382,7 @@
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 28px 26px;
@@ -394,14 +394,14 @@
 .about-value-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
-  border-color: rgba(119, 188, 31, 0.3);
+  border-color: var(--brand-border-strong);
 }
 
 .about-value-icon-wrap {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: #1a2515;
+  background: #34455c;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -418,7 +418,7 @@
 }
 
 .about-value-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.0625rem;
   font-weight: 700;
   color: #fff;

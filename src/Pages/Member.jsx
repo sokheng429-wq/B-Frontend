@@ -132,32 +132,38 @@ export const Member = () => {
       <section className="member-grid-section">
         <div className="member-grid-inner">
           {filtered.map((person) => (
-            <div
+            <Link
               key={person.id}
-              className="member-card"
-              onMouseEnter={() => setHoveredId(person.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              to="/member-detail"
+              state={{ member: person }}
+              style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
             >
-              <div className="member-card-img-wrap">
-                <img
-                  src={person.image}
-                  alt={person.name[lang]}
-                  className="member-card-img"
-                  loading="lazy"
-                />
-                <div className={`member-card-overlay ${hoveredId === person.id ? 'member-card-overlay--visible' : ''}`}>
-                  <span className="member-card-social-icon">
-                    <LinkIcon />
-                  </span>
+              <div
+                className="member-card"
+                onMouseEnter={() => setHoveredId(person.id)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                <div className="member-card-img-wrap">
+                  <img
+                    src={person.image}
+                    alt={person.name[lang]}
+                    className="member-card-img"
+                    loading="lazy"
+                  />
+                  <div className={`member-card-overlay ${hoveredId === person.id ? 'member-card-overlay--visible' : ''}`}>
+                    <span className="member-card-social-icon">
+                      <LinkIcon />
+                    </span>
+                  </div>
+                </div>
+                <div className="member-card-body">
+                  <span className="member-card-dept">{person.dept[lang]}</span>
+                  <h3 className="member-card-name">{person.name[lang]}</h3>
+                  <p className="member-card-role">{person.role[lang]}</p>
+                  <p className="member-card-bio">{person.bio[lang]}</p>
                 </div>
               </div>
-              <div className="member-card-body">
-                <span className="member-card-dept">{person.dept[lang]}</span>
-                <h3 className="member-card-name">{person.name[lang]}</h3>
-                <p className="member-card-role">{person.role[lang]}</p>
-                <p className="member-card-bio">{person.bio[lang]}</p>
-              </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>

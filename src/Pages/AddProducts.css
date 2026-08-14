@@ -1,7 +1,9 @@
 /* ===== ADD PRODUCTS PAGE ===== */
 .adp-page {
   min-height: 100vh;
-  background: #232F3F;
+  background: var(--navy);
+  color: #ffffff;
+  padding-bottom: 60px;
 }
 
 .adp-inner {
@@ -21,7 +23,7 @@
 .adp-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #77BC1F 0%, #232F3F 40%, #FF9900 100%);
+  background: var(--navy);
   z-index: 0;
 }
 
@@ -45,21 +47,21 @@
   gap: 8px;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #0B0F14;
+  color: var(--navy-dark);
   text-decoration: none;
-  margin-bottom: 20px;
+  margin-bottom: -20px;
   padding: 8px 18px;
   border-radius: 30px;
-  background: linear-gradient(135deg, #FF9900 0%, #ffad33 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
   box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .adp-back-link:hover {
   transform: translateX(-5px) scale(1.04);
-  background: linear-gradient(135deg, #77BC1F 0%, #8fd13a 100%);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-light) 100%);
   color: #ffffff;
-  box-shadow: 0 6px 20px rgba(119, 188, 31, 0.5);
+  box-shadow: 0 6px 20px rgba(35, 47, 63, 0.5);
 }
 
 .adp-hero-icon {
@@ -82,17 +84,17 @@
 }
 
 .adp-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 2.4rem;
   font-weight: 800;
-  color: #f4f7f4;
+  color: var(--text-strong);
   margin: 0 0 10px;
   letter-spacing: -0.5px;
 }
 
 .adp-hero-sub {
   font-size: 1.05rem;
-  color: #f5f7f5;
+  color: var(--text-strong);
   max-width: 540px;
   margin: 0 auto;
 }
@@ -112,7 +114,7 @@
 
 /* ===== FORM CARD ===== */
 .adp-form-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 20px;
   padding: 34px 36px;
@@ -124,7 +126,7 @@
 }
 
 .adp-form-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.35rem;
   font-weight: 700;
   color: #fff;
@@ -164,7 +166,7 @@
 
 .adp-req {
   font-size: 0.7rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -183,7 +185,7 @@
   font-size: 0.93rem;
   font-family: inherit;
   color: rgba(255, 255, 255, 0.85);
-  background: #1a2635;
+  background: #2d3f50;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
@@ -191,9 +193,9 @@
 .adp-field select:focus,
 .adp-field textarea:focus {
   outline: none;
-  border-color: #77BC1F;
-  background: #232F3F;
-  box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.1);
+  border-color: var(--brand);
+  background: var(--navy);
+  box-shadow: 0 0 15px rgba(35, 47, 63, 0.4), 0 0 0 3px rgba(35, 47, 63, 0.2);
 }
 
 .adp-field textarea {
@@ -202,13 +204,13 @@
 }
 
 .adp-input--err {
-  border-color: #e53935 !important;
-  background: #2a1515 !important;
+  border-color: var(--danger) !important;
+  background: var(--danger-tint) !important;
 }
 
 .adp-err {
   font-size: 0.78rem;
-  color: #e53935;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -218,21 +220,21 @@
   align-items: center;
   justify-content: center;
   padding: 28px 20px;
-  border: 2px dashed #d0d0d0;
+  border: 2px dashed var(--border-default);
   border-radius: 12px;
-  background: #1a2635;
+  background: #2d3f50;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .adp-dropzone:hover {
-  border-color: #77BC1F;
-  background: #1a2515;
+  border-color: var(--brand);
+  background: #34455c;
 }
 
 .adp-dropzone--over {
-  border-color: #77BC1F;
-  background: #1a2a1a;
+  border-color: var(--brand);
+  background: #2d3f50;
 }
 
 .adp-file-hidden {
@@ -260,7 +262,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
-  border: 2px solid #1a2635;
+  border: 2px solid #2d3f50;
 }
 
 .adp-photo-change {
@@ -295,7 +297,7 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  background: #77BC1F;
+  background: var(--brand);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -303,7 +305,7 @@
 }
 
 .adp-submit-btn:hover {
-  background: #5a9e1a;
+  background: var(--brand-dark);
   transform: scale(1.02);
 }
 
@@ -318,7 +320,7 @@
 }
 
 .adp-list-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 18px;
   padding: 24px;
@@ -332,8 +334,72 @@
   margin-bottom: 18px;
 }
 
+/* ===== SHORTCUT BUTTONS ===== */
+.adp-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: #2d3f50;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adp-shortcuts-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  margin-right: 2px;
+}
+
+.adp-shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(35, 47, 63, 0.15);
+  color: var(--brand);
+  border: 1px solid rgba(35, 47, 63, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adp-shortcut-btn:hover {
+  background: var(--brand);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.admind-shortcut-edit {
+  background: rgba(255, 153, 0, 0.15);
+  color: var(--accent);
+  border-color: rgba(255, 153, 0, 0.3);
+}
+
+.admind-shortcut-edit:hover {
+  background: var(--accent);
+  color: var(--navy-dark);
+}
+
+.admind-shortcut-delete {
+  background: rgba(229, 57, 53, 0.15);
+  color: #ef5350;
+  border-color: rgba(229, 57, 53, 0.3);
+}
+
+.admind-shortcut-delete:hover {
+  background: var(--danger);
+  color: #ffffff;
+}
+
 .adp-list-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
@@ -347,7 +413,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #77BC1F;
+  background: var(--brand);
   color: #fff;
   font-size: 0.8rem;
   font-weight: 800;
@@ -367,7 +433,7 @@
 
 .adp-empty p {
   font-size: 0.85rem;
-  color: #aaa;
+  color: var(--text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -389,12 +455,12 @@
   padding: 12px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  background: #1a2635;
+  background: #2d3f50;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .adp-card:hover {
-  border-color: rgba(119, 188, 31, 0.2);
+  border-color: rgba(35, 47, 63, 0.2);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
@@ -404,7 +470,7 @@
   border-radius: 12px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #1a2635;
+  background: #2d3f50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -452,13 +518,13 @@
 }
 
 .adp-badge--cat {
-  background: #1a2515;
-  color: #5a9e1a;
+  background: #34455c;
+  color: var(--brand-dark);
 }
 
 .adp-badge--unit {
-  background: #2a2010;
-  color: #e65100;
+  background: var(--accent-tint-soft);
+  color: var(--accent-dark);
 }
 
 .adp-card-prices {
@@ -484,15 +550,15 @@
 .adp-card-stock {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #77BC1F;
-  background: #1a2515;
+  color: var(--brand);
+  background: #34455c;
   padding: 2px 8px;
   border-radius: 20px;
 }
 
 .adp-card-stock--zero {
-  color: #e53935;
-  background: #2a1515;
+  color: var(--danger);
+  background: var(--danger-tint);
 }
 
 .adp-card-actions {
@@ -518,8 +584,8 @@
 }
 
 .adp-edit-btn:hover {
-  color: #1976d2;
-  background: #1a2530;
+  color: var(--info);
+  background: var(--surface-2);
 }
 
 .adp-remove-btn {
@@ -538,8 +604,8 @@
 }
 
 .adp-remove-btn:hover {
-  color: #e53935;
-  background: #2a1515;
+  color: var(--danger);
+  background: var(--danger-tint);
 }
 
 .adp-cancel-btn {
@@ -552,7 +618,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.45);
-  background: #1a2635;
+  background: #2d3f50;
   border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   cursor: pointer;
@@ -572,7 +638,7 @@
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #77BC1F;
+  color: var(--brand);
   text-decoration: none;
   transition: gap 0.2s;
 }

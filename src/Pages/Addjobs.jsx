@@ -220,6 +220,24 @@ export const Addjobs = () => {
                 <span className="addj-list-count">{jobs.length}</span>
               </div>
 
+              {/* Action Shortcuts */}
+              <div className="adp-shortcuts">
+                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
+                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Job">
+                  ➕ {TEXTS.postBtn[lang]}
+                </button>
+                {editingId && (
+                  <>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
+                      ✏️ {TEXTS.updateBtn[lang]}
+                    </button>
+                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removeJob(editingId)} title="Delete editing job">
+                      🗑️ {TEXTS.remove[lang]}
+                    </button>
+                  </>
+                )}
+              </div>
+
               {jobs.length === 0 ? (
                 <div className="addj-empty">
                   <span className="addj-empty-icon">📋</span>

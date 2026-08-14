@@ -1,7 +1,7 @@
 /* ===== FAQ PAGE ===== */
 .faq-page {
   min-height: 100vh;
-  background: #1a2635;
+  background: #2d3f50;
 }
 
 /* ===== HERO ===== */
@@ -15,7 +15,7 @@
 .faq-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #1a2a1a 0%, #c8e6c9 40%, #a5d6a7 100%);
+  background: linear-gradient(135deg, #2d3f50 0%, var(--brand-light) 40%, var(--brand-light) 100%);
   z-index: 0;
 }
 
@@ -50,14 +50,14 @@
 .faq-title {
   font-size: 2.6rem;
   font-weight: 800;
-  color: #1b5e20;
+  color: var(--brand-dark);
   margin: 0 0 8px;
   letter-spacing: -0.5px;
 }
 
 .faq-subtitle {
   font-size: 1.1rem;
-  color: #2e7d32;
+  color: var(--brand);
   margin: 0 0 32px;
 }
 
@@ -68,7 +68,7 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  background: #232F3F;
+  background: var(--navy);
   border-radius: 50px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
   padding: 0 20px;
@@ -105,7 +105,7 @@
 }
 
 .faq-search-clear:hover {
-  background: #1a2635;
+  background: #2d3f50;
 }
 
 /* ===== BODY ===== */
@@ -128,8 +128,8 @@
   gap: 8px;
   padding: 12px 20px;
   border-radius: 50px;
-  border: 2px solid #1a2635;
-  background: #232F3F;
+  border: 2px solid #2d3f50;
+  background: var(--navy);
   cursor: pointer;
   font-size: 0.92rem;
   font-weight: 500;
@@ -138,13 +138,13 @@
 }
 
 .faq-cat-tab:hover {
-  border-color: #a5d6a7;
-  color: #2e7d32;
+  border-color: var(--brand-light);
+  color: var(--brand);
 }
 
 .faq-cat-tab--active {
-  background: #1b5e20;
-  border-color: #1b5e20;
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
   color: #fff;
 }
 
@@ -168,7 +168,7 @@
 .faq-group-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #2e7d32;
+  color: var(--brand);
   margin: 12px 0 4px;
   display: flex;
   align-items: center;
@@ -177,7 +177,7 @@
 
 /* ===== FAQ CARD ===== */
 .faq-card {
-  background: #232F3F;
+  background: var(--navy);
   border-radius: 14px;
   border: 1px solid #e8e8e8;
   overflow: hidden;
@@ -185,11 +185,11 @@
 }
 
 .faq-card:hover {
-  border-color: #c8e6c9;
+  border-color: var(--brand-light);
 }
 
 .faq-card--open {
-  border-color: #81c784;
+  border-color: var(--brand-light);
   box-shadow: 0 4px 20px rgba(27, 94, 32, 0.08);
 }
 
@@ -218,7 +218,7 @@
 
 .faq-chevron--up {
   transform: rotate(180deg);
-  color: #2e7d32;
+  color: var(--brand);
 }
 
 .faq-a-wrap {
@@ -258,7 +258,7 @@
 }
 
 .faq-contact-card {
-  background: linear-gradient(135deg, #1a2a1a, #c8e6c9);
+  background: linear-gradient(135deg, #2d3f50, var(--brand-light));
   border-radius: 16px;
   padding: 32px 36px;
   display: flex;
@@ -275,14 +275,14 @@
 .faq-contact-text {
   margin: 0;
   font-size: 1rem;
-  color: #2e7d32;
+  color: var(--brand);
   font-weight: 500;
 }
 
 .faq-contact-btn {
   margin-left: auto;
   padding: 12px 28px;
-  background: #1b5e20;
+  background: var(--brand-dark);
   color: #fff;
   border-radius: 50px;
   text-decoration: none;
@@ -293,7 +293,7 @@
 }
 
 .faq-contact-btn:hover {
-  background: #2e7d32;
+  background: var(--brand);
   transform: scale(1.03);
 }
 

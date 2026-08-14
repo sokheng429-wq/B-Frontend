@@ -1,11 +1,11 @@
 .contact-page {
-  background: #232F3F;
+  background: var(--navy);
 }
 
 /* Hero */
 .contact-hero {
   position: relative;
-  background: linear-gradient(160deg, #232F3F 0%, #232F3F 60%, #2d3f50 100%);
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy) 60%, #2d3f50 100%);
   padding: 72px 0 100px;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
   right: -100px;
   width: 550px;
   height: 550px;
-  background: radial-gradient(circle, rgba(119, 188, 31, 0.12) 0%, transparent 55%);
+  background: radial-gradient(circle, var(--brand-tint) 0%, transparent 55%);
   border-radius: 50%;
 }
 
@@ -33,7 +33,7 @@
   left: -80px;
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(255, 153, 0, 0.10) 0%, transparent 55%);
+  background: radial-gradient(circle, var(--accent-tint) 0%, transparent 55%);
   border-radius: 50%;
 }
 
@@ -66,7 +66,7 @@
 }
 
 .contact-hero-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 3rem;
   font-weight: 800;
   color: #fff;
@@ -108,7 +108,7 @@
 
 .contact-social-chip:hover {
   background: rgba(255, 255, 255, 0.14);
-  border-color: #FF9900;
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -137,7 +137,7 @@
 }
 
 .contact-info-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 20px 22px;
@@ -160,7 +160,7 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--card-bg, #232F3F);
+  background: var(--card-bg, var(--navy));
   font-size: 1.2rem;
   flex-shrink: 0;
 }
@@ -184,7 +184,7 @@
 
 /* FAQ */
 .contact-faq {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 22px 22px;
@@ -212,7 +212,7 @@
   justify-content: space-between;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #77BC1F;
+  color: var(--brand);
   text-decoration: none;
   padding: 10px 14px;
   border-radius: 10px;
@@ -220,12 +220,12 @@
 }
 
 .contact-faq-link:hover {
-  background: #232F3F;
+  background: var(--navy);
 }
 
 /* Form column */
 .contact-form-card {
-  background: #232F3F;
+  background: var(--navy);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 36px 34px;
@@ -233,7 +233,7 @@
 }
 
 .contact-form-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.5rem;
   font-weight: 700;
   color: #fff;
@@ -273,7 +273,7 @@
   border: 1.5px solid #2a2825;
   border-radius: 12px;
   color: #fff;
-  background: #1a2635;
+  background: #2d3f50;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
@@ -286,9 +286,9 @@
 .cf-field input:focus,
 .cf-field select:focus,
 .cf-field textarea:focus {
-  border-color: #77BC1F;
-  box-shadow: 0 0 0 3px rgba(119, 188, 31, 0.10);
-  background: #232F3F;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-tint);
+  background: var(--navy);
 }
 
 .cf-field textarea {
@@ -315,7 +315,7 @@
   font-size: 0.9375rem;
   font-weight: 700;
   color: #fff;
-  background: #77BC1F;
+  background: var(--brand);
   border: none;
   border-radius: 14px;
   padding: 15px;
@@ -325,7 +325,7 @@
 }
 
 .cf-submit:hover:not(:disabled) {
-  background: #5a9e1a;
+  background: var(--brand-dark);
   transform: scale(1.02);
 }
 
@@ -335,7 +335,7 @@
 }
 
 .cf-submit--success {
-  background: #2a9d8f !important;
+  background: var(--brand) !important;
 }
 
 /* Spinner */
@@ -364,7 +364,7 @@
 }
 
 .contact-map-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family);
   font-size: 1.625rem;
   font-weight: 700;
   color: #fff;
