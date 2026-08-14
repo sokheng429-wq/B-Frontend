@@ -56,7 +56,6 @@ function App() {
 
           <Route path="/member" element={<Member />} />
           <Route path="/member-detail" element={<Memberdetail />} />
-          <Route path="/member-details" element={<Memberdetail />} />
 
           <Route path="/partners" element={<Partners />} />
           <Route path="/contact" element={<Contact />} />

@@ -4,132 +4,120 @@ import { useLanguage } from '../context/LanguageContext'
 import './Memberdetail.css'
 
 const TEXTS = {
-  eyebrow: { en: 'B\'Groceries Membership', kh: 'សមាជិកភាព B\'Groceries' },
-  title: { en: 'Unlock Exclusive Perks & Savings', kh: 'ទទួលអត្ថប្រយោជន៍ និងការសន្សំប្រាក់ពិសេស' },
-  subtitle: { en: 'Choose the membership plan that best fits your lifestyle and start saving on fresh grocery deliveries.', kh: 'ជ្រើសរើសកម្រិតសមាជិកភាពដែលស័ក្តិសមបំផុតសម្រាប់អ្នក ហើយចាប់ផ្តើមសន្សំប្រាក់លើការដឹកជញ្ជូនគ្រឿងទេសស្រស់ៗ។' },
-  joinFree: { en: 'Join Free', kh: 'ចុះឈ្មោះឥតគិតថ្លៃ' },
-  tiersTitle: { en: 'Membership Plans', kh: 'ផែនការសមាជិកភាព' },
-  mostPopular: { en: 'Most Popular', kh: 'ពេញនិយមបំផុត' },
-  free: { en: 'Free', kh: 'ឥតគិតថ្លៃ' },
-  perMonth: { en: '/ month', kh: '/ ខែ' },
-  howItWorksTitle: { en: 'How It Works', kh: 'របៀបដំណើរការ' },
+  breadcrumbTeam: { en: 'Team', kh: 'ក្រុមការងារ' },
+  notFoundTitle: { en: 'Team member not found', kh: 'រកមិនឃើញសមាជិកក្រុមការងារ' },
+  notFoundBack: { en: 'Back to team', kh: 'ត្រឡប់ទៅក្រុមការងារ' },
+  contactTitle: { en: 'Contact', kh: 'ទំនាក់ទំនង' },
+  aboutTitle: { en: 'About', kh: 'អំពី' },
+  email: { en: 'Email', kh: 'អ៊ីមែល' },
+  phone: { en: 'Phone', kh: 'ទូរស័ព្ទ' },
+  location: { en: 'Location', kh: 'ទីតាំង' },
+  joined: { en: 'Joined', kh: 'ចូលបម្រើការងារ' },
+  department: { en: 'Department', kh: 'នាយកដ្ឋាន' },
 }
 
 export const Memberdetail = () => {
   const { lang } = useLanguage()
-  const memberState = useLocation().state?.member
+  const member = useLocation().state?.member
 
-  const TIERS = [
-    {
-      key: 'basic',
-      name: { en: 'Basic', kh: 'មូលដ្ឋាន' },
-      price: TEXTS.free[lang],
-      popular: false,
-      perks: {
-        en: ['Free account & order history', 'Standard delivery rates', 'Access to promotions'],
-        kh: ['គណនីឥតគិតថ្លៃ និងប្រវត្តិការបញ្ជាទិញ', 'អត្រាដឹកជញ្ជូនធម្មតា', 'ចូលប្រើការផ្សព្វផ្សាយ'],
-      },
-    },
-    {
-      key: 'plus',
-      name: { en: 'Plus', kh: 'ប្លុស' },
-      price: '$2.99',
-      popular: true,
-      perks: {
-        en: ['Free delivery on every order', 'Member-only prices', 'Early access to promotions', 'Priority support'],
-        kh: ['ដឹកជញ្ជូនឥតគិតថ្លៃរាល់ការបញ្ជាទិញ', 'តម្លៃពិសេសសមាជិក', 'ចូលប្រើការផ្សព្វផ្សាយមុនគេ', 'ជំនួយអតិថិជនអាទិភាព'],
-      },
-    },
-    {
-      key: 'family',
-      name: { en: 'Family', kh: 'គ្រួសារ' },
-      price: '$5.99',
-      popular: false,
-      perks: {
-        en: ['Everything in Plus', 'Up to 4 linked accounts', 'Shared DeliPoints wallet', 'Monthly bonus coupons'],
-        kh: ['អ្វីៗគ្រប់យ៉ាងក្នុងផែនការ ប្លុស', 'គណនីភ្ជាប់រហូតដល់ ៤', 'ចែករំលែកពិន្ទុ DeliPoints', 'គូប៉ុងបន្ថែមប្រចាំខែ'],
-      },
-    },
-  ]
-
-  const STEPS = {
-    en: [
-      { title: 'Create your account', desc: 'Sign up for free in under a minute.' },
-      { title: 'Pick your tier', desc: 'Start free, or upgrade for delivery savings and more.' },
-      { title: 'Shop and save', desc: 'Member prices and perks apply automatically at checkout.' },
-    ],
-    kh: [
-      { title: 'បង្កើតគណនីរបស់អ្នក', desc: 'ចុះឈ្មោះឥតគិតថ្លៃក្នុងរយៈពេលមិនដល់មួយនាទី។' },
-      { title: 'ជ្រើសរើសកម្រិតរបស់អ្នក', desc: 'ចាប់ផ្តើមឥតគិតថ្លៃ ឬដំឡើងឋានៈដើម្បីសន្សំលើការដឹកជញ្ជូន និងច្រើនទៀត។' },
-      { title: 'ទិញឥវ៉ាន់ ហើយសន្សំ', desc: 'តម្លៃ និងអត្ថប្រយោជន៍សមាជិកអនុវត្តដោយស្វ័យប្រវត្តិពេលទូទាត់ប្រាក់។' },
-    ],
+  // Member.jsx only passes { id, name, role, image, dept, bio } via route state
+  // and there's no id in the URL to look anyone up by, so if state is missing
+  // (e.g. direct link or page refresh) we just show a "not found" screen.
+  if (!member) {
+    return (
+      <div className="md-page">
+        <div className="md-not-found">
+          <p>{TEXTS.notFoundTitle[lang]}</p>
+          <Link to="/member" className="btn-primary">{TEXTS.notFoundBack[lang]}</Link>
+        </div>
+      </div>
+    )
   }
+
+  const initials = member.name.en.split(' ').map((w) => w[0]).slice(0, 2).join('')
 
   return (
     <div className="md-page">
 
+      <nav className="md-breadcrumb">
+        <Link to="/">{lang === 'en' ? 'Home' : 'ទំព័រដើម'}</Link>
+        <span>/</span>
+        <Link to="/member">{TEXTS.breadcrumbTeam[lang]}</Link>
+        <span>/</span>
+        <span className="md-breadcrumb-current">{member.name[lang]}</span>
+      </nav>
+
       <section className="md-hero">
         <div className="md-hero-inner">
-          <span className="md-eyebrow">{TEXTS.eyebrow[lang]}</span>
-          <h1 className="md-title">
-            {memberState?.name ? (typeof memberState.name === 'object' ? memberState.name[lang] : memberState.name) : TEXTS.title[lang]}
-          </h1>
-          <p className="md-subtitle">
-            {memberState?.bio ? (typeof memberState.bio === 'object' ? memberState.bio[lang] : memberState.bio) : TEXTS.subtitle[lang]}
-          </p>
-          <Link to="/register" className="btn-primary">{TEXTS.joinFree[lang]}</Link>
+          {member.image ? (
+            <img src={member.image} alt={member.name[lang]} className="md-avatar-img" />
+          ) : (
+            <div className="md-avatar">{initials}</div>
+          )}
+          <h1 className="md-name">{member.name[lang]}</h1>
+          <p className="md-role">{member.role[lang]}</p>
+          {member.dept && (
+            <span className="md-department-tag">{member.dept[lang]}</span>
+          )}
         </div>
       </section>
 
-      <section className="md-section">
-        <div className="md-section-inner">
-          <h2 className="md-section-title">{TEXTS.tiersTitle[lang]}</h2>
+      <section className="md-body">
+        <div className="md-body-inner">
 
-          <div className="md-tiers-grid">
-            {TIERS.map((tier) => (
-              <div className={`md-tier-card ${tier.popular ? 'md-tier-popular' : ''}`} key={tier.key}>
-                {tier.popular && <span className="md-tier-badge">{TEXTS.mostPopular[lang]}</span>}
-                <p className="md-tier-name">{tier.name[lang]}</p>
-                <p className="md-tier-price">
-                  {tier.price}
-                  {tier.price !== TEXTS.free[lang] && <span>{TEXTS.perMonth[lang]}</span>}
-                </p>
-                <ul className="md-tier-perks">
-                  {tier.perks[lang].map((perk) => (
-                    <li key={perk}><CheckIcon /> {perk}</li>
-                  ))}
-                </ul>
-                <Link to="/register" className={tier.popular ? 'btn-primary md-tier-btn' : 'btn-outline-md md-tier-btn'}>
-                  {TEXTS.joinFree[lang]}
-                </Link>
-              </div>
-            ))}
+          <div className="md-main">
+            <h2 className="md-section-title">{TEXTS.aboutTitle[lang]}</h2>
+            <p className="md-bio">{member.bio?.[lang]}</p>
           </div>
-        </div>
-      </section>
 
-      <section className="md-section md-steps-section">
-        <div className="md-section-inner">
-          <h2 className="md-section-title">{TEXTS.howItWorksTitle[lang]}</h2>
-          <div className="md-steps">
-            {STEPS[lang].map((step, i) => (
-              <div className="md-step" key={step.title}>
-                <span className="md-step-number">{i + 1}</span>
-                <p className="md-step-title">{step.title}</p>
-                <p className="md-step-desc">{step.desc}</p>
-              </div>
-            ))}
-          </div>
+          {(member.email || member.phone || member.location || member.dept || member.joined) && (
+            <aside className="md-sidebar">
+              <h2 className="md-section-title">{TEXTS.contactTitle[lang]}</h2>
+
+              {member.email && (
+                <div className="md-info-row">
+                  <span className="md-info-label">{TEXTS.email[lang]}</span>
+                  <a href={`mailto:${member.email}`} className="md-info-value md-info-link">
+                    {member.email}
+                  </a>
+                </div>
+              )}
+
+              {member.phone && (
+                <div className="md-info-row">
+                  <span className="md-info-label">{TEXTS.phone[lang]}</span>
+                  <a href={`tel:${member.phone}`} className="md-info-value md-info-link">
+                    {member.phone}
+                  </a>
+                </div>
+              )}
+
+              {member.location && (
+                <div className="md-info-row">
+                  <span className="md-info-label">{TEXTS.location[lang]}</span>
+                  <span className="md-info-value">{member.location[lang]}</span>
+                </div>
+              )}
+
+              {member.dept && (
+                <div className="md-info-row">
+                  <span className="md-info-label">{TEXTS.department[lang]}</span>
+                  <span className="md-info-value">{member.dept[lang]}</span>
+                </div>
+              )}
+
+              {member.joined && (
+                <div className="md-info-row">
+                  <span className="md-info-label">{TEXTS.joined[lang]}</span>
+                  <span className="md-info-value">{member.joined}</span>
+                </div>
+              )}
+            </aside>
+          )}
         </div>
       </section>
     </div>
   )
 }
-
-const CheckIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-    <path d="m20 6-11 11-5-5" />
-  </svg>
-)
 
 export default Memberdetail

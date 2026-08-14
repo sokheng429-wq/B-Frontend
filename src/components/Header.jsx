@@ -72,7 +72,7 @@ export const Header = () => {
 
           {isLoggedIn ? (
             <>
-              <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'nav-link--active' : ''}`}>
+              <Link to="/member-detail" className={`nav-link ${isActive('/member-detail') ? 'nav-link--active' : ''}`}>
                 {t.profile[lang]}
               </Link>
               <button type="button" onClick={logout} className="nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit' }}>
@@ -132,8 +132,8 @@ export const Header = () => {
             {isLoggedIn ? (
               <>
                 <Link
-                  to="/profile"
-                  className={`nav-link ${isActive('/profile') ? 'nav-link--active' : ''}`}
+                  to="/member-detail"
+                  className={`nav-link ${isActive('/member-detail') ? 'nav-link--active' : ''}`}
                   onClick={() => setMobileOpen(false)}
                 >
                   {t.profile[lang]}
