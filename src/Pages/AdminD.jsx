@@ -1,12 +1,17 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ThemeToggle } from '../components/ThemeToggle'
+import AddProducts from './AddProducts'
+import Addjobs from './Addjobs'
+import AddMember from './Addmember'
+import ManageUsers from './ManageUsers'
+import Addpromotion from './Addpromotion'
 import './AdminD.css'
 
 const stats = [
-  { label: 'Total Products', value: 24, change: '+3', up: true, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/add-products' },
-  { label: 'Open Jobs', value: 6, change: '+1', up: true, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/add-jobs' },
-  { label: 'Team Members', value: 12, change: '+2', up: true, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/add-member' },
+  { label: 'Total Products', value: 24, change: '+3', up: true, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
+  { label: 'Open Jobs', value: 6, change: '+1', up: true, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
+  { label: 'Team Members', value: 12, change: '+2', up: true, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
   { label: 'Applications', value: 9, change: '-2', up: false, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/career' },
 ]
 
@@ -36,102 +41,41 @@ const recentActivity = [
 function AdminD() {
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [openDropdowns, setOpenDropdowns] = useState({
+    products: false,
+    jobs: false,
+    members: false,
+    users: false,
+    promotions: false,
+  })
 
-  return (
-    <div className={`admind-page ${!sidebarOpen ? 'admind-page--collapsed' : ''}`}>
-      {/* Sidebar */}
-      <aside className={`admind-sidebar ${!sidebarOpen ? 'admind-sidebar--collapsed' : ''}`}>
-        <div className="admind-sidebar-brand">
-          <span className="admind-sidebar-logo">G</span>
-          <div>
-            <h3 className="admind-sidebar-name">Groceries</h3>
-            <p className="admind-sidebar-role">Admin Panel</p>
-          </div>
-        </div>
+  const toggleDropdown = (key) => {
+    setOpenDropdowns((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }))
+  }
 
-        <nav className="admind-sidebar-nav">
-          <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Main</span>
-            <Link to="/admin" className={`admind-nav-item ${location.pathname === '/admin' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><HomeIcon /></span>
-              <span className="admind-nav-label">Dashboard</span>
-            </Link>
-          </div>
+  const renderContent = () => {
+    const path = location.pathname
+    if (path === '/add-products' || path.startsWith('/admin/products')) {
+      return <AddProducts />
+    }
+    if (path === '/add-jobs' || path.startsWith('/admin/jobs')) {
+      return <Addjobs />
+    }
+    if (path === '/add-member' || path.startsWith('/admin/members')) {
+      return <AddMember />
+    }
+    if (path === '/admin/users') {
+      return <ManageUsers />
+    }
+    if (path === '/add-promotion' || path.startsWith('/admin/promotions')) {
+      return <Addpromotion />
+    }
 
-          <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Management</span>
-            <Link to="/add-products" className={`admind-nav-item ${location.pathname === '/add-products' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><PackageIcon /></span>
-              <span className="admind-nav-label">Products</span>
-            </Link>
-            <Link to="/add-jobs" className={`admind-nav-item ${location.pathname === '/add-jobs' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><BriefcaseIcon /></span>
-              <span className="admind-nav-label">Jobs</span>
-            </Link>
-            <Link to="/add-member" className={`admind-nav-item ${location.pathname === '/add-member' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><UsersIcon /></span>
-              <span className="admind-nav-label">Members</span>
-            </Link>
-            <Link to="/admin/users" className={`admind-nav-item ${location.pathname === '/admin/users' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><ShieldIcon /></span>
-              <span className="admind-nav-label">Users</span>
-            </Link>
-            <Link to="/add-promotion" className={`admind-nav-item ${location.pathname === '/add-promotion' ? 'admind-nav-item--active' : ''}`}>
-              <span className="admind-nav-icon"><TagIcon /></span>
-              <span className="admind-nav-label">Promotions</span>
-            </Link>
-          </div>
-
-          <div className="admind-nav-section">
-            <span className="admind-nav-section-label">Public Pages</span>
-            <Link to="/products" className="admind-nav-item">
-              <span className="admind-nav-icon"><ShopIcon /></span>
-              <span className="admind-nav-label">Shop</span>
-            </Link>
-            <Link to="/career" className="admind-nav-item">
-              <span className="admind-nav-icon"><GlobeIcon /></span>
-              <span className="admind-nav-label">Career</span>
-            </Link>
-            <Link to="/member" className="admind-nav-item">
-              <span className="admind-nav-icon"><TeamIcon /></span>
-              <span className="admind-nav-label">Team</span>
-            </Link>
-          </div>
-        </nav>
-
-        <div className="admind-sidebar-footer">
-          <Link to="/" className="admind-back-site-btn">
-            <ArrowLeftIcon />
-            <span>Back to Site</span>
-          </Link>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="admind-main">
-        {/* Top bar */}
-        <header className="admind-topbar">
-          <div className="admind-topbar-left">
-            <button
-              className="admind-toggle-btn"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle Sidebar"
-              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-            >
-              <MenuToggleIcon />
-            </button>
-            <div>
-              <h1 className="admind-topbar-title">Dashboard Overview</h1>
-              <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            </div>
-          </div>
-          <div className="admind-topbar-right">
-            <ThemeToggle />
-            <span className="admind-topbar-badge">🔔</span>
-            <div className="admind-topbar-avatar">A</div>
-          </div>
-        </header>
-
+    return (
+      <>
         {/* Stats row */}
         <div className="admind-stats-grid">
           {stats.map((stat) => (
@@ -204,7 +148,7 @@ function AdminD() {
               <span className="admind-panel-subtitle">Frequently used shortcuts</span>
             </div>
             <div className="admind-action-list">
-              <Link to="/add-products" className="admind-action-item">
+              <Link to="/admin/products/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#4caf50' }}>📦</span>
                 <div>
                   <h4>Add a Product</h4>
@@ -212,7 +156,7 @@ function AdminD() {
                 </div>
                 <ChevronIcon />
               </Link>
-              <Link to="/add-jobs" className="admind-action-item">
+              <Link to="/admin/jobs/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#ff9800' }}>💼</span>
                 <div>
                   <h4>Post a Job</h4>
@@ -220,7 +164,7 @@ function AdminD() {
                 </div>
                 <ChevronIcon />
               </Link>
-              <Link to="/add-member" className="admind-action-item">
+              <Link to="/admin/members/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#2196f3' }}>👤</span>
                 <div>
                   <h4>Add Team Member</h4>
@@ -228,7 +172,7 @@ function AdminD() {
                 </div>
                 <ChevronIcon />
               </Link>
-              <Link to="/add-promotion" className="admind-action-item">
+              <Link to="/admin/promotions/add" className="admind-action-item">
                 <span className="admind-action-dot" style={{ background: '#e91e63' }}>🏷️</span>
                 <div>
                   <h4>Manage Promotions</h4>
@@ -273,6 +217,240 @@ function AdminD() {
             </div>
           </div>
         </div>
+      </>
+    )
+  }
+
+  return (
+    <div className={`admind-page ${!sidebarOpen ? 'admind-page--collapsed' : ''}`}>
+      {/* Sidebar */}
+      <aside className={`admind-sidebar ${!sidebarOpen ? 'admind-sidebar--collapsed' : ''}`}>
+        <div className="admind-sidebar-brand">
+          <span className="admind-sidebar-logo">G</span>
+          <div>
+            <h3 className="admind-sidebar-name">Groceries</h3>
+            <p className="admind-sidebar-role">Admin Panel</p>
+          </div>
+        </div>
+
+        <nav className="admind-sidebar-nav">
+          <div className="admind-nav-section">
+            <span className="admind-nav-section-label">Main</span>
+            <Link to="/admin" className={`admind-nav-item ${location.pathname === '/admin' ? 'admind-nav-item--active' : ''}`}>
+              <span className="admind-nav-icon"><HomeIcon /></span>
+              <span className="admind-nav-label">Dashboard</span>
+            </Link>
+          </div>
+
+          <div className="admind-nav-section">
+            <span className="admind-nav-section-label">Management</span>
+
+            {/* Products Dropdown */}
+            <div className="admind-nav-group">
+              <button
+                type="button"
+                className={`admind-nav-item admind-nav-dropdown-btn ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'admind-nav-item--active' : ''}`}
+                onClick={() => toggleDropdown('products')}
+              >
+                <span className="admind-nav-icon"><PackageIcon /></span>
+                <span className="admind-nav-label">Products</span>
+                <span className={`admind-dropdown-arrow ${openDropdowns.products ? 'admind-dropdown-arrow--open' : ''}`}>
+                  <ChevronDownIcon />
+                </span>
+              </button>
+              {openDropdowns.products && (
+                <div className="admind-dropdown-menu">
+                  <Link to="/admin/products/add" className="admind-dropdown-item">
+                    <span className="admind-subicon">➕</span> Add Product
+                  </Link>
+                  <Link to="/admin/products/edit" className="admind-dropdown-item">
+                    <span className="admind-subicon">✏️</span> Edit Product
+                  </Link>
+                  <Link to="/admin/products/delete" className="admind-dropdown-item">
+                    <span className="admind-subicon">🗑️</span> Delete Product
+                  </Link>
+                  <Link to="/admin/products/update" className="admind-dropdown-item">
+                    <span className="admind-subicon">🔄</span> Update Product
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Jobs Dropdown */}
+            <div className="admind-nav-group">
+              <button
+                type="button"
+                className={`admind-nav-item admind-nav-dropdown-btn ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' ? 'admind-nav-item--active' : ''}`}
+                onClick={() => toggleDropdown('jobs')}
+              >
+                <span className="admind-nav-icon"><BriefcaseIcon /></span>
+                <span className="admind-nav-label">Jobs</span>
+                <span className={`admind-dropdown-arrow ${openDropdowns.jobs ? 'admind-dropdown-arrow--open' : ''}`}>
+                  <ChevronDownIcon />
+                </span>
+              </button>
+              {openDropdowns.jobs && (
+                <div className="admind-dropdown-menu">
+                  <Link to="/admin/jobs/add" className="admind-dropdown-item">
+                    <span className="admind-subicon">➕</span> Add Job
+                  </Link>
+                  <Link to="/admin/jobs/edit" className="admind-dropdown-item">
+                    <span className="admind-subicon">✏️</span> Edit Job
+                  </Link>
+                  <Link to="/admin/jobs/delete" className="admind-dropdown-item">
+                    <span className="admind-subicon">🗑️</span> Delete Job
+                  </Link>
+                  <Link to="/admin/jobs/update" className="admind-dropdown-item">
+                    <span className="admind-subicon">🔄</span> Update Job
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Members Dropdown */}
+            <div className="admind-nav-group">
+              <button
+                type="button"
+                className={`admind-nav-item admind-nav-dropdown-btn ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' ? 'admind-nav-item--active' : ''}`}
+                onClick={() => toggleDropdown('members')}
+              >
+                <span className="admind-nav-icon"><UsersIcon /></span>
+                <span className="admind-nav-label">Members</span>
+                <span className={`admind-dropdown-arrow ${openDropdowns.members ? 'admind-dropdown-arrow--open' : ''}`}>
+                  <ChevronDownIcon />
+                </span>
+              </button>
+              {openDropdowns.members && (
+                <div className="admind-dropdown-menu">
+                  <Link to="/admin/members/add" className="admind-dropdown-item">
+                    <span className="admind-subicon">➕</span> Add Member
+                  </Link>
+                  <Link to="/admin/members/edit" className="admind-dropdown-item">
+                    <span className="admind-subicon">✏️</span> Edit Member
+                  </Link>
+                  <Link to="/admin/members/delete" className="admind-dropdown-item">
+                    <span className="admind-subicon">🗑️</span> Delete Member
+                  </Link>
+                  <Link to="/admin/members/update" className="admind-dropdown-item">
+                    <span className="admind-subicon">🔄</span> Update Member
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Users Dropdown */}
+            <div className="admind-nav-group">
+              <button
+                type="button"
+                className={`admind-nav-item admind-nav-dropdown-btn ${location.pathname.startsWith('/admin/users') ? 'admind-nav-item--active' : ''}`}
+                onClick={() => toggleDropdown('users')}
+              >
+                <span className="admind-nav-icon"><ShieldIcon /></span>
+                <span className="admind-nav-label">Users</span>
+                <span className={`admind-dropdown-arrow ${openDropdowns.users ? 'admind-dropdown-arrow--open' : ''}`}>
+                  <ChevronDownIcon />
+                </span>
+              </button>
+              {openDropdowns.users && (
+                <div className="admind-dropdown-menu">
+                  <Link to="/admin/users/add" className="admind-dropdown-item">
+                    <span className="admind-subicon">➕</span> Add User
+                  </Link>
+                  <Link to="/admin/users/edit" className="admind-dropdown-item">
+                    <span className="admind-subicon">✏️</span> Edit User
+                  </Link>
+                  <Link to="/admin/users/delete" className="admind-dropdown-item">
+                    <span className="admind-subicon">🗑️</span> Delete User
+                  </Link>
+                  <Link to="/admin/users/update" className="admind-dropdown-item">
+                    <span className="admind-subicon">🔄</span> Update User
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Promotions Dropdown */}
+            <div className="admind-nav-group">
+              <button
+                type="button"
+                className={`admind-nav-item admind-nav-dropdown-btn ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' ? 'admind-nav-item--active' : ''}`}
+                onClick={() => toggleDropdown('promotions')}
+              >
+                <span className="admind-nav-icon"><TagIcon /></span>
+                <span className="admind-nav-label">Promotions</span>
+                <span className={`admind-dropdown-arrow ${openDropdowns.promotions ? 'admind-dropdown-arrow--open' : ''}`}>
+                  <ChevronDownIcon />
+                </span>
+              </button>
+              {openDropdowns.promotions && (
+                <div className="admind-dropdown-menu">
+                  <Link to="/admin/promotions/add" className="admind-dropdown-item">
+                    <span className="admind-subicon">➕</span> Add Promotion
+                  </Link>
+                  <Link to="/admin/promotions/edit" className="admind-dropdown-item">
+                    <span className="admind-subicon">✏️</span> Edit Promotion
+                  </Link>
+                  <Link to="/admin/promotions/delete" className="admind-dropdown-item">
+                    <span className="admind-subicon">🗑️</span> Delete Promotion
+                  </Link>
+                  <Link to="/admin/promotions/update" className="admind-dropdown-item">
+                    <span className="admind-subicon">🔄</span> Update Promotion
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="admind-nav-section">
+            <span className="admind-nav-section-label">Public Pages</span>
+            <Link to="/products" className="admind-nav-item">
+              <span className="admind-nav-icon"><ShopIcon /></span>
+              <span className="admind-nav-label">Shop</span>
+            </Link>
+            <Link to="/career" className="admind-nav-item">
+              <span className="admind-nav-icon"><GlobeIcon /></span>
+              <span className="admind-nav-label">Career</span>
+            </Link>
+            <Link to="/member" className="admind-nav-item">
+              <span className="admind-nav-icon"><TeamIcon /></span>
+              <span className="admind-nav-label">Team</span>
+            </Link>
+          </div>
+        </nav>
+
+        <div className="admind-sidebar-footer">
+          <Link to="/" className="admind-back-site-btn">
+            <ArrowLeftIcon />
+            <span>Back to Site</span>
+          </Link>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="admind-main">
+        {/* Top bar */}
+        <header className="admind-topbar">
+          <div className="admind-topbar-left">
+            <button
+              className="admind-toggle-btn"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle Sidebar"
+              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            >
+              <MenuToggleIcon />
+            </button>
+            <div>
+              <h1 className="admind-topbar-title">Dashboard Overview</h1>
+              <p className="admind-topbar-date">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
+          </div>
+          <div className="admind-topbar-right">
+            <span className="admind-topbar-badge">🔔</span>
+            <div className="admind-topbar-avatar">A</div>
+          </div>
+        </header>
+
+        {renderContent()}
       </main>
     </div>
   )
@@ -365,6 +543,12 @@ const TagIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
     <line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+)
+
+const ChevronDownIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <polyline points="6 9 12 15 18 9" />
   </svg>
 )
 

@@ -63,12 +63,12 @@ function App() {
           <Route path="/apply-now" element={<ApplyNow />} />
 
           {/* Only Admin Have permission to access this route */}
-          <Route path="/add-member" element={<AddMember />} />
-          <Route path="/add-jobs" element={<Addjobs />} />
-          <Route path="/add-products" element={<AddProducts />} />
           <Route path="/admin" element={<AdminD />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/add-promotion" element={<Addpromotion />} />
+          <Route path="/admin/*" element={<AdminD />} />
+          <Route path="/add-member" element={<AdminD />} />
+          <Route path="/add-jobs" element={<AdminD />} />
+          <Route path="/add-products" element={<AdminD />} />
+          <Route path="/add-promotion" element={<AdminD />} />
 
           <Route path="/profile" element={<Profile />} />
 

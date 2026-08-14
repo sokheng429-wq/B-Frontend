@@ -20,8 +20,8 @@
   --color-accent-400: #ffad33;
 
   /* B'Groceries Official Brand Fonts */
-  --font-display: "Montserrat", ui-sans-serif, sans-serif;
-  --font-sans: "Montserrat", "Kantumruy Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat";
+  --font-sans: "Montserrat", "Kantumruy Pro" ;
 }
 
 body {

@@ -143,24 +143,8 @@ export const Home = () => {
         <div className="home-hero-inner">
           {/* Hero Visual Stack (Picture on Left) */}
           <div className="home-hero-visual">
-            <div className="home-hero-floating-badge home-hero-floating-badge--top">
-              <span className="home-hero-badge-icon">⚡</span>
-              <div>
-                <span className="home-hero-badge-title">45 Min Delivery</span>
-                <span className="home-hero-badge-sub">Fast Phnom Penh Express</span>
-              </div>
-            </div>
-
-            <div className="home-hero-floating-badge home-hero-floating-badge--bottom">
-              <span className="home-hero-badge-icon">🌿</span>
-              <div>
-                <span className="home-hero-badge-title">100% Organic</span>
-                <span className="home-hero-badge-sub">Certified Local Farms</span>
-              </div>
-            </div>
-
             <div className="home-hero-img-frame">
-              <img src={homeHero} alt="B'Groceries Store" className="home-hero-img" />
+              <img src={homeHero2} alt="B'Groceries Store" className="home-hero-img" />
             </div>
           </div>
 
