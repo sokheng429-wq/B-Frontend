@@ -75,7 +75,7 @@ export const Footer = () => {
               <h4 className="footer-heading">{col.title[lang]}</h4>
               <ul className="footer-list">
                 {col.links.map((link) => (
-                  <li key={link.href}>
+                  <li key={link.label.en}>
                     <Link to={link.href} className="footer-link">
                       {link.label[lang]}
                     </Link>

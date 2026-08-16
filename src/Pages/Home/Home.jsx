@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useLanguage } from '../context/LanguageContext'
-import homeHero from '../assets/Store.png'
-import homeHero2 from '../assets/Home.png'
-import inside from '../assets/inside.png'
+import { useLanguage } from '../../context/LanguageContext'
+import homeHero from '../../assets/Store.png'
+import homeHero2 from '../../assets/Home.png'
+import inside from '../../assets/inside.png'
 import './Home.css'
 
 const CATEGORIES = [

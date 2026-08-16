@@ -1,4 +1,4 @@
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../../context/LanguageContext';
 import './Shipping&Delivery.css';
 
 const DELIVERY_TIERS = [

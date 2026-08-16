@@ -1,6 +1,6 @@
 // src/Pages/TermsPrivacy.jsx
 import { useState } from 'react'
-import { useLanguage } from '../context/LanguageContext'
+import { useLanguage } from '../../context/LanguageContext'
 import './Terms&Privacy.css'
 
 const TABS = {
