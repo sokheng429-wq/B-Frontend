@@ -26,6 +26,10 @@ import Memberdetail from './Pages/Home/Memberdetail'
 import Productdetail from './Pages/Shop/Productdetail'
 import Careerdetail from './Pages/Home/Careerdetail'
 import Partners from './Pages/Shop/Partners'
+import OrderHistory from './Pages/Shop/OrderHistory'
+import Tracking from './Pages/Shop/Tracking'
+import ShopLayout from './components/ShopSidebar'
+import AddPartner from './Pages/Auth/AddPartner'
 
 // Only users with role ADMIN may see admin pages; everyone else goes home.
 const AdminRoute = ({ children }) => {
@@ -39,7 +43,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
-  const useHeader2 = location.pathname === '/products' || location.pathname === '/promotion' || location.pathname === '/partners'
+  const useHeader2 = ['/products', '/promotion', '/partners', '/product-detail', '/orders', '/tracking'].includes(location.pathname)
 
   return (
     <>
@@ -54,11 +58,11 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Customer Standard & Interactive Pages */}
-          <Route path="/products" element={<PopularProducts />} />
-          <Route path="/product-detail" element={<Productdetail />} />
-          <Route path="/product-details" element={<Productdetail />} />
+          <Route path="/products" element={<ShopLayout><PopularProducts /></ShopLayout>} />
+          <Route path="/product-detail" element={<ShopLayout><Productdetail /></ShopLayout>} />
+          <Route path="/product-details" element={<ShopLayout><Productdetail /></ShopLayout>} />
 
-          <Route path="/promotion" element={<Promotion />} />
+          <Route path="/promotion" element={<ShopLayout><Promotion /></ShopLayout>} />
 
           <Route path="/career" element={<Career />} />
           <Route path="/career-detail" element={<Careerdetail />} />
@@ -67,7 +71,9 @@ function App() {
           <Route path="/member" element={<Member />} />
           <Route path="/member-detail" element={<Memberdetail />} />
 
-          <Route path="/partners" element={<Partners />} />
+          <Route path="/partners" element={<ShopLayout><Partners /></ShopLayout>} />
+          <Route path="/orders" element={<ShopLayout><OrderHistory /></ShopLayout>} />
+          <Route path="/tracking" element={<ShopLayout><Tracking /></ShopLayout>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/terms-privacy" element={<TermsPrivacy />} />
@@ -84,6 +90,7 @@ function App() {
           <Route path="/add-products" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-promotion" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-partner" element={<AdminRoute><AddPartner /></AdminRoute>} />
 
           <Route path="/profile" element={<Profile />} />
 

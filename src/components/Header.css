@@ -209,8 +209,8 @@
   line-height: 1;
 }
 
-/* Breakpoint: show desktop nav / hide mobile toggle from 768px up */
-@media (min-width: 768px) {
+/* Breakpoint: show desktop nav / hide mobile toggle from 980px up */
+@media (min-width: 980px) {
   .nav-desktop {
     display: flex;
   }

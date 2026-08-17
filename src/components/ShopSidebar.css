@@ -1,0 +1,146 @@
+/* ============================================================
+   SHOP SIDEBAR — left navigation for the shop section
+   (Products / Promotion / Partners / My Orders / Track Order)
+   ============================================================ */
+
+.shop-layout {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 26px;
+  max-width: 1600px;
+  margin: 0;
+  padding: 26px 0 60px;
+}
+
+.shop-sidebar {
+  position: sticky;
+  top: 96px;
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--brand-border);
+  border-radius: 18px;
+  padding: 18px 14px;
+  box-shadow: 0 4px 20px var(--brand-tint-soft);
+}
+
+.shop-sidebar-title {
+  margin: 0 8px 10px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.shop-sidebar-title--acct {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--brand-border);
+}
+
+.shop-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shop-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-body);
+  text-decoration: none;
+  border-radius: 11px;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.shop-sidebar-link span {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.shop-sidebar-link:hover {
+  color: var(--text-strong);
+  background: var(--brand-tint-soft);
+  transform: translateX(2px);
+}
+
+.shop-sidebar-link--on {
+  color: var(--navy-dark);
+  background: var(--brand);
+  font-weight: 700;
+}
+
+.shop-sidebar-link--on:hover {
+  color: var(--navy-dark);
+  background: var(--brand-light);
+}
+
+.shop-layout-main {
+  flex: 1;
+  min-width: 0;
+  padding-right: 24px;
+}
+
+/* Responsive: sidebar becomes a horizontal rail on top */
+@media (max-width: 920px) {
+  .shop-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 12px 40px;
+  }
+
+  .shop-layout-main {
+    padding-right: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .shop-sidebar {
+    position: static;
+    width: 100%;
+    padding: 12px;
+  }
+
+  .shop-sidebar-title {
+    display: none;
+  }
+
+  .shop-sidebar-title--acct {
+    display: none;
+  }
+
+  .shop-sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .shop-sidebar-link {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 9px 14px;
+  }
+
+  .shop-sidebar-link:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-sidebar-link {
+    transition: none;
+  }
+  .shop-sidebar-link:hover {
+    transform: none;
+  }
+}

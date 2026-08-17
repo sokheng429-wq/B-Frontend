@@ -21,7 +21,10 @@
       "Bash(grep -rn \"@media\" src/**/*.css src/*.css)",
       "Bash(cp /tmp/Careerdetail.css.bak src/Pages/Careerdetail.css)",
       "Bash(cp /tmp/Partners.css.bak src/Pages/Partners.css)",
-      "Bash"
+      "Bash",
+      "WebFetch(domain:unsplash.com)",
+      "WebFetch(domain:images.unsplash.com)",
+      "WebSearch"
     ]
   }
 }
