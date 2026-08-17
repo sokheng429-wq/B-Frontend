@@ -78,18 +78,21 @@ const NAV_ITEMS = [
 
 export const Profile = () => {
     const { lang } = useLanguage()
-    const { logout } = useAuth()
+    const { user: authUser, logout } = useAuth()
     const navigate = useNavigate()
     const tp = PROFILE_TEXTS[lang] || PROFILE_TEXTS.en
 
     const [activeTab, setActiveTab] = useState('info')
     const [editing, setEditing] = useState(false)
 
+    // Seed profile fields from the authenticated user (backend UserResponse: fullName, phoneNumber)
+    const fullNameParts = (authUser?.fullName || authUser?.name || '').trim().split(/\s+/).filter(Boolean)
+
     const [user, setUser] = useState({
-        firstName: 'SokHeng',
-        lastName: '',
-        email: 'SokHeng@gmail.com',
-        phone: '+855 12 345 678',
+        firstName: fullNameParts[0] || '',
+        lastName: fullNameParts.slice(1).join(' ') || '',
+        email: authUser?.email || '',
+        phone: authUser?.phoneNumber || '',
         dob: '',
         gender: '',
         nationality: 'Cambodian',

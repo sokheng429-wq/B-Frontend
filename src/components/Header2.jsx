@@ -13,11 +13,15 @@ const NAV_LINKS = [
   { label: { en: 'Partners', kh: 'ដៃគូ' }, href: '/partners' },
 ]
 
+// Only visible to ADMIN users.
+const ADMIN_LINK = { label: { en: 'Manage', kh: 'គ្រប់គ្រង' }, href: '/admin' }
+
 export const Header2 = () => {
   const { lang } = useLanguage()
-  const { isLoggedIn, logout } = useAuth()
+  const { isLoggedIn, user, logout } = useAuth()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isAdmin = user?.role === 'ADMIN'
 
   const isActive = (href) => {
     if (href === '/') return location.pathname === '/'
@@ -52,6 +56,14 @@ export const Header2 = () => {
               {link.label[lang]}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to={ADMIN_LINK.href}
+              className={`h2-nav-link h2-nav-admin-link ${isActive(ADMIN_LINK.href) ? 'h2-nav-link--active' : ''}`}
+            >
+              {ADMIN_LINK.label[lang]}
+            </Link>
+          )}
         </nav>
 
         {/* Right side controls */}
@@ -70,8 +82,8 @@ export const Header2 = () => {
 
           {isLoggedIn ? (
             <>
-              <Link to="/member-detail" className={`h2-nav-link ${isActive('/member-detail') ? 'h2-nav-link--active' : ''}`}>
-                {t.profile[lang]}
+              <Link to="/profile" className="h2-nav-link h2-nav-user-name" title={user?.fullName || user?.name || 'Profile'}>
+                {user?.fullName || user?.name || t.profile[lang]}
               </Link>
               <button type="button" onClick={logout} className="h2-nav-link" style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit', color: 'inherit' }}>
                 {lang === 'en' ? 'Log Out' : 'ចាកចេញ'}
@@ -114,6 +126,15 @@ export const Header2 = () => {
                 {link.label[lang]}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to={ADMIN_LINK.href}
+                className={`h2-nav-link-mobile ${isActive(ADMIN_LINK.href) ? 'h2-nav-link-mobile--active' : ''}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {ADMIN_LINK.label[lang]}
+              </Link>
+            )}
           </nav>
 
           <div className="h2-controls-mobile">
@@ -131,11 +152,12 @@ export const Header2 = () => {
             {isLoggedIn ? (
               <>
                 <Link
-                  to="/member-detail"
-                  className={`h2-nav-link-mobile ${isActive('/member-detail') ? 'h2-nav-link-mobile--active' : ''}`}
+                  to="/profile"
+                  className="h2-nav-link-mobile h2-nav-user-name"
                   onClick={() => setMobileOpen(false)}
+                  title={user?.fullName || user?.name || 'Profile'}
                 >
-                  {t.profile[lang]}
+                  {user?.fullName || user?.name || t.profile[lang]}
                 </Link>
                 <button
                   type="button"

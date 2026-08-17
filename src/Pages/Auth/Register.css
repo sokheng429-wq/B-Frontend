@@ -256,35 +256,6 @@
   background: #2a2825;
 }
 
-/* Social buttons */
-.social-auth-row {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.btn-social {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-family: var(--font-family);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-strong);
-  background: var(--navy);
-  border: 1px solid #e0ded6;
-  border-radius: 12px;
-  padding: 0.7rem;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.btn-social:hover {
-  border-color: var(--brand);
-  background: var(--surface-3);
-}
-
 /* Responsive */
 @media (min-width: 900px) {
   .auth {
@@ -306,4 +277,92 @@
   .auth {
     grid-template-columns: 1.1fr 1fr;
   }
+}
+
+/* Inline form error (backed by the API error message) */
+.auth-error {
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: #fdecea;
+  color: #b3261e;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Social signup buttons — pill style with brand color on hover */
+.social-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 9999px;
+  border: 1.5px solid #d8dbe3;
+  background:  #232F3F;
+  color: var(--text-strong, #1a2433);
+  font-family: var(--font-family);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+}
+.social-btn:hover {
+  transform: translateY(-1px);
+}
+.social-btn:active {
+  transform: translateY(0);
+}
+.social-btn span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.social-btn strong {
+  font-weight: 700;
+}
+.social-btn--gmail:hover {
+  border-color: #EA4335;
+  background: #fef1f0;
+  color: #D93025;
+}
+.social-btn--telegram:hover {
+  border-color: #229ED9;
+  background: #e8f6fd;
+  color: #1d8fc4;
+}
+.social-btn--facebook:hover {
+  border-color: #1877F2;
+  background: #eaf1fe;
+  color: #1466d6;
+}
+
+/* Required-field marker */
+.req {
+  color: #b3261e;
+}
+
+/* One-click social signup: note + disabled/loading state */
+.auth-social-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  text-align: center;
+  line-height: 1.45;
+}
+.social-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

@@ -1,6 +1,7 @@
 // ===== API CONFIG =====
-// Change this to your Spring Boot backend URL
-const API_BASE = 'http://localhost:8080/api'
+// Backend runs on port 8081 (see B-backend/src/main/resources/application.yml).
+// CORS is already open on the backend, so a full URL is fine.
+const API_BASE = 'http://localhost:8081/api'
 
 async function request(path, options = {}) {
   const token = localStorage.getItem('token')
@@ -24,15 +25,41 @@ async function request(path, options = {}) {
 }
 
 // ===== AUTH =====
+// Backend contract (B-backend AuthController): login by username / full name / email /
+// telegram / facebook (identifier + password); OTP login and forgot-password are phone-based
+// 3-step flows. Register requires phoneNumber (for contact) and username. All return
+// ApiResponse { success, message, data }.
 export const authAPI = {
-  login: (email, password) =>
-    request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  login: (identifier, password) =>
+    request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) }),
+
+  // One-click social login / signup: just the provider (gmail|telegram|facebook) —
+  // the backend logs into the existing social account or creates one. Same shape as login.
+  socialLogin: (provider) =>
+    request('/auth/social', { method: 'POST', body: JSON.stringify({ provider }) }),
 
   register: (data) =>
     request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
-  forgotPassword: (email) =>
-    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  // Login with OTP — step 1: send code, step 2: verify code
+  sendLoginOtp: (phoneNumber) =>
+    request('/auth/login/otp/send', { method: 'POST', body: JSON.stringify({ phoneNumber }) }),
+
+  verifyLoginOtp: (phoneNumber, otp) =>
+    request('/auth/login/otp/verify', { method: 'POST', body: JSON.stringify({ phoneNumber, otp }) }),
+
+  // Forgot password — step 1: send code, step 2: verify code -> resetToken, step 3: reset
+  sendForgotPasswordOtp: (phoneNumber) =>
+    request('/auth/forgot-password/send-otp', { method: 'POST', body: JSON.stringify({ phoneNumber }) }),
+
+  verifyForgotPasswordOtp: (phoneNumber, otp) =>
+    request('/auth/forgot-password/verify-otp', { method: 'POST', body: JSON.stringify({ phoneNumber, otp }) }),
+
+  resetPassword: (resetToken, newPassword, confirmPassword) =>
+    request('/auth/forgot-password/reset', {
+      method: 'POST',
+      body: JSON.stringify({ resetToken, newPassword, confirmPassword }),
+    }),
 }
 
 // ===== PRODUCTS =====

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
+import { authAPI } from '../../api/api'
 import { Logo } from '../../components/Logo'
 import './Login.css'
 
@@ -23,56 +24,50 @@ const TEXTS = {
   forgotPassword: { en: 'Forgot password?', kh: 'ភ្លេចពាក្យសម្ងាត់?' },
   loginBtn: { en: 'Log in', kh: 'ចូលគណនី' },
   footerNote: { en: "By continuing, you agree to B'Groceries' Terms of Service and Privacy Policy.", kh: 'ដោយបន្ត អ្នកយល់ព្រមនឹងលក្ខខណ្ឌសេវាកម្ម និងគោលការណ៍ឯកជនភាពរបស់ B\'Groceries។' },
-  // OTP mode
-  tabPassword: { en: 'Password', kh: 'ពាក្យសម្ងាត់' },
-  tabOtp: { en: 'Login with OTP', kh: 'ចូលដោយលេខកូដ' },
-  otpSentTo: { en: 'We sent a 6‑digit code to ', kh: 'យើងបានផ្ញើលេខកូដ ៦ខ្ទង់ទៅកាន់ ' },
-  sendOtp: { en: 'Send OTP', kh: 'ផ្ញើលេខកូដ' },
-  verifyOtp: { en: 'Verify & Login', kh: 'ផ្ទៀងផ្ទាត់ និងចូល' },
-  resendOtp: { en: 'Resend code', kh: 'ផ្ញើលេខកូដម្តងទៀត' },
-  changePhone: { en: 'Change number', kh: 'ផ្លាស់ប្តូរលេខ' },
-  backToPassword: { en: 'Back to password login', kh: 'ត្រលប់ទៅចូលដោយពាក្យសម្ងាត់' },
+  // Login fields
+  nameLabel: { en: 'Username or full name', kh: 'ឈ្មោះអ្នកប្រើ ឬឈ្មោះពេញ' },
+  namePlaceholder: { en: 'e.g. YourName', kh: 'ឧ. YourName' },
+  socialNote: { en: 'You\'ll be logged in instantly (a B\'Groceries account is created the first time).', kh: 'អ្នកនឹងចូលគណនីភ្លាមៗ (គណនី B\'Groceries នឹងត្រូវបានបង្កើតនៅពេលដំបូង)។' },
 }
 
 export const Login = () => {
   const { lang } = useLanguage()
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [mode, setMode] = useState('password') // 'password' | 'otp'
-  const [form, setForm] = useState({ phone: '', password: '', remember: false })
-  const [otpPhone, setOtpPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
+  const [form, setForm] = useState({ identifier: '', password: '', remember: false })
+  const [error, setError] = useState('')
+  const [socialBusy, setSocialBusy] = useState('') // provider being logged in
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login submit', form)
-    login({ phone: form.phone })
-    navigate('/profile')
+    setError('')
+    try {
+      const res = await authAPI.login(form.identifier, form.password)
+      login(res.data)
+      navigate('/')
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  const handleSendOtp = (e) => {
-    e.preventDefault()
-    console.log('OTP sent to', otpPhone)
-    setOtpSent(true)
-  }
-
-  const handleOtpLogin = (e) => {
-    e.preventDefault()
-    console.log('OTP login', otpPhone, otp)
-    login({ phone: otpPhone })
-    navigate('/profile')
-  }
-
-  const switchMode = (m) => {
-    setMode(m)
-    setOtpSent(false)
-    setOtp('')
+  // One-click social login: straight to the backend, no identifier prompt.
+  const handleSocial = async (provider) => {
+    setError('')
+    setSocialBusy(provider)
+    try {
+      const res = await authAPI.socialLogin(provider)
+      login(res.data)
+      navigate('/')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSocialBusy('')
+    }
   }
 
   return (
@@ -106,65 +101,42 @@ export const Login = () => {
             {TEXTS.newHere[lang]} <Link to="/register">{TEXTS.createAccount[lang]}</Link>
           </p>
 
-          {/* Mode tabs */}
-          <div className="login-tabs">
-            <button className={`login-tab ${mode === 'password' ? 'login-tab--active' : ''}`} onClick={() => switchMode('password')}>
-              <LockIcon /> {TEXTS.tabPassword[lang]}
+          {/* Name: username / full name + password */}
+          <form className="auth-form" onSubmit={handleSubmit}>
+            <div className="field">
+              <label htmlFor="identifier">{TEXTS.nameLabel[lang]}</label>
+              <input id="identifier" name="identifier" type="text" placeholder={TEXTS.namePlaceholder[lang]} value={form.identifier} onChange={handleChange} required />
+            </div>
+            <div className="field">
+              <label htmlFor="password">{TEXTS.passwordLabel[lang]}</label>
+              <input id="password" name="password" type="password" placeholder={TEXTS.passwordPlaceholder[lang]} value={form.password} onChange={handleChange} required />
+            </div>
+            <div className="field-inline">
+              <label className="checkbox-label">
+                <input type="checkbox" name="remember" checked={form.remember} onChange={handleChange} />
+                {TEXTS.rememberMe[lang]}
+              </label>
+              <Link to="/forgot-password" className="link-muted">{TEXTS.forgotPassword[lang]}</Link>
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="btn-submit">{TEXTS.loginBtn[lang]}</button>
+          </form>
+
+          {/* One-click social login — below the Login button */}
+          <div className="auth-divider"><span>{lang === 'en' ? 'or continue with' : 'ឬបន្តជាមួយ'}</span></div>
+
+          <div className="social-auth">
+            <button type="button" className="social-btn social-btn--gmail" onClick={() => handleSocial('gmail')} disabled={!!socialBusy}>
+              {socialBusy === 'gmail' ? <SpinnerIcon /> : <GmailIcon />} <span>Continue with <strong>Google</strong></span>
             </button>
-            <button className={`login-tab ${mode === 'otp' ? 'login-tab--active' : ''}`} onClick={() => switchMode('otp')}>
-              <MessageIcon /> {TEXTS.tabOtp[lang]}
+            <button type="button" className="social-btn social-btn--telegram" onClick={() => handleSocial('telegram')} disabled={!!socialBusy}>
+              {socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />} <span>Continue with <strong>Telegram</strong></span>
+            </button>
+            <button type="button" className="social-btn social-btn--facebook" onClick={() => handleSocial('facebook')} disabled={!!socialBusy}>
+              {socialBusy === 'facebook' ? <SpinnerIcon /> : <FacebookIcon />} <span>Continue with <strong>Facebook</strong></span>
             </button>
           </div>
-
-          {mode === 'password' && (
-            <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="field">
-                <label htmlFor="phone">{TEXTS.phoneLabel[lang]}</label>
-                <input id="phone" name="phone" type="tel" placeholder={TEXTS.phonePlaceholder[lang]} value={form.phone} onChange={handleChange} required />
-              </div>
-              <div className="field">
-                <label htmlFor="password">{TEXTS.passwordLabel[lang]}</label>
-                <input id="password" name="password" type="password" placeholder={TEXTS.passwordPlaceholder[lang]} value={form.password} onChange={handleChange} required />
-              </div>
-              <div className="field-inline">
-                <label className="checkbox-label">
-                  <input type="checkbox" name="remember" checked={form.remember} onChange={handleChange} />
-                  {TEXTS.rememberMe[lang]}
-                </label>
-                <Link to="/forgot-password" className="link-muted">{TEXTS.forgotPassword[lang]}</Link>
-              </div>
-              <button type="submit" className="btn-submit">{TEXTS.loginBtn[lang]}</button>
-            </form>
-          )}
-
-          {mode === 'otp' && !otpSent && (
-            <form className="auth-form" onSubmit={handleSendOtp}>
-              <div className="field">
-                <label htmlFor="otpPhone">{TEXTS.phoneLabel[lang]}</label>
-                <input id="otpPhone" name="otpPhone" type="tel" placeholder={TEXTS.phonePlaceholder[lang]} value={otpPhone} onChange={(e) => setOtpPhone(e.target.value)} required autoFocus />
-              </div>
-              <button type="submit" className="btn-submit">{TEXTS.sendOtp[lang]}</button>
-              <button type="button" className="login-back-link" onClick={() => switchMode('password')}>
-                {TEXTS.backToPassword[lang]}
-              </button>
-            </form>
-          )}
-
-          {mode === 'otp' && otpSent && (
-            <form className="auth-form" onSubmit={handleOtpLogin}>
-              <div className="field">
-                <label htmlFor="otp">{lang === 'en' ? 'Enter OTP Code' : 'បញ្ចូលលេខកូដ OTP'}</label>
-                <input id="otp" name="otp" type="text" inputMode="numeric" maxLength={6} placeholder="000000" className="login-otp-input" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required autoFocus />
-                <span className="login-otp-sent-text">{TEXTS.otpSentTo[lang]}<strong>{otpPhone}</strong></span>
-              </div>
-              <button type="submit" className="btn-submit">{TEXTS.verifyOtp[lang]}</button>
-
-              <div className="login-otp-links">
-                <button type="button" className="login-link-btn" onClick={() => { setOtpSent(false); setOtp('') }}>{TEXTS.changePhone[lang]}</button>
-                <button type="button" className="login-link-btn" onClick={() => console.log('Resend OTP')}>{TEXTS.resendOtp[lang]}</button>
-              </div>
-            </form>
-          )}
+          <p className="auth-social-note">{TEXTS.socialNote[lang]}</p>
 
           <p className="auth-footer-note">{TEXTS.footerNote[lang]}</p>
         </div>
@@ -180,9 +152,28 @@ const LockIcon = () => (
   </svg>
 )
 
-const MessageIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+/* Brand logos for the social buttons (filled, full color) */
+const GmailIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.691 2.28 24 3.434 24 5.457z" fill="#EA4335" />
+  </svg>
+)
+
+const TelegramIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#229ED9" />
+  </svg>
+)
+
+const FacebookIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.026 1.792-4.697 4.533-4.697 1.313 0 2.686.235 2.686.235v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.265h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" fill="#1877F2" />
+  </svg>
+)
+
+const SpinnerIcon = () => (
+  <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" strokeDasharray="40 20" strokeLinecap="round" />
   </svg>
 )
 

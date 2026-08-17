@@ -27,14 +27,24 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isLoggedIn, user])
 
-  const login = (userData) => {
-    setUser(userData || { name: 'User' })
+  // login(data) accepts the backend AuthResponse: { token, tokenType, user }
+  const login = (data) => {
+    if (data?.token) {
+      localStorage.setItem('token', data.token)
+    }
+    if (data?.user) {
+      // Also expose fullName as `name` so UI reading user.name keeps working.
+      setUser({ ...data.user, name: data.user.fullName })
+    } else {
+      setUser(data || { name: 'User' })
+    }
     setIsLoggedIn(true)
   }
 
   const logout = () => {
     setUser(null)
     setIsLoggedIn(false)
+    localStorage.removeItem('token')
   }
 
   return (

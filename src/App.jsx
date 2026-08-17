@@ -1,4 +1,5 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
 import Header from './components/Header'
 import Header2 from './components/Header2'
 import Footer from './components/Footer'
@@ -25,6 +26,15 @@ import Memberdetail from './Pages/Home/Memberdetail'
 import Productdetail from './Pages/Shop/Productdetail'
 import Careerdetail from './Pages/Home/Careerdetail'
 import Partners from './Pages/Shop/Partners'
+
+// Only users with role ADMIN may see admin pages; everyone else goes home.
+const AdminRoute = ({ children }) => {
+  const { user } = useAuth()
+  if (user?.role !== 'ADMIN') {
+    return <Navigate to="/" replace />
+  }
+  return children
+}
 
 function App() {
   const location = useLocation()
@@ -66,14 +76,14 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/apply-now" element={<ApplyNow />} />
 
-          {/* Admin Backoffice Management */}
-          <Route path="/admin" element={<AdminD />} />
-          <Route path="/admin/*" element={<AdminD />} />
-          <Route path="/add-member" element={<AdminD />} />
-          <Route path="/add-jobs" element={<AdminD />} />
-          <Route path="/add-products" element={<AdminD />} />
-          <Route path="/add-promotion" element={<AdminD />} />
-          <Route path="/manage-users" element={<AdminD />} />
+          {/* Admin Backoffice Management (ADMIN only) */}
+          <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-member" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-jobs" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-products" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-promotion" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
 
           <Route path="/profile" element={<Profile />} />
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { authAPI } from '../../api/api'
 import { Logo } from '../../components/Logo'
 import './Forgotpassword.css'
 
@@ -42,27 +43,54 @@ export const ForgotPassword = () => {
   const [otp, setOtp] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [resetToken, setResetToken] = useState('')
+  const [error, setError] = useState('')
 
-  const handleSendOtp = (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault()
-    console.log('OTP sent to', phone)
-    setStep(2)
+    setError('')
+    try {
+      await authAPI.sendForgotPasswordOtp(phone)
+      setStep(2)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  const handleVerifyOtp = (e) => {
-    e.preventDefault()
-    console.log('OTP verified', otp)
-    setStep(3)
+  const handleResendOtp = async () => {
+    setError('')
+    try {
+      await authAPI.sendForgotPasswordOtp(phone)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
-  const handleReset = (e) => {
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault()
+    setError('')
+    try {
+      const res = await authAPI.verifyForgotPasswordOtp(phone, otp)
+      setResetToken(res.data.resetToken)
+      setStep(3)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  const handleReset = async (e) => {
     e.preventDefault()
     if (newPassword !== confirmPassword) {
       alert(TEXTS.passwordMismatch[lang])
       return
     }
-    console.log('Password reset for', phone)
-    setStep(4)
+    setError('')
+    try {
+      await authAPI.resetPassword(resetToken, newPassword, confirmPassword)
+      setStep(4)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   const goToStep = (s) => {
@@ -115,6 +143,7 @@ export const ForgotPassword = () => {
                   <label htmlFor="phone">{TEXTS.phoneLabel[lang]}</label>
                   <input id="phone" name="phone" type="tel" placeholder={TEXTS.phonePlaceholder[lang]} value={phone} onChange={(e) => setPhone(e.target.value)} required />
                 </div>
+                {error && <p className="auth-error">{error}</p>}
                 <button type="submit" className="btn-submit">{TEXTS.sendOtp[lang]}</button>
               </form>
             </>
@@ -131,11 +160,12 @@ export const ForgotPassword = () => {
                   <label htmlFor="otp">{TEXTS.enterOtp[lang]}</label>
                   <input id="otp" name="otp" type="text" inputMode="numeric" maxLength={6} placeholder="000000" className="forgot-otp-input" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required autoFocus />
                 </div>
+                {error && <p className="auth-error">{error}</p>}
                 <button type="submit" className="btn-submit">{TEXTS.verifyOtp[lang]}</button>
 
                 <div className="forgot-otp-links">
                   <button type="button" className="forgot-link-btn" onClick={() => goToStep(1)}>{TEXTS.changePhone[lang]}</button>
-                  <button type="button" className="forgot-link-btn" onClick={() => console.log('Resend OTP')}>{TEXTS.resendOtp[lang]}</button>
+                  <button type="button" className="forgot-link-btn" onClick={handleResendOtp}>{TEXTS.resendOtp[lang]}</button>
                 </div>
               </form>
             </>
@@ -153,6 +183,7 @@ export const ForgotPassword = () => {
                   <label htmlFor="confirmPassword">{TEXTS.confirmLabel[lang]}</label>
                   <input id="confirmPassword" name="confirmPassword" type="password" placeholder={TEXTS.confirmPlaceholder[lang]} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
                 </div>
+                {error && <p className="auth-error">{error}</p>}
                 <button type="submit" className="btn-submit">{TEXTS.resetBtn[lang]}</button>
               </form>
             </>

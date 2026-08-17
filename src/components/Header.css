@@ -224,3 +224,19 @@
     display: none;
   }
 }
+
+/* Logged-in user's name in the header */
+.nav-user-name {
+  font-weight: 600;
+  color: var(--brand);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Admin-only "Manage" link */
+.nav-admin-link {
+  font-weight: 700;
+  color: var(--brand);
+}
