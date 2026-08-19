@@ -11,12 +11,13 @@
 /* Hero */
 .tr-hero {
   position: relative;
-  padding: 52px 0 40px;
+  padding: 48px 0 36px;
   background:
-    radial-gradient(circle at 85% 25%, var(--brand-tint) 0%, transparent 55%),
-    radial-gradient(circle at 10% 90%, var(--accent-tint) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 25%, rgba(119, 188, 31, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 10% 85%, rgba(255, 153, 0, 0.07) 0%, transparent 50%),
     linear-gradient(180deg, var(--surface-1) 0%, var(--surface-0) 100%);
   border-bottom: 1px solid var(--brand-border);
+  overflow: hidden;
 }
 
 .tr-hero-inner {
@@ -24,37 +25,104 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
 }
+
+.tr-copy { flex: 1; min-width: 0; }
 
 .tr-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .tr-eyebrow svg { color: var(--brand); }
 
 .tr-title {
-  margin: 0 0 10px;
-  font-size: 2.25rem;
+  margin: 0 0 8px;
+  font-size: 2rem;
   font-weight: 900;
   line-height: 1.1;
+  letter-spacing: -0.01em;
 }
-
-.tr-title-highlight { color: var(--brand); }
 
 .tr-subtitle {
   margin: 0;
   max-width: 560px;
-  font-size: 1rem;
-  line-height: 1.65;
+  font-size: 0.9375rem;
+  line-height: 1.6;
   color: var(--text-body);
+}
+
+/* Hero journey ticket + progress ring (echoes order cards) */
+.tr-hero-ticket {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 153, 0, 0.1);
+  border: 1px solid rgba(255, 153, 0, 0.25);
+  border-radius: 18px;
+  padding: 12px 18px 12px 12px;
+}
+
+.tr-ticket-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.tr-ring {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.tr-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.tr-ring-track {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 5;
+}
+
+.tr-ring-fill {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease;
+}
+
+.tr-ring-fill--processing { stroke: var(--accent); }
+.tr-ring-fill--transit { stroke: var(--info, #06B6D4); }
+.tr-ring-fill--delivered { stroke: var(--brand); }
+
+.tr-ring-pct {
+  position: absolute;
+  font-size: 0.9375rem;
+  font-weight: 900;
+  color: var(--text-strong);
 }
 
 /* Picker */
@@ -478,11 +546,39 @@
   color: var(--brand);
 }
 
+.tr-eta-link {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  border-radius: 12px;
+  color: var(--text-muted);
+  background: var(--surface-3);
+  border: 1px solid var(--brand-border);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.tr-eta-link:hover {
+  color: var(--navy-dark);
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
 /* Responsive */
 @media (max-width: 1000px) {
   .tr-layout { grid-template-columns: 1fr; }
   .tr-hero { padding: 38px 0 30px; }
   .tr-title { font-size: 1.8rem; }
+}
+
+@media (max-width: 700px) {
+  .tr-hero-inner { flex-direction: column; align-items: flex-start; }
+  .tr-hero-ticket { align-self: flex-start; padding: 10px 14px; }
+  .tr-ticket-label { writing-mode: initial; transform: none; }
+  .tr-ring { width: 66px; height: 66px; }
+  .tr-title { font-size: 1.6rem; }
 }
 
 @media (max-width: 480px) {
@@ -494,6 +590,7 @@
 @media (prefers-reduced-motion: reduce) {
   .tr-banner-dot,
   .tr-step--active .tr-step-node { animation: none; }
+  .tr-ring-fill { transition: none; }
 }
 
 /* ── Live map ── */

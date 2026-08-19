@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
-import { ORDERS, STEPS, STAGE_STEP, formatOrderDate, orderTotal } from '../../data/orders'
+import { ORDERS, STEPS, STAGE_STEP, STATUS_LABEL, formatOrderDate, orderTotal } from '../../data/orders'
 import { formatPrice, FALLBACK_IMG } from '../../data/products'
 import './Tracking.css'
 
 const TEXTS = {
-  eyebrow: { en: 'Live · 45-minute delivery', kh: 'ផ្ទាល់ · ដឹកជញ្ជូន ៤៥ នាទី' },
-  title1: { en: 'Track your', kh: 'តាមដាន' },
-  title2: { en: 'Delivery', kh: 'ការដឹកជញ្ជូន' },
+  eyebrow: { en: 'Live · Track your delivery', kh: 'ផ្ទាល់ · តាមដានការដឹកជញ្ជូន' },
+  title: { en: 'Track your delivery', kh: 'តាមដានការដឹកជញ្ជូន' },
   subtitle: {
-    en: 'See exactly where your order is, in real time.',
-    kh: 'មើលទីតាំងពិតប្រាកដរបស់ការបញ្ជាទិញរបស់អ្នក។',
+    en: 'See exactly where your order is, in real time — from shelf to your door.',
+    kh: 'មើលទីតាំងពិតប្រាកដរបស់ការបញ្ជាទិញរបស់អ្នក — ពីធ្នើរដល់មាត់ទ្វារ។',
   },
   selectOrder: { en: 'Select an order', kh: 'ជ្រើសរើសការបញ្ជាទិញ' },
   order: { en: 'Order', kh: 'ការបញ្ជាទិញ' },
@@ -22,6 +21,8 @@ const TEXTS = {
   eta: { en: 'Estimated arrival', kh: 'ពេលមកដល់ប៉ាន់ស្មាន' },
   items: { en: 'Order items', kh: 'ទំនិញក្នុងការបញ្ជាទិញ' },
   timeline: { en: 'Delivery timeline', kh: 'ប្រវត្តិនៃការដឹកជញ្ជូន' },
+  receipt: { en: 'View orders', kh: 'មើលការបញ្ជាទិញ' },
+  journey: { en: 'Journey progress', kh: 'វឌ្ឍនភាពដំណើរ' },
   total: { en: 'Total', kh: 'សរុប' },
   deliveredSoon: { en: 'On the way', kh: 'កំពុងមកដល់' },
   liveTracking: { en: 'Live order location', kh: 'ទីតាំងការបញ្ជាទិញផ្ទាល់' },
@@ -32,6 +33,7 @@ const TEXTS = {
   ofWay: { en: 'of the way', kh: 'នៃផ្លូវ' },
   minLeft: { en: 'min left', kh: 'នាទីទៀត' },
   arrived: { en: 'Delivered', kh: 'បានដឹកជញ្ជូន' },
+  done: { en: 'Done', kh: 'រួចរាល់' },
 }
 
 const LocationIcon = () => (
@@ -68,6 +70,15 @@ const TruckIcon = () => (
     <circle cx="17.5" cy="18" r="1.6" />
   </svg>
 )
+const ReceiptIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M6 2h12v20l-2-1.2L14 22l-2-1.2L10 22l-2-1.2L6 22V2Z" />
+    <line x1="9" y1="7" x2="15" y2="7" />
+    <line x1="9" y1="11" x2="15" y2="11" />
+  </svg>
+)
+
+const stagePercent = (stage) => Math.round((STAGE_STEP[stage] / STEPS.length) * 100)
 
 /* ── Live map: courier animates along a route from store to home ── */
 const ROUTE = 'M 46 298 C 128 288 158 234 238 224 C 322 214 336 152 410 146 C 470 141 528 118 586 86'
@@ -175,7 +186,7 @@ const LiveMap = ({ stage, courierName, lang }) => {
           </g>
 
           {/* Home marker */}
-          <g transform="translate(586 86)">
+          <g transform="translate(586 96)">
             <circle r="13" fill="var(--brand)" opacity="0.25" />
             <circle r="9" fill="var(--brand)" />
             <text y="4" textAnchor="middle" fontSize="11" fill="#0B0F14" fontWeight="800">🏠</text>
@@ -217,6 +228,30 @@ const LiveMap = ({ stage, courierName, lang }) => {
   )
 }
 
+/* Journey progress ring echoing the order-history cards */
+const JourneyRing = ({ stage, label, percent }) => {
+  const radius = 30
+  const circumference = 2 * Math.PI * radius
+  const offset = circumference - (percent / 100) * circumference
+
+  return (
+    <div className="tr-ring" aria-label={`${label} ${percent}%`}>
+      <svg viewBox="0 0 72 72" aria-hidden="true">
+        <circle className="tr-ring-track" cx="36" cy="36" r={radius} />
+        <circle
+          className={`tr-ring-fill tr-ring-fill--${stage}`}
+          cx="36"
+          cy="36"
+          r={radius}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <span className="tr-ring-pct">{percent}%</span>
+    </div>
+  )
+}
+
 export const Tracking = () => {
   const { lang } = useLanguage()
   const location = useLocation()
@@ -227,6 +262,7 @@ export const Tracking = () => {
 
   const currentStep = useMemo(() => STAGE_STEP[order.stage], [order.stage])
   const total = orderTotal(order) + order.delivery.fee
+  const percent = stagePercent(order.stage)
 
   const changeOrder = (id) => setSelectedId(id)
 
@@ -235,11 +271,15 @@ export const Tracking = () => {
       {/* Hero */}
       <section className="tr-hero">
         <div className="tr-hero-inner">
-          <span className="tr-eyebrow"><LocationIcon /> {TEXTS.eyebrow[lang]}</span>
-          <h1 className="tr-title">
-            {TEXTS.title1[lang]} <span className="tr-title-highlight">{TEXTS.title2[lang]}</span>
-          </h1>
-          <p className="tr-subtitle">{TEXTS.subtitle[lang]}</p>
+          <div className="tr-copy">
+            <span className="tr-eyebrow"><LocationIcon /> {TEXTS.eyebrow[lang]}</span>
+            <h1 className="tr-title">{TEXTS.title[lang]}</h1>
+            <p className="tr-subtitle">{TEXTS.subtitle[lang]}</p>
+          </div>
+          <div className="tr-hero-ticket" aria-label={TEXTS.journey[lang]}>
+            <span className="tr-ticket-label">{TEXTS.journey[lang]}</span>
+            <JourneyRing stage={order.stage} label={TEXTS.journey[lang]} percent={percent} />
+          </div>
         </div>
       </section>
 
@@ -247,14 +287,15 @@ export const Tracking = () => {
         {/* Order picker */}
         <div className="tr-picker">
           <label className="tr-picker-label" htmlFor="tr-order-select">{TEXTS.selectOrder[lang]}</label>
-          <div className="tr-picker-chips">
+          <div className="tr-picker-chips" role="tablist">
             {ORDERS.map((o) => (
               <button
                 key={o.id}
                 type="button"
+                role="tab"
+                aria-selected={o.id === order.id}
                 className={`tr-chip ${o.id === order.id ? 'tr-chip--on' : ''}`}
                 onClick={() => changeOrder(o.id)}
-                aria-pressed={o.id === order.id}
               >
                 <span className="tr-chip-id">#{o.id}</span>
                 <span className="tr-chip-date">{formatOrderDate(o.date, lang)}</span>
@@ -276,7 +317,7 @@ export const Tracking = () => {
               </div>
               <span className={`tr-banner tr-banner--${order.stage}`}>
                 <span className="tr-banner-dot" />
-                {order.stage === 'delivered' ? TEXTS.title2[lang] : TEXTS.deliveredSoon[lang]}
+                {order.stage === 'delivered' ? STATUS_LABEL[order.stage][lang] : TEXTS.deliveredSoon[lang]}
               </span>
             </div>
 
@@ -287,7 +328,11 @@ export const Tracking = () => {
                 const active = i === currentStep - 1
                 const last = i === STEPS.length - 1
                 return (
-                  <div className={`tr-step ${done ? 'tr-step--done' : ''} ${active ? 'tr-step--active' : ''}`} key={step.key} role="listitem">
+                  <div
+                    className={`tr-step ${done ? 'tr-step--done' : ''} ${active ? 'tr-step--active' : ''}`}
+                    key={step.key}
+                    role="listitem"
+                  >
                     <div className="tr-step-node-wrap">
                       {!last && <div className={`tr-step-line ${done ? 'tr-step-line--done' : ''}`} />}
                       <div className="tr-step-node">
@@ -298,7 +343,7 @@ export const Tracking = () => {
                       <span className="tr-step-label">{step.label[lang]}</span>
                       <span className="tr-step-sub">
                         {active && !done && order.stage !== 'delivered' ? order.eta[lang] : ''}
-                        {done && !active ? (lang === 'en' ? 'Done' : 'រួចរាល់') : ''}
+                        {done && !active ? (lang === 'en' ? TEXTS.done.en : TEXTS.done.kh) : ''}
                       </span>
                     </div>
                   </div>
@@ -368,6 +413,9 @@ export const Tracking = () => {
                 <p className="tr-eta-label">{TEXTS.eta[lang]}</p>
                 <p className="tr-eta-value">{order.eta[lang]}</p>
               </div>
+              <Link to="/orders" className="tr-eta-link" aria-label={TEXTS.receipt[lang]}>
+                <ReceiptIcon />
+              </Link>
             </div>
           </div>
         </div>

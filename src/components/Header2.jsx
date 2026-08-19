@@ -5,6 +5,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import { Logo } from './Logo'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
+import { useCart } from '../context/CartContext'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
@@ -19,6 +20,7 @@ const ADMIN_LINK = { label: { en: 'Manage', kh: 'គ្រប់គ្រង' },
 export const Header2 = () => {
   const { lang } = useLanguage()
   const { isLoggedIn, user, logout } = useAuth()
+  const { totalItems } = useCart()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const isAdmin = user?.role === 'ADMIN'
@@ -28,7 +30,7 @@ export const Header2 = () => {
     return location.pathname.startsWith(href)
   }
 
-  const cartCount = 0 // placeholder
+  const cartCount = totalItems
 
   const t = {
     login: { en: 'Login', kh: 'ចូលគណនី' },

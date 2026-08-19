@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
-import './AddProducts.css'
+import { useNotifications } from '../../context/NotificationContext'
 
 const CATEGORIES = [
   { en: 'Fruits & Vegetables', kh: 'ផ្លែឈើ និងបន្លែ' },
@@ -25,52 +25,54 @@ const UNITS = [
 ]
 
 const TEXTS = {
-  heroTitle: { en: 'Add a Product', kh: 'បន្ថែមផលិតផល' },
-  heroSub: { en: 'Add new grocery items — they will appear in the shop for customers to browse and order.', kh: 'បន្ថែមផលិតផលថ្មី — ពួកគេនឹងបង្ហាញនៅក្នុងហាងសម្រាប់អតិថិជនជ្រើសរើសនិងបញ្ជាទិញ។' },
-  formTitle: { en: 'Product Details', kh: 'ព័ត៌មានផលិតផល' },
-  formSub: { en: 'Fill in the details below to add a new product listing.', kh: 'បំពេញព័ត៌មានខាងក្រោមដើម្បីបន្ថែមផលិតផលថ្មី។' },
-  name: { en: 'Product Name', kh: 'ឈ្មោះផលិតផល' },
-  namePlaceholder: { en: 'e.g. Fresh Strawberries', kh: 'ឧ. ផ្លែស្ត្របឺរីស្រស់' },
+  heroTitle: { en: 'Product shelf', kh: 'ធ្នើផលិតផល' },
+  heroSub: { en: 'Add, preview, and clean up grocery listings before they reach the shop.', kh: 'បន្ថែម មើលជាមុន និងរៀបចំបញ្ជីផលិតផលមុនពេលបង្ហាញក្នុងហាង។' },
+  formTitle: { en: 'Product details', kh: 'ព័ត៌មានផលិតផល' },
+  formSub: { en: 'Keep the required fields tight. Add stock and promo pricing when you have it.', kh: 'បំពេញព័ត៌មានចាំបាច់ឱ្យច្បាស់។ បន្ថែមស្តុក និងតម្លៃប្រូម៉ូសិនបើមាន។' },
+  name: { en: 'Product name', kh: 'ឈ្មោះផលិតផល' },
+  namePlaceholder: { en: 'e.g. Fresh strawberries', kh: 'ឧ. ផ្លែស្ត្របឺរីស្រស់' },
   category: { en: 'Category', kh: 'ប្រភេទ' },
   categoryPlaceholder: { en: 'Select category', kh: 'ជ្រើសរើសប្រភេទ' },
   price: { en: 'Price ($)', kh: 'តម្លៃ ($)' },
-  pricePlaceholder: { en: 'e.g. 3.50', kh: 'ឧ. 3.50' },
-  oldPrice: { en: 'Old Price ($)', kh: 'តម្លៃដើម ($)' },
-  oldPricePlaceholder: { en: 'e.g. 4.90', kh: 'ឧ. 4.90' },
+  pricePlaceholder: { en: '3.50', kh: '3.50' },
+  oldPrice: { en: 'Old price ($)', kh: 'តម្លៃដើម ($)' },
+  oldPricePlaceholder: { en: '4.90', kh: '4.90' },
   unit: { en: 'Unit', kh: 'ឯកតា' },
   unitPlaceholder: { en: 'Select unit', kh: 'ជ្រើសរើសឯកតា' },
-  stock: { en: 'Stock Qty', kh: 'ចំនួនស្តុក' },
-  stockPlaceholder: { en: 'e.g. 100', kh: 'ឧ. 100' },
-  image: { en: 'Product Image', kh: 'រូបថតផលិតផល' },
+  stock: { en: 'Stock qty', kh: 'ចំនួនស្តុក' },
+  stockPlaceholder: { en: '100', kh: '100' },
+  image: { en: 'Product image', kh: 'រូបថតផលិតផល' },
   imageHint: { en: 'Drop an image here, or click to browse', kh: 'ទម្លាក់រូបថតនៅទីនេះ ឬចុចដើម្បីជ្រើសរើស' },
-  imageSelected: { en: 'Image selected', kh: 'បានជ្រើសរើសរូបថត' },
   description: { en: 'Description', kh: 'ការពិពណ៌នា' },
-  descriptionPlaceholder: { en: 'Describe the product, its benefits, and any key details...', kh: 'ពិពណ៌នាអំពីផលិតផល អត្ថប្រយោជន៍ និងព័ត៌មានសំខាន់ៗ...' },
-  addBtn: { en: 'Add Product', kh: 'បន្ថែមផលិតផល' },
-  updateBtn: { en: 'Update Product', kh: 'ធ្វើបច្ចុប្បន្នភាពផលិតផល' },
-  cancelBtn: { en: 'Cancel', kh: 'បោះបង់' },
+  descriptionPlaceholder: { en: 'Describe freshness, origin, packaging, or customer notes...', kh: 'ពិពណ៌នាអំពីភាពស្រស់ ប្រភព ការវេចខ្ចប់ ឬកំណត់ចំណាំសម្រាប់អតិថិជន...' },
+  addBtn: { en: 'Add product', kh: 'បន្ថែមផលិតផល' },
+  updateBtn: { en: 'Save product', kh: 'រក្សាទុកផលិតផល' },
+  cancelBtn: { en: 'Cancel edit', kh: 'បោះបង់ការកែប្រែ' },
   required: { en: 'Required', kh: 'ត្រូវការ' },
   optional: { en: 'Optional', kh: 'មិនចាំបាច់' },
-  // Errors
   errName: { en: 'Product name is required', kh: 'ត្រូវការឈ្មោះផលិតផល' },
   errCategory: { en: 'Please select a category', kh: 'សូមជ្រើសរើសប្រភេទ' },
   errPrice: { en: 'Enter a valid price', kh: 'បញ្ចូលតម្លៃត្រឹមត្រូវ' },
   errStock: { en: 'Enter a valid quantity', kh: 'បញ្ចូលចំនួនត្រឹមត្រូវ' },
-  // List
-  listTitle: { en: 'Products', kh: 'ផលិតផល' },
-  empty: { en: 'No products added yet — fill the form to add your first item.', kh: 'មិនទាន់មានផលិតផលនៅឡើយ — បំពេញទម្រង់ដើម្បីបន្ថែម។' },
-  viewShop: { en: 'View Shop Page', kh: 'មើលទំព័រហាង' },
+  listTitle: { en: 'Shelf queue', kh: 'បញ្ជីផលិតផល' },
+  empty: { en: 'No products yet. Add the first item and it will appear here for quick edits.', kh: 'មិនទាន់មានផលិតផលនៅឡើយ។ បន្ថែមផលិតផលដំបូង ហើយវានឹងបង្ហាញនៅទីនេះសម្រាប់កែប្រែរហ័ស។' },
+  viewShop: { en: 'View shop page', kh: 'មើលទំព័រហាង' },
   inStock: { en: 'in stock', kh: 'ក្នុងស្តុក' },
   outOfStock: { en: 'Out of stock', kh: 'អស់ស្តុក' },
   remove: { en: 'Remove', kh: 'លុប' },
   edit: { en: 'Edit', kh: 'កែប្រែ' },
   delete: { en: 'Delete', kh: 'លុប' },
-  update: { en: 'Update', kh: 'ធ្វើបច្ចុប្បន្នភាព' },
-  back: { en: '← Back to Dashboard', kh: '← ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង' },
+  back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+  items: { en: 'Items', kh: 'ទំនិញ' },
+  ready: { en: 'Ready to sell', kh: 'រួចរាល់លក់' },
+  categories: { en: 'Categories used', kh: 'ប្រភេទបានប្រើ' },
+  livePreview: { en: 'Live preview', kh: 'មើលជាមុន' },
+  unnamed: { en: 'Unnamed product', kh: 'ផលិតផលគ្មានឈ្មោះ' },
 }
 
 export const AddProducts = () => {
   const { lang } = useLanguage()
+  const { addNotification } = useNotifications()
   const fileRef = useRef(null)
   const [form, setForm] = useState({ name: '', category: '', price: '', oldPrice: '', unit: '', stock: '', description: '' })
   const [image, setImage] = useState(null)
@@ -113,9 +115,13 @@ export const AddProducts = () => {
   const startEdit = (product) => {
     setEditingId(product.id)
     setForm({
-      name: product.name, category: product.category, price: String(product.price),
-      oldPrice: product.oldPrice ? String(product.oldPrice) : '', unit: product.unit || '',
-      stock: product.stock !== null && product.stock !== '' ? String(product.stock) : '', description: product.description || ''
+      name: product.name,
+      category: product.category,
+      price: String(product.price),
+      oldPrice: product.oldPrice ? String(product.oldPrice) : '',
+      unit: product.unit || '',
+      stock: product.stock !== null && product.stock !== '' ? String(product.stock) : '',
+      description: product.description || '',
     })
     setImagePreview(product.image)
     setImage(null)
@@ -142,14 +148,21 @@ export const AddProducts = () => {
         ))
         cancelEdit()
       } else {
-        setProducts((prev) => [...prev, {
+        const newProduct = {
           id: Date.now(),
           ...form,
           price: Number(form.price),
           oldPrice: form.oldPrice ? Number(form.oldPrice) : null,
           stock: form.stock ? Number(form.stock) : null,
           image: imagePreview,
-        }])
+        }
+        setProducts((prev) => [...prev, newProduct])
+        addNotification({
+          type: 'product',
+          action: 'add',
+          title: lang === 'en' ? 'New product added' : 'បានបន្ថែមផលិតផលថ្មី',
+          detail: form.name,
+        })
         setForm({ name: '', category: '', price: '', oldPrice: '', unit: '', stock: '', description: '' })
         setImage(null)
         setImagePreview(null)
@@ -165,196 +178,225 @@ export const AddProducts = () => {
 
   const getCatLabel = (catEn) => CATEGORIES.find((c) => c.en === catEn)?.[lang] || catEn
   const getUnitLabel = (unitEn) => UNITS.find((u) => u.en === unitEn)?.[lang] || unitEn
+  const readyCount = products.filter((p) => Number(p.stock) > 0 || p.stock === null).length
+  const usedCategories = new Set(products.map((p) => p.category).filter(Boolean)).size
+  const inputBase = 'w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10'
+  const errorInput = 'border-red-500/80 bg-red-500/10 focus:border-red-400 focus:ring-red-500/10'
 
   return (
-    <div className="adp-page">
-      {/* Hero */}
-      <section className="adp-hero">
-        <div className="adp-hero-bg" />
-        <div className="adp-inner">
-          <Link to="/admin" className="adp-back-link"><ChevronLeftIcon /> {TEXTS.back[lang]}</Link>
-          <span className="adp-hero-icon">📦</span>
-          <h1 className="adp-hero-title">{TEXTS.heroTitle[lang]}</h1>
-          <p className="adp-hero-sub">{TEXTS.heroSub[lang]}</p>
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-green-500/10">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-green-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-px w-2/3 bg-gradient-to-r from-transparent via-green-400/50 to-transparent" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Link to="/admin" className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-950/50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition hover:border-green-400 hover:text-green-200">
+              <ChevronLeftIcon /> {TEXTS.back[lang]}
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/15 text-3xl ring-1 ring-green-400/30">🥬</span>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-green-300">B'Groceries stockroom</p>
+                <h1 className="mt-1 text-3xl font-black tracking-tight text-white md:text-4xl">{TEXTS.heroTitle[lang]}</h1>
+              </div>
+            </div>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">{TEXTS.heroSub[lang]}</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-slate-700/60 bg-slate-950/40 p-3 backdrop-blur">
+            <Stat value={products.length} label={TEXTS.items[lang]} />
+            <Stat value={readyCount} label={TEXTS.ready[lang]} />
+            <Stat value={usedCategories} label={TEXTS.categories[lang]} />
+          </div>
         </div>
       </section>
 
-      {/* Content */}
-      <section className="adp-body">
-        <div className="adp-inner adp-layout">
-          {/* Form */}
-          <div className="adp-main">
-            <div className="adp-form-card">
-              <div className="adp-form-header">
-                <h2 className="adp-form-title">{TEXTS.formTitle[lang]}</h2>
-                <p className="adp-form-sub">{TEXTS.formSub[lang]}</p>
-              </div>
+      <section className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-6 shadow-xl shadow-black/20">
+          <div className="mb-6 flex flex-col gap-3 border-b border-slate-700/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-black text-white">{TEXTS.formTitle[lang]}</h2>
+              <p className="mt-1 text-sm text-slate-400">{TEXTS.formSub[lang]}</p>
+            </div>
+            {editingId && (
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-300">
+                ✏️ {TEXTS.updateBtn[lang]}
+              </span>
+            )}
+          </div>
 
-              <form className="adp-form" onSubmit={handleSubmit} noValidate>
-                <div className="adp-field">
-                  <label htmlFor="name">{TEXTS.name[lang]} <span className="adp-req">{TEXTS.required[lang]}</span></label>
-                  <input id="name" name="name" type="text" placeholder={TEXTS.namePlaceholder[lang]} value={form.name} onChange={handleChange} className={errors.name ? 'adp-input--err' : ''} />
-                  {errors.name && <span className="adp-err">{errors.name}</span>}
-                </div>
+          <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <Field label={TEXTS.name[lang]} badge={TEXTS.required[lang]} error={errors.name}>
+                <input id="name" name="name" type="text" placeholder={TEXTS.namePlaceholder[lang]} value={form.name} onChange={handleChange} className={`${inputBase} ${errors.name ? errorInput : ''}`} />
+              </Field>
 
-                <div className="adp-row">
-                  <div className="adp-field">
-                    <label htmlFor="category">{TEXTS.category[lang]} <span className="adp-req">{TEXTS.required[lang]}</span></label>
-                    <select id="category" name="category" value={form.category} onChange={handleChange} className={errors.category ? 'adp-input--err' : ''}>
-                      <option value="">{TEXTS.categoryPlaceholder[lang]}</option>
-                      {CATEGORIES.map((c) => <option key={c.en} value={c.en}>{c[lang]}</option>)}
-                    </select>
-                    {errors.category && <span className="adp-err">{errors.category}</span>}
+              <Field label={TEXTS.category[lang]} badge={TEXTS.required[lang]} error={errors.category}>
+                <select id="category" name="category" value={form.category} onChange={handleChange} className={`${inputBase} ${errors.category ? errorInput : ''}`}>
+                  <option value="">{TEXTS.categoryPlaceholder[lang]}</option>
+                  {CATEGORIES.map((c) => <option key={c.en} value={c.en}>{c[lang]}</option>)}
+                </select>
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-4">
+              <Field label={TEXTS.price[lang]} badge={TEXTS.required[lang]} error={errors.price}>
+                <input id="price" name="price" type="number" min="0" step="0.01" placeholder={TEXTS.pricePlaceholder[lang]} value={form.price} onChange={handleChange} className={`${inputBase} ${errors.price ? errorInput : ''}`} />
+              </Field>
+              <Field label={TEXTS.oldPrice[lang]} badge={TEXTS.optional[lang]} error={errors.oldPrice} muted>
+                <input id="oldPrice" name="oldPrice" type="number" min="0" step="0.01" placeholder={TEXTS.oldPricePlaceholder[lang]} value={form.oldPrice} onChange={handleChange} className={`${inputBase} ${errors.oldPrice ? errorInput : ''}`} />
+              </Field>
+              <Field label={TEXTS.unit[lang]} badge={TEXTS.optional[lang]} muted>
+                <select id="unit" name="unit" value={form.unit} onChange={handleChange} className={inputBase}>
+                  <option value="">{TEXTS.unitPlaceholder[lang]}</option>
+                  {UNITS.map((u) => <option key={u.en} value={u.en}>{u[lang]}</option>)}
+                </select>
+              </Field>
+              <Field label={TEXTS.stock[lang]} badge={TEXTS.optional[lang]} error={errors.stock} muted>
+                <input id="stock" name="stock" type="number" min="0" step="1" placeholder={TEXTS.stockPlaceholder[lang]} value={form.stock} onChange={handleChange} className={`${inputBase} ${errors.stock ? errorInput : ''}`} />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[260px_minmax(0,1fr)]">
+              <Field label={TEXTS.image[lang]} badge={TEXTS.optional[lang]} muted>
+                {imagePreview ? (
+                  <div className="group relative h-48 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
+                    <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                    <button type="button" className="absolute inset-x-4 bottom-4 rounded-xl bg-slate-950/85 px-4 py-2 text-sm font-bold text-white backdrop-blur transition hover:bg-green-500" onClick={() => { setImage(null); setImagePreview(null) }}>
+                      {lang === 'en' ? 'Change image' : 'ផ្លាស់ប្តូររូបថត'}
+                    </button>
                   </div>
-                  <div className="adp-field">
-                    <label htmlFor="unit">{TEXTS.unit[lang]} <span className="adp-opt">{TEXTS.optional[lang]}</span></label>
-                    <select id="unit" name="unit" value={form.unit} onChange={handleChange}>
-                      <option value="">{TEXTS.unitPlaceholder[lang]}</option>
-                      {UNITS.map((u) => <option key={u.en} value={u.en}>{u[lang]}</option>)}
-                    </select>
+                ) : (
+                  <div
+                    className={`flex h-48 cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed bg-slate-950/50 p-5 text-center transition ${dragOver ? 'border-green-300 bg-green-500/10' : 'border-slate-700 hover:border-green-400 hover:bg-green-500/5'}`}
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <input ref={fileRef} type="file" accept="image/*" onChange={(e) => handleImage(e.target.files[0])} className="hidden" />
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/10 text-green-300"><PhotoIcon /></span>
+                    <span className="text-sm font-semibold text-slate-300">{TEXTS.imageHint[lang]}</span>
                   </div>
-                </div>
-
-                <div className="adp-row">
-                  <div className="adp-field">
-                    <label htmlFor="price">{TEXTS.price[lang]} <span className="adp-req">{TEXTS.required[lang]}</span></label>
-                    <input id="price" name="price" type="text" placeholder={TEXTS.pricePlaceholder[lang]} value={form.price} onChange={handleChange} className={errors.price ? 'adp-input--err' : ''} />
-                    {errors.price && <span className="adp-err">{errors.price}</span>}
-                  </div>
-                  <div className="adp-field">
-                    <label htmlFor="oldPrice">{TEXTS.oldPrice[lang]} <span className="adp-opt">{TEXTS.optional[lang]}</span></label>
-                    <input id="oldPrice" name="oldPrice" type="text" placeholder={TEXTS.oldPricePlaceholder[lang]} value={form.oldPrice} onChange={handleChange} className={errors.oldPrice ? 'adp-input--err' : ''} />
-                    {errors.oldPrice && <span className="adp-err">{errors.oldPrice}</span>}
-                  </div>
-                </div>
-
-                <div className="adp-field">
-                  <label htmlFor="stock">{TEXTS.stock[lang]} <span className="adp-opt">{TEXTS.optional[lang]}</span></label>
-                  <input id="stock" name="stock" type="text" placeholder={TEXTS.stockPlaceholder[lang]} value={form.stock} onChange={handleChange} className={errors.stock ? 'adp-input--err' : ''} />
-                  {errors.stock && <span className="adp-err">{errors.stock}</span>}
-                </div>
-
-                <div className="adp-field">
-                  <label>{TEXTS.image[lang]} <span className="adp-opt">{TEXTS.optional[lang]}</span></label>
-                  {imagePreview ? (
-                    <div className="adp-photo-preview">
-                      <img src={imagePreview} alt="Preview" className="adp-photo-img" />
-                      <button type="button" className="adp-photo-change" onClick={() => { setImage(null); setImagePreview(null) }}>
-                        {lang === 'en' ? 'Change' : 'ផ្លាស់ប្តូរ'}
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      className={`adp-dropzone ${dragOver ? 'adp-dropzone--over' : ''}`}
-                      onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
-                      onDragLeave={() => setDragOver(false)}
-                      onDrop={handleDrop}
-                      onClick={() => fileRef.current?.click()}
-                    >
-                      <input ref={fileRef} type="file" accept="image/*" onChange={(e) => handleImage(e.target.files[0])} className="adp-file-hidden" />
-                      <span className="adp-dropzone-hint"><PhotoIcon /> {TEXTS.imageHint[lang]}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="adp-field">
-                  <label htmlFor="description">{TEXTS.description[lang]} <span className="adp-opt">{TEXTS.optional[lang]}</span></label>
-                  <textarea id="description" name="description" rows="3" placeholder={TEXTS.descriptionPlaceholder[lang]} value={form.description} onChange={handleChange} />
-                </div>
-
-                <button type="submit" className="adp-submit-btn">
-                  {editingId ? <CheckIcon /> : <PlusIcon />} {editingId ? TEXTS.updateBtn[lang] : TEXTS.addBtn[lang]}
-                </button>
-                {editingId && (
-                  <button type="button" className="adp-cancel-btn" onClick={cancelEdit}>
-                    <XIcon /> {TEXTS.cancelBtn[lang]}
-                  </button>
                 )}
-              </form>
+              </Field>
+
+              <Field label={TEXTS.description[lang]} badge={TEXTS.optional[lang]} muted>
+                <textarea id="description" name="description" rows="8" placeholder={TEXTS.descriptionPlaceholder[lang]} value={form.description} onChange={handleChange} className={`${inputBase} min-h-48 resize-y`} />
+              </Field>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-slate-700/60 pt-5 sm:flex-row">
+              <button type="submit" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-green-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-green-500/20 transition hover:-translate-y-0.5 hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-300">
+                {editingId ? <CheckIcon /> : <PlusIcon />} {editingId ? TEXTS.updateBtn[lang] : TEXTS.addBtn[lang]}
+              </button>
+              {editingId && (
+                <button type="button" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 transition hover:border-slate-500 hover:bg-slate-800 hover:text-white" onClick={cancelEdit}>
+                  <XIcon /> {TEXTS.cancelBtn[lang]}
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <aside className="space-y-6">
+          <div className="rounded-3xl border border-green-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-xl shadow-black/20">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-green-300">{TEXTS.livePreview[lang]}</p>
+                <h3 className="mt-1 text-lg font-black text-white">{form.name || TEXTS.unnamed[lang]}</h3>
+              </div>
+              <span className="rounded-full bg-green-500/15 px-3 py-1 text-xs font-black text-green-300">${Number(form.price || 0).toFixed(2)}</span>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-950/60">
+              {imagePreview ? <img src={imagePreview} alt="Preview" className="h-44 w-full object-cover" /> : <div className="flex h-44 items-center justify-center text-5xl">🥦</div>}
+              <div className="space-y-3 p-4">
+                <div className="flex flex-wrap gap-2">
+                  {form.category && <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-bold text-green-300">{getCatLabel(form.category)}</span>}
+                  {form.unit && <span className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-300">/{getUnitLabel(form.unit)}</span>}
+                  {form.stock && <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">{form.stock} {TEXTS.inStock[lang]}</span>}
+                </div>
+                <p className="line-clamp-3 text-sm leading-6 text-slate-400">{form.description || TEXTS.descriptionPlaceholder[lang]}</p>
+              </div>
             </div>
           </div>
 
-          {/* Sidebar list */}
-          <aside className="adp-sidebar">
-            <div className="adp-list-card">
-              <div className="adp-list-header">
-                <h3 className="adp-list-title">{TEXTS.listTitle[lang]}</h3>
-                <span className="adp-list-count">{products.length}</span>
-              </div>
+          <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-5 shadow-xl shadow-black/20">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white">{TEXTS.listTitle[lang]}</h3>
+              <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-green-500 px-2 text-sm font-black text-slate-950">{products.length}</span>
+            </div>
 
-              {/* Action Shortcuts */}
-              <div className="adp-shortcuts">
-                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
-                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Product">
-                  ➕ {TEXTS.addBtn[lang]}
-                </button>
-                {editingId && (
-                  <>
-                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
-                      ✏️ {TEXTS.updateBtn[lang]}
-                    </button>
-                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removeProduct(editingId)} title="Delete editing item">
-                      🗑️ {TEXTS.delete[lang]}
-                    </button>
-                  </>
-                )}
+            {products.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
+                <span className="text-4xl">🛍️</span>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{TEXTS.empty[lang]}</p>
               </div>
-
-              {products.length === 0 ? (
-                <div className="adp-empty">
-                  <span className="adp-empty-icon">🛍️</span>
-                  <p>{TEXTS.empty[lang]}</p>
-                </div>
-              ) : (
-                <div className="adp-list">
-                  {products.map((p) => (
-                    <div key={p.id} className="adp-card">
-                      <div className="adp-card-img-wrap">
-                        {p.image ? (
-                          <img src={p.image} alt={p.name} className="adp-card-img" />
-                        ) : (
-                          <span className="adp-card-initial">📷</span>
-                        )}
+            ) : (
+              <div className="max-h-[540px] space-y-3 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-slate-900">
+                {products.map((p) => (
+                  <article key={p.id} className="group rounded-2xl border border-slate-700/70 bg-slate-950/50 p-3 transition hover:border-green-500/50 hover:bg-slate-950">
+                    <div className="flex gap-3">
+                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-slate-800">
+                        {p.image ? <img src={p.image} alt={p.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-2xl">📷</div>}
                       </div>
-                      <div className="adp-card-info">
-                        <h4 className="adp-card-name">{p.name}</h4>
-                        <div className="adp-card-badges">
-                          <span className="adp-badge adp-badge--cat">{getCatLabel(p.category)}</span>
-                          {p.unit && <span className="adp-badge adp-badge--unit">{getUnitLabel(p.unit)}</span>}
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate text-sm font-black text-white">{p.name}</h4>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <span className="rounded-full bg-green-500/10 px-2 py-0.5 text-[11px] font-bold text-green-300">{getCatLabel(p.category)}</span>
+                          {p.unit && <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[11px] font-bold text-orange-300">/{getUnitLabel(p.unit)}</span>}
                         </div>
-                        <div className="adp-card-prices">
-                          <span className="adp-card-price">${p.price.toFixed(2)}</span>
-                          {p.oldPrice && <span className="adp-card-old-price">${p.oldPrice.toFixed(2)}</span>}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-black text-white">${p.price.toFixed(2)}</span>
+                          {p.oldPrice && <span className="text-xs font-semibold text-slate-500 line-through">${p.oldPrice.toFixed(2)}</span>}
                           {p.stock !== null && p.stock !== '' && (
-                            <span className={`adp-card-stock ${p.stock === 0 ? 'adp-card-stock--zero' : ''}`}>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${p.stock === 0 ? 'bg-red-500/10 text-red-300' : 'bg-slate-800 text-slate-300'}`}>
                               {p.stock === 0 ? TEXTS.outOfStock[lang] : `${p.stock} ${TEXTS.inStock[lang]}`}
                             </span>
                           )}
                         </div>
                       </div>
-                      <div className="adp-card-actions">
-                        <button className="adp-edit-btn" onClick={() => startEdit(p)} aria-label={TEXTS.edit[lang]}>
+                      <div className="flex flex-col gap-2 opacity-100 sm:opacity-70 sm:transition sm:group-hover:opacity-100">
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-300" onClick={() => startEdit(p)} aria-label={TEXTS.edit[lang]}>
                           <EditIcon />
                         </button>
-                        <button className="adp-remove-btn" onClick={() => removeProduct(p.id)} aria-label={TEXTS.remove[lang]}>
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => removeProduct(p.id)} aria-label={TEXTS.remove[lang]}>
                           <TrashIcon />
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </article>
+                ))}
+              </div>
+            )}
 
-              <Link to="/products" className="adp-view-link">
-                <EyeIcon /> {TEXTS.viewShop[lang]}
-              </Link>
-            </div>
-          </aside>
-        </div>
+            <Link to="/products" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-3 text-sm font-bold text-green-300 transition hover:border-green-400 hover:bg-green-500/10">
+              <EyeIcon /> {TEXTS.viewShop[lang]}
+            </Link>
+          </div>
+        </aside>
       </section>
     </div>
   )
 }
+
+const Stat = ({ value, label }) => (
+  <div className="min-w-[86px] rounded-xl bg-slate-900/70 px-4 py-3 text-center ring-1 ring-slate-700/60">
+    <p className="text-2xl font-black text-white">{value}</p>
+    <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</p>
+  </div>
+)
+
+const Field = ({ label, badge, error, muted = false, children }) => (
+  <label className="block space-y-2">
+    <span className="flex items-center justify-between gap-3 text-sm font-bold text-slate-200">
+      <span>{label}</span>
+      {badge && <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${muted ? 'bg-slate-800 text-slate-500' : 'bg-green-500/10 text-green-300'}`}>{badge}</span>}
+    </span>
+    {children}
+    {error && <span className="block text-xs font-semibold text-red-300">{error}</span>}
+  </label>
+)
 
 const PhotoIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

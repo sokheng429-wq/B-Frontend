@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../context/LanguageContext'
+import { useCart } from '../context/CartContext'
 import { CATEGORIES } from '../data/products'
 import { ProductCard } from './ProductCard'
 import './ProductShop.css'
@@ -80,6 +81,7 @@ const pageItems = (page, total) => {
 
 export const ProductShop = ({ products = [], initialSort = 'default', showCategories = true }) => {
   const { lang } = useLanguage()
+  const { addToCart } = useCart()
   const t = (k) => TEXTS[k][lang]
   const sortRef = useRef(null)
 
@@ -113,6 +115,7 @@ export const ProductShop = ({ products = [], initialSort = 'default', showCatego
   })
 
   const handleAdd = (product) => {
+    addToCart(product)
     toggleId(setAddedIds, product.id)
     window.setTimeout(() => setAddedIds((prev) => {
       const next = new Set(prev)

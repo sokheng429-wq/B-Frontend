@@ -29,7 +29,6 @@ import Partners from './Pages/Shop/Partners'
 import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
 import ShopLayout from './components/ShopSidebar'
-import AddPartner from './Pages/Auth/AddPartner'
 
 // Only users with role ADMIN may see admin pages; everyone else goes home.
 const AdminRoute = ({ children }) => {
@@ -90,7 +89,7 @@ function App() {
           <Route path="/add-products" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-promotion" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
-          <Route path="/add-partner" element={<AdminRoute><AddPartner /></AdminRoute>} />
+          <Route path="/add-partner" element={<AdminRoute><AdminD /></AdminRoute>} />
 
           <Route path="/profile" element={<Profile />} />
 

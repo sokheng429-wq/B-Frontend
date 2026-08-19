@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
-import './Addjobs.css'
+import { useNotifications } from '../../context/NotificationContext'
 
 const DEPARTMENTS = [
   { en: 'Engineering', kh: 'វិស្វកម្ម' },
@@ -22,49 +22,54 @@ const JOB_TYPES = [
 ]
 
 const TEXTS = {
-  heroTitle: { en: 'Post a Job Opening', kh: 'ប្រកាសការងារ' },
-  heroSub: { en: 'Create new job listings — they will appear on the Career page for applicants.', kh: 'បង្កើតការងារថ្មី — ពួកគេនឹងបង្ហាញនៅទំព័រការងារសម្រាប់អ្នកដាក់ពាក្យ។' },
-  formTitle: { en: 'Job Details', kh: 'ព័ត៌មានការងារ' },
-  formSub: { en: 'Fill in the details below to post a new position.', kh: 'បំពេញព័ត៌មានខាងក្រោមដើម្បីប្រកាសមុខតំណែងថ្មី។' },
-  title: { en: 'Job Title', kh: 'ចំណងជើងការងារ' },
+  heroTitle: { en: 'Job board', kh: 'ផ្ទាំងការងារ' },
+  heroSub: { en: 'Open new positions and fine-tune existing listings before they reach applicants.', kh: 'បើកមុខតំណែងថ្មី និងកែសម្រួលបញ្ជីដែលមានស្រាប់ មុនពេលបង្ហាញដល់អ្នកដាក់ពាក្យ។' },
+  formTitle: { en: 'Position details', kh: 'ព័ត៌មានមុខតំណែង' },
+  formSub: { en: 'Required fields keep the listing live. Salary and requirements are optional but recommended.', kh: 'ព័ត៌មានចាំបាច់រក្សាបញ្ជីឱ្យដំណើរការ។ ប្រាក់ខែ និងតម្រូវការជាជម្រើន ប៉ុន្តែត្រូវបានណែនាំ។' },
+  title: { en: 'Job title', kh: 'ចំណងជើងការងារ' },
   titlePlaceholder: { en: 'e.g. Senior Frontend Developer', kh: 'ឧ. Senior Frontend Developer' },
   department: { en: 'Department', kh: 'ផ្នែក' },
   departmentPlaceholder: { en: 'Select department', kh: 'ជ្រើសរើសផ្នែក' },
-  type: { en: 'Job Type', kh: 'ប្រភេទការងារ' },
+  type: { en: 'Job type', kh: 'ប្រភេទការងារ' },
   typePlaceholder: { en: 'Select type', kh: 'ជ្រើសរើសប្រភេទ' },
   location: { en: 'Location', kh: 'ទីតាំង' },
   locationPlaceholder: { en: 'e.g. Phnom Penh, Remote', kh: 'ឧ. ភ្នំពេញ, ពីចម្ងាយ' },
-  salary: { en: 'Salary Range', kh: 'ប្រាក់ខែ' },
+  salary: { en: 'Salary range', kh: 'ចន្លោះប្រាក់ខែ' },
   salaryPlaceholder: { en: 'e.g. $500 - $800', kh: 'ឧ. ៥០០ - ៨០០ ដុល្លារ' },
-  description: { en: 'Job Description', kh: 'ការពិពណ៌នាការងារ' },
+  description: { en: 'Job description', kh: 'ការពិពណ៌នាការងារ' },
   descriptionPlaceholder: { en: 'Describe the role, responsibilities, and what a day looks like...', kh: 'ពិពណ៌នាអំពីតួនាទី ទំនួលខុសត្រូវ និងថ្ងៃធ្វើការ...' },
   requirements: { en: 'Requirements', kh: 'តម្រូវការ' },
   requirementsPlaceholder: { en: 'List required skills, experience, or qualifications...', kh: 'រាយបញ្ជីជំនាញ បទពិសោធន៍ ឬគុណវុឌ្ឍិ...' },
-  postBtn: { en: 'Post Job', kh: 'ប្រកាសការងារ' },
-  updateBtn: { en: 'Update Job', kh: 'ធ្វើបច្ចុប្បន្នភាពការងារ' },
-  cancelBtn: { en: 'Cancel', kh: 'បោះបង់' },
+  postBtn: { en: 'Post job', kh: 'ប្រកាសការងារ' },
+  updateBtn: { en: 'Save job', kh: 'រក្សាទុកការងារ' },
+  cancelBtn: { en: 'Cancel edit', kh: 'បោះបង់ការកែប្រែ' },
   required: { en: 'Required', kh: 'ត្រូវការ' },
   optional: { en: 'Optional', kh: 'មិនចាំបាច់' },
-  // Errors
   errTitle: { en: 'Job title is required', kh: 'ត្រូវការចំណងជើងការងារ' },
   errDepartment: { en: 'Please select a department', kh: 'សូមជ្រើសរើសផ្នែក' },
   errLocation: { en: 'Location is required', kh: 'ត្រូវការទីតាំង' },
   errType: { en: 'Please select a job type', kh: 'សូមជ្រើសរើសប្រភេទការងារ' },
   errDescription: { en: 'Description is required', kh: 'ត្រូវការការពិពណ៌នា' },
-  // List
-  listTitle: { en: 'Open Positions', kh: 'មុខតំណែងដែលកំពុងទទួល' },
-  empty: { en: 'No jobs posted yet — fill the form to add your first listing.', kh: 'មិនទាន់មានការងារនៅឡើយ — បំពេញទម្រង់ដើម្បីបន្ថែម។' },
-  viewCareer: { en: 'View Career Page', kh: 'មើលទំព័រការងារ' },
+  listTitle: { en: 'Open positions', kh: 'មុខតំណែងកំពុងបើក' },
+  empty: { en: 'No openings yet. Add the first role and it will appear here for quick edits.', kh: 'មិនទាន់មានមុខតំណែងនៅឡើយ។ បន្ថែមតួនាទីដំបូង ហើយវានឹងបង្ហាញនៅទីនេះ។' },
+  viewCareer: { en: 'View career page', kh: 'មើលទំព័រការងារ' },
   posted: { en: 'Posted', kh: 'បានប្រកាស' },
-  salaryLabel: { en: 'Salary:', kh: 'ប្រាក់ខែ:' },
-  requirementsLabel: { en: 'Requirements:', kh: 'តម្រូវការ:' },
+  requirementsLabel: { en: 'Requirements', kh: 'តម្រូវការ' },
   remove: { en: 'Remove', kh: 'លុប' },
   edit: { en: 'Edit', kh: 'កែប្រែ' },
-  back: { en: '← Back to Dashboard', kh: '← ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង' },
+  delete: { en: 'Delete', kh: 'លុប' },
+  back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+  livePreview: { en: 'Live preview', kh: 'មើលជាមុន' },
+  untitled: { en: 'Untitled position', kh: 'មុខតំណែងគ្មានឈ្មោះ' },
+  items: { en: 'Openings', kh: 'ការងារ' },
+  departments: { en: 'Departments', kh: 'ផ្នែក' },
+  types: { en: 'Job types', kh: 'ប្រភេទ' },
+  withSalary: { en: 'With salary', kh: 'មានប្រាក់ខែ' },
 }
 
 export const Addjobs = () => {
   const { lang } = useLanguage()
+  const { addNotification } = useNotifications()
   const [form, setForm] = useState({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '' })
   const [errors, setErrors] = useState({})
   const [jobs, setJobs] = useState([])
@@ -104,16 +109,21 @@ export const Addjobs = () => {
     setErrors(v)
     if (Object.keys(v).length === 0) {
       if (editingId) {
-        setJobs((prev) => prev.map((j) =>
-          j.id === editingId ? { ...j, ...form } : j
-        ))
+        setJobs((prev) => prev.map((j) => j.id === editingId ? { ...j, ...form } : j))
         cancelEdit()
       } else {
-        setJobs((prev) => [...prev, {
+        const newJob = {
           id: Date.now(),
           ...form,
           postedDate: new Date().toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
-        }])
+        }
+        setJobs((prev) => [...prev, newJob])
+        addNotification({
+          type: 'job',
+          action: 'add',
+          title: lang === 'en' ? 'Job posted' : 'បានប្រកាសការងារ',
+          detail: form.title,
+        })
         setForm({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '' })
       }
     }
@@ -127,166 +137,205 @@ export const Addjobs = () => {
   const getDeptLabel = (deptEn) => DEPARTMENTS.find((d) => d.en === deptEn)?.[lang] || deptEn
   const getTypeLabel = (typeEn) => JOB_TYPES.find((t) => t.en === typeEn)?.[lang] || typeEn
 
+  const deptCount = new Set(jobs.map((j) => j.department).filter(Boolean)).size
+  const typeCount = new Set(jobs.map((j) => j.type).filter(Boolean)).size
+  const withSalary = jobs.filter((j) => j.salary && j.salary.trim()).length
+
+  const inputBase = 'w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-orange-400 focus:bg-slate-950 focus:ring-4 focus:ring-orange-500/10'
+  const errorInput = 'border-red-500/80 bg-red-500/10 focus:border-red-400 focus:ring-red-500/10'
+
   return (
-    <div className="addj-page">
-      {/* Hero */}
-      <section className="addj-hero">
-        <div className="addj-hero-bg" />
-        <div className="addj-inner">
-          <Link to="/admin" className="addj-back-link"><ChevronLeftIcon /> {TEXTS.back[lang]}</Link>
-          <span className="addj-hero-icon">💼</span>
-          <h1 className="addj-hero-title">{TEXTS.heroTitle[lang]}</h1>
-          <p className="addj-hero-sub">{TEXTS.heroSub[lang]}</p>
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-orange-500/10">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-orange-500/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/3 h-px w-2/3 bg-gradient-to-r from-transparent via-orange-400/50 to-transparent" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Link to="/admin" className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-950/50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-orange-300 transition hover:border-orange-400 hover:text-orange-200">
+              <ChevronLeftIcon /> {TEXTS.back[lang]}
+            </Link>
+            <div className="flex items-center gap-4">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-3xl ring-1 ring-orange-400/30">💼</span>
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-300">B'Groceries careers</p>
+                <h1 className="mt-1 text-3xl font-black tracking-tight text-white md:text-4xl">{TEXTS.heroTitle[lang]}</h1>
+              </div>
+            </div>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">{TEXTS.heroSub[lang]}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Stat value={jobs.length} label={TEXTS.items[lang]} />
+            <Stat value={deptCount} label={TEXTS.departments[lang]} />
+            <Stat value={typeCount} label={TEXTS.types[lang]} />
+            <Stat value={withSalary} label={TEXTS.withSalary[lang]} />
+          </div>
         </div>
       </section>
 
-      {/* Content */}
-      <section className="addj-body">
-        <div className="addj-inner addj-layout">
-          {/* Form */}
-          <div className="addj-main">
-            <div className="addj-form-card">
-              <div className="addj-form-header">
-                <h2 className="addj-form-title">{TEXTS.formTitle[lang]}</h2>
-                <p className="addj-form-sub">{TEXTS.formSub[lang]}</p>
-              </div>
+      <section className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-6 shadow-xl shadow-black/20">
+          <div className="mb-6 flex flex-col gap-3 border-b border-slate-700/60 pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-black text-white">{TEXTS.formTitle[lang]}</h2>
+              <p className="mt-1 text-sm text-slate-400">{TEXTS.formSub[lang]}</p>
+            </div>
+            {editingId && (
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-300">
+                ✏️ {TEXTS.updateBtn[lang]}
+              </span>
+            )}
+          </div>
 
-              <form className="addj-form" onSubmit={handleSubmit} noValidate>
-                <div className="addj-field">
-                  <label htmlFor="title">{TEXTS.title[lang]} <span className="addj-req">{TEXTS.required[lang]}</span></label>
-                  <input id="title" name="title" type="text" placeholder={TEXTS.titlePlaceholder[lang]} value={form.title} onChange={handleChange} className={errors.title ? 'addj-input--err' : ''} />
-                  {errors.title && <span className="addj-err">{errors.title}</span>}
-                </div>
+          <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+            <Field label={TEXTS.title[lang]} badge={TEXTS.required[lang]} error={errors.title}>
+              <input id="title" name="title" type="text" placeholder={TEXTS.titlePlaceholder[lang]} value={form.title} onChange={handleChange} className={`${inputBase} ${errors.title ? errorInput : ''}`} />
+            </Field>
 
-                <div className="addj-row">
-                  <div className="addj-field">
-                    <label htmlFor="department">{TEXTS.department[lang]} <span className="addj-req">{TEXTS.required[lang]}</span></label>
-                    <select id="department" name="department" value={form.department} onChange={handleChange} className={errors.department ? 'addj-input--err' : ''}>
-                      <option value="">{TEXTS.departmentPlaceholder[lang]}</option>
-                      {DEPARTMENTS.map((d) => <option key={d.en} value={d.en}>{d[lang]}</option>)}
-                    </select>
-                    {errors.department && <span className="addj-err">{errors.department}</span>}
-                  </div>
-                  <div className="addj-field">
-                    <label htmlFor="type">{TEXTS.type[lang]} <span className="addj-req">{TEXTS.required[lang]}</span></label>
-                    <select id="type" name="type" value={form.type} onChange={handleChange} className={errors.type ? 'addj-input--err' : ''}>
-                      <option value="">{TEXTS.typePlaceholder[lang]}</option>
-                      {JOB_TYPES.map((t) => <option key={t.en} value={t.en}>{t[lang]}</option>)}
-                    </select>
-                    {errors.type && <span className="addj-err">{errors.type}</span>}
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <Field label={TEXTS.department[lang]} badge={TEXTS.required[lang]} error={errors.department}>
+                <select id="department" name="department" value={form.department} onChange={handleChange} className={`${inputBase} ${errors.department ? errorInput : ''}`}>
+                  <option value="">{TEXTS.departmentPlaceholder[lang]}</option>
+                  {DEPARTMENTS.map((d) => <option key={d.en} value={d.en}>{d[lang]}</option>)}
+                </select>
+              </Field>
+              <Field label={TEXTS.type[lang]} badge={TEXTS.required[lang]} error={errors.type}>
+                <select id="type" name="type" value={form.type} onChange={handleChange} className={`${inputBase} ${errors.type ? errorInput : ''}`}>
+                  <option value="">{TEXTS.typePlaceholder[lang]}</option>
+                  {JOB_TYPES.map((t) => <option key={t.en} value={t.en}>{t[lang]}</option>)}
+                </select>
+              </Field>
+            </div>
 
-                <div className="addj-row">
-                  <div className="addj-field">
-                    <label htmlFor="location">{TEXTS.location[lang]} <span className="addj-req">{TEXTS.required[lang]}</span></label>
-                    <input id="location" name="location" type="text" placeholder={TEXTS.locationPlaceholder[lang]} value={form.location} onChange={handleChange} className={errors.location ? 'addj-input--err' : ''} />
-                    {errors.location && <span className="addj-err">{errors.location}</span>}
-                  </div>
-                  <div className="addj-field">
-                    <label htmlFor="salary">{TEXTS.salary[lang]} <span className="addj-opt">{TEXTS.optional[lang]}</span></label>
-                    <input id="salary" name="salary" type="text" placeholder={TEXTS.salaryPlaceholder[lang]} value={form.salary} onChange={handleChange} />
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <Field label={TEXTS.location[lang]} badge={TEXTS.required[lang]} error={errors.location}>
+                <input id="location" name="location" type="text" placeholder={TEXTS.locationPlaceholder[lang]} value={form.location} onChange={handleChange} className={`${inputBase} ${errors.location ? errorInput : ''}`} />
+              </Field>
+              <Field label={TEXTS.salary[lang]} badge={TEXTS.optional[lang]} muted>
+                <input id="salary" name="salary" type="text" placeholder={TEXTS.salaryPlaceholder[lang]} value={form.salary} onChange={handleChange} className={inputBase} />
+              </Field>
+            </div>
 
-                <div className="addj-field">
-                  <label htmlFor="description">{TEXTS.description[lang]} <span className="addj-req">{TEXTS.required[lang]}</span></label>
-                  <textarea id="description" name="description" rows="4" placeholder={TEXTS.descriptionPlaceholder[lang]} value={form.description} onChange={handleChange} className={errors.description ? 'addj-input--err' : ''} />
-                  {errors.description && <span className="addj-err">{errors.description}</span>}
-                </div>
+            <Field label={TEXTS.description[lang]} badge={TEXTS.required[lang]} error={errors.description}>
+              <textarea id="description" name="description" rows="5" placeholder={TEXTS.descriptionPlaceholder[lang]} value={form.description} onChange={handleChange} className={`${inputBase} min-h-32 resize-y ${errors.description ? errorInput : ''}`} />
+            </Field>
 
-                <div className="addj-field">
-                  <label htmlFor="requirements">{TEXTS.requirements[lang]} <span className="addj-opt">{TEXTS.optional[lang]}</span></label>
-                  <textarea id="requirements" name="requirements" rows="3" placeholder={TEXTS.requirementsPlaceholder[lang]} value={form.requirements} onChange={handleChange} />
-                </div>
+            <Field label={TEXTS.requirements[lang]} badge={TEXTS.optional[lang]} muted>
+              <textarea id="requirements" name="requirements" rows="4" placeholder={TEXTS.requirementsPlaceholder[lang]} value={form.requirements} onChange={handleChange} className={`${inputBase} min-h-28 resize-y`} />
+            </Field>
 
-                <button type="submit" className="addj-submit-btn">
-                  {editingId ? <CheckIcon /> : <SendIcon />} {editingId ? TEXTS.updateBtn[lang] : TEXTS.postBtn[lang]}
+            <div className="flex flex-col gap-3 border-t border-slate-700/60 pt-5 sm:flex-row">
+              <button type="submit" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300">
+                {editingId ? <CheckIcon /> : <SendIcon />} {editingId ? TEXTS.updateBtn[lang] : TEXTS.postBtn[lang]}
+              </button>
+              {editingId && (
+                <button type="button" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 transition hover:border-slate-500 hover:bg-slate-800 hover:text-white" onClick={cancelEdit}>
+                  <XIcon /> {TEXTS.cancelBtn[lang]}
                 </button>
-                {editingId && (
-                  <button type="button" className="addj-cancel-btn" onClick={cancelEdit}>
-                    <XIcon /> {TEXTS.cancelBtn[lang]}
-                  </button>
-                )}
-              </form>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <aside className="space-y-6">
+          <div className="rounded-3xl border border-orange-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-5 shadow-xl shadow-black/20">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">{TEXTS.livePreview[lang]}</p>
+                <h3 className="mt-1 text-lg font-black text-white">{form.title || TEXTS.untitled[lang]}</h3>
+              </div>
+              {form.type && <span className="rounded-full bg-orange-500/15 px-3 py-1 text-xs font-black text-orange-300">{getTypeLabel(form.type)}</span>}
+            </div>
+            <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
+              <div className="flex flex-wrap gap-2">
+                {form.department && <span className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-300">{getDeptLabel(form.department)}</span>}
+                {form.location && <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300">📍 {form.location}</span>}
+                {form.salary && <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-bold text-green-300">💵 {form.salary}</span>}
+              </div>
+              <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-400">{form.description || TEXTS.descriptionPlaceholder[lang]}</p>
+              {form.requirements && (
+                <div className="mt-4 border-t border-slate-700/60 pt-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-orange-300">{TEXTS.requirementsLabel[lang]}</p>
+                  <p className="mt-1 line-clamp-3 text-sm leading-6 text-slate-400">{form.requirements}</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Sidebar list */}
-          <aside className="addj-sidebar">
-            <div className="addj-list-card">
-              <div className="addj-list-header">
-                <h3 className="addj-list-title">{TEXTS.listTitle[lang]}</h3>
-                <span className="addj-list-count">{jobs.length}</span>
-              </div>
-
-              {/* Action Shortcuts */}
-              <div className="adp-shortcuts">
-                <span className="adp-shortcuts-label">{lang === 'en' ? 'Shortcuts:' : 'ផ្លូវកាត់:'}</span>
-                <button type="button" className="adp-shortcut-btn" onClick={cancelEdit} title="Add New Job">
-                  ➕ {TEXTS.postBtn[lang]}
-                </button>
-                {editingId && (
-                  <>
-                    <button type="button" className="adp-shortcut-btn admind-shortcut-edit" onClick={() => {}} title="Editing mode active">
-                      ✏️ {TEXTS.updateBtn[lang]}
-                    </button>
-                    <button type="button" className="adp-shortcut-btn admind-shortcut-delete" onClick={() => removeJob(editingId)} title="Delete editing job">
-                      🗑️ {TEXTS.remove[lang]}
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {jobs.length === 0 ? (
-                <div className="addj-empty">
-                  <span className="addj-empty-icon">📋</span>
-                  <p>{TEXTS.empty[lang]}</p>
-                </div>
-              ) : (
-                <div className="addj-list">
-                  {jobs.map((job) => (
-                    <div key={job.id} className="addj-card">
-                      <div className="addj-card-top">
-                        <h4 className="addj-card-title">{job.title}</h4>
-                        <div className="addj-card-actions">
-                          <button className="addj-edit-btn" onClick={() => startEdit(job)} aria-label={TEXTS.edit[lang]}>
-                            <EditIcon />
-                          </button>
-                          <button className="addj-remove-btn" onClick={() => removeJob(job.id)} aria-label={TEXTS.remove[lang]}>
-                            <TrashIcon />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="addj-card-meta">
-                        <span className="addj-badge addj-badge--dept">{getDeptLabel(job.department)}</span>
-                        <span className="addj-badge addj-badge--type">{getTypeLabel(job.type)}</span>
-                        <span className="addj-badge addj-badge--loc"><PinIcon /> {job.location}</span>
-                      </div>
-                      {job.salary && <p className="addj-card-salary"><strong>{TEXTS.salaryLabel[lang]}</strong> {job.salary}</p>}
-                      <p className="addj-card-desc">{job.description}</p>
-                      {job.requirements && (
-                        <details className="addj-card-req-details">
-                          <summary>{TEXTS.requirementsLabel[lang]}</summary>
-                          <p>{job.requirements}</p>
-                        </details>
-                      )}
-                      <p className="addj-card-posted">🕐 {TEXTS.posted[lang]} {job.postedDate}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <Link to="/career" className="addj-view-link">
-                <EyeIcon /> {TEXTS.viewCareer[lang]}
-              </Link>
+          <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-5 shadow-xl shadow-black/20">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-black text-white">{TEXTS.listTitle[lang]}</h3>
+              <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-orange-500 px-2 text-sm font-black text-slate-950">{jobs.length}</span>
             </div>
-          </aside>
-        </div>
+
+            {jobs.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
+                <span className="text-4xl">💼</span>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{TEXTS.empty[lang]}</p>
+              </div>
+            ) : (
+              <div className="max-h-[540px] space-y-3 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-slate-900">
+                {jobs.map((job) => (
+                  <article key={job.id} className="group rounded-2xl border border-slate-700/70 bg-slate-950/50 p-4 transition hover:border-orange-500/50 hover:bg-slate-950">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate text-sm font-black text-white">{job.title}</h4>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[11px] font-bold text-orange-300">{getDeptLabel(job.department)}</span>
+                          <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-bold text-slate-300">{getTypeLabel(job.type)}</span>
+                          <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-bold text-slate-300">📍 {job.location}</span>
+                        </div>
+                        {job.salary && <p className="mt-2 text-xs font-bold text-green-300">💵 {job.salary}</p>}
+                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-400">{job.description}</p>
+                        {job.requirements && (
+                          <details className="mt-2 group/det">
+                            <summary className="cursor-pointer text-xs font-bold text-orange-300 hover:text-orange-200">{TEXTS.requirementsLabel[lang]}</summary>
+                            <p className="mt-1 border-l-2 border-orange-500/40 pl-2 text-xs leading-5 text-slate-400">{job.requirements}</p>
+                          </details>
+                        )}
+                        <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">🕐 {TEXTS.posted[lang]} {job.postedDate}</p>
+                      </div>
+                      <div className="flex flex-col gap-2 opacity-100 sm:opacity-70 sm:transition sm:group-hover:opacity-100">
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-300" onClick={() => startEdit(job)} aria-label={TEXTS.edit[lang]}>
+                          <EditIcon />
+                        </button>
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => removeJob(job.id)} aria-label={TEXTS.remove[lang]}>
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            <Link to="/career" className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 px-4 py-3 text-sm font-bold text-orange-300 transition hover:border-orange-400 hover:bg-orange-500/10">
+              <EyeIcon /> {TEXTS.viewCareer[lang]}
+            </Link>
+          </div>
+        </aside>
       </section>
     </div>
   )
 }
+
+const Stat = ({ value, label }) => (
+  <div className="min-w-[86px] rounded-xl bg-slate-900/70 px-4 py-3 text-center ring-1 ring-slate-700/60">
+    <p className="text-2xl font-black text-white">{value}</p>
+    <p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</p>
+  </div>
+)
+
+const Field = ({ label, badge, error, muted = false, children }) => (
+  <label className="block space-y-2">
+    <span className="flex items-center justify-between gap-3 text-sm font-bold text-slate-200">
+      <span>{label}</span>
+      {badge && <span className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${muted ? 'bg-slate-800 text-slate-500' : 'bg-orange-500/10 text-orange-300'}`}>{badge}</span>}
+    </span>
+    {children}
+    {error && <span className="block text-xs font-semibold text-red-300">{error}</span>}
+  </label>
+)
 
 const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -306,13 +355,6 @@ const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
     <circle cx="12" cy="12" r="3" />
-  </svg>
-)
-
-const PinIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
   </svg>
 )
 

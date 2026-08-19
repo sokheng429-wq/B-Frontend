@@ -346,22 +346,225 @@
 
 /* Responsive */
 @media (max-width: 920px) {
-  .pshop-toolbar { flex-direction: column; align-items: stretch; }
-  .pshop-search-wrap { max-width: none; }
-  .pshop-controls { justify-content: space-between; }
-  .pshop-filters { overflow-x: auto; padding-bottom: 2px; }
+  .pshop-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .pshop-search-wrap {
+    max-width: none !important;
+    width: 100% !important;
+  }
+  .pshop-controls {
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+  }
+  .pshop-filters {
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+    flex: 1 !important;
+  }
 }
 
-@media (max-width: 720px) {
-  .pshop-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-  .pshop-pagination { flex-wrap: wrap; gap: 10px; }
-  .pshop-page-btn { padding: 8px 12px; }
-  .pshop-page-num { min-width: 36px; height: 36px; }
+@media (max-width: 768px) {
+  /* Tablet & mobile: stack search and controls vertically */
+  .pshop-toolbar { gap: 14px !important; }
+
+  /* Make search input bigger for touch */
+  .pshop-search {
+    height: 50px !important;
+    font-size: 1rem !important;
+    padding: 0 50px 0 48px !important;
+  }
+
+  .pshop-search-icon {
+    left: 16px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .pshop-search-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .pshop-search-clear {
+    right: 10px !important;
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Stack controls vertically on tablet */
+  .pshop-controls {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  /* Make filter chips full width and scrollable */
+  .pshop-filters {
+    flex: auto !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .pshop-filter {
+    padding: 10px 16px !important;
+    font-size: 0.875rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Make sort dropdown full width on tablet/mobile */
+  .pshop-sort-wrap {
+    width: 100% !important;
+  }
+
+  .pshop-sort {
+    width: 100% !important;
+    height: 50px !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+    font-size: 0.9375rem !important;
+  }
+
+  .pshop-sort-menu {
+    width: 100% !important;
+    min-width: auto !important;
+  }
+
+  /* Category rail - better touch targets */
+  .pshop-rail-chip {
+    padding: 11px 18px !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Results bar - wrap on mobile */
+  .pshop-results-bar {
+    flex-wrap: wrap !important;
+  }
+
+  .pshop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .pshop-pagination { flex-wrap: wrap !important; gap: 10px !important; }
+  .pshop-page-btn { padding: 10px 14px !important; font-size: 0.875rem !important; }
+  .pshop-page-num { min-width: 38px !important; height: 38px !important; font-size: 0.875rem !important; }
 }
 
-@media (max-width: 420px) {
-  .pshop-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .pshop-sort { max-width: 100%; }
+@media (max-width: 480px) {
+  /* Phone: optimize for small screens */
+  .pshop-toolbar { gap: 12px !important; }
+
+  /* Larger touch targets for phone */
+  .pshop-search {
+    height: 52px !important;
+    font-size: 1rem !important;
+    padding: 0 52px 0 50px !important;
+  }
+
+  .pshop-search-icon {
+    left: 18px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .pshop-search-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .pshop-search-clear {
+    right: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .pshop-filter {
+    padding: 11px 18px !important;
+    font-size: 0.9375rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .pshop-sort {
+    height: 52px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Compact category rail on phone */
+  .pshop-rail-chip {
+    padding: 10px 16px !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Adjust grid for phone screens */
+  .pshop-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Simplify pagination on phone */
+  .pshop-pagination { gap: 8px !important; }
+  .pshop-page-btn {
+    padding: 9px 12px !important;
+    font-size: 0.8125rem !important;
+    flex: 1 !important;
+    max-width: 120px !important;
+  }
+  .pshop-page-numbers { gap: 2px !important; }
+  .pshop-page-num {
+    min-width: 36px !important;
+    height: 36px !important;
+    font-size: 0.8125rem !important;
+  }
+
+  /* Hide ellipsis on very small screens to save space */
+  .pshop-page-ellipsis { display: none !important; }
+}
+
+@media (max-width: 360px) {
+  /* Very small phones: ultra-compact mode */
+  .pshop-search {
+    font-size: 0.9375rem !important;
+    padding: 0 48px 0 46px !important;
+  }
+
+  .pshop-search-icon {
+    left: 16px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .pshop-search-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .pshop-search-clear {
+    right: 10px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .pshop-filter {
+    padding: 10px 14px;
+    font-size: 0.875rem;
+  }
+
+  .pshop-sort { font-size: 0.9375rem; }
+
+  .pshop-rail-chip {
+    padding: 9px 14px;
+    font-size: 0.8125rem;
+  }
+
+  /* Single column grid on very small screens if needed */
+  .pshop-grid { gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

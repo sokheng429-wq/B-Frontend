@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import { LanguageProvider } from './context/LanguageContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
+import { CartProvider } from './context/CartContext'
+import { NotificationProvider } from './context/NotificationContext'
 import App from './App'
 import './index.css'
 
@@ -13,7 +15,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <ThemeProvider>
           <LanguageProvider>
-            <App />
+            <CartProvider>
+              <NotificationProvider>
+                <App />
+              </NotificationProvider>
+            </CartProvider>
           </LanguageProvider>
         </ThemeProvider>
       </AuthProvider>
