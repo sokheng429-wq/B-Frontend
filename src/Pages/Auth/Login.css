@@ -392,53 +392,107 @@
 .social-auth {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.75rem;
 }
 .social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 9999px;
-  border: 1.5px solid #d8dbe3;
-  background: #fff;
-  color: var(--text-strong, #1a2433);
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(35, 47, 63, 0.6);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
   font-family: var(--font-family);
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .social-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  border-color: currentColor;
 }
 .social-btn:active {
   transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+/* Social provider button wrappers: our styled pill on top, provider's REAL button invisible
+   overlaid on it so the user's click is a trusted click on the provider's element. */
+.social-btn--gis-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.social-btn--gis-wrap .social-btn--gis-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  cursor: pointer;
+}
+.social-btn--gis-overlay iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+.social-btn--gis-overlay > div {
+  width: 100% !important;
+  height: 100% !important;
 }
 .social-btn span {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  position: relative;
+  z-index: 1;
 }
 .social-btn strong {
   font-weight: 700;
 }
-.social-btn--gmail:hover {
-  border-color: #EA4335;
-  background: #fef1f0;
-  color: #D93025;
+.social-btn svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
+/* Gmail button hover */
+.social-btn--gmail:hover {
+  background: linear-gradient(135deg, #EA4335 0%, #D93025 100%);
+  border-color: #EA4335;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(234, 67, 53, 0.4);
+}
+/* Telegram button hover */
 .social-btn--telegram:hover {
+  background: linear-gradient(135deg, #229ED9 0%, #1d8fc4 100%);
   border-color: #229ED9;
-  background: #e8f6fd;
-  color: #1d8fc4;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(34, 158, 217, 0.4);
+}
+/* Facebook button hover - vibrant blue with smooth gradient */
+.social-btn--facebook {
+  position: relative;
+}
+.social-btn--facebook::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1877F2 0%, #0e5fd6 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
 }
 .social-btn--facebook:hover {
+  background: linear-gradient(135deg, #1877F2 0%, #0e5fd6 100%);
   border-color: #1877F2;
-  background: #eaf1fe;
-  color: #1466d6;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(24, 119, 242, 0.5);
+}
+.social-btn--facebook:hover::before {
+  opacity: 1;
 }
 .auth-form--social {
   margin-top: 0.75rem;

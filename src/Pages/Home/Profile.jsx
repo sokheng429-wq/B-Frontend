@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
+import { userAPI } from '../../api/api'
 import './Profile.css'
 
 const PROFILE_TEXTS = {
@@ -76,16 +77,61 @@ const NAV_ITEMS = [
     { key: 'points', icon: <StarIcon /> },
 ]
 
+/* Gender options (bilingual) */
+const GENDER_OPTIONS = [
+    { value: 'Male', label: { en: 'Male', kh: 'ប្រុស' } },
+    { value: 'Female', label: { en: 'Female', kh: 'ស្រី' } },
+]
+
+/* Nationalities (English demonyms for every country) */
+const NATIONALITIES = [
+    'Afghan', 'Albanian', 'Algerian', 'American', 'Andorran', 'Angolan',
+    'Antiguan', 'Argentine', 'Armenian', 'Australian', 'Austrian', 'Azerbaijani',
+    'Bahamian', 'Bahraini', 'Bangladeshi', 'Barbadian', 'Belarusian', 'Belgian',
+    'Belizean', 'Beninese', 'Bhutanese', 'Bolivian', 'Bosnian', 'Botswanan',
+    'Brazilian', 'British', 'Bruneian', 'Bulgarian', 'Burkinabé', 'Burundian',
+    'Cambodian', 'Cameroonian', 'Canadian', 'Cape Verdean', 'Central African',
+    'Chadian', 'Chilean', 'Chinese', 'Colombian', 'Comorian', 'Congolese',
+    'Costa Rican', 'Croatian', 'Cuban', 'Cypriot', 'Czech', 'Danish', 'Djiboutian',
+    'Dominican', 'East Timorese', 'Ecuadorian', 'Egyptian', 'Emirati', 'English',
+    'Equatorial Guinean', 'Eritrean', 'Estonian', 'Ethiopian', 'Fijian', 'Filipino',
+    'Finnish', 'French', 'Gabonese', 'Gambian', 'Georgian', 'German', 'Ghanaian',
+    'Greek', 'Grenadian', 'Guatemalan', 'Guinean', 'Guinean-Bissau', 'Guyanese',
+    'Haitian', 'Honduran', 'Hungarian', 'Icelandic', 'Indian', 'Indonesian',
+    'Iranian', 'Iraqi', 'Irish', 'Israeli', 'Italian', 'Ivorian', 'Jamaican',
+    'Japanese', 'Jordanian', 'Kazakhstani', 'Kenyan', 'Kiribati', 'Kuwaiti',
+    'Kyrgyz', 'Laotian', 'Latvian', 'Lebanese', 'Liberian', 'Libyan',
+    'Liechtensteiner', 'Lithuanian', 'Luxembourgish', 'Malagasy', 'Malawian',
+    'Malaysian', 'Maldivian', 'Malian', 'Maltese', 'Marshallese', 'Mauritanian',
+    'Mauritian', 'Mexican', 'Micronesian', 'Moldovan', 'Monacan', 'Mongolian',
+    'Montenegrin', 'Moroccan', 'Mozambican', 'Myanmar (Burmese)', 'Namibian',
+    'Nauruan', 'Nepali', 'New Zealander', 'Nicaraguan', 'Nigerien', 'Nigerian',
+    'North Korean', 'North Macedonian', 'Norwegian', 'Omani', 'Pakistani',
+    'Palauan', 'Palestinian', 'Panamanian', 'Papua New Guinean', 'Paraguayan',
+    'Peruvian', 'Polish', 'Portuguese', 'Qatari', 'Romanian', 'Russian', 'Rwandan',
+    'Saint Kitts and Nevis', 'Saint Lucian', 'Saint Vincentian', 'Salvadoran',
+    'Samoan', 'San Marinese', 'São Toméan', 'Saudi Arabian', 'Senegalese',
+    'Serbian', 'Seychellois', 'Sierra Leonean', 'Singaporean', 'Slovak',
+    'Slovenian', 'Solomon Islander', 'Somali', 'South African', 'South Korean',
+    'South Sudanese', 'Spanish', 'Sri Lankan', 'Sudanese', 'Surinamese', 'Swazi',
+    'Swedish', 'Swiss', 'Syrian', 'Taiwanese', 'Tajik', 'Tanzanian', 'Thai',
+    'Togolese', 'Tongan', 'Trinidadian and Tobagonian', 'Tunisian', 'Turkish',
+    'Turkmen', 'Tuvaluan', 'Ugandan', 'Ukrainian', 'Uruguayan', 'Uzbek',
+    'Vanuatuan', 'Venezuelan', 'Vietnamese', 'Yemeni', 'Zambian', 'Zimbabwean',
+]
+
 export const Profile = () => {
     const { lang } = useLanguage()
-    const { user: authUser, logout } = useAuth()
+    const { user: authUser, login, logout } = useAuth()
     const navigate = useNavigate()
     const tp = PROFILE_TEXTS[lang] || PROFILE_TEXTS.en
 
     const [activeTab, setActiveTab] = useState('info')
     const [editing, setEditing] = useState(false)
+    const [saving, setSaving] = useState(false)
+    const [error, setError] = useState('')
 
-    // Seed profile fields from the authenticated user (backend UserResponse: fullName, phoneNumber)
+    // Seed profile fields from the authenticated user (backend UserResponse).
     const fullNameParts = (authUser?.fullName || authUser?.name || '').trim().split(/\s+/).filter(Boolean)
 
     const [user, setUser] = useState({
@@ -93,11 +139,27 @@ export const Profile = () => {
         lastName: fullNameParts.slice(1).join(' ') || '',
         email: authUser?.email || '',
         phone: authUser?.phoneNumber || '',
-        dob: '',
-        gender: '',
-        nationality: 'Cambodian',
+        dob: authUser?.dateOfBirth || '',
+        gender: authUser?.gender || '',
+        nationality: authUser?.nationality || '',
     })
     const [draft, setDraft] = useState(user)
+
+    // Rebuild the form state from a backend UserResponse.
+    const applyUser = (u) => {
+        const parts = (u.fullName || '').trim().split(/\s+/).filter(Boolean)
+        const next = {
+            firstName: parts[0] || '',
+            lastName: parts.slice(1).join(' ') || '',
+            email: u.email || '',
+            phone: u.phoneNumber || '',
+            dob: u.dateOfBirth || '',
+            gender: u.gender || '',
+            nationality: u.nationality || '',
+        }
+        setUser(next)
+        setDraft(next)
+    }
 
     const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U'
     const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Guest User'
@@ -112,11 +174,29 @@ export const Profile = () => {
         setEditing(false)
     }
 
-    const saveEdit = (e) => {
+    const saveEdit = async (e) => {
         e.preventDefault()
-        setUser(draft)
-        setEditing(false)
-        // TODO: PATCH /users/me with `draft`
+        setError('')
+        setSaving(true)
+        try {
+            const res = await userAPI.updateProfile({
+                fullName: [draft.firstName, draft.lastName].filter(Boolean).join(' ').trim(),
+                email: draft.email.trim() || null,
+                phoneNumber: draft.phone.trim() || null,
+                dateOfBirth: draft.dob.trim() || null,
+                gender: draft.gender.trim() || null,
+                nationality: draft.nationality.trim() || null,
+            })
+            // Backend re-issues the JWT (phone may have changed) and returns the
+            // updated user — store both so the UI and future requests stay in sync.
+            login(res.data)
+            applyUser(res.data.user)
+            setEditing(false)
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setSaving(false)
+        }
     }
 
     const handleChange = (e) => {
@@ -125,13 +205,13 @@ export const Profile = () => {
     }
 
     const FIELD_ROWS = [
-        { key: 'firstName', label: tp.firstName, editable: true },
-        { key: 'lastName', label: tp.lastName, editable: true },
-        { key: 'email', label: tp.email, editable: true },
-        { key: 'phone', label: tp.phone, editable: true },
-        { key: 'dob', label: tp.dob, editable: true },
-        { key: 'gender', label: tp.gender, editable: true },
-        { key: 'nationality', label: tp.nationality, editable: false },
+        { key: 'firstName', label: tp.firstName, editable: true, type: 'text' },
+        { key: 'lastName', label: tp.lastName, editable: true, type: 'text' },
+        { key: 'email', label: tp.email, editable: true, type: 'email' },
+        { key: 'phone', label: tp.phone, editable: true, type: 'tel' },
+        { key: 'dob', label: tp.dob, editable: true, type: 'date' },
+        { key: 'gender', label: tp.gender, editable: true, type: 'select', options: GENDER_OPTIONS },
+        { key: 'nationality', label: tp.nationality, editable: true, type: 'select', options: NATIONALITIES },
     ]
 
     return (
@@ -183,12 +263,14 @@ export const Profile = () => {
                                                 <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>
                                                     {tp.cancel}
                                                 </button>
-                                                <button type="submit" form="profile-form" className="profile-save-btn">
-                                                    {tp.save}
+                                                <button type="submit" form="profile-form" className="profile-save-btn" disabled={saving}>
+                                                    {saving ? 'Saving…' : tp.save}
                                                 </button>
                                             </div>
                                         )}
                                     </div>
+
+                                    {error && <p className="profile-error">{error}</p>}
 
                                     <form id="profile-form" onSubmit={saveEdit}>
                                         {FIELD_ROWS.map((field) => (
@@ -196,13 +278,30 @@ export const Profile = () => {
                                                 <span className="profile-field-label">{field.label}</span>
 
                                                 {editing && field.editable ? (
-                                                    <input
-                                                        className="profile-field-input"
-                                                        name={field.key}
-                                                        value={draft[field.key]}
-                                                        onChange={handleChange}
-                                                        placeholder={tp.notSet}
-                                                    />
+                                                    field.type === 'select' ? (
+                                                        <select
+                                                            className="profile-field-input"
+                                                            name={field.key}
+                                                            value={draft[field.key]}
+                                                            onChange={handleChange}
+                                                        >
+                                                            <option value="">{tp.notSet}</option>
+                                                            {field.options.map((opt) => {
+                                                                const value = typeof opt === 'string' ? opt : opt.value
+                                                                const label = typeof opt === 'string' ? opt : opt.label[lang]
+                                                                return <option key={value} value={value}>{label}</option>
+                                                            })}
+                                                        </select>
+                                                    ) : (
+                                                        <input
+                                                            className="profile-field-input"
+                                                            type={field.type}
+                                                            name={field.key}
+                                                            value={draft[field.key]}
+                                                            onChange={handleChange}
+                                                            placeholder={tp.notSet}
+                                                        />
+                                                    )
                                                 ) : (
                                                     <span className="profile-field-value">
                                                         {user[field.key] || tp.notSet}

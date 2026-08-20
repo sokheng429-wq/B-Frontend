@@ -4,10 +4,10 @@ import { useLanguage } from '../../context/LanguageContext'
 import './Contact.css'
 
 const INFO = [
-  { icon: '📍', label: { en: 'Our Address', kh: 'អាសយដ្ឋាន' }, value: { en: 'Street 271, Sangkat Toul Tompoung, Phnom Penh', kh: 'ផ្លូវ២៧១, សង្កាត់ទួលទំពូង, ភ្នំពេញ' }, bg: '#f0f7e8' },
-  { icon: '📞', label: { en: 'Phone', kh: 'ទូរស័ព្ទ' }, value: { en: '+855 11 628 818', kh: '+855 11 628 818' }, bg: '#fff8ed' },
+  { icon: '📍', label: { en: 'Our Address', kh: 'អាសយដ្ឋាន' }, value: { en: 'តំបន់អភិវឌ្ឍន៍ទីក្រុងកោះពេជ្រ-កោះនរា, Phnom Penh', kh: 'តំបន់អភិវឌ្ឍន៍ទីក្រុងកោះពេជ្រ-កោះនរា, Phnom Penh' }, bg: '#f0f7e8' },
+  { icon: '📞', label: { en: 'Phone', kh: 'ទូរស័ព្ទ' }, value: { en: '+855 70 999 652', kh: '+855 70 999 652' }, bg: '#fff8ed' },
   { icon: '✉️', label: { en: 'Email', kh: 'អ៊ីមែល' }, value: { en: 'bgroceriescompany@gmail.com', kh: 'bgroceriescompany@gmail.com' }, bg: '#f0f2f4' },
-  { icon: '🕐', label: { en: 'Business Hours', kh: 'ម៉ោងធ្វើការ' }, value: { en: 'Mon–Sat 8AM–9PM · Sun 9AM–6PM', kh: 'ច័ន្ទ-សៅរ៍ ៨ព្រឹក-៩យប់ · អាទិត្យ ៩ព្រឹក-៦ល្ងាច' }, bg: '#eef6ff' },
+  { icon: '🕐', label: { en: 'Business Hours', kh: 'ម៉ោងធ្វើការ' }, value: { en: '24 Hour / 7 Days', kh: '24 Hour / 7 Days' }, bg: '#eef6ff' },
 ]
 
 const SOCIALS = [
@@ -17,7 +17,6 @@ const SOCIALS = [
 ]
 
 const FAQ_QUICK = [
-  { en: 'How does delivery work?', kh: 'តើការដឹកជញ្ជូនដំណើរការដូចម្តេច?' },
   { en: 'How do I return an item?', kh: 'តើខ្ញុំអាចប្រគល់ទំនិញវិញដោយរបៀបណា?' },
   { en: 'Where do you deliver?', kh: 'តើអ្នកដឹកជញ្ជូនទៅកន្លែងណាខ្លះ?' },
   { en: 'What payment methods do you accept?', kh: 'តើអ្នកទទួលយកវិធីបង់ប្រាក់អ្វីខ្លះ?' },

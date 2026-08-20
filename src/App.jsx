@@ -9,6 +9,7 @@ import Home from './Pages/Home/Home'
 import Login from './Pages/Auth/Login'
 import Register from './Pages/Auth/Register'
 import ForgotPassword from './Pages/Auth/Forgotpassword'
+import OAuth2Redirect from './Pages/Auth/OAuth2Redirect'
 import PopularProducts from './Pages/Shop/Popular Products'
 import Promotion from './Pages/Shop/Promotion'
 import Career from './Pages/Home/Career'
@@ -55,6 +56,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/oauth2/redirect" element={<OAuth2Redirect />} />
 
           {/* Customer Standard & Interactive Pages */}
           <Route path="/products" element={<ShopLayout><PopularProducts /></ShopLayout>} />

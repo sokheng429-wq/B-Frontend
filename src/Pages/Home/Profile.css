@@ -192,6 +192,16 @@
 }
 
 /* Field rows */
+.profile-error {
+    margin: 0 0 0.75rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    background: var(--danger-bg, #fdeaea);
+    border: 1px solid var(--danger-border, #f5a7a7);
+    color: var(--danger-text, #c62828);
+    font-size: 0.875rem;
+}
+
 .profile-field-row {
     display: flex;
     align-items: center;
@@ -221,8 +231,9 @@
 .profile-field-input {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--navy);
+    color: var(--text-strong);
     text-align: right;
+    background: #232F3F;
     border: 1px solid var(--border-default);
     border-radius: 8px;
     padding: 0.4rem 0.65rem;
@@ -236,13 +247,27 @@
     box-shadow: 0 0 0 3px var(--brand-tint-soft);
 }
 
+/* Select + date inputs share the field styling */
+.profile-field-input[type='date'] {
+    min-height: 2.2rem;
+    cursor: pointer;
+    color-scheme: dark; /* dark calendar picker */
+}
+select.profile-field-input {
+    cursor: pointer;
+}
+select.profile-field-input option {
+    background: #232F3F;
+    color: var(--text-strong);
+}
+
 /* ---------- Collapsible row (Change Password) ---------- */
 .profile-collapse-row {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: white;
+    background: #232F3F;
     border: 1px solid var(--border-default);
     border-radius: 16px;
     padding: 1rem 1.25rem;

@@ -33,10 +33,14 @@ export const authAPI = {
   login: (identifier, password) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) }),
 
-  // One-click social login / signup: just the provider (gmail|telegram|facebook) —
-  // the backend logs into the existing social account or creates one. Same shape as login.
-  socialLogin: (provider) =>
-    request('/auth/social', { method: 'POST', body: JSON.stringify({ provider }) }),
+  // Social login / signup. With a token (provider-issued credential: Google ID token,
+  // FB access token, Telegram auth JSON) the backend verifies it and links the real
+  // account; without one it falls back to the legacy one-click demo account.
+  socialLogin: (provider, token) =>
+    request('/auth/social', {
+      method: 'POST',
+      body: JSON.stringify(token ? { provider, token } : { provider }),
+    }),
 
   register: (data) =>
     request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
@@ -140,6 +144,11 @@ export const userAPI = {
 
   delete: (id) =>
     request(`/users/${id}`, { method: 'DELETE' }),
+
+  // Update the signed-in user's own profile (Account Details page). Returns
+  // AuthResponse { token, tokenType, user } — token re-issued in case the phone changed.
+  updateProfile: (data) =>
+    request('/users/me', { method: 'PUT', body: JSON.stringify(data) }),
 }
 
 // ===== ORDERS =====

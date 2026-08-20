@@ -7,9 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tunnel": "node ngrok-tunnel.mjs"
   },
   "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
+    "@react-oauth/google": "^0.13.5",
     "@tailwindcss/vite": "^4.3.3",
     "flag-icons": "^7.5.0",
     "react": "^19.2.8",

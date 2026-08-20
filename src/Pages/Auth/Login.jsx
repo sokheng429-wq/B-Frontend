@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
 import { authAPI } from '../../api/api'
+import { useTelegramLogin } from '../../hooks/useTelegramLogin'
 import { Logo } from '../../components/Logo'
 import './Login.css'
 
@@ -24,7 +25,6 @@ const TEXTS = {
   forgotPassword: { en: 'Forgot password?', kh: 'ភ្លេចពាក្យសម្ងាត់?' },
   loginBtn: { en: 'Log in', kh: 'ចូលគណនី' },
   footerNote: { en: "By continuing, you agree to B'Groceries' Terms of Service and Privacy Policy.", kh: 'ដោយបន្ត អ្នកយល់ព្រមនឹងលក្ខខណ្ឌសេវាកម្ម និងគោលការណ៍ឯកជនភាពរបស់ B\'Groceries។' },
-  // Login fields
   nameLabel: { en: 'Username or full name', kh: 'ឈ្មោះអ្នកប្រើ ឬឈ្មោះពេញ' },
   namePlaceholder: { en: 'e.g. YourName', kh: 'ឧ. YourName' },
   socialNote: { en: 'You\'ll be logged in instantly (a B\'Groceries account is created the first time).', kh: 'អ្នកនឹងចូលគណនីភ្លាមៗ (គណនី B\'Groceries នឹងត្រូវបានបង្កើតនៅពេលដំបូង)។' },
@@ -36,7 +36,7 @@ export const Login = () => {
   const navigate = useNavigate()
   const [form, setForm] = useState({ identifier: '', password: '', remember: false })
   const [error, setError] = useState('')
-  const [socialBusy, setSocialBusy] = useState('') // provider being logged in
+  const [socialBusy, setSocialBusy] = useState('')
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -55,12 +55,12 @@ export const Login = () => {
     }
   }
 
-  // One-click social login: straight to the backend, no identifier prompt.
-  const handleSocial = async (provider) => {
+  // Telegram login (keeps existing implementation)
+  const handleTelegramAuth = async (telegramUser) => {
     setError('')
-    setSocialBusy(provider)
+    setSocialBusy('telegram')
     try {
-      const res = await authAPI.socialLogin(provider)
+      const res = await authAPI.socialLogin('telegram', JSON.stringify(telegramUser))
       login(res.data)
       navigate('/')
     } catch (err) {
@@ -69,6 +69,11 @@ export const Login = () => {
       setSocialBusy('')
     }
   }
+
+  const { telegramButtonRef } = useTelegramLogin({
+    onAuth: handleTelegramAuth,
+    onError: (err) => setError(err.message),
+  })
 
   return (
     <div className="auth">
@@ -122,19 +127,34 @@ export const Login = () => {
             <button type="submit" className="btn-submit">{TEXTS.loginBtn[lang]}</button>
           </form>
 
-          {/* One-click social login — below the Login button */}
+          {/* Social login — simple anchor tag redirects */}
           <div className="auth-divider"><span>{lang === 'en' ? 'or continue with' : 'ឬបន្តជាមួយ'}</span></div>
 
           <div className="social-auth">
-            <button type="button" className="social-btn social-btn--gmail" onClick={() => handleSocial('gmail')} disabled={!!socialBusy}>
-              {socialBusy === 'gmail' ? <SpinnerIcon /> : <GmailIcon />} <span>Continue with <strong>Google</strong></span>
-            </button>
-            <button type="button" className="social-btn social-btn--telegram" onClick={() => handleSocial('telegram')} disabled={!!socialBusy}>
-              {socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />} <span>Continue with <strong>Telegram</strong></span>
-            </button>
-            <button type="button" className="social-btn social-btn--facebook" onClick={() => handleSocial('facebook')} disabled={!!socialBusy}>
-              {socialBusy === 'facebook' ? <SpinnerIcon /> : <FacebookIcon />} <span>Continue with <strong>Facebook</strong></span>
-            </button>
+            {/* Google Login - Simple redirect to backend OAuth2 */}
+            <a
+              href="http://localhost:8081/oauth2/authorization/google"
+              className="social-btn social-btn--gmail"
+            >
+              <GmailIcon />
+              <span>Continue with <strong>Google</strong></span>
+            </a>
+
+            {/* Facebook Login - Simple redirect to backend OAuth2 */}
+            <a
+              href="http://localhost:8081/oauth2/authorization/facebook"
+              className="social-btn social-btn--facebook"
+            >
+              <FacebookIcon />
+              <span>Continue with <strong>Facebook</strong></span>
+            </a>
+
+            {/* Telegram - Keep existing implementation */}
+            <div className="social-btn social-btn--telegram social-btn--gis-wrap">
+              {socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />}
+              <span>Continue with <strong>Telegram</strong></span>
+              <div ref={telegramButtonRef} className="social-btn--gis-overlay" />
+            </div>
           </div>
           <p className="auth-social-note">{TEXTS.socialNote[lang]}</p>
 
@@ -154,8 +174,11 @@ const LockIcon = () => (
 
 /* Brand logos for the social buttons (filled, full color) */
 const GmailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.691 2.28 24 3.434 24 5.457z" fill="#EA4335" />
+  <svg width="18" height="18" viewBox="0 0 48 48">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
   </svg>
 )
 
