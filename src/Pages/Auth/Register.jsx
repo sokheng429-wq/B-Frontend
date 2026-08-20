@@ -29,6 +29,15 @@ const TEXTS = {
   facebookPlaceholder: { en: 'e.g. sokheng.fb', kh: 'ឧ. sokheng.fb' },
   phoneLabel: { en: 'Phone number (required)', kh: 'លេខទូរស័ព្ទ (ចាំបាច់)' },
   phonePlaceholder: { en: '012 345 678', kh: '០១២ ៣៤៥ ៦៧៨' },
+  dateOfBirthLabel: { en: 'Date of Birth', kh: 'ថ្ងៃខែឆ្នាំកំណើត' },
+  genderLabel: { en: 'Gender', kh: 'ភេទ' },
+  genderPlaceholder: { en: 'Select gender', kh: 'ជ្រើសរើសភេទ' },
+  genderMale: { en: 'Male', kh: 'ប្រុស' },
+  genderFemale: { en: 'Female', kh: 'ស្រី' },
+  genderOther: { en: 'Other', kh: 'ផ្សេងទៀត' },
+  genderPreferNot: { en: 'Prefer not to say', kh: 'មិនចង់បញ្ជាក់' },
+  nationalityLabel: { en: 'Nationality', kh: 'សញ្ជាតិ' },
+  nationalityPlaceholder: { en: 'Select nationality', kh: 'ជ្រើសរើសសញ្ជាតិ' },
   passwordLabel: { en: 'Password', kh: 'ពាក្យសម្ងាត់' },
   passwordPlaceholder: { en: 'Create a password', kh: 'បង្កើតពាក្យសម្ងាត់' },
   confirmLabel: { en: 'Confirm password', kh: 'បញ្ជាក់ពាក្យសម្ងាត់' },
@@ -46,6 +55,15 @@ const TEXTS = {
   socialNote: { en: 'You\'ll be signed up instantly (an account is created the first time).', kh: 'អ្នកនឹងត្រូវបានចុះឈ្មោះភ្លាមៗ (គណនីនឹងត្រូវបានបង្កើតនៅពេលដំបូង)។' },
 }
 
+// List of countries
+const COUNTRIES = [
+  'Cambodia', 'Thailand', 'Vietnam', 'Laos', 'Myanmar',
+  'Singapore', 'Malaysia', 'Indonesia', 'Philippines',
+  'United States', 'United Kingdom', 'China', 'Japan',
+  'South Korea', 'India', 'Australia', 'Canada', 'France',
+  'Germany', 'Spain', 'Italy', 'Netherlands', 'Other'
+]
+
 export const Register = () => {
   const { lang } = useLanguage()
   const { login } = useAuth()
@@ -53,6 +71,7 @@ export const Register = () => {
   const [form, setForm] = useState({
     username: '', name: '', email: '',
     phone: '', password: '', confirmPassword: '', agree: false,
+    dateOfBirth: '', gender: '', nationality: ''
   })
   const [error, setError] = useState('')
   const [socialBusy, setSocialBusy] = useState('')
@@ -77,6 +96,9 @@ export const Register = () => {
         phoneNumber: form.phone,
         password: form.password,
         confirmPassword: form.confirmPassword,
+        dateOfBirth: form.dateOfBirth || undefined,
+        gender: form.gender || undefined,
+        nationality: form.nationality || undefined
       })
       login(res.data)
       navigate('/')
@@ -160,6 +182,51 @@ export const Register = () => {
             <div className="field">
               <label htmlFor="phone">{TEXTS.phoneLabel[lang]}</label>
               <input id="phone" name="phone" type="tel" placeholder={TEXTS.phonePlaceholder[lang]} value={form.phone} onChange={handleChange} required />
+            </div>
+
+            <div className="field">
+              <label htmlFor="dateOfBirth">{TEXTS.dateOfBirthLabel[lang]}</label>
+              <input
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                value={form.dateOfBirth}
+                onChange={handleChange}
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div className="field">
+              <label htmlFor="gender">{TEXTS.genderLabel[lang]}</label>
+              <select
+                id="gender"
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="auth-select"
+              >
+                <option value="">{TEXTS.genderPlaceholder[lang]}</option>
+                <option value="Male">{TEXTS.genderMale[lang]}</option>
+                <option value="Female">{TEXTS.genderFemale[lang]}</option>
+                <option value="Other">{TEXTS.genderOther[lang]}</option>
+                <option value="Prefer not to say">{TEXTS.genderPreferNot[lang]}</option>
+              </select>
+            </div>
+
+            <div className="field">
+              <label htmlFor="nationality">{TEXTS.nationalityLabel[lang]}</label>
+              <select
+                id="nationality"
+                name="nationality"
+                value={form.nationality}
+                onChange={handleChange}
+                className="auth-select"
+              >
+                <option value="">{TEXTS.nationalityPlaceholder[lang]}</option>
+                {COUNTRIES.map((country) => (
+                  <option key={country} value={country}>{country}</option>
+                ))}
+              </select>
             </div>
 
             <div className="field">

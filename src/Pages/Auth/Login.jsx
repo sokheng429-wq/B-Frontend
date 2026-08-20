@@ -55,24 +55,35 @@ export const Login = () => {
     }
   }
 
-  // Telegram login (keeps existing implementation)
-  const handleTelegramAuth = async (telegramUser) => {
-    setError('')
-    setSocialBusy('telegram')
-    try {
-      const res = await authAPI.socialLogin('telegram', JSON.stringify(telegramUser))
-      login(res.data)
-      navigate('/')
-    } catch (err) {
+  // Telegram login (Bot Deep Link method)
+  const { handleTelegramLogin, isPolling: isTelegramPolling, error: telegramError } = useTelegramLogin({
+    onAuth: async (userData) => {
+      console.log('[Login.jsx] onAuth received userData:', userData)
+      setError('')
+      setSocialBusy('telegram')
+      try {
+        // userData contains: { token, tokenType, user, jwt, telegramUserId, telegramUsername }
+        // Pass the complete response to login() so AuthContext gets the user object
+        const loginData = {
+          token: userData.token || userData.jwt,
+          tokenType: userData.tokenType || 'Bearer',
+          user: userData.user
+        }
+        console.log('[Login.jsx] Calling login() with:', loginData)
+        login(loginData)
+        console.log('[Login.jsx] Login successful, navigating to home')
+        navigate('/')
+      } catch (err) {
+        console.error('[Login.jsx] Login error:', err)
+        setError(err.message)
+        setSocialBusy('')
+      }
+    },
+    onError: (err) => {
+      console.error('[Login.jsx] Telegram login error:', err)
       setError(err.message)
-    } finally {
       setSocialBusy('')
-    }
-  }
-
-  const { telegramButtonRef } = useTelegramLogin({
-    onAuth: handleTelegramAuth,
-    onError: (err) => setError(err.message),
+    },
   })
 
   return (
@@ -124,6 +135,7 @@ export const Login = () => {
               <Link to="/forgot-password" className="link-muted">{TEXTS.forgotPassword[lang]}</Link>
             </div>
             {error && <p className="auth-error">{error}</p>}
+            {telegramError && <p className="auth-error">{telegramError}</p>}
             <button type="submit" className="btn-submit">{TEXTS.loginBtn[lang]}</button>
           </form>
 
@@ -149,12 +161,16 @@ export const Login = () => {
               <span>Continue with <strong>Facebook</strong></span>
             </a>
 
-            {/* Telegram - Keep existing implementation */}
-            <div className="social-btn social-btn--telegram social-btn--gis-wrap">
-              {socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />}
+            {/* Telegram - Bot Deep Link method */}
+            <button
+              type="button"
+              onClick={handleTelegramLogin}
+              disabled={isTelegramPolling || socialBusy === 'telegram'}
+              className="social-btn social-btn--telegram"
+            >
+              {(isTelegramPolling || socialBusy === 'telegram') ? <SpinnerIcon /> : <TelegramIcon />}
               <span>Continue with <strong>Telegram</strong></span>
-              <div ref={telegramButtonRef} className="social-btn--gis-overlay" />
-            </div>
+            </button>
           </div>
           <p className="auth-social-note">{TEXTS.socialNote[lang]}</p>
 

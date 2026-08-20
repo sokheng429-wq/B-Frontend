@@ -1,3 +1,24 @@
+/* Root variables with brand colors */
+:root {
+  --primary-green: #77BC1F;
+  --accent-orange: #FF9900;
+  --navy: #232F3F;
+  --text-dark: #232F3F;
+  --text-light: #ffffff;
+  --border-color: #e0e0e0;
+  --error-red: #e53e3e;
+}
+
+/* Font families */
+.auth {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.auth [lang="kh"],
+.auth .khmer-text {
+  font-family: 'Kantumruy Pro', sans-serif;
+}
+
 .auth {
   min-height: 100vh;
   display: grid;
@@ -5,11 +26,11 @@
   background: var(--navy);
 }
 
-/* Brand side panel */
+/* Brand side panel with gradient */
 .auth-panel {
   display: none;
   position: relative;
-  background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, #2d3f50 100%);
+  background: linear-gradient(160deg, var(--primary-green) 0%, #5a9315 60%, var(--accent-orange) 100%);
   color: white;
   padding: 3rem 2.5rem;
   overflow: hidden;
@@ -22,7 +43,7 @@
   right: -100px;
   width: 440px;
   height: 440px;
-  background: radial-gradient(circle, var(--brand-tint) 0%, transparent 55%);
+  background: radial-gradient(circle, rgba(255, 153, 0, 0.2) 0%, transparent 55%);
   border-radius: 50%;
 }
 
@@ -33,7 +54,7 @@
   left: -60px;
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, var(--accent-tint) 0%, transparent 55%);
+  background: radial-gradient(circle, rgba(119, 188, 31, 0.3) 0%, transparent 55%);
   border-radius: 50%;
 }
 
@@ -50,16 +71,16 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
-  background: var(--accent-tint-soft);
-  border: 1px solid var(--accent-border);
+  color: var(--navy);
+  background: rgba(255, 153, 0, 0.9);
+  border: 1px solid var(--accent-orange);
   border-radius: 20px;
   padding: 4px 14px;
   margin-bottom: 1rem;
 }
 
 .auth-panel-title {
-  font-family: var(--font-family);
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.875rem;
   font-weight: 800;
   line-height: 1.2;
@@ -67,13 +88,13 @@
 }
 
 .auth-panel-title span {
-  color: var(--brand);
+  color: var(--accent-orange);
 }
 
 .auth-panel-subtitle {
   font-size: 0.9375rem;
   line-height: 1.65;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
 

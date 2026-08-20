@@ -1,84 +1,126 @@
-import { useEffect, useRef } from 'react'
+import { useState } from 'react';
 
-// The bot username from @BotFather (t.me/BGroceriesbot — no "@").
-const TELEGRAM_BOT_USERNAME = 'BGroceriesbot'
-
-const WIDGET_URL = 'https://telegram.org/js/telegram-widget.js?22'
+const TELEGRAM_BOT_USERNAME = 'BGroceriesbot';
+const API_BASE_URL = 'http://localhost:8081';
+const POLL_INTERVAL_MS = 2000;
+const MAX_POLL_ATTEMPTS = 150; // 5 minutes
 
 /**
- * Real Telegram sign-in for the styled "Continue with Telegram" button.
+ * Telegram login hook using Bot Deep Link method.
  *
- * Same pattern as the Google button: Telegram's OFFICIAL widget button (an iframe)
- * is rendered into the invisible overlay container the page attaches via
- * `telegramButtonRef`, on top of our styled pill. The user's real click lands on
- * Telegram's own button → the login popup opens.
- *
- * IMPORTANT: the widget library only scans for its `data-telegram-login` script
- * AT THE MOMENT THE LIBRARY LOADS. So we must append ONE script that carries both
- * the library URL and the data attributes (exactly as Telegram's docs show) —
- * loading the library separately first and then appending the data script would
- * never render the iframe.
- *
- * On success the widget calls the global `onTelegramAuth` with the signed auth
- * object, which we hand to `onAuth`. The backend re-verifies the HMAC-SHA256
- * signature before creating/logging in the user.
- *
- * NOTE: Telegram only renders the button for origins registered via /setdomain in
- * @BotFather (bare domain, no https://, no path). localhost is never accepted.
- *
- * @param {object} options
- * @param {(telegramUser: object) => void} options.onAuth  signed widget auth object
- * @param {(error: Error) => void} [options.onError]
+ * Flow:
+ * 1. User clicks button -> creates session token
+ * 2. Opens https://t.me/BGroceriesbot?start={token}
+ * 3. User taps "Start" in Telegram
+ * 4. Bot webhook processes /start command
+ * 5. Frontend polls until status = COMPLETED
+ * 6. Receives JWT and calls onAuth
  */
 export function useTelegramLogin({ onAuth, onError }) {
-  const handlersRef = useRef({ onAuth, onError })
-  const containerRef = useRef(null)
+  const [isPolling, setIsPolling] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    handlersRef.current = { onAuth, onError }
-  })
+  const handleTelegramLogin = async () => {
+    try {
+      setError(null);
+      setIsPolling(true);
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+      console.log('[Telegram Login] Initializing session...');
 
-    window.onTelegramAuth = (user) => {
-      console.log('[useTelegramLogin] auth result:', user)
-      if (user?.id && user?.hash) {
-        handlersRef.current.onAuth(user)
-      } else {
-        handlersRef.current.onError?.(new Error('Telegram login was cancelled'))
+      // Step 1: Create login session
+      const initResponse = await fetch(`${API_BASE_URL}/api/auth/telegram/init`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!initResponse.ok) {
+        throw new Error('Failed to initialize Telegram login');
       }
+
+      const initData = await initResponse.json();
+      console.log('[Telegram Login] Init response:', initData);
+
+      if (!initData.success || !initData.data?.token) {
+        throw new Error(initData.message || 'Invalid response from server');
+      }
+
+      const sessionToken = initData.data.token;
+      console.log('[Telegram Login] Session token:', sessionToken);
+
+      // Step 2: Open Telegram bot with deep link
+      const deepLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${sessionToken}`;
+      console.log('[Telegram Login] Opening deep link:', deepLink);
+
+      const telegramWindow = window.open(deepLink, '_blank');
+      if (!telegramWindow) {
+        throw new Error('Please allow pop-ups to login with Telegram');
+      }
+
+      // Step 3: Poll for completion
+      let attempts = 0;
+      const pollInterval = setInterval(async () => {
+        attempts++;
+
+        if (attempts > MAX_POLL_ATTEMPTS) {
+          clearInterval(pollInterval);
+          setIsPolling(false);
+          const timeoutError = new Error('Login timeout - please try again');
+          setError(timeoutError.message);
+          onError?.(timeoutError);
+          return;
+        }
+
+        try {
+          const statusResponse = await fetch(
+            `${API_BASE_URL}/api/auth/telegram/status/${sessionToken}`
+          );
+
+          if (!statusResponse.ok) {
+            throw new Error('Failed to check login status');
+          }
+
+          const statusData = await statusResponse.json();
+
+          if (attempts % 10 === 0) {
+            console.log(`[Telegram Login] Poll attempt ${attempts}, status:`, statusData.data?.status);
+          }
+
+          if (statusData.success && statusData.data) {
+            const { status, token, tokenType, user, jwt, telegramUserId, telegramUsername } = statusData.data;
+
+            if (status === 'COMPLETED' && (token || jwt)) {
+              clearInterval(pollInterval);
+              setIsPolling(false);
+              console.log('[Telegram Login] Success! User:', user || { telegramUserId, telegramUsername });
+
+              // Pass the complete backend response to onAuth
+              onAuth(statusData.data);
+            } else if (status === 'EXPIRED') {
+              clearInterval(pollInterval);
+              setIsPolling(false);
+              const expiredError = new Error('Session expired - please try again');
+              setError(expiredError.message);
+              onError?.(expiredError);
+            }
+          }
+        } catch (pollError) {
+          console.error('[Telegram Login] Polling error:', pollError);
+        }
+      }, POLL_INTERVAL_MS);
+
+    } catch (err) {
+      console.error('[Telegram Login] Error:', err);
+      setIsPolling(false);
+      setError(err.message || 'Login failed');
+      onError?.(err);
     }
+  };
 
-    // StrictMode double-invokes effects in dev — clear any previous widget first.
-    container.innerHTML = ''
-    console.log('[useTelegramLogin] appending widget script into overlay', location.origin)
-    const script = document.createElement('script')
-    script.src = WIDGET_URL
-    script.setAttribute('data-telegram-login', TELEGRAM_BOT_USERNAME)
-    script.setAttribute('data-size', 'large')
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)')
-    script.setAttribute('data-request-access', 'write')
-    script.async = true
-    container.appendChild(script)
-
-    // After the widget has had a chance to render, report whether its iframe
-    // actually appeared — this tells us if the origin is registered via /setdomain.
-    const checkRender = setTimeout(() => {
-      const iframe = container.querySelector('iframe')
-      console.log(
-        '[useTelegramLogin] widget iframe rendered:',
-        iframe ? 'YES (' + iframe.getAttribute('src') + ')' : 'NO — origin not registered via /setdomain?'
-      )
-    }, 2500)
-
-    return () => {
-      clearTimeout(checkRender)
-      delete window.onTelegramAuth
-      container.innerHTML = ''
-    }
-  }, [])
-
-  return { telegramButtonRef: containerRef }
+  return {
+    handleTelegramLogin,
+    isPolling,
+    error,
+    // Empty ref for compatibility with your button overlay pattern
+    telegramButtonRef: { current: null }
+  };
 }
