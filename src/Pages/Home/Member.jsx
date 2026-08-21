@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { publicAPI } from '../../api/api'
 import './Member.css'
 
-const TEAM = [
+const FALLBACK_IMAGE = new URL('../../assets/Profile.avif', import.meta.url).href
+
+// Display-only fallback when the backend is unreachable so the page is never blank.
+const FALLBACK_TEAM = [
   {
     id: 1,
     name: { en: 'Unknow', kh: 'Unknow' },
@@ -134,31 +138,91 @@ const TEAM = [
   },
 ]
 
-const DEPARTMENTS = [
-  { key: 'all', en: 'Everyone', kh: 'ទាំងអស់' },
-  { key: 'Executive', en: 'Executive', kh: 'នាយកប្រតិបត្តិ' },
-  { key: 'Operations', en: 'Operations', kh: 'ប្រតិបត្តិការ' },
-  { key: 'Marketing', en: 'Marketing', kh: 'ទីផ្សារ' },
-  { key: 'Technology', en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-]
+const ALL_CHIP = { key: 'all', en: 'Everyone', kh: 'ទាំងអស់' }
+
+// Map the backend's public member shape to the card shape this page renders.
+const toCard = (m) => ({
+  id: m.id,
+  name: { en: m.fullName || '', kh: m.fullName || '' },
+  role: { en: m.position || '', kh: m.position || '' },
+  image: m.photoUrl || FALLBACK_IMAGE,
+  dept: { en: m.department || '', kh: m.department || '' },
+  bio: { en: m.note || '', kh: m.note || '' },
+  rank: m.rank,
+})
+
+// Show the highest-ranking members first (rank 1 = CEO on top), then by
+// department, then alphabetically. Members without a rank go last.
+const DEPT_PRIORITY = { Executive: 0, Admin: 1, Operation: 2, Other: 3 }
+
+const compareMembers = (a, b) => {
+  const ar = a.rank == null ? Number.MAX_SAFE_INTEGER : a.rank
+  const br = b.rank == null ? Number.MAX_SAFE_INTEGER : b.rank
+  if (ar !== br) return ar - br
+  const ap = DEPT_PRIORITY[a.dept?.en] ?? 99
+  const bp = DEPT_PRIORITY[b.dept?.en] ?? 99
+  if (ap !== bp) return ap - bp
+  return (a.name?.en || '').localeCompare(b.name?.en || '')
+}
 
 const TEXTS = {
   heroEyebrow: { en: 'Our People', kh: 'មនុស្សរបស់យើង' },
   heroTitle: { en: 'Meet Our Team', kh: 'ស្គាល់ក្រុមការងារយើង' },
   heroSub: { en: 'The passionate people behind every fresh delivery — from our family to yours.', kh: 'មនុស្សដែលមានចំណង់ចំណូលចិត្តនៅពីក្រោយរាល់ការដឹកជញ្ជូនស្រស់ៗ — ពីគ្រួសារយើង ទៅគ្រួសារអ្នក។' },
   teamCount: { en: 'Team Members', kh: 'សមាជិកក្រុម' },
+  loading: { en: 'Loading our team...', kh: 'កំពុងផ្ទុកក្រុមការងារ...' },
   joinUs: { en: 'Want to join our team?', kh: 'ចង់ចូលរួមជាមួយក្រុមការងារទេ?' },
   joinSub: { en: 'We are growing fast and always looking for talented, passionate people.', kh: 'យើងកំពុងរីកចម្រើនយ៉ាងឆាប់រហ័ស ហើយតែងតែស្វែងរកមនុស្សដែលមានទេពកោសល្យ និងចំណង់ចំណូលចិត្ត។' },
   viewJobs: { en: 'View Open Positions', kh: 'មើលមុខតំណែងដែលកំពុងទទួល' },
   connect: { en: 'Connect', kh: 'ទំនាក់ទំនង' },
 }
 
+// Lazy-load once per session: after the first fetch the team is cached here,
+// so returning to the page renders instantly (no re-fetch, no loading flash).
+let teamCache = null
+
 export const Member = () => {
   const { lang } = useLanguage()
   const [filter, setFilter] = useState('all')
   const [hoveredId, setHoveredId] = useState(null)
+  const [team, setTeam] = useState(() => teamCache || [])
+  const [loading, setLoading] = useState(() => teamCache === null)
 
-  const filtered = filter === 'all' ? TEAM : TEAM.filter((m) => m.dept.en === filter)
+  useEffect(() => {
+    if (teamCache) return
+    let cancelled = false
+    publicAPI.getMembers()
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : []
+        if (cancelled) return
+        const cards = data.length > 0 ? data.map(toCard) : FALLBACK_TEAM
+        teamCache = cards
+        setTeam(cards)
+      })
+      .catch(() => {
+        // Backend unreachable — show the built-in team so the page is never blank.
+        if (cancelled) return
+        teamCache = FALLBACK_TEAM
+        setTeam(FALLBACK_TEAM)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const departments = useMemo(() => {
+    const keys = [...new Set(team.map((m) => m.dept?.en).filter(Boolean))]
+    keys.sort((a, b) => (DEPT_PRIORITY[a] ?? 99) - (DEPT_PRIORITY[b] ?? 99) || a.localeCompare(b))
+    return [ALL_CHIP, ...keys.map((key) => ({ key, en: key, kh: key }))]
+  }, [team])
+
+  const filtered = useMemo(() => {
+    const list = filter === 'all' ? team : team.filter((m) => m.dept?.en === filter)
+    return [...list].sort(compareMembers)
+  }, [team, filter])
 
   return (
     <div className="member-page">
@@ -171,7 +235,7 @@ export const Member = () => {
           <h1 className="member-hero-title">{TEXTS.heroTitle[lang]}</h1>
           <p className="member-hero-sub">{TEXTS.heroSub[lang]}</p>
           <div className="member-hero-meta">
-            <span className="member-hero-count">8+</span>
+            <span className="member-hero-count">{team.length}</span>
             <span className="member-hero-count-label">{TEXTS.teamCount[lang]}</span>
           </div>
         </div>
@@ -180,7 +244,7 @@ export const Member = () => {
       {/* Filters */}
       <section className="member-filters-bar">
         <div className="member-filters-inner">
-          {DEPARTMENTS.map((d) => (
+          {departments.map((d) => (
             <button
               key={d.key}
               className={`member-filter-chip ${filter === d.key ? 'member-filter-chip--active' : ''}`}
@@ -194,6 +258,12 @@ export const Member = () => {
 
       {/* Team grid */}
       <section className="member-grid-section">
+        {loading ? (
+          <div className="member-loading">
+            <span className="member-loading-spinner" />
+            <p className="member-loading-text">{TEXTS.loading[lang]}</p>
+          </div>
+        ) : (
         <div className="member-grid-inner">
           {filtered.map((person) => (
             <Link
@@ -230,6 +300,7 @@ export const Member = () => {
             </Link>
           ))}
         </div>
+        )}
       </section>
 
       {/* CTA */}

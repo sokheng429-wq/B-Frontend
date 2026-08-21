@@ -31,10 +31,12 @@ import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
 import ShopLayout from './components/ShopSidebar'
 
-// Only users with role ADMIN may see admin pages; everyone else goes home.
+// ADMIN and STORE (Online Store) may open the admin panel; STORE only sees
+// the products-side sections (Products, Promotions, Partners) via AdminD.
 const AdminRoute = ({ children }) => {
   const { user } = useAuth()
-  if (user?.role !== 'ADMIN') {
+  const role = (user?.role || '').toUpperCase()
+  if (role !== 'ADMIN' && role !== 'STORE') {
     return <Navigate to="/" replace />
   }
   return children
@@ -68,6 +70,7 @@ function App() {
           <Route path="/career" element={<Career />} />
           <Route path="/career-detail" element={<Careerdetail />} />
           <Route path="/career-details" element={<Careerdetail />} />
+          <Route path="/career-detail/:id" element={<Careerdetail />} />
 
           <Route path="/member" element={<Member />} />
           <Route path="/member-detail" element={<Memberdetail />} />

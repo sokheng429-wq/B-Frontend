@@ -82,67 +82,102 @@ export const productAPI = {
 }
 
 // ===== JOBS =====
+// Admin job CRUD (ROLE_ADMIN; request() auto-attaches the Bearer token).
+// JobDto: { id, title, department, location, type, salary, description,
+//           requirements, benefits, createdAt } — field names are the API contract.
 export const jobAPI = {
-  getAll: () => request('/jobs'),
+  getAll: () => request('/admin/jobs'),
 
-  getById: (id) => request(`/jobs/${id}`),
+  getById: (id) => request(`/admin/jobs/${id}`),
 
   create: (data) =>
-    request('/jobs', { method: 'POST', body: JSON.stringify(data) }),
+    request('/admin/jobs', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id, data) =>
-    request(`/jobs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    request(`/admin/jobs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   delete: (id) =>
-    request(`/jobs/${id}`, { method: 'DELETE' }),
+    request(`/admin/jobs/${id}`, { method: 'DELETE' }),
+
+  // Public application (permitAll). Resume is sent as base64 TEXT + filename +
+  // content type (no multipart): { jobId, fullName, email, phone, linkedinUrl,
+  //   coverLetter, resumeName, resumeData, resumeContentType }
+  applyJob: (jobId, payload) =>
+    request(`/public/jobs/${jobId}/apply`, { method: 'POST', body: JSON.stringify(payload) }),
 }
 
 // ===== TEAM MEMBERS =====
+// Contract: ApiResponse { success, message, data }. MemberDto is one combined object:
+// { id, memberCode, fullName, position, rank, department, category,
+//   detail: { phoneNumber, email, address, dateOfBirth, gender,
+//             emergencyContact, startDate, note } } — id is present on responses,
+// absent when creating. Dates are ISO strings (yyyy-MM-dd).
 export const memberAPI = {
-  getAll: () => request('/members'),
+  // Optional exact-match filters { department, category } are sent as query params.
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams()
+    if (filters.department) params.set('department', filters.department)
+    if (filters.category) params.set('category', filters.category)
+    const qs = params.toString()
+    return request(qs ? `/members?${qs}` : '/members')
+  },
 
   getById: (id) => request(`/members/${id}`),
 
-  create: (formData) =>
-    request('/members', { method: 'POST', body: formData }),
+  create: (data) =>
+    request('/members', { method: 'POST', body: JSON.stringify(data) }),
 
-  update: (id, formData) =>
-    request(`/members/${id}`, { method: 'PUT', body: formData }),
+  update: (id, data) =>
+    request(`/members/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   delete: (id) =>
     request(`/members/${id}`, { method: 'DELETE' }),
 }
 
-// ===== APPLICATIONS =====
-export const applicationAPI = {
-  getAll: () => request('/applications'),
+// ===== PUBLIC (no auth) =====
+// Public team directory for the "Meet Our Team" page — display-safe fields only.
+export const publicAPI = {
+  getMembers: () => request('/public/members'),
 
-  getById: (id) => request(`/applications/${id}`),
+  // Public career listings (permitAll). Same JobDto shape as the admin list.
+  getJobs: () => request('/public/jobs'),
 
-  create: (formData) =>
-    request('/applications', { method: 'POST', body: formData }),
-
-  updateStatus: (id, status) =>
-    request(`/applications/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-
-  delete: (id) =>
-    request(`/applications/${id}`, { method: 'DELETE' }),
+  getJobById: (id) => request(`/public/jobs/${id}`),
 }
 
-// ===== USERS (System Users) =====
-export const userAPI = {
-  getAll: () => request('/users'),
+// ===== APPLICATIONS =====
+// Admin applications report (ROLE_ADMIN). Response item:
+// { id, jobId, jobTitle, fullName, email, phone, linkedinUrl, coverLetter,
+//   resumeName, resumeContentType, status, createdAt }
+export const applicationAPI = {
+  getAll: () => request('/admin/applications'),
 
-  getById: (id) => request(`/users/${id}`),
+  getById: (id) => request(`/admin/applications/${id}`),
 
-  create: (data) =>
-    request('/users', { method: 'POST', body: JSON.stringify(data) }),
-
-  update: (id, data) =>
-    request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  // Status workflow: NEW | REVIEWED | ACCEPTED | REJECTED.
+  updateStatus: (id, status) =>
+    request(`/admin/applications/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
 
   delete: (id) =>
-    request(`/users/${id}`, { method: 'DELETE' }),
+    request(`/admin/applications/${id}`, { method: 'DELETE' }),
+}
+
+// ===== USERS =====
+// Admin management endpoints live under /api/admin/users (ROLE_ADMIN required).
+// updateProfile is the signed-in user's own Account Details page (no admin role).
+export const userAPI = {
+  getAll: () => request('/admin/users'),
+
+  getById: (id) => request(`/admin/users/${id}`),
+
+  create: (data) =>
+    request('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/users/${id}`, { method: 'DELETE' }),
 
   // Update the signed-in user's own profile (Account Details page). Returns
   // AuthResponse { token, tokenType, user } — token re-issued in case the phone changed.

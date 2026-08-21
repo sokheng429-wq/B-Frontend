@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { jobAPI } from '../../api/api'
 
 const DEPARTMENTS = [
   { en: 'Engineering', kh: 'វិស្វកម្ម' },
@@ -40,7 +41,18 @@ const TEXTS = {
   descriptionPlaceholder: { en: 'Describe the role, responsibilities, and what a day looks like...', kh: 'ពិពណ៌នាអំពីតួនាទី ទំនួលខុសត្រូវ និងថ្ងៃធ្វើការ...' },
   requirements: { en: 'Requirements', kh: 'តម្រូវការ' },
   requirementsPlaceholder: { en: 'List required skills, experience, or qualifications...', kh: 'រាយបញ្ជីជំនាញ បទពិសោធន៍ ឬគុណវុឌ្ឍិ...' },
+  benefits: { en: 'Benefits & Perks', kh: 'អត្ថប្រយោជន៍ និងការលើកទឹកចិត្ត' },
+  benefitsPlaceholder: { en: 'List perks like insurance, flexible hours, learning budget...', kh: 'រាយអត្ថប្រយោជន៍ដូចជា ការធានារ៉ាប់រង ម៉ោងបត់បែន ថវិកាសិក្សា...' },
+  benefitsLabel: { en: 'Benefits', kh: 'អត្ថប្រយោជន៍' },
   postBtn: { en: 'Post job', kh: 'ប្រកាសការងារ' },
+  savingBtn: { en: 'Saving...', kh: 'កំពុងរក្សាទុក...' },
+  deletingBtn: { en: 'Deleting...', kh: 'កំពុងលុប...' },
+  loadError: { en: 'Could not load jobs.', kh: 'មិនអាចផ្ទុកការងារបានទេ។' },
+  retry: { en: 'Try again', kh: 'ព្យាយាមម្តងទៀត' },
+  dismissed: { en: 'Dismiss', kh: 'បិទ' },
+  deletedJob: { en: 'Job deleted', kh: 'បានលុបការងារ' },
+  updatedJob: { en: 'Job updated', kh: 'បានកែប្រែការងារ' },
+  confirmDelete: { en: 'Delete this job?', kh: 'លុបការងារនេះ?' },
   updateBtn: { en: 'Save job', kh: 'រក្សាទុកការងារ' },
   cancelBtn: { en: 'Cancel edit', kh: 'បោះបង់ការកែប្រែ' },
   required: { en: 'Required', kh: 'ត្រូវការ' },
@@ -51,6 +63,9 @@ const TEXTS = {
   errType: { en: 'Please select a job type', kh: 'សូមជ្រើសរើសប្រភេទការងារ' },
   errDescription: { en: 'Description is required', kh: 'ត្រូវការការពិពណ៌នា' },
   listTitle: { en: 'Open positions', kh: 'មុខតំណែងកំពុងបើក' },
+  searchLabel: { en: 'Search open positions', kh: 'ស្វែងរកមុខតំណែងកំពុងបើក' },
+  searchPlaceholder: { en: 'Search by position title...', kh: 'ស្វែងរកតាមចំណងជើងមុខតំណែង...' },
+  noSearchResults: { en: 'No open positions match your search.', kh: 'មិនមានមុខតំណែងកំពុងបើកដែលត្រូវនឹងការស្វែងរកទេ។' },
   empty: { en: 'No openings yet. Add the first role and it will appear here for quick edits.', kh: 'មិនទាន់មានមុខតំណែងនៅឡើយ។ បន្ថែមតួនាទីដំបូង ហើយវានឹងបង្ហាញនៅទីនេះ។' },
   viewCareer: { en: 'View career page', kh: 'មើលទំព័រការងារ' },
   posted: { en: 'Posted', kh: 'បានប្រកាស' },
@@ -70,10 +85,35 @@ const TEXTS = {
 export const Addjobs = () => {
   const { lang } = useLanguage()
   const { addNotification } = useNotifications()
-  const [form, setForm] = useState({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '' })
+  const [form, setForm] = useState({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '', benefits: '' })
   const [errors, setErrors] = useState({})
   const [jobs, setJobs] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
+  const [banner, setBanner] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await jobAPI.getAll()
+        const data = Array.isArray(res.data) ? res.data : []
+        if (!cancelled) setJobs(data)
+      } catch (err) {
+        if (!cancelled) setBanner(err.message || TEXTS.loadError[lang])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey, lang])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -93,49 +133,89 @@ export const Addjobs = () => {
 
   const startEdit = (job) => {
     setEditingId(job.id)
-    setForm({ title: job.title, department: job.department, location: job.location, type: job.type, salary: job.salary || '', description: job.description, requirements: job.requirements || '' })
+    setForm({ title: job.title, department: job.department, location: job.location, type: job.type, salary: job.salary || '', description: job.description, requirements: job.requirements || '', benefits: job.benefits || '' })
     setErrors({})
   }
 
   const cancelEdit = () => {
     setEditingId(null)
-    setForm({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '' })
+    setForm({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '', benefits: '' })
     setErrors({})
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const v = validate()
     setErrors(v)
     if (Object.keys(v).length === 0) {
-      if (editingId) {
-        setJobs((prev) => prev.map((j) => j.id === editingId ? { ...j, ...form } : j))
-        cancelEdit()
-      } else {
-        const newJob = {
-          id: Date.now(),
-          ...form,
-          postedDate: new Date().toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+      setSaving(true)
+      try {
+        if (editingId) {
+          await jobAPI.update(editingId, form)
+          addNotification({
+            type: 'job',
+            action: 'update',
+            title: lang === 'en' ? TEXTS.updatedJob.en : TEXTS.updatedJob.kh,
+            detail: form.title,
+          })
+        } else {
+          await jobAPI.create(form)
+          addNotification({
+            type: 'job',
+            action: 'add',
+            title: lang === 'en' ? 'Job posted' : 'បានប្រកាសការងារ',
+            detail: form.title,
+          })
         }
-        setJobs((prev) => [...prev, newJob])
-        addNotification({
-          type: 'job',
-          action: 'add',
-          title: lang === 'en' ? 'Job posted' : 'បានប្រកាសការងារ',
-          detail: form.title,
-        })
-        setForm({ title: '', department: '', location: '', type: '', salary: '', description: '', requirements: '' })
+        cancelEdit()
+        setBanner('')
+        setRefreshKey((k) => k + 1)
+      } catch (err) {
+        setBanner(err.message || (lang === 'en' ? 'Could not save job.' : 'មិនអាចរក្សាទុកការងារបានទេ។'))
+      } finally {
+        setSaving(false)
       }
     }
   }
 
-  const removeJob = (id) => {
+  const removeJob = async (id) => {
+    if (!window.confirm(TEXTS.confirmDelete[lang])) return
     if (editingId === id) cancelEdit()
-    setJobs((prev) => prev.filter((j) => j.id !== id))
+    setDeletingId(id)
+    try {
+      await jobAPI.delete(id)
+      addNotification({
+        type: 'job',
+        action: 'delete',
+        title: lang === 'en' ? TEXTS.deletedJob.en : TEXTS.deletedJob.kh,
+        detail: jobs.find((j) => j.id === id)?.title || '',
+      })
+      setBanner('')
+      setRefreshKey((k) => k + 1)
+    } catch (err) {
+      setBanner(err.message || (lang === 'en' ? 'Could not delete job.' : 'មិនអាចលុបការងារបានទេ។'))
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const formatPosted = (iso) => {
+    if (!iso) return ''
+    try {
+      return new Date(iso).toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+    } catch {
+      return ''
+    }
   }
 
   const getDeptLabel = (deptEn) => DEPARTMENTS.find((d) => d.en === deptEn)?.[lang] || deptEn
   const getTypeLabel = (typeEn) => JOB_TYPES.find((t) => t.en === typeEn)?.[lang] || typeEn
+
+  const filteredJobs = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return jobs
+    return jobs.filter((job) => String(job.title || '').toLowerCase().includes(term))
+  }, [jobs, searchTerm])
 
   const deptCount = new Set(jobs.map((j) => j.department).filter(Boolean)).size
   const typeCount = new Set(jobs.map((j) => j.type).filter(Boolean)).size
@@ -172,6 +252,20 @@ export const Addjobs = () => {
           </div>
         </div>
       </section>
+
+      {banner && (
+        <div className="flex items-start justify-between gap-4 rounded-2xl border border-red-500/40 bg-red-500/10 px-5 py-4" role="alert">
+          <p className="text-sm font-semibold text-red-300">{banner}</p>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => { setBanner(''); setLoading(true); setRefreshKey((k) => k + 1) }} className="rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-bold text-red-300 transition hover:bg-red-500/10 hover:text-red-200">
+              {TEXTS.retry[lang]}
+            </button>
+            <button type="button" onClick={() => setBanner('')} aria-label={TEXTS.dismissed[lang]} className="text-red-300 transition hover:text-red-200">
+              <XIcon />
+            </button>
+          </div>
+        </div>
+      )}
 
       <section className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1fr)_420px]">
         <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-6 shadow-xl shadow-black/20">
@@ -224,9 +318,13 @@ export const Addjobs = () => {
               <textarea id="requirements" name="requirements" rows="4" placeholder={TEXTS.requirementsPlaceholder[lang]} value={form.requirements} onChange={handleChange} className={`${inputBase} min-h-28 resize-y`} />
             </Field>
 
+            <Field label={TEXTS.benefits[lang]} badge={TEXTS.optional[lang]} muted>
+              <textarea id="benefits" name="benefits" rows="4" placeholder={TEXTS.benefitsPlaceholder[lang]} value={form.benefits} onChange={handleChange} className={`${inputBase} min-h-28 resize-y`} />
+            </Field>
+
             <div className="flex flex-col gap-3 border-t border-slate-700/60 pt-5 sm:flex-row">
-              <button type="submit" className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300">
-                {editingId ? <CheckIcon /> : <SendIcon />} {editingId ? TEXTS.updateBtn[lang] : TEXTS.postBtn[lang]}
+              <button type="submit" disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0">
+                {saving ? <SpinnerIcon /> : (editingId ? <CheckIcon /> : <SendIcon />)} {saving ? TEXTS.savingBtn[lang] : (editingId ? TEXTS.updateBtn[lang] : TEXTS.postBtn[lang])}
               </button>
               {editingId && (
                 <button type="button" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 transition hover:border-slate-500 hover:bg-slate-800 hover:text-white" onClick={cancelEdit}>
@@ -259,23 +357,53 @@ export const Addjobs = () => {
                   <p className="mt-1 line-clamp-3 text-sm leading-6 text-slate-400">{form.requirements}</p>
                 </div>
               )}
+              {form.benefits && (
+                <div className="mt-4 border-t border-slate-700/60 pt-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-orange-300">{TEXTS.benefitsLabel[lang]}</p>
+                  <p className="mt-1 line-clamp-3 text-sm leading-6 text-slate-400">{form.benefits}</p>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-5 shadow-xl shadow-black/20">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between gap-3">
               <h3 className="text-lg font-black text-white">{TEXTS.listTitle[lang]}</h3>
-              <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-orange-500 px-2 text-sm font-black text-slate-950">{jobs.length}</span>
+              <span className="flex h-8 min-w-8 items-center justify-center rounded-full bg-orange-500 px-2 text-sm font-black text-slate-950">{filteredJobs.length}</span>
             </div>
 
-            {jobs.length === 0 ? (
+            <label className="mb-4 block">
+              <span className="sr-only">{TEXTS.searchLabel[lang]}</span>
+              <div className="relative">
+                <SearchIcon />
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={TEXTS.searchPlaceholder[lang]}
+                  className="w-full rounded-xl border border-slate-700/70 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-orange-400 focus:bg-slate-950 focus:ring-4 focus:ring-orange-500/10"
+                />
+              </div>
+            </label>
+
+            {loading ? (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
+                <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-700 border-t-orange-400" />
+                <p className="text-sm text-slate-400">{lang === 'en' ? 'Loading jobs...' : 'កំពុងផ្ទុកការងារ...'}</p>
+              </div>
+            ) : jobs.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
                 <span className="text-4xl">💼</span>
                 <p className="mt-3 text-sm leading-6 text-slate-400">{TEXTS.empty[lang]}</p>
               </div>
+            ) : filteredJobs.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
+                <SearchIcon className="mx-auto text-slate-500" />
+                <p className="mt-3 text-sm leading-6 text-slate-400">{TEXTS.noSearchResults[lang]}</p>
+              </div>
             ) : (
               <div className="max-h-[540px] space-y-3 overflow-y-auto pr-1 scrollbar-thin scrollbar-track-slate-900">
-                {jobs.map((job) => (
+                {filteredJobs.map((job) => (
                   <article key={job.id} className="group rounded-2xl border border-slate-700/70 bg-slate-950/50 p-4 transition hover:border-orange-500/50 hover:bg-slate-950">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
@@ -293,14 +421,14 @@ export const Addjobs = () => {
                             <p className="mt-1 border-l-2 border-orange-500/40 pl-2 text-xs leading-5 text-slate-400">{job.requirements}</p>
                           </details>
                         )}
-                        <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">🕐 {TEXTS.posted[lang]} {job.postedDate}</p>
+                        <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">🕐 {TEXTS.posted[lang]} {job.postedDate || formatPosted(job.createdAt)}</p>
                       </div>
                       <div className="flex flex-col gap-2 opacity-100 sm:opacity-70 sm:transition sm:group-hover:opacity-100">
-                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-300" onClick={() => startEdit(job)} aria-label={TEXTS.edit[lang]}>
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-300" onClick={() => startEdit(job)} aria-label={TEXTS.edit[lang]} disabled={saving}>
                           <EditIcon />
                         </button>
-                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => removeJob(job.id)} aria-label={TEXTS.remove[lang]}>
-                          <TrashIcon />
+                        <button className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60" onClick={() => removeJob(job.id)} aria-label={TEXTS.remove[lang]} disabled={deletingId === job.id}>
+                          {deletingId === job.id ? <SpinnerIcon /> : <TrashIcon />}
                         </button>
                       </div>
                     </div>
@@ -341,6 +469,19 @@ const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="22" y1="2" x2="11" y2="13" />
     <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+)
+
+const SpinnerIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+)
+
+const SearchIcon = ({ className = 'pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500' }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={className} aria-hidden="true">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
   </svg>
 )
 

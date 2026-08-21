@@ -1,16 +1,11 @@
-import { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { jobAPI, publicAPI } from '../../api/api'
 import './Applynow.css'
 
-const POSITIONS = [
-  { en: 'Frontend Developer', kh: 'អ្នកអភិវឌ្ឍ Frontend' },
-  { en: 'Backend Developer', kh: 'អ្នកអភិវឌ្ឍ Backend' },
-  { en: 'UI/UX Designer', kh: 'អ្នករចនា UI/UX' },
-  { en: 'Marketing Specialist', kh: 'អ្នកជំនាញទីផ្សារ' },
-  { en: 'Customer Support', kh: 'ភ្នាក់ងារគាំទ្រអតិថិជន' },
-  { en: 'Other', kh: 'ផ្សេងទៀត' },
-]
+// Backend rejects resumeData > ~5M chars; keep the file itself under ~2MB.
+const MAX_RESUME_BYTES = 2 * 1024 * 1024
 
 const PERKS = [
   { icon: '💰', title: { en: 'Competitive Pay', kh: 'ប្រាក់ខែប្រកួតប្រជែង' } },
@@ -53,6 +48,10 @@ const TEXTS = {
   errPhone: { en: 'Phone number is required', kh: 'ត្រូវការលេខទូរស័ព្ទ' },
   errPosition: { en: 'Please select a position', kh: 'សូមជ្រើសរើសមុខតំណែង' },
   errResume: { en: 'Resume is required', kh: 'ត្រូវការ Resume' },
+  errResumeSize: { en: 'Resume must be under 2MB', kh: 'Resume ត្រូវតែតិចជាង 2MB' },
+  errSubmit: { en: 'Could not submit your application. Please try again.', kh: 'មិនអាចដាក់ស្នើពាក្យបានទេ។ សូមព្យាយាមម្តងទៀត។' },
+  submitting: { en: 'Submitting...', kh: 'កំពុងផ្ញើ...' },
+  positionsLoading: { en: 'Loading positions...', kh: 'កំពុងផ្ទុកមុខតំណែង...' },
   // Success
   successTitle: { en: 'Application Submitted! 🎉', kh: 'បានដាក់ស្នើពាក្យ! 🎉' },
   successText1: { en: 'Thank you for applying, ', kh: 'សូមអរគុណសម្រាប់ការដាក់ពាក្យ ' },
@@ -63,11 +62,43 @@ const TEXTS = {
 export const ApplyNow = () => {
   const { lang } = useLanguage()
   const fileRef = useRef(null)
+  const [searchParams] = useSearchParams()
+  const jobParam = searchParams.get('job')
+  const [positions, setPositions] = useState([])
+  const [positionsLoading, setPositionsLoading] = useState(true)
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', position: '', linkedin: '', coverLetter: '' })
   const [resume, setResume] = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState({})
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await publicAPI.getJobs()
+        const data = Array.isArray(res.data) ? res.data : []
+        if (!cancelled) setPositions(data)
+      } catch {
+        // Dropdown stays empty on failure; the form still works with the ?job= param.
+      } finally {
+        if (!cancelled) setPositionsLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Pre-select the position from the ?job= query param without writing state in
+  // an effect — the select value is derived, and the user's own choice wins.
+  const preselectedJob = jobParam
+    ? positions.find((j) => String(j.id) === String(jobParam))
+    : null
+  const positionValue = form.position || (preselectedJob ? String(preselectedJob.id) : '')
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -76,6 +107,11 @@ export const ApplyNow = () => {
   }
 
   const handleFile = (file) => {
+    if (file && file.size > MAX_RESUME_BYTES) {
+      setResume(null)
+      setErrors((prev) => ({ ...prev, resume: TEXTS.errResumeSize[lang] }))
+      return
+    }
     setResume(file || null)
     if (errors.resume) setErrors((prev) => ({ ...prev, resume: '' }))
   }
@@ -92,18 +128,48 @@ export const ApplyNow = () => {
     if (!form.fullName.trim()) e.fullName = TEXTS.errName[lang]
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = TEXTS.errEmail[lang]
     if (!form.phone.trim()) e.phone = TEXTS.errPhone[lang]
-    if (!form.position) e.position = TEXTS.errPosition[lang]
+    if (!positionValue) e.position = TEXTS.errPosition[lang]
     if (!resume) e.resume = TEXTS.errResume[lang]
     return e
   }
 
-  const handleSubmit = (e) => {
+  const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : ''
+      // FileReader.readAsDataURL returns "data:<type>;base64,<payload>".
+      resolve(result.split(',')[1] || '')
+    }
+    reader.onerror = () => reject(reader.error || new Error('Could not read file'))
+    reader.readAsDataURL(file)
+  })
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const v = validate()
     setErrors(v)
     if (Object.keys(v).length === 0) {
-      console.log('Application submitted:', { ...form, resume })
-      setSubmitted(true)
+      setSubmitting(true)
+      setSubmitError('')
+      try {
+        const payload = {
+          jobId: Number(positionValue),
+          fullName: form.fullName.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          linkedinUrl: form.linkedin.trim() || null,
+          coverLetter: form.coverLetter.trim() || null,
+          resumeName: resume.name,
+          resumeData: await readFileAsBase64(resume),
+          resumeContentType: resume.type || 'application/octet-stream',
+        }
+        await jobAPI.applyJob(payload.jobId, payload)
+        setSubmitted(true)
+      } catch (err) {
+        setSubmitError(err.message || TEXTS.errSubmit[lang])
+      } finally {
+        setSubmitting(false)
+      }
     }
   }
 
@@ -169,10 +235,10 @@ export const ApplyNow = () => {
                   </div>
                   <div className="apply-field">
                     <label htmlFor="position">{TEXTS.position[lang]} <span className="apply-required">{TEXTS.required[lang]}</span></label>
-                    <select id="position" name="position" value={form.position} onChange={handleChange} className={errors.position ? 'apply-input--err' : ''}>
-                      <option value="">{TEXTS.positionPlaceholder[lang]}</option>
-                      {POSITIONS.map((p) => (
-                        <option key={p.en} value={p.en}>{p[lang]}</option>
+                    <select id="position" name="position" value={positionValue} onChange={handleChange} className={errors.position ? 'apply-input--err' : ''}>
+                      <option value="">{positionsLoading ? TEXTS.positionsLoading[lang] : TEXTS.positionPlaceholder[lang]}</option>
+                      {positions.map((p) => (
+                        <option key={p.id} value={p.id}>{p.title}</option>
                       ))}
                     </select>
                     {errors.position && <span className="apply-err">{errors.position}</span>}
@@ -208,9 +274,10 @@ export const ApplyNow = () => {
                   <textarea id="coverLetter" name="coverLetter" rows="5" placeholder={TEXTS.coverLetterPlaceholder[lang]} value={form.coverLetter} onChange={handleChange} />
                 </div>
 
-                <button type="submit" className="apply-submit-btn">
-                  <SendIcon /> {TEXTS.submit[lang]}
+                <button type="submit" className="apply-submit-btn" disabled={submitting}>
+                  {submitting ? <SpinnerIcon /> : <SendIcon />} {submitting ? TEXTS.submitting[lang] : TEXTS.submit[lang]}
                 </button>
+                {submitError && <p className="apply-err" role="alert">{submitError}</p>}
 
                 <div className="apply-divider">
                   <span>{TEXTS.or[lang]}</span>
@@ -274,6 +341,12 @@ const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="22" y1="2" x2="11" y2="13" />
     <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+)
+
+const SpinnerIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="apply-spin">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
   </svg>
 )
 

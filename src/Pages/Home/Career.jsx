@@ -1,32 +1,22 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { publicAPI } from '../../api/api'
 import careerHero from '../../assets/Career.png'
 import './Career.css'
 
-const DEPARTMENTS = [
-  { key: 'all', en: 'All Departments', kh: 'គ្រប់ផ្នែក' },
-  { key: 'sales', en: 'Sales', kh: 'ផ្នែកលក់' },
-  { key: 'logistics', en: 'Logistics', kh: 'ដឹកជញ្ជូន' },
-  { key: 'marketing', en: 'Marketing', kh: 'ទីផ្សារ' },
-  { key: 'tech', en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-  { key: 'operations', en: 'Operations', kh: 'ប្រតិបត្តិការ' },
-]
-
-const JOBS = [
-  { id: 1, title: { en: 'Senior Sales Executive', kh: 'ប្រតិបត្តិករលក់ជាន់ខ្ពស់' }, department: 'sales', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$500 - $800', kh: '៥០០ - ៨០០ ដុល្លារ' }, posted: '2 days ago', urgent: true },
-  { id: 2, title: { en: 'Warehouse Supervisor', kh: 'អ្នកគ្រប់គ្រងឃ្លាំង' }, department: 'logistics', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$600 - $900', kh: '៦០០ - ៩០០ ដុល្លារ' }, posted: '3 days ago', urgent: false },
-  { id: 3, title: { en: 'Delivery Driver', kh: 'អ្នកបើកបរដឹកជញ្ជូន' }, department: 'logistics', location: { en: 'Siem Reap', kh: 'សៀមរាប' }, type: 'Full-time', salary: { en: '$350 - $500', kh: '៣៥០ - ៥០០ ដុល្លារ' }, posted: '1 week ago', urgent: true },
-  { id: 4, title: { en: 'Marketing Manager', kh: 'អ្នកគ្រប់គ្រងទីផ្សារ' }, department: 'marketing', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$1,000 - $1,500', kh: '១,០០០ - ១,៥០០ ដុល្លារ' }, posted: '5 days ago', urgent: false },
-  { id: 5, title: { en: 'Social Media Specialist', kh: 'អ្នកជំនាញបណ្តាញសង្គម' }, department: 'marketing', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Part-time', salary: { en: '$300 - $450', kh: '៣០០ - ៤៥០ ដុល្លារ' }, posted: '4 days ago', urgent: false },
-  { id: 6, title: { en: 'Full-Stack Developer', kh: 'អ្នកអភិវឌ្ឍ Full-Stack' }, department: 'tech', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$1,200 - $2,000', kh: '១,២០០ - ២,០០០ ដុល្លារ' }, posted: '1 day ago', urgent: true },
-  { id: 7, title: { en: 'UI/UX Designer', kh: 'អ្នករចនា UI/UX' }, department: 'tech', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$800 - $1,300', kh: '៨០០ - ១,៣០០ ដុល្លារ' }, posted: '6 days ago', urgent: false },
-  { id: 8, title: { en: 'Quality Control Officer', kh: 'មន្ត្រីត្រួតពិនិត្យគុណភាព' }, department: 'operations', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$400 - $600', kh: '៤០០ - ៦០០ ដុល្លារ' }, posted: '1 week ago', urgent: false },
-  { id: 9, title: { en: 'Customer Support Agent', kh: 'ភ្នាក់ងារគាំទ្រអតិថិជន' }, department: 'operations', location: { en: 'Battambang', kh: 'បាត់ដំបង' }, type: 'Full-time', salary: { en: '$300 - $450', kh: '៣០០ - ៤៥០ ដុល្លារ' }, posted: '3 days ago', urgent: false },
-  { id: 10, title: { en: 'Junior Accountant', kh: 'គណនេយ្យករជំនួយ' }, department: 'operations', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$450 - $650', kh: '៤៥០ - ៦៥០ ដុល្លារ' }, posted: '2 days ago', urgent: false },
-  { id: 11, title: { en: 'Graphic Designer', kh: 'អ្នករចនាក្រាហ្វិក' }, department: 'marketing', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Contract', salary: { en: '$500 - $700', kh: '៥០០ - ៧០០ ដុល្លារ' }, posted: '1 week ago', urgent: false },
-  { id: 12, title: { en: 'Data Analyst', kh: 'អ្នកវិភាគទិន្នន័យ' }, department: 'tech', location: { en: 'Phnom Penh', kh: 'ភ្នំពេញ' }, type: 'Full-time', salary: { en: '$900 - $1,400', kh: '៩០០ - ១,៤០០ ដុល្លារ' }, posted: '4 days ago', urgent: false },
-]
+const formatPosted = (iso, lang) => {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
+}
 
 const BENEFITS = [
   { icon: '⏰', en: 'Flexible Hours', kh: 'ម៉ោងបត់បែន' },
@@ -52,18 +42,56 @@ const TEXTS = {
   benefits: { en: 'Why Work With Us', kh: 'ហេតុអ្វីត្រូវធ្វើការជាមួយយើង' },
   benefitsSub: { en: 'We take care of our people — because great service starts with a great team.', kh: 'យើងថែរក្សាបុគ្គលិករបស់យើង — ព្រោះសេវាកម្មដ៏អស្ចារ្យចាប់ផ្តើមពីក្រុមការងារដ៏អស្ចារ្យ។' },
   apply: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវនេះ' },
-  viewAll: { en: 'View All Positions', kh: 'មើលមុខតំណែងទាំងអស់' },
-  urgent: { en: 'Urgent', kh: 'បន្ទាន់' },
+  details: { en: 'Details', kh: 'ព័ត៌មានលម្អិត' },
+  allDepartments: { en: 'All Departments', kh: 'គ្រប់ផ្នែក' },
   noResults: { en: 'No open positions in this department right now — check back soon!', kh: 'មិនមានមុខតំណែងបើកក្នុងផ្នែកនេះទេឥឡូវ — សូមពិនិត្យម្តងទៀតនាពេលឆាប់ៗ!' },
+  loading: { en: 'Loading open positions...', kh: 'កំពុងផ្ទុកមុខតំណែង...' },
+  loadError: { en: 'Could not load open positions.', kh: 'មិនអាចផ្ទុកមុខតំណែងបានទេ។' },
+  retry: { en: 'Try again', kh: 'ព្យាយាមម្តងទៀត' },
+  posted: { en: 'Posted', kh: 'បានប្រកាស' },
 }
 
 export const Career = () => {
   const { lang } = useLanguage()
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
   const [filter, setFilter] = useState('all')
 
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await publicAPI.getJobs()
+        const data = Array.isArray(res.data) ? res.data : []
+        if (!cancelled) setJobs(data)
+      } catch (err) {
+        if (!cancelled) setError(err.message || TEXTS.loadError[lang])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey, lang])
+
+  // Department filter options are derived from the live data.
+  const departments = useMemo(
+    () => [...new Set(jobs.map((j) => j.department).filter(Boolean))].sort(),
+    [jobs]
+  )
+
+  const filterOptions = useMemo(
+    () => [{ key: 'all', label: TEXTS.allDepartments[lang] }, ...departments.map((d) => ({ key: d, label: d }))],
+    [departments, lang]
+  )
+
   const filteredJobs = filter === 'all'
-    ? JOBS
-    : JOBS.filter((j) => j.department === filter)
+    ? jobs
+    : jobs.filter((j) => j.department === filter)
 
   return (
     <div className="career-page">
@@ -126,63 +154,79 @@ export const Career = () => {
           </div>
 
           <div className="career-filters">
-            {DEPARTMENTS.map((dept) => (
+            {filterOptions.map((dept) => (
               <button
                 key={dept.key}
                 className={`career-filter-btn ${filter === dept.key ? 'career-filter-btn--active' : ''}`}
                 onClick={() => setFilter(dept.key)}
               >
-                {dept[lang]}
+                {dept.label}
               </button>
             ))}
           </div>
 
-          <div className="career-list">
-            {filteredJobs.map((job) => (
-              <div key={job.id} className="career-card">
-                <div className="career-card-left">
-                  <div className="career-card-icon">
-                    <JobIcon />
+          {loading ? (
+            <div className="career-empty">
+              <span className="career-empty-icon">⏳</span>
+              <p>{TEXTS.loading[lang]}</p>
+            </div>
+          ) : error ? (
+            <div className="career-empty">
+              <span className="career-empty-icon">⚠️</span>
+              <p>{error}</p>
+              <button
+                type="button"
+                onClick={() => { setError(''); setLoading(true); setRefreshKey((k) => k + 1) }}
+                className="career-retry-btn"
+              >
+                {TEXTS.retry[lang]}
+              </button>
+            </div>
+          ) : (
+            <div className="career-list">
+              {filteredJobs.map((job) => (
+                <div key={job.id} className="career-card">
+                  <div className="career-card-left">
+                    <div className="career-card-icon">
+                      <JobIcon />
+                    </div>
+                    <div className="career-card-info">
+                      <div className="career-card-header">
+                        <Link to={`/career-detail/${job.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <h3 className="career-card-title">{job.title}</h3>
+                        </Link>
+                      </div>
+                      <div className="career-card-meta">
+                        <span className="career-meta-item">
+                          <PinIcon /> {job.location}
+                        </span>
+                        <span className="career-meta-item">
+                          <ClockIcon /> {job.type}
+                        </span>
+                        <span className="career-meta-item">
+                          <DollarIcon /> {job.salary}
+                        </span>
+                        <span className="career-meta-item career-meta-posted">
+                          🕐 {TEXTS.posted[lang]} {formatPosted(job.createdAt, lang)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="career-card-info">
-                    <div className="career-card-header">
-                      <Link to="/career-detail" state={{ job }} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <h3 className="career-card-title">{job.title[lang]}</h3>
-                      </Link>
-                      {job.urgent && (
-                        <span className="career-urgent-tag">{TEXTS.urgent[lang]}</span>
-                      )}
-                    </div>
-                    <div className="career-card-meta">
-                      <span className="career-meta-item">
-                        <PinIcon /> {job.location[lang]}
-                      </span>
-                      <span className="career-meta-item">
-                        <ClockIcon /> {job.type}
-                      </span>
-                      <span className="career-meta-item">
-                        <DollarIcon /> {job.salary[lang]}
-                      </span>
-                      <span className="career-meta-item career-meta-posted">
-                        {job.posted}
-                      </span>
-                    </div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <Link to={`/career-detail/${job.id}`} className="career-apply-btn" style={{ background: '#232F3F', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
+                      {TEXTS.details[lang]}
+                    </Link>
+                    <Link to={`/apply-now?job=${job.id}`} className="career-apply-btn">
+                      {TEXTS.apply[lang]}
+                      <ChevronIcon />
+                    </Link>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <Link to="/career-detail" state={{ job }} className="career-apply-btn" style={{ background: '#232F3F', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
-                    {lang === 'en' ? 'Details' : 'ព័ត៌មានលម្អិត'}
-                  </Link>
-                  <Link to="/apply-now" className="career-apply-btn">
-                    {TEXTS.apply[lang]}
-                    <ChevronIcon />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
-          {filteredJobs.length === 0 && (
+          {!loading && !error && filteredJobs.length === 0 && (
             <div className="career-empty">
               <span className="career-empty-icon">📭</span>
               <p>{TEXTS.noResults[lang]}</p>

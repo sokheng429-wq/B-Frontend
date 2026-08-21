@@ -1,6 +1,7 @@
-import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { publicAPI } from '../../api/api'
 import './Careerdetail.css'
 
 const TEXTS = {
@@ -15,17 +16,99 @@ const TEXTS = {
   location: { en: 'Location', kh: 'ទីតាំង' },
   type: { en: 'Job Type', kh: 'ប្រភេទ' },
   salary: { en: 'Salary Range', kh: 'ប្រាក់ខែ' },
+  loading: { en: 'Loading job details...', kh: 'កំពុងផ្ទុកព័ត៌មានការងារ...' },
+  notFound: { en: 'Job not found', kh: 'រកមិនឃើញការងារ' },
+  notFoundText: { en: 'This position may have been filled or removed.', kh: 'មុខតំណែងនេះប្រហែលជាត្រូវបានបំពេញ ឬលុបចេញ។' },
+  backToCareer: { en: 'Back to Careers', kh: 'ត្រលប់ទៅការងារ' },
+  loadError: { en: 'Could not load this job.', kh: 'មិនអាចផ្ទុកការងារនេះបានទេ។' },
+  retry: { en: 'Try again', kh: 'ព្យាយាមម្តងទៀត' },
 }
+
+const splitLines = (value) =>
+  (value || '').split('\n').map((line) => line.trim()).filter(Boolean)
 
 export const Careerdetail = () => {
   const { lang } = useLanguage()
-  const locationState = useLocation().state?.job
+  const { id } = useParams()
+  const stateJob = useLocation().state?.job
+  const [job, setJob] = useState(stateJob || null)
+  const [loading, setLoading] = useState(Boolean(id))
+  const [error, setError] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const title = locationState?.title?.[lang] || locationState?.title || (lang === 'kh' ? 'អ្នកអភិវឌ្ឍ Frontend' : 'Frontend Developer')
-  const department = locationState?.department || 'Engineering'
-  const jobLocation = locationState?.location?.[lang] || locationState?.location || (lang === 'kh' ? 'ភ្នំពេញ' : 'Phnom Penh, Cambodia')
-  const type = locationState?.type || (lang === 'kh' ? 'ពេញម៉ោង' : 'Full-time')
-  const salary = locationState?.salary?.[lang] || locationState?.salary || '$500 – $800 / month'
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await publicAPI.getJobById(id)
+        if (!cancelled) {
+          setJob(res.data || null)
+          setError('')
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message || TEXTS.loadError[lang])
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [id, refreshKey, lang])
+
+  // Line-oriented fields: description line 1 = overview, lines 2+ = responsibilities.
+  const descLines = splitLines(job?.description)
+  const overview = descLines[0] || ''
+  const responsibilities = descLines.slice(1)
+  const requirements = splitLines(job?.requirements)
+  const benefits = splitLines(job?.benefits)
+
+  const title = job?.title || (lang === 'kh' ? 'មុខតំណែង' : 'Position')
+  const department = job?.department || (lang === 'kh' ? 'ផ្នែក' : 'Department')
+  const jobLocation = job?.location || (lang === 'kh' ? 'ភ្នំពេញ' : 'Phnom Penh, Cambodia')
+  const type = job?.type || (lang === 'kh' ? 'ពេញម៉ោង' : 'Full-time')
+  const salary = job?.salary || (lang === 'kh' ? 'ប្រាក់ខែប្រកួតប្រជែង' : 'Competitive salary')
+
+  if (loading) {
+    return (
+      <div className="cd-page">
+        <div className="cd-inner">
+          <div className="cd-loading">
+            <span className="cd-loading-spinner" />
+            <p>{TEXTS.loading[lang]}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!job) {
+    return (
+      <div className="cd-page">
+        <div className="cd-inner">
+          <div className="cd-notfound">
+            <span className="cd-notfound-icon">💼</span>
+            <h1 className="cd-notfound-title">{TEXTS.notFound[lang]}</h1>
+            <p>{error || TEXTS.notFoundText[lang]}</p>
+            <div className="cd-notfound-actions">
+              <Link to="/career" className="btn-apply">{TEXTS.backToCareer[lang]}</Link>
+              {error && (
+                <button
+                  type="button"
+                  className="btn-apply cd-retry-btn"
+                  onClick={() => { setLoading(true); setError(''); setRefreshKey((k) => k + 1) }}
+                >
+                  {TEXTS.retry[lang]}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="cd-page">
@@ -49,49 +132,44 @@ export const Careerdetail = () => {
               <span className="cd-meta"><CoinIcon /> {salary}</span>
             </div>
           </div>
-          <Link to="/apply-now" className="btn-apply">{TEXTS.applyNow[lang]}</Link>
+          <Link to={`/apply-now?job=${job.id}`} className="btn-apply">{TEXTS.applyNow[lang]}</Link>
         </div>
 
         <div className="cd-layout">
           <div className="cd-main">
-            <section className="cd-section">
-              <h2 className="cd-section-title">{TEXTS.overviewTitle[lang]}</h2>
-              <p className="cd-text">
-                {lang === 'kh'
-                  ? 'យើងកំពុងស្វែងរកបេក្ខជនដែលមានសមត្ថភាពខ្ពស់ និងភាពច្នៃប្រឌិតដើម្បីចូលរួមជាមួយ B\'Groceries ក្នុងការអភិវឌ្ឍន៍សេវាកម្ម និងប្រព័ន្ធរបស់យើងឲ្យកាន់តែប្រសើរឡើង។'
-                  : "We're looking for a passionate professional to join B'Groceries and build next-generation grocery delivery services for thousands of customers every day."}
-              </p>
-            </section>
+            {overview && (
+              <section className="cd-section">
+                <h2 className="cd-section-title">{TEXTS.overviewTitle[lang]}</h2>
+                <p className="cd-text">{overview}</p>
+              </section>
+            )}
 
-            <section className="cd-section">
-              <h2 className="cd-section-title">{TEXTS.responsibilitiesTitle[lang]}</h2>
-              <ul className="cd-list">
-                <li>{lang === 'kh' ? 'អនុវត្ត និងថែទាំសមាសធាតុ UI នៅក្នុង React' : 'Build and maintain UI components in React'}</li>
-                <li>{lang === 'kh' ? 'សហការជាមួយវិស្វករ backend ដើម្បីភ្ជាប់ REST APIs' : 'Work with backend engineers to integrate REST APIs'}</li>
-                <li>{lang === 'kh' ? 'បង្កើនប្រសិទ្ធភាពទំព័រសម្រាប់ឧបករណ៍ចល័ត' : 'Optimize pages for performance and mobile devices'}</li>
-                <li>{lang === 'kh' ? 'ចូលរួមក្នុងការពិនិត្យមើលកូដ និងការរៀបចំផែនការ' : 'Participate in code reviews and sprint planning'}</li>
-              </ul>
-            </section>
+            {responsibilities.length > 0 && (
+              <section className="cd-section">
+                <h2 className="cd-section-title">{TEXTS.responsibilitiesTitle[lang]}</h2>
+                <ul className="cd-list">
+                  {responsibilities.map((line, i) => <li key={i}>{line}</li>)}
+                </ul>
+              </section>
+            )}
 
-            <section className="cd-section">
-              <h2 className="cd-section-title">{TEXTS.requirementsTitle[lang]}</h2>
-              <ul className="cd-list">
-                <li>{lang === 'kh' ? 'បទពិសោធន៍ ១ ឆ្នាំឡើងទៅជាមួយ React ឬ framework ស្រដៀងគ្នា' : '1+ years of experience with React or a similar framework'}</li>
-                <li>{lang === 'kh' ? 'យល់ដឹងច្បាស់អំពី HTML, CSS, និង JavaScript' : 'Comfortable with HTML, CSS, and modern JavaScript'}</li>
-                <li>{lang === 'kh' ? 'ស្គាល់ប្រព័ន្ធ Git និងការធ្វើការងារជាក្រុម' : 'Familiarity with Git and collaborative workflows'}</li>
-                <li>{lang === 'kh' ? 'ទំនាក់ទំនងល្អជាភាសាខ្មែរ និងអង់គ្លេស' : 'Good communication in Khmer and English'}</li>
-              </ul>
-            </section>
+            {requirements.length > 0 && (
+              <section className="cd-section">
+                <h2 className="cd-section-title">{TEXTS.requirementsTitle[lang]}</h2>
+                <ul className="cd-list">
+                  {requirements.map((line, i) => <li key={i}>{line}</li>)}
+                </ul>
+              </section>
+            )}
 
-            <section className="cd-section">
-              <h2 className="cd-section-title">{TEXTS.benefitsTitle[lang]}</h2>
-              <ul className="cd-list">
-                <li>{lang === 'kh' ? 'ប្រាក់ខែប្រកួតប្រជែងជាមួយនឹងការពិនិត្យឡើងវិញប្រចាំឆ្នាំ' : 'Competitive salary with annual review'}</li>
-                <li>{lang === 'kh' ? 'ធានារ៉ាប់រងសុខភាព និងច្បាប់ឈប់សម្រាកប្រចាំឆ្នាំ' : 'Health insurance and paid annual leave'}</li>
-                <li>{lang === 'kh' ? 'ការបញ្ចុះតម្លៃសម្រាប់បុគ្គលិកលើរាល់ការបញ្ជាទិញ B\'Groceries' : "Staff discount on all B'Groceries orders"}</li>
-                <li>{lang === 'kh' ? 'ឱកាសរីកចម្រើនក្នុងតួនាទីជាន់ខ្ពស់' : 'Growth path into senior and lead roles'}</li>
-              </ul>
-            </section>
+            {benefits.length > 0 && (
+              <section className="cd-section">
+                <h2 className="cd-section-title">{TEXTS.benefitsTitle[lang]}</h2>
+                <ul className="cd-list">
+                  {benefits.map((line, i) => <li key={i}>{line}</li>)}
+                </ul>
+              </section>
+            )}
           </div>
 
           <aside className="cd-sidebar">
@@ -104,7 +182,7 @@ export const Careerdetail = () => {
               <p className="cd-sidebar-value">{type}</p>
               <p className="cd-sidebar-label">{TEXTS.salary[lang]}</p>
               <p className="cd-sidebar-value">{salary}</p>
-              <Link to="/apply-now" className="btn-apply btn-apply-block">
+              <Link to={`/apply-now?job=${job.id}`} className="btn-apply btn-apply-block">
                 {TEXTS.applyNow[lang]}
               </Link>
             </div>

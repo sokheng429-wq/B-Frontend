@@ -275,6 +275,25 @@
   transform: scale(0.98);
 }
 
+.apply-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.apply-submit-btn:disabled:hover {
+  transform: none;
+}
+
+.apply-spin {
+  animation: apply-spin 0.8s linear infinite;
+}
+
+@keyframes apply-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== DIVIDER ===== */
 .apply-divider {
   display: flex;

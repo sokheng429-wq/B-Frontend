@@ -1,48 +1,73 @@
-import { useState, useRef, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { applicationAPI, jobAPI, memberAPI } from '../../api/api'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { useAuth } from '../../context/AuthContext'
 import AddProducts from './AddProducts'
 import Addjobs from './Addjobs'
 import AddMember from './Addmember'
 import ManageUsers from './ManageUsers'
 import Addpromotion from './Addpromotion'
 import AddPartner from './AddPartner'
+import MemberList from './MemberList'
+import MemberForm from './MemberForm'
+import MemberDetailPage from './MemberDetailPage'
+import Applications from './Applications'
 
-const stats = [
-  { label: { en: 'Total Products', kh: 'ផលិតផលសរុប' }, value: 24, change: '+3', up: true, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
-  { label: { en: 'Open Jobs', kh: 'ការងារកំពុងរើស' }, value: 6, change: '+1', up: true, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
-  { label: { en: 'Team Members', kh: 'សមាជិកក្រុម' }, value: 12, change: '+2', up: true, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
-  { label: { en: 'Applications', kh: 'ពាក្យសុំការងារ' }, value: 9, change: '-2', up: false, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/career' },
+const EMPTY_DASHBOARD_DATA = {
+  products: null,
+  jobs: null,
+  members: null,
+  applications: null,
+}
+
+const CATEGORY_META = [
+  { key: 'Fruits & Vegetables', label: { en: 'Fruits & Vegetables', kh: 'ផ្លែឈើ និងបន្លែ' }, color: '#4caf50' },
+  { key: 'Meat & Seafood', label: { en: 'Meat & Seafood', kh: 'សាច់ និងគ្រឿងសមុទ្រ' }, color: '#f44336' },
+  { key: 'Dairy & Eggs', label: { en: 'Dairy & Eggs', kh: 'ទឹកដោះគោ និងស៊ុត' }, color: '#ff9800' },
+  { key: 'Bakery & Bread', label: { en: 'Bakery & Bread', kh: 'នំប៉័ង និងនំ' }, color: '#795548' },
+  { key: 'Drinks', label: { en: 'Drinks', kh: 'ភេសជ្ជៈ' }, color: '#2196f3' },
+  { key: 'Snacks', label: { en: 'Snacks', kh: 'អាហារសម្រន់' }, color: '#9c27b0' },
+  { key: 'Other', label: { en: 'Other', kh: 'ផ្សេងទៀត' }, color: '#64748b' },
 ]
 
-const categoryData = [
-  { label: { en: 'Fruits & Veg', kh: 'បន្លែ និងផ្លែឈើ' }, value: 8, max: 10, color: '#4caf50' },
-  { label: { en: 'Meat & Seafood', kh: 'សាច់ និងគ្រឿងសមុទ្រ' }, value: 4, max: 10, color: '#f44336' },
-  { label: { en: 'Dairy & Eggs', kh: 'ទឹកដោះគោ និងស៊ុត' }, value: 5, max: 10, color: '#ff9800' },
-  { label: { en: 'Bakery', kh: 'នំប៉័ង' }, value: 3, max: 10, color: '#795548' },
-  { label: { en: 'Drinks', kh: 'ភេសជ្ជៈ' }, value: 2, max: 10, color: '#2196f3' },
-  { label: { en: 'Snacks', kh: 'អាហារសម្រន់' }, value: 2, max: 10, color: '#9c27b0' },
+const CATEGORY_FALLBACK_COLORS = ['#14b8a6', '#ec4899', '#8b5cf6', '#f97316', '#06b6d4']
+const MONTHS = [
+  { en: 'Jan', kh: 'មករា' }, { en: 'Feb', kh: 'កុម្ភៈ' }, { en: 'Mar', kh: 'មីនា' },
+  { en: 'Apr', kh: 'មេសា' }, { en: 'May', kh: 'ឧសភា' }, { en: 'Jun', kh: 'មិថុនា' },
+  { en: 'Jul', kh: 'កក្កដា' }, { en: 'Aug', kh: 'សីហា' }, { en: 'Sep', kh: 'កញ្ញា' },
+  { en: 'Oct', kh: 'តុលា' }, { en: 'Nov', kh: 'វិច្ឆិកា' }, { en: 'Dec', kh: 'ធ្នូ' },
 ]
 
-const monthlyData = [
-  { month: 'Jan', value: 12 }, { month: 'Feb', value: 18 }, { month: 'Mar', value: 15 },
-  { month: 'Apr', value: 22 }, { month: 'May', value: 19 }, { month: 'Jun', value: 25 },
-  { month: 'Jul', value: 20 }, { month: 'Aug', value: 24 },
-]
+const toTimestamp = (value) => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
+  if (typeof value !== 'string' || !value.trim()) return null
+  const timestamp = Date.parse(value)
+  return Number.isFinite(timestamp) ? timestamp : null
+}
 
-const recentActivity = [
-  { action: { en: 'New product added', kh: 'បានបន្ថែមផលិតផលថ្មី' }, detail: 'Canvas Backpack', time: '2 hours ago', icon: '📦', color: '#4caf50' },
-  { action: { en: 'Job posted', kh: 'បានប្រកាសការងារ' }, detail: 'Senior Frontend Developer', time: '5 hours ago', icon: '💼', color: '#ff9800' },
-  { action: { en: 'New application received', kh: 'បានទទួលពាក្យសុំថ្មី' }, detail: 'UI/UX Designer position', time: '1 day ago', icon: '📋', color: '#9c27b0' },
-  { action: { en: 'Team member added', kh: 'បានបន្ថែមសមាជិកក្រុម' }, detail: 'Sarah Chen — Marketing', time: '2 days ago', icon: '👤', color: '#2196f3' },
-  { action: { en: 'Product updated', kh: 'បានធ្វើបច្ចុប្បន្នភាពផលិតផល' }, detail: 'Organic Avocados price changed', time: '3 days ago', icon: '✏️', color: '#ff5722' },
-]
+const formatRelativeTime = (timestamp, lang) => {
+  if (!Number.isFinite(timestamp)) return '—'
+
+  const difference = Math.max(0, new Date().getTime() - timestamp)
+  const minutes = Math.floor(difference / 60000)
+  const hours = Math.floor(difference / 3600000)
+  const days = Math.floor(difference / 86400000)
+
+  if (minutes < 1) return lang === 'en' ? 'Just now' : 'មុននេះ'
+  if (minutes < 60) return lang === 'en' ? `${minutes}m ago` : `${minutes}នាទីមុន`
+  if (hours < 24) return lang === 'en' ? `${hours}h ago` : `${hours}ម៉ោងមុន`
+  return lang === 'en' ? `${days}d ago` : `${days}ថ្ងៃមុន`
+}
+
+const normalizeCollection = (response) => (Array.isArray(response?.data) ? response.data : [])
 
 const TEXTS = {
   dashboard: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
   products: { en: 'Products', kh: 'ផលិតផល' },
   jobs: { en: 'Jobs', kh: 'ការងារ' },
+  applications: { en: 'Applications', kh: 'ពាក្យសុំការងារ' },
   members: { en: 'Members', kh: 'សមាជិក' },
   users: { en: 'Users', kh: 'អ្នកប្រើប្រាស់' },
   promotions: { en: 'Promotions', kh: 'ការផ្សព្វផ្សាយ' },
@@ -83,12 +108,30 @@ const TEXTS = {
   quickActions: { en: 'Quick Actions', kh: 'សកម្មភាពរហ័ស' },
   quickActionsSub: { en: 'Frequently used shortcuts', kh: 'ផ្លូវកាត់ដែលប្រើប្រាស់ញឹកញាប់' },
   recentTitle: { en: 'Recent Activity', kh: 'សកម្មភាពថ្មីៗ' },
-  recentSub: { en: 'Latest actions across the platform', kh: 'សកម្មភាពចុងក្រោយនៅលើប្រព័ន្ធ' },
+  recentSub: { en: 'Latest jobs and applications', kh: 'ការងារ និងពាក្យសុំចុងក្រោយ' },
+  liveData: { en: 'Live data', kh: 'ទិន្នន័យផ្ទាល់' },
+  unavailable: { en: 'Not connected', kh: 'មិនទាន់ភ្ជាប់' },
+  loadingOverview: { en: 'Loading dashboard overview…', kh: 'កំពុងផ្ទុកទិដ្ឋភាពទូទៅ…' },
+  overviewError: { en: 'Some live dashboard data could not be loaded.', kh: 'ទិន្នន័យផ្ទាំងគ្រប់គ្រងផ្ទាល់មួយចំនួនមិនអាចផ្ទុកបានទេ។' },
+  retry: { en: 'Try again', kh: 'ព្យាយាមម្ដងទៀត' },
+  productDataUnavailable: { en: 'Product data is not connected to the server yet.', kh: 'ទិន្នន័យផលិតផលមិនទាន់ត្រូវបានភ្ជាប់ទៅម៉ាស៊ីនមេនៅឡើយទេ។' },
+  noProducts: { en: 'No products to display yet.', kh: 'មិនទាន់មានផលិតផលសម្រាប់បង្ហាញទេ។' },
+  noActivity: { en: 'No recent jobs or applications yet.', kh: 'មិនទាន់មានការងារ ឬពាក្យសុំថ្មីៗទេ។' },
+  uncategorized: { en: 'Uncategorized', kh: 'មិនមានប្រភេទ' },
+  activityTitle: { en: 'Job & application activity', kh: 'សកម្មភាពការងារ និងពាក្យសុំ' },
+  activitySub: { en: 'Created this year', kh: 'បានបង្កើតក្នុងឆ្នាំនេះ' },
+  jobPosted: { en: 'Job posted', kh: 'បានប្រកាសការងារ' },
+  applicationReceived: { en: 'New application received', kh: 'បានទទួលពាក្យសុំថ្មី' },
 }
 
 function AdminD() {
   const { lang } = useLanguage()
   const location = useLocation()
+  const { user } = useAuth()
+  // STORE ("Online Store") sees the products side only; ADMIN sees everything.
+  const role = (user?.role || 'USER').toUpperCase()
+  const isAdmin = role === 'ADMIN'
+  const canStore = role === 'ADMIN' || role === 'STORE'
   const { notifications, unreadCount, markAsRead, markAllRead, clearAll } = useNotifications()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [openDropdowns, setOpenDropdowns] = useState({
@@ -100,7 +143,124 @@ function AdminD() {
     partners: false,
   })
   const [showNotifications, setShowNotifications] = useState(false)
+  const [dashboardData, setDashboardData] = useState(EMPTY_DASHBOARD_DATA)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
+  const [dashboardError, setDashboardError] = useState(false)
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0)
   const notificationRef = useRef(null)
+  const isOverview = location.pathname === '/admin'
+
+  useEffect(() => {
+    if (!isOverview || !isAdmin) return undefined
+
+    let cancelled = false
+    const loadDashboard = async () => {
+      setDashboardLoading(true)
+      setDashboardError(false)
+
+      const requests = [
+        ['jobs', () => jobAPI.getAll()],
+        ['members', () => memberAPI.getAll()],
+        ['applications', () => applicationAPI.getAll()],
+      ]
+      const results = await Promise.allSettled(requests.map(([, request]) => Promise.resolve().then(request)))
+      if (cancelled) return
+
+      const nextData = { ...EMPTY_DASHBOARD_DATA }
+      let hasError = false
+      results.forEach((result, index) => {
+        const [key] = requests[index]
+        if (result.status === 'fulfilled') {
+          nextData[key] = normalizeCollection(result.value)
+        } else {
+          hasError = true
+        }
+      })
+
+      setDashboardData(nextData)
+      setDashboardError(hasError)
+      setDashboardLoading(false)
+    }
+
+    loadDashboard()
+    return () => {
+      cancelled = true
+    }
+  }, [dashboardRefreshKey, isAdmin, isOverview])
+
+  const stats = useMemo(() => {
+    const items = [
+      { label: { en: 'Total Products', kh: 'ផលិតផលសរុប' }, value: dashboardData.products?.length, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
+    ]
+
+    if (isAdmin) {
+      items.push(
+        { label: { en: 'Open Jobs', kh: 'ការងារកំពុងរើស' }, value: dashboardData.jobs?.length, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
+        { label: { en: 'Team Members', kh: 'សមាជិកក្រុម' }, value: dashboardData.members?.length, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
+        { label: { en: 'Applications', kh: 'ពាក្យសុំការងារ' }, value: dashboardData.applications?.length, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/admin/applications' },
+      )
+    }
+
+    return items
+  }, [dashboardData, isAdmin])
+
+  const categoryData = useMemo(() => {
+    const counts = new Map()
+    ;(dashboardData.products || []).forEach((product) => {
+      const category = String(product.category || '').trim()
+      counts.set(category, (counts.get(category) || 0) + 1)
+    })
+
+    return [...counts.entries()]
+      .map(([category, value], index) => {
+        const knownCategory = CATEGORY_META.find((item) => item.key === category)
+        return {
+          label: knownCategory?.label || (category ? { en: category, kh: category } : TEXTS.uncategorized),
+          value,
+          color: knownCategory?.color || CATEGORY_FALLBACK_COLORS[index % CATEGORY_FALLBACK_COLORS.length],
+        }
+      })
+      .sort((a, b) => b.value - a.value || a.label.en.localeCompare(b.label.en))
+  }, [dashboardData.products])
+
+  const monthlyData = useMemo(() => {
+    const currentYear = new Date().getFullYear()
+    const counts = Array(MONTHS.length).fill(0)
+
+    ;[...(dashboardData.jobs || []), ...(dashboardData.applications || [])].forEach((item) => {
+      const timestamp = toTimestamp(item.createdAt)
+      if (!timestamp) return
+
+      const date = new Date(timestamp)
+      if (date.getFullYear() === currentYear) counts[date.getMonth()] += 1
+    })
+
+    return MONTHS.map((month, index) => ({ ...month, value: counts[index] }))
+  }, [dashboardData.applications, dashboardData.jobs])
+
+  const recentActivity = useMemo(() => [
+    ...(dashboardData.jobs || []).map((job) => ({
+      id: `job-${job.id || job.createdAt || job.title}`,
+      type: 'job',
+      detail: job.title || '—',
+      timestamp: toTimestamp(job.createdAt),
+      icon: '💼',
+      color: '#ff9800',
+    })),
+    ...(dashboardData.applications || []).map((application) => ({
+      id: `application-${application.id || application.createdAt || application.email}`,
+      type: 'application',
+      detail: application.fullName
+        ? `${application.fullName} — ${application.jobTitle || '—'}`
+        : application.jobTitle || application.email || '—',
+      timestamp: toTimestamp(application.createdAt),
+      icon: '📋',
+      color: '#9c27b0',
+    })),
+  ]
+    .filter((item) => item.timestamp !== null)
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, 5), [dashboardData.applications, dashboardData.jobs])
 
   // Close notification dropdown when clicking outside
   useEffect(() => {
@@ -120,28 +280,57 @@ function AdminD() {
     }))
   }
 
-  const formatTime = (timestamp) => {
-    const diff = Date.now() - timestamp
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
+  const formatTime = (timestamp) => formatRelativeTime(toTimestamp(timestamp), lang)
 
-    if (minutes < 1) return lang === 'en' ? 'Just now' : 'មុននេះ'
-    if (minutes < 60) return lang === 'en' ? `${minutes}m ago` : `${minutes}នាទីមុន`
-    if (hours < 24) return lang === 'en' ? `${hours}h ago` : `${hours}ម៉ោងមុន`
-    return lang === 'en' ? `${days}d ago` : `${days}ថ្ងៃមុន`
-  }
+  const maxCategoryValue = Math.max(...categoryData.map((category) => category.value), 1)
+  const maxMonthlyValue = Math.max(...monthlyData.map((month) => month.value), 1)
 
   const renderContent = () => {
     const path = location.pathname
+
+    // Role-based access: Jobs / Members / Users are ADMIN-only; a STORE user
+    // who opens one of these URLs directly gets a restricted screen.
+    const adminOnly =
+      path === '/add-jobs' || path.startsWith('/admin/jobs') ||
+      path === '/add-member' || path.startsWith('/admin/members') ||
+      path === '/manage-users' || path.startsWith('/admin/users') ||
+      path === '/admin/applications' || path.startsWith('/admin/applications')
+    const storeOnly =
+      path === '/add-products' || path.startsWith('/admin/products') ||
+      path === '/add-promotion' || path.startsWith('/admin/promotions') ||
+      path === '/add-partner' || path.startsWith('/admin/partners')
+
+    if ((adminOnly && !isAdmin) || (storeOnly && !canStore)) {
+      return (
+        <div className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-3xl border border-slate-700/60 bg-slate-900/80 p-12 text-center">
+          <span className="text-4xl">🔒</span>
+          <p className="text-sm font-semibold text-slate-300">
+            {lang === 'en' ? 'You do not have access to this section.' : 'អ្នកគ្មានសិទ្ធិចូលប្រើផ្នែកនេះទេ។'}
+          </p>
+          <Link to="/admin" className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300 transition hover:border-green-400 hover:bg-green-500/10 hover:text-green-300">
+            {TEXTS.dashboard[lang]}
+          </Link>
+        </div>
+      )
+    }
+
     if (path === '/add-products' || path.startsWith('/admin/products')) {
       return <AddProducts />
     }
     if (path === '/add-jobs' || path.startsWith('/admin/jobs')) {
       return <Addjobs />
     }
-    if (path === '/add-member' || path.startsWith('/admin/members')) {
+    if (path === '/admin/applications' || path.startsWith('/admin/applications')) {
+      return <Applications />
+    }
+    if (path === '/add-member') {
       return <AddMember />
+    }
+    if (path.startsWith('/admin/members')) {
+      if (path === '/admin/members') return <MemberList />
+      if (path.startsWith('/admin/members/add')) return <MemberForm />
+      if (path.startsWith('/admin/members/edit')) return <MemberForm />
+      return <MemberDetailPage />
     }
     if (path === '/manage-users' || path.startsWith('/admin/users') || path === '/admin/manage-users') {
       return <ManageUsers />
@@ -155,19 +344,34 @@ function AdminD() {
 
     return (
       <>
+        {(dashboardLoading || dashboardError) && (
+          <div className={`mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm ${dashboardError ? 'border-amber-500/40 bg-amber-500/10 text-amber-200' : 'border-green-500/30 bg-green-500/10 text-green-200'}`}>
+            <span>{dashboardLoading ? TEXTS.loadingOverview[lang] : TEXTS.overviewError[lang]}</span>
+            {dashboardError && (
+              <button
+                type="button"
+                onClick={() => setDashboardRefreshKey((key) => key + 1)}
+                className="rounded-lg border border-amber-400/50 px-3 py-1.5 text-xs font-bold text-amber-100 transition hover:bg-amber-400/15"
+              >
+                {TEXTS.retry[lang]}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Stats row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div className={`grid grid-cols-1 gap-6 mb-8 ${isAdmin ? 'md:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-1 xl:grid-cols-1'}`}>
           {stats.map((stat) => (
             <Link to={stat.link} key={stat.label.en} className="group block bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <span className="w-12 h-12 flex items-center justify-center rounded-xl text-2xl" style={{ background: stat.bg, color: stat.color }}>
                   {stat.icon}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${stat.up ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                  {stat.change}
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${stat.value === null || stat.value === undefined ? 'bg-slate-700/60 text-slate-300' : 'bg-green-500/20 text-green-400'}`}>
+                  {stat.value === null || stat.value === undefined ? TEXTS.unavailable[lang] : TEXTS.liveData[lang]}
                 </span>
               </div>
-              <p className="text-4xl font-black text-white mb-1">{stat.value}</p>
+              <p className="text-4xl font-black text-white mb-1">{stat.value ?? '—'}</p>
               <p className="text-slate-400 text-sm font-medium">{stat.label[lang]}</p>
             </Link>
           ))}
@@ -181,39 +385,45 @@ function AdminD() {
               <h3 className="text-lg font-bold text-white">{TEXTS.prodCategoryTitle[lang]}</h3>
               <span className="text-xs text-slate-400">{TEXTS.prodCategorySub[lang]}</span>
             </div>
-            <div className="space-y-4">
-              {categoryData.map((cat) => (
-                <div className="flex items-center gap-3" key={cat.label.en}>
-                  <span className="text-xs font-semibold text-slate-400 w-28 text-right">{cat.label[lang]}</span>
-                  <div className="flex-1 h-2.5 bg-slate-700/50 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700 ease-out"
-                      style={{ width: `${(cat.value / cat.max) * 100}%`, background: cat.color }}
-                    />
+            {dashboardData.products === null ? (
+              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.productDataUnavailable[lang]}</p>
+            ) : categoryData.length === 0 ? (
+              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.noProducts[lang]}</p>
+            ) : (
+              <div className="space-y-4">
+                {categoryData.map((cat) => (
+                  <div className="flex items-center gap-3" key={cat.label.en}>
+                    <span className="text-xs font-semibold text-slate-400 w-28 text-right">{cat.label[lang]}</span>
+                    <div className="flex-1 h-2.5 bg-slate-700/50 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700 ease-out"
+                        style={{ width: `${(cat.value / maxCategoryValue) * 100}%`, background: cat.color }}
+                      />
+                    </div>
+                    <span className="text-sm font-bold text-white w-6">{cat.value}</span>
                   </div>
-                  <span className="text-sm font-bold text-white w-6">{cat.value}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Monthly overview */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50">
             <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-bold text-white">{TEXTS.monthlyTitle[lang]}</h3>
-              <span className="text-xs text-slate-400">{TEXTS.monthlySub[lang]}</span>
+              <h3 className="text-lg font-bold text-white">{TEXTS.activityTitle[lang]}</h3>
+              <span className="text-xs text-slate-400">{TEXTS.activitySub[lang]}</span>
             </div>
             <div className="flex items-end justify-between gap-2 h-52 pt-4">
-              {monthlyData.map((m) => (
-                <div className="flex flex-col items-center flex-1 h-full" key={m.month}>
+              {monthlyData.map((month) => (
+                <div className="flex flex-col items-center flex-1 h-full" key={month.en}>
                   <div className="flex-1 w-full max-w-[40px] bg-slate-700/30 rounded-t-lg flex items-end overflow-hidden">
                     <div
-                      className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-700 ease-out min-h-[8px]"
-                      style={{ height: `${(m.value / 30) * 100}%` }}
+                      className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-700 ease-out"
+                      style={{ height: `${month.value === 0 ? 0 : Math.max((month.value / maxMonthlyValue) * 100, 4)}%` }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-white mt-2">{m.value}</span>
-                  <span className="text-[10px] text-slate-400 font-medium mt-0.5">{m.month}</span>
+                  <span className="text-xs font-bold text-white mt-2">{month.value}</span>
+                  <span className="text-[10px] text-slate-400 font-medium mt-0.5">{month[lang]}</span>
                 </div>
               ))}
             </div>
@@ -278,24 +488,28 @@ function AdminD() {
               <h3 className="text-lg font-bold text-white">{TEXTS.recentTitle[lang]}</h3>
               <span className="text-xs text-slate-400">{TEXTS.recentSub[lang]}</span>
             </div>
-            <div className="space-y-0">
-              {recentActivity.map((item, index) => (
-                <div className="flex gap-4" key={index}>
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <span className="w-9 h-9 flex items-center justify-center rounded-full text-base border-2 border-slate-700" style={{ background: item.color }}>
-                      {item.icon}
-                    </span>
-                    {index < recentActivity.length - 1 && <div className="w-0.5 flex-1 bg-slate-700/50 my-1 rounded-full min-h-[20px]" />}
+            {recentActivity.length === 0 ? (
+              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.noActivity[lang]}</p>
+            ) : (
+              <div className="space-y-0">
+                {recentActivity.map((item, index) => (
+                  <div className="flex gap-4" key={item.id}>
+                    <div className="flex flex-col items-center flex-shrink-0">
+                      <span className="w-9 h-9 flex items-center justify-center rounded-full text-base border-2 border-slate-700" style={{ background: item.color }}>
+                        {item.icon}
+                      </span>
+                      {index < recentActivity.length - 1 && <div className="w-0.5 flex-1 bg-slate-700/50 my-1 rounded-full min-h-[20px]" />}
+                    </div>
+                    <div className={index < recentActivity.length - 1 ? 'pb-5' : ''}>
+                      <p className="text-sm text-slate-300 leading-relaxed">
+                        {item.type === 'job' ? TEXTS.jobPosted[lang] : TEXTS.applicationReceived[lang]}: <strong className="text-white font-semibold">{item.detail}</strong>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">{formatTime(item.timestamp)}</p>
+                    </div>
                   </div>
-                  <div className={index < recentActivity.length - 1 ? 'pb-5' : ''}>
-                    <p className="text-sm text-slate-300 leading-relaxed">
-                      {item.action[lang]}: <strong className="text-white font-semibold">{item.detail}</strong>
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">{item.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </>
@@ -330,7 +544,8 @@ function AdminD() {
           <div className="mb-6">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Management' : 'ការគ្រប់គ្រង'}</span>
 
-            {/* Products Dropdown */}
+            {/* Products Dropdown (ADMIN + STORE) */}
+            {canStore && (
             <div className="mb-1">
               <button
                 type="button"
@@ -360,8 +575,10 @@ function AdminD() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* Jobs Dropdown */}
+            {/* Jobs Dropdown (ADMIN only) */}
+            {isAdmin && (
             <div className="mb-1">
               <button
                 type="button"
@@ -391,8 +608,23 @@ function AdminD() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* Members Dropdown */}
+            {/* Applications Link (ADMIN only) */}
+            {isAdmin && (
+              <div className="mb-1">
+                <Link
+                  to="/admin/applications"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><ClipboardIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.applications[lang]}</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Members Dropdown (ADMIN only) */}
+            {isAdmin && (
             <div className="mb-1">
               <button
                 type="button"
@@ -407,23 +639,19 @@ function AdminD() {
               </button>
               {openDropdowns.members && (
                 <div className="mt-1 ml-8 space-y-0.5">
+                  <Link to="/admin/members" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <span className="text-sm">📋</span> {TEXTS.members[lang]}
+                  </Link>
                   <Link to="/admin/members/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                     <span className="text-sm">➕</span> {TEXTS.addMember[lang]}
-                  </Link>
-                  <Link to="/admin/members/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editMember[lang]}
-                  </Link>
-                  <Link to="/admin/members/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deleteMember[lang]}
-                  </Link>
-                  <Link to="/admin/members/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updateMember[lang]}
                   </Link>
                 </div>
               )}
             </div>
+            )}
 
-            {/* Users Dropdown */}
+            {/* Users Dropdown (ADMIN only) */}
+            {isAdmin && (
             <div className="mb-1">
               <button
                 type="button"
@@ -438,23 +666,19 @@ function AdminD() {
               </button>
               {openDropdowns.users && (
                 <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/users/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                  <Link to="/admin/users" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <span className="text-sm">📋</span> {TEXTS.users[lang]}
+                  </Link>
+                  <Link to="/admin/users" onClick={() => {}} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                     <span className="text-sm">➕</span> {TEXTS.addUser[lang]}
-                  </Link>
-                  <Link to="/admin/users/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editUser[lang]}
-                  </Link>
-                  <Link to="/admin/users/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deleteUser[lang]}
-                  </Link>
-                  <Link to="/admin/users/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updateUser[lang]}
                   </Link>
                 </div>
               )}
             </div>
+            )}
 
-            {/* Promotions Dropdown */}
+            {/* Promotions Dropdown (ADMIN + STORE) */}
+            {canStore && (
             <div className="mb-1">
               <button
                 type="button"
@@ -484,8 +708,10 @@ function AdminD() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* Partners Dropdown */}
+            {/* Partners Dropdown (ADMIN + STORE) */}
+            {canStore && (
             <div className="mb-1">
               <button
                 type="button"
@@ -515,6 +741,7 @@ function AdminD() {
                 </div>
               )}
             </div>
+            )}
           </div>
 
           <div className="mb-6">
@@ -763,6 +990,13 @@ const HandshakeIcon = () => (
 const ChevronDownIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+)
+
+const ClipboardIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
   </svg>
 )
 
