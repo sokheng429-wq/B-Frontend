@@ -52,18 +52,17 @@ export const authAPI = {
   verifyLoginOtp: (phoneNumber, otp) =>
     request('/auth/login/otp/verify', { method: 'POST', body: JSON.stringify({ phoneNumber, otp }) }),
 
-  // Forgot password — step 1: send code, step 2: verify code -> resetToken, step 3: reset
-  sendForgotPasswordOtp: (phoneNumber) =>
-    request('/auth/forgot-password/send-otp', { method: 'POST', body: JSON.stringify({ phoneNumber }) }),
+  // Forgot password (email) — step 1: send code, step 2: verify code, step 3: reset.
+  // The email flow has no resetToken; verify just confirms the OTP and reset uses
+  // email + newPassword directly (backend PasswordResetController).
+  sendForgotPasswordOtp: (email) =>
+    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
 
-  verifyForgotPasswordOtp: (phoneNumber, otp) =>
-    request('/auth/forgot-password/verify-otp', { method: 'POST', body: JSON.stringify({ phoneNumber, otp }) }),
+  verifyForgotPasswordOtp: (email, otp) =>
+    request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ email, otp }) }),
 
-  resetPassword: (resetToken, newPassword, confirmPassword) =>
-    request('/auth/forgot-password/reset', {
-      method: 'POST',
-      body: JSON.stringify({ resetToken, newPassword, confirmPassword }),
-    }),
+  resetPassword: (email, newPassword) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ email, newPassword }) }),
 }
 
 // ===== PRODUCTS =====
