@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
@@ -32,16 +32,30 @@ const TEXTS = {
 
 export const Login = () => {
   const { lang } = useLanguage()
-  const { login } = useAuth()
+  const { login, sessionExpired, clearSessionExpired } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ identifier: '', password: '', remember: false })
-  const [error, setError] = useState('')
+  const [error, setError] = useState(() => {
+    // Check if we were redirected here due to session timeout
+    if (typeof window !== 'undefined' && localStorage.getItem('sessionExpired') === 'true') {
+      localStorage.removeItem('sessionExpired')
+      return 'Your session expired due to inactivity. Please log in again.'
+    }
+    return ''
+  })
   const [socialBusy, setSocialBusy] = useState('')
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
+
+  // Clear the session-expired flag if it was set
+  useEffect(() => {
+    if (sessionExpired) {
+      clearSessionExpired()
+    }
+  }, [sessionExpired, clearSessionExpired])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

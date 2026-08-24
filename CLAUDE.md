@@ -4,152 +4,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-B'Groceries Frontend - A bilingual (English/Khmer) e-commerce grocery platform built with React 19, React Router 7, Vite 8, and Tailwind CSS 4. The frontend connects to a Spring Boot backend running on `http://localhost:8081/api`.
+B'Groceries Frontend — a bilingual (English/Khmer) e-commerce grocery platform built with React 19, React Router 7, Vite 8, and Tailwind CSS 4. It connects to a Spring Boot backend (`B-backend` repo) running on `http://localhost:8081/api`.
 
-**Theme Colors:**
-- Primary Orange: `#FF9900`
-- Primary Green: `#77BC1F`
-- Dark Background: `#0B0F14`
-- Secondary Dark: `#232F3F`
+**Theme colors:** Primary Orange `#FF9900`, Primary Green `#77BC1F`, Dark Background `#0B0F14`, Secondary Dark `#232F3F`
 
 ## Development Commands
 
 ```bash
-# Start development server (Vite)
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Run ESLint
-npm run lint
+npm run dev       # Vite dev server on port 5173 (strictPort — fails rather than switching)
+npm run build     # Production build
+npm run preview   # Preview production build
+npm run lint      # ESLint
+npm run tunnel    # ngrok tunnel for the dev server (needed to test Telegram login)
 ```
 
-## Architecture & Key Patterns
+No test framework is configured; verify changes manually via the dev server.
 
-### Context Providers (Nested in main.jsx)
-The app uses four global context providers that wrap the entire application in this order:
-1. **AuthContext** - Manages authentication state, login/logout, user data, and JWT token storage
-2. **ThemeContext** - Handles dark/light theme switching with localStorage persistence
-3. **LanguageContext** - Manages bilingual support (English `en` / Khmer `kh`) with localStorage persistence
-4. **CartContext** - Manages shopping cart state (items, quantities, totals) with localStorage persistence
+## Architecture
 
-All contexts persist their state to `localStorage` and must be accessed via their respective hooks: `useAuth()`, `useTheme()`, `useLanguage()`, `useCart()`.
+### Context Providers (nested in main.jsx)
+
+Five global providers wrap the app in this order: **AuthContext → ThemeContext → LanguageContext → CartContext → NotificationContext**. Each persists state to `localStorage` and exposes a hook:
+
+| Context | Hook | localStorage keys |
+|---|---|---|
+| AuthContext | `useAuth()` | `token`, `user`, `isLoggedIn`, `sessionExpired` |
+| ThemeContext | `useTheme()` | theme preference |
+| LanguageContext | `useLanguage()` | language preference |
+| CartContext | `useCart()` | `cart` |
+| NotificationContext | `useNotifications()` | `admin-notifications` |
+
+- **AuthContext** also enforces an inactivity auto-logout (5 min, throttled activity listeners) and handles backend `SESSION_TIMEOUT` 401s (which clear storage and hard-redirect to `/login`). `login(data)` accepts the backend AuthResponse `{ token, tokenType, user }`, stores the token, and aliases `user.name = user.fullName`.
+- **NotificationContext** is an admin-panel notification feed (product/job/member/user/promotion/partner events), capped at 40 items.
+- **CartContext** provides `addToCart`, `updateQuantity(id, delta)`, `removeItem`, `clearCart`, plus derived `totalItems` and `subtotal`. Both headers read `totalItems` for the badge.
 
 ### API Integration (src/api/api.js)
-- All backend requests go through a centralized `request()` function that handles JWT token injection from localStorage
-- The backend expects `Authorization: Bearer <token>` headers for protected routes
-- File uploads use `FormData` and the `Content-Type` header is automatically removed for multipart requests
-- API modules: `authAPI`, `productAPI`, `jobAPI`, `memberAPI`, `applicationAPI`, `userAPI`, `orderAPI`, `dashboardAPI`
 
-### Authentication Flow
-- Login accepts multiple identifier types: username, email, phone, telegram, facebook + password
-- Social login is one-click (just provider name: gmail|telegram|facebook)
-- OTP-based login and password reset are 3-step flows (send → verify → action)
-- The backend returns `{ token, tokenType, user }` on successful login
-- `AuthContext.login(data)` stores the token and exposes `user.name` (aliased from `user.fullName`)
+All backend requests go through a centralized `request()` function:
+- Injects `Authorization: Bearer <token>` from localStorage
+- Deletes `Content-Type` automatically for `FormData` bodies (file uploads)
+- Throws on non-OK responses; API responses follow `{ success, message, data }`
 
-### Route Structure
-- **Home routes** (`/`, `/member`, `/career`, `/contact`, `/about`, `/faq`, `/terms-privacy`) - Use `Header` component
-- **Shop routes** (`/products`, `/promotion`, `/partners`, `/orders`, `/tracking`) - Use `Header2` + `ShopLayout` wrapper
-- **Admin routes** (`/admin/*`) - Protected by `AdminRoute` wrapper (requires `user.role === 'ADMIN'`), no header/footer
-- **Auth routes** (`/login`, `/register`, `/forgot-password`) - Public, use `Header`
+API modules: `authAPI`, `productAPI`, `jobAPI`, `memberAPI`, `publicAPI`, `applicationAPI`, `userAPI`, `orderAPI`, `dashboardAPI`. Each module's doc comment records its DTO field names — treat those as the API contract.
+
+Key endpoint conventions:
+- Admin CRUD lives under `/admin/*`; public unauthenticated endpoints under `/public/*`
+- Job applications send the resume as base64 TEXT fields (`resumeName`, `resumeData`, `resumeContentType`) — not multipart
+- OTP flows are 3-step: send → verify → action (login OTP is phone-based; forgot-password is email-based, where reset uses email + newPassword directly, no reset token)
+- `authAPI.socialLogin(provider, token)` — Google/Facebook/Telegram. With a provider-issued credential the backend verifies it server-side; without one it falls back to a legacy one-click demo account
+- `userAPI.updateProfile(data)` (`PUT /users/me`) returns a fresh AuthResponse because the token is re-issued when the phone number changes
+
+### Social Login Hooks (src/hooks/)
+
+- `useGoogleLogin.js` — loads Google Identity Services, renders Google's own button into a returned `googleButtonRef` container (invisible overlay so user clicks land on Google's trusted iframe), and calls `onToken(idToken)`. Client ID comes from `VITE_GOOGLE_CLIENT_ID` or a fallback constant that must stay in sync with the backend's `application.yml`
+- `useFacebookLogin.js`, `useTelegramLogin.js` — analogous provider hooks
+- Server-side OAuth2 redirect alternative: backend redirects through `/oauth2/authorization/<provider>` and lands on `/oauth2/redirect?token=<jwt>`, handled by `src/Pages/Auth/OAuth2Redirect.jsx`. See `OAUTH2_SETUP.md` and `FACEBOOK_SETUP.md`
+
+### Route Structure (App.jsx)
+
+Header choice is by exact pathname match: `/products`, `/promotion`, `/partners`, `/product-detail(s)`, `/orders`, `/tracking` use `Header2` (wrapped in `ShopLayout`); everything else uses `Header`. Admin paths hide header/footer entirely.
+
+- `AdminRoute` allows roles **ADMIN and STORE** (STORE sees only products-side sections of `AdminD`). Note most `/add-*` and `/manage-users` legacy paths just render `AdminD`, which does internal section routing
+- Shop pages are wrapped in `ShopLayout` (sidebar layout)
+- All pages render inside `PageTransition` (keyed by pathname for animations); `ScrollToTop` resets scroll per route
 
 ### Bilingual Content Pattern
-All user-facing text is stored as `{ en: 'English', kh: 'ខ្មែរ' }` objects. Access the current language text with:
+
+All user-facing text is `{ en: 'English', kh: 'ខ្មែរ' }` objects indexed by `lang` from `useLanguage()`:
+
 ```javascript
 const { lang } = useLanguage()
-const text = { en: 'Hello', kh: 'សួស្តី' }
 <p>{text[lang]}</p>
 ```
 
-### Demo Data (src/data/)
-- `products.js` - 80 products across 7 categories with bilingual names, descriptions, prices, ratings
-- `orders.js` - Order history with tracking stages (processing → transit → delivered)
-- Both files export helper functions for formatting and lookups
-
-## File Organization
-
-```
-src/
-├── api/
-│   └── api.js                    # Centralized API client with JWT handling
-├── assets/                       # Images (Logo.jpg, Profile.avif, team photos)
-├── components/
-│   ├── Header.jsx/Header2.jsx   # Two header variants (standard vs shop pages)
-│   ├── Footer.jsx               # Shared footer
-│   ├── Logo.jsx                 # Animated logo component
-│   ├── LanguageSwitcher.jsx     # EN/KH toggle
-│   ├── ThemeToggle.jsx          # Dark/light mode toggle
-│   ├── ProductCard.jsx          # Product listing card
-│   ├── ProductShop.jsx          # Shop product display
-│   ├── ShopSidebar.jsx          # Shop layout with sidebar (wraps shop routes)
-│   ├── PageTransition.jsx       # Route transition animations
-│   └── ScrollToTop.jsx          # Reset scroll on route change
-├── context/
-│   ├── AuthContext.jsx          # Authentication & user state
-│   ├── ThemeContext.jsx         # Dark/light theme
-│   ├── LanguageContext.jsx      # Bilingual EN/KH
-│   └── CartContext.jsx          # Shopping cart state
-├── data/
-│   ├── products.js              # 80 demo products (7 categories, bilingual)
-│   └── orders.js                # Demo order history & tracking data
-├── Pages/
-│   ├── Home/                    # Home, Member, Career, Contact, About, FAQ, etc.
-│   ├── Shop/                    # Products, Cart, Orders, Tracking, Promotion, Partners
-│   └── Auth/                    # Login, Register, ForgotPassword, Admin dashboard
-├── App.jsx                      # Route definitions & layout logic
-└── main.jsx                     # React root with nested context providers
-```
-
-## Component Conventions
-
-- All pages use the `PageTransition` wrapper for animated route changes
-- Shop-related pages are wrapped in `ShopLayout` which provides a sidebar
-- Admin pages check `user.role === 'ADMIN'` via the `AdminRoute` wrapper
-- The `Header` vs `Header2` distinction is based on route path (see App.jsx line 46)
-
-## State Management
-
-- **Global state:** React Context (Auth, Theme, Language, Cart)
-- **Local state:** React `useState` for component-specific UI state
-- **Persistence:** `localStorage` for auth tokens, theme preference, language preference, cart items
-- **No Redux or external state library** - Context API is sufficient for this app's scope
-
-## Styling
-
-- **Tailwind CSS 4** via `@tailwindcss/vite` plugin
-- Theme variables set via `data-theme` attribute on `<html>` element
-- Light theme uses `.light-theme` class
-- Custom CSS files per component/page (e.g., `Header.css`, `Home.css`)
-- Global styles in `index.css`
-
-## Testing & Verification
-
-- No test framework is currently configured
-- When adding tests, use the standard choice for React (likely Vitest given Vite setup)
-- Manual testing: start dev server and test in browser
-
-## Admin Role Requirements
-
-- Admin dashboard and management pages require `user.role === 'ADMIN'`
-- Non-admin users attempting to access `/admin/*` routes are redirected to `/`
-- Admin pages include: Add/Edit Products, Add/Edit Jobs, Add/Edit Members, Add/Edit Promotions, Add/Edit Partners, Manage Users
-
 ## Backend Contract
 
-- Backend runs on `http://localhost:8081/api` (see `src/api/api.js`)
-- CORS is open on the backend
-- All API responses follow `{ success, message, data }` shape
-- JWT tokens are stored in `localStorage` with key `token`
-- File uploads use multipart/form-data
+- Base URL `http://localhost:8081/api` (hardcoded in `src/api/api.js`); CORS is open
+- Login accepts multiple identifier types: username, full name, email, phone, telegram, facebook + password
+- JWT stored in localStorage key `token`; tokens are tracked server-side for inactivity eviction (`POST /auth/logout` evicts)
+- Register requires `phoneNumber` and `username`
+- Roles: `ADMIN`, `STORE`, customer roles (compared case-insensitively on the frontend)
 
-## Known Patterns
+## Known Patterns & Quirks
 
-- Product images are fetched from Unsplash via helper functions in `products.js`
-- Cart count is currently hardcoded to `0` (see Header.jsx line 32) - cart logic needs implementation
-- Order tracking has 4 stages: placed → packed → transit → delivered
-- The app defaults to dark theme if no preference is saved
+- Demo data in `src/data/products.js` (80 products, 7 categories, bilingual) and `orders.js`; product images come from Unsplash helper functions
+- Order tracking stages: placed → packed → transit → delivered
+- File names contain spaces and special chars (`Popular Products.jsx`, `Terms&Privacy.jsx`) — quote them in shell commands
+- Dev server must be on port 5173: the OAuth/social-login redirect URIs registered with providers point at it, and `vite.config.js` sets `strictPort: true` plus `allowedHosts: true` (for the ngrok tunnel)

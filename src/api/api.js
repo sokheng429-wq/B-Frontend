@@ -19,6 +19,17 @@ async function request(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, { ...options, headers })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }))
+
+    // Handle inactivity session timeout from the backend
+    if (res.status === 401 && err.error === 'SESSION_TIMEOUT') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      localStorage.setItem('isLoggedIn', 'false')
+      localStorage.setItem('sessionExpired', 'true')
+      window.location.href = '/login'
+      throw new Error('Your session expired due to inactivity. Please log in again.')
+    }
+
     throw new Error(err.message || `Request failed with status ${res.status}`)
   }
   return res.json()
@@ -63,6 +74,13 @@ export const authAPI = {
 
   resetPassword: (email, newPassword) =>
     request('/auth/reset-password', { method: 'POST', body: JSON.stringify({ email, newPassword }) }),
+
+  // Logout: evict the token from the backend activity store
+  logout: (token) =>
+    fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    }).catch(() => {}),
 }
 
 // ===== PRODUCTS =====
@@ -79,6 +97,29 @@ export const productAPI = {
 
   delete: (id) =>
     request(`/products/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN PRODUCTS (Stocks → Products) =====
+// Full product CRUD against /api/admin/products (ROLE_ADMIN). ProductDto is the
+// API contract: { id, code, barCode, name, nameKh, description, productGroup,
+//   category, onHand, uom, basePrice, averageCost, standardCost, createDate,
+//   country, supplier, partNumber, brand, onPo, onSo, availableStock, active,
+//   serial, expiryDate, allowDiscount, tax, outOfStock, favorite, imageUrl,
+//   createdAt, updatedAt }. Dates are ISO strings (yyyy-MM-dd), numbers may be
+// null. Do not rename fields — the admin Add/Edit Products page depends on them.
+export const adminProductAPI = {
+  getAll: () => request('/admin/products'),
+
+  getById: (id) => request(`/admin/products/${id}`),
+
+  create: (data) =>
+    request('/admin/products', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/products/${id}`, { method: 'DELETE' }),
 }
 
 // ===== JOBS =====

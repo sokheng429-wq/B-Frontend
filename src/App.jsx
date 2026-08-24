@@ -26,6 +26,7 @@ import Profile from './Pages/Home/Profile'
 import Memberdetail from './Pages/Home/Memberdetail'
 import Productdetail from './Pages/Shop/Productdetail'
 import Careerdetail from './Pages/Home/Careerdetail'
+import AddDriver from './Pages/Auth/AddDriver'
 import Partners from './Pages/Shop/Partners'
 import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
@@ -95,6 +96,7 @@ function App() {
           <Route path="/add-promotion" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-partner" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/add-driver" element={<AdminRoute><AdminD /></AdminRoute>} />
 
           <Route path="/profile" element={<Profile />} />
 

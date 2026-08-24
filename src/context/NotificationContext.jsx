@@ -10,6 +10,7 @@ const TYPE_META = {
   user: { icon: '🛡️', color: '#a855f7', href: '/admin/users/add' },
   promotion: { icon: '🏷️', color: '#ec4899', href: '/admin/promotions/add' },
   partner: { icon: '🤝', color: '#06b6d4', href: '/admin/partners/add' },
+  driver: { icon: '🚚', color: '#f59e0b', href: '/admin/drivers/add' },
 }
 
 const NotificationContext = createContext(null)

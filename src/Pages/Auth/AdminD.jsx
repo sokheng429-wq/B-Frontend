@@ -10,6 +10,13 @@ import AddMember from './Addmember'
 import ManageUsers from './ManageUsers'
 import Addpromotion from './Addpromotion'
 import AddPartner from './AddPartner'
+import AddDriver from './AddDriver'
+import ProductsHub, { PRODUCT_SECTIONS, STOCK_OPERATIONS } from './ProductsHub'
+import { StocksList } from './StocksList'
+import CatalogSection from './CatalogSection'
+import MasterDataSection from './MasterDataSection'
+import TransactionSection from './TransactionSection'
+import ToolsSection, { SerialInformation } from './ToolsSection'
 import MemberList from './MemberList'
 import MemberForm from './MemberForm'
 import MemberDetailPage from './MemberDetailPage'
@@ -65,13 +72,14 @@ const normalizeCollection = (response) => (Array.isArray(response?.data) ? respo
 
 const TEXTS = {
   dashboard: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
-  products: { en: 'Products', kh: 'ផលិតផល' },
+  products: { en: 'Stocks', kh: 'ផលិតផល' },
   jobs: { en: 'Jobs', kh: 'ការងារ' },
   applications: { en: 'Applications', kh: 'ពាក្យសុំការងារ' },
   members: { en: 'Members', kh: 'សមាជិក' },
   users: { en: 'Users', kh: 'អ្នកប្រើប្រាស់' },
   promotions: { en: 'Promotions', kh: 'ការផ្សព្វផ្សាយ' },
   partners: { en: 'Partners', kh: 'ដៃគូ' },
+  drivers: { en: 'Delivery Drivers', kh: 'អ្នកដឹកជញ្ជូន' },
   addProduct: { en: 'Add Product', kh: 'បន្ថែមផលិតផល' },
   editProduct: { en: 'Edit Product', kh: 'កែប្រែផលិតផល' },
   deleteProduct: { en: 'Delete Product', kh: 'លុបផលិតផល' },
@@ -141,6 +149,7 @@ function AdminD() {
     users: false,
     promotions: false,
     partners: false,
+    drivers: false,
   })
   const [showNotifications, setShowNotifications] = useState(false)
   const [dashboardData, setDashboardData] = useState(EMPTY_DASHBOARD_DATA)
@@ -206,10 +215,10 @@ function AdminD() {
 
   const categoryData = useMemo(() => {
     const counts = new Map()
-    ;(dashboardData.products || []).forEach((product) => {
-      const category = String(product.category || '').trim()
-      counts.set(category, (counts.get(category) || 0) + 1)
-    })
+      ; (dashboardData.products || []).forEach((product) => {
+        const category = String(product.category || '').trim()
+        counts.set(category, (counts.get(category) || 0) + 1)
+      })
 
     return [...counts.entries()]
       .map(([category, value], index) => {
@@ -227,13 +236,13 @@ function AdminD() {
     const currentYear = new Date().getFullYear()
     const counts = Array(MONTHS.length).fill(0)
 
-    ;[...(dashboardData.jobs || []), ...(dashboardData.applications || [])].forEach((item) => {
-      const timestamp = toTimestamp(item.createdAt)
-      if (!timestamp) return
+      ;[...(dashboardData.jobs || []), ...(dashboardData.applications || [])].forEach((item) => {
+        const timestamp = toTimestamp(item.createdAt)
+        if (!timestamp) return
 
-      const date = new Date(timestamp)
-      if (date.getFullYear() === currentYear) counts[date.getMonth()] += 1
-    })
+        const date = new Date(timestamp)
+        if (date.getFullYear() === currentYear) counts[date.getMonth()] += 1
+      })
 
     return MONTHS.map((month, index) => ({ ...month, value: counts[index] }))
   }, [dashboardData.applications, dashboardData.jobs])
@@ -298,7 +307,8 @@ function AdminD() {
     const storeOnly =
       path === '/add-products' || path.startsWith('/admin/products') ||
       path === '/add-promotion' || path.startsWith('/admin/promotions') ||
-      path === '/add-partner' || path.startsWith('/admin/partners')
+      path === '/add-partner' || path.startsWith('/admin/partners') ||
+      path === '/add-driver' || path.startsWith('/admin/drivers')
 
     if ((adminOnly && !isAdmin) || (storeOnly && !canStore)) {
       return (
@@ -314,8 +324,33 @@ function AdminD() {
       )
     }
 
-    if (path === '/add-products' || path.startsWith('/admin/products')) {
+    if (path === '/add-products') {
       return <AddProducts />
+    }
+    if (path === '/admin/products' || path === '/admin/products/') {
+      return <ProductsHub />
+    }
+    if (path === '/admin/products/all') {
+      return <StocksList />
+    }
+    if (path.startsWith('/admin/products')) {
+      // The classic Add/Edit Products page handles the CRUD sub-actions plus
+      // "manage". Master-data sections get real CRUD pages, transaction
+      // sections get document posting pages; anything unknown falls back to
+      // the generic catalog landing.
+      const sub = path.split('/')[3] || ''
+      if (['add', 'edit', 'delete', 'update', 'manage'].includes(sub)) return <AddProducts />
+      if (sub === 'serial-information') return <SerialInformation />
+      if (['groups', 'categories', 'brands', 'units', 'attributes', 'suppliers', 'supplier-groups'].includes(sub)) {
+        return <MasterDataSection sectionKey={sub} key={sub} />
+      }
+      if (['receive-products', 'issue-products', 'adjustment-products', 'request-transfer', 'ship-request-transfer', 'transfer-products'].includes(sub)) {
+        return <TransactionSection sectionKey={sub} key={sub} />
+      }
+      if (['products-quantities', 'products-prices', 'print-label', 'products-scale', 'change-attribute', 'cost-change', 'products-supplier'].includes(sub)) {
+        return <ToolsSection sectionKey={sub} key={sub} />
+      }
+      return <CatalogSection />
     }
     if (path === '/add-jobs' || path.startsWith('/admin/jobs')) {
       return <Addjobs />
@@ -340,6 +375,9 @@ function AdminD() {
     }
     if (path === '/add-partner' || path.startsWith('/admin/partners')) {
       return <AddPartner />
+    }
+    if (path === '/add-driver' || path.startsWith('/admin/drivers')) {
+      return <AddDriver />
     }
 
     return (
@@ -544,70 +582,84 @@ function AdminD() {
           <div className="mb-6">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Management' : 'ការគ្រប់គ្រង'}</span>
 
-            {/* Products Dropdown (ADMIN + STORE) */}
+            {/* Stocks: click opens the options page; the arrow toggles the dropdown */}
             {canStore && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('products')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><PackageIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.products[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.products ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.products && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/products/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addProduct[lang]}
-                  </Link>
-                  <Link to="/admin/products/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editProduct[lang]}
-                  </Link>
-                  <Link to="/admin/products/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deleteProduct[lang]}
-                  </Link>
-                  <Link to="/admin/products/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updateProduct[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1 flex items-stretch">
+                <Link
+                  to="/admin/products"
+                  className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-l-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white hover:rounded-l-lg'}`}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><PackageIcon /></span>
+                  <span>{TEXTS.products[lang]}</span>
+                </Link>
+                <button
+                  type="button"
+                  aria-label={lang === 'en' ? 'Toggle stocks menu' : 'បើកម៉ឺនុយស្តុក'}
+                  aria-expanded={openDropdowns.products}
+                  className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-r-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white hover:rounded-r-lg'}`}
+                  onClick={() => toggleDropdown('products')}
+                >
+                  <span className={`transition-transform duration-200 ${openDropdowns.products ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+              </div>
             )}
+                {openDropdowns.products && canStore && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/products/all" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📋</span> {lang === 'en' ? 'All Products' : 'ផលិតផលទាំងអស់'}
+                    </Link>
+                    <Link to="/admin/products/manage" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📦</span> {lang === 'en' ? 'Products' : 'ផលិតផល'}
+                    </Link>
+                    {PRODUCT_SECTIONS.filter((section) => section.key !== 'manage').map((section) => (
+                      <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                        <span className="text-sm">{section.icon}</span> {lang === 'kh' ? section.kh : section.en}
+                      </Link>
+                    ))}
+
+                    {/* Divider line, then stock operations */}
+                    <div className="my-2 border-t border-slate-700/70" role="separator" />
+                    {STOCK_OPERATIONS.map((section) => (
+                      <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                        <span className="text-sm">{section.icon}</span> {lang === 'kh' ? section.kh : section.en}
+                      </Link>
+                    ))}
+                  </div>
+                )}
 
             {/* Jobs Dropdown (ADMIN only) */}
             {isAdmin && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('jobs')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><BriefcaseIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.jobs[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.jobs ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.jobs && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/jobs/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addJob[lang]}
-                  </Link>
-                  <Link to="/admin/jobs/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editJob[lang]}
-                  </Link>
-                  <Link to="/admin/jobs/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deleteJob[lang]}
-                  </Link>
-                  <Link to="/admin/jobs/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updateJob[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('jobs')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><BriefcaseIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.jobs[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.jobs ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.jobs && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/jobs/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addJob[lang]}
+                    </Link>
+                    <Link to="/admin/jobs/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">✏️</span> {TEXTS.editJob[lang]}
+                    </Link>
+                    <Link to="/admin/jobs/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🗑️</span> {TEXTS.deleteJob[lang]}
+                    </Link>
+                    <Link to="/admin/jobs/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🔄</span> {TEXTS.updateJob[lang]}
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Applications Link (ADMIN only) */}
@@ -625,122 +677,149 @@ function AdminD() {
 
             {/* Members Dropdown (ADMIN only) */}
             {isAdmin && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('members')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><UsersIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.members[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.members ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.members && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/members" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">📋</span> {TEXTS.members[lang]}
-                  </Link>
-                  <Link to="/admin/members/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addMember[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('members')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><UsersIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.members[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.members ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.members && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/members" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📋</span> {TEXTS.members[lang]}
+                    </Link>
+                    <Link to="/admin/members/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addMember[lang]}
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Users Dropdown (ADMIN only) */}
             {isAdmin && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/users') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('users')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><ShieldIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.users[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.users ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.users && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/users" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">📋</span> {TEXTS.users[lang]}
-                  </Link>
-                  <Link to="/admin/users" onClick={() => {}} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addUser[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/users') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('users')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><ShieldIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.users[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.users ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.users && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/users" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📋</span> {TEXTS.users[lang]}
+                    </Link>
+                    <Link to="/admin/users" onClick={() => { }} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addUser[lang]}
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Promotions Dropdown (ADMIN + STORE) */}
             {canStore && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('promotions')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><TagIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.promotions[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.promotions && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/promotions/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
-                  </Link>
-                  <Link to="/admin/promotions/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editPromotion[lang]}
-                  </Link>
-                  <Link to="/admin/promotions/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deletePromotion[lang]}
-                  </Link>
-                  <Link to="/admin/promotions/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updatePromotion[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('promotions')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><TagIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.promotions[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.promotions && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/promotions/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
+                    </Link>
+                    <Link to="/admin/promotions/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">✏️</span> {TEXTS.editPromotion[lang]}
+                    </Link>
+                    <Link to="/admin/promotions/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🗑️</span> {TEXTS.deletePromotion[lang]}
+                    </Link>
+                    <Link to="/admin/promotions/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🔄</span> {TEXTS.updatePromotion[lang]}
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Partners Dropdown (ADMIN + STORE) */}
             {canStore && (
-            <div className="mb-1">
-              <button
-                type="button"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                onClick={() => toggleDropdown('partners')}
-              >
-                <span className="w-5 h-5 flex items-center justify-center"><HandshakeIcon /></span>
-                <span className="flex-1 text-left">{TEXTS.partners[lang]}</span>
-                <span className={`transition-transform duration-200 ${openDropdowns.partners ? 'rotate-180' : ''}`}>
-                  <ChevronDownIcon />
-                </span>
-              </button>
-              {openDropdowns.partners && (
-                <div className="mt-1 ml-8 space-y-0.5">
-                  <Link to="/admin/partners/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">➕</span> {TEXTS.addPartner[lang]}
-                  </Link>
-                  <Link to="/admin/partners/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">✏️</span> {TEXTS.editPartner[lang]}
-                  </Link>
-                  <Link to="/admin/partners/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🗑️</span> {TEXTS.deletePartner[lang]}
-                  </Link>
-                  <Link to="/admin/partners/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                    <span className="text-sm">🔄</span> {TEXTS.updatePartner[lang]}
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('partners')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><HandshakeIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.partners[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.partners ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.partners && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/partners/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addPartner[lang]}
+                    </Link>
+                    <Link to="/admin/partners/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">✏️</span> {TEXTS.editPartner[lang]}
+                    </Link>
+                    <Link to="/admin/partners/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🗑️</span> {TEXTS.deletePartner[lang]}
+                    </Link>
+                    <Link to="/admin/partners/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🔄</span> {TEXTS.updatePartner[lang]}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Delivery Drivers Dropdown (ADMIN + STORE) */}
+            {canStore && (
+              <div className="mb-1">
+                <button
+                  type="button"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+                  onClick={() => toggleDropdown('drivers')}
+                >
+                  <span className="w-5 h-5 flex items-center justify-center"><TruckIcon /></span>
+                  <span className="flex-1 text-left">{TEXTS.drivers[lang]}</span>
+                  <span className={`transition-transform duration-200 ${openDropdowns.drivers ? 'rotate-180' : ''}`}>
+                    <ChevronDownIcon />
+                  </span>
+                </button>
+                {openDropdowns.drivers && (
+                  <div className="mt-1 ml-8 space-y-0.5">
+                    <Link to="/admin/drivers/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {lang === 'en' ? 'Add Driver' : 'បន្ថែមអ្នកដឹកជញ្ជូន'}
+                    </Link>
+                    <Link to="/admin/drivers/list" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📋</span> {lang === 'en' ? 'Driver List' : 'បញ្ជីអ្នកដឹកជញ្ជូន'}
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -990,6 +1069,15 @@ const HandshakeIcon = () => (
 const ChevronDownIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <polyline points="6 9 12 15 18 9" />
+  </svg>
+)
+
+const TruckIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+    <path d="M16 8h4l3 3v5a2 2 0 0 1-2 2h-1" />
+    <circle cx="5.5" cy="18.5" r="2.5" />
+    <circle cx="18.5" cy="18.5" r="2.5" />
   </svg>
 )
 
