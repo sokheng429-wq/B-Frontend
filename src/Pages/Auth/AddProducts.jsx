@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
-import { adminProductAPI } from '../../api/api'
+import { adminBrandAPI, adminCategoryAPI, adminProductAPI, adminProductGroupAPI, adminUnitAPI } from '../../api/api'
+import { COUNTRIES } from '../../data/countries'
+import { CountryFlag } from '../../components/CountryFlag'
 
 // Categories / units shown in the dropdowns. Values are stored as plain
 // strings on the Product entity (master-data pages can upgrade these to
@@ -30,20 +33,12 @@ const UNITS = [
 ]
 
 const PRODUCT_TYPES = [
-  { en: 'Stock item', kh: 'ទំនិញមានស្តុក' },
-  { en: 'Non-stock item', kh: 'ទំនិញគ្មានស្តុក' },
-  { en: 'Service', kh: 'សេវាកម្ម' },
+  { en: 'Stock', kh: 'មានស្តុក' },
+  { en: 'Non-Stock', kh: 'គ្មានស្តុក' },
+  { en: 'Variant', kh: 'បំរែបំរួល' },
+  { en: 'Package', kh: 'កញ្ចប់' },
 ]
 
-const COUNTRIES = [
-  { en: 'Cambodia', kh: 'កម្ពុជា' },
-  { en: 'Thailand', kh: 'ថៃ' },
-  { en: 'Vietnam', kh: 'វៀតណាម' },
-  { en: 'China', kh: 'ចិន' },
-  { en: 'Japan', kh: 'ជប៉ុន' },
-  { en: 'Korea', kh: 'កូរ៉េ' },
-  { en: 'USA', kh: 'អាមេរិក' },
-]
 
 // Blank product form. Keys mirror the backend ProductDto exactly — the extra
 // ERP-style fields (upc/ean/hsCode/reorderPoint…) stay client-side until the
@@ -180,6 +175,53 @@ export const AddProducts = () => {
   const [loadError, setLoadError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [editingId, setEditingId] = useState(null)
+  // product groups from the backend (Stocks → Groups) for the searchable dropdown
+  const [productGroups, setProductGroups] = useState([])
+  // categories / brands from the backend (Stocks → Categories / Brands) for the
+  // Product Option dropdowns — merged with the built-in CATEGORIES fallback below
+  const [categories, setCategories] = useState([])
+  const [brands, setBrands] = useState([])
+  // live units of measure (Stocks → Unit of Measure) for the UOM table rows
+  const [units, setUnits] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    adminProductGroupAPI
+      .getAll()
+      .then((res) => {
+        if (!cancelled && Array.isArray(res?.data)) setProductGroups(res.data)
+      })
+      .catch(() => {
+        /* groups are optional — the dropdown just stays empty */
+      })
+    adminCategoryAPI
+      .getAll()
+      .then((res) => {
+        if (!cancelled && Array.isArray(res?.data)) setCategories(res.data)
+      })
+      .catch(() => {
+        /* categories are optional — falls back to the built-in list */
+      })
+    adminBrandAPI
+      .getAll()
+      .then((res) => {
+        if (!cancelled && Array.isArray(res?.data)) setBrands(res.data)
+      })
+      .catch(() => {
+        /* brands are optional — falls back to the built-in list */
+      })
+    adminUnitAPI
+      .getAll()
+      .then((res) => {
+        if (!cancelled && Array.isArray(res?.data)) setUnits(res.data)
+      })
+      .catch(() => {
+        /* units are optional — falls back to the built-in UNITS list */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // DTO → form state for editing (deep link ?id=<n> from All Products).
   const startEdit = (p) => {
@@ -193,7 +235,7 @@ export const AddProducts = () => {
       description: str(p.description),
       productGroup: str(p.productGroup),
       category: CATEGORIES.some((c) => c.en === p.category) ? p.category : str(p.category),
-      uom: UNITS.some((u) => u.en === p.uom) ? p.uom : str(p.uom),
+      uom: str(p.uom),
       basePrice: p.basePrice == null ? '' : String(p.basePrice),
       averageCost: p.averageCost == null ? '' : String(p.averageCost),
       standardCost: p.standardCost == null ? '' : String(p.standardCost),
@@ -209,7 +251,7 @@ export const AddProducts = () => {
       tax: str(p.tax ?? ''),
     })
     setUpc(str(p.barCode))
-    setUomRows([{ ...EMPTY_UOM_ROW(), uom: UNITS.some((u) => u.en === p.uom) ? p.uom : str(p.uom), barcode: str(p.barCode), isDefault: true }])
+    setUomRows([{ ...EMPTY_UOM_ROW(), uom: str(p.uom), barcode: str(p.barCode), isDefault: true }])
     setImageFile(null)
     setImagePreview(p.imageUrl || null)
     setErrors({})
@@ -327,8 +369,25 @@ export const AddProducts = () => {
   const validate = () => {
     const e = {}
     if (!form.name.trim()) e.name = TEXTS.errName[lang]
-    if (form.basePrice !== '' && (isNaN(form.basePrice) || Number(form.basePrice) < 0)) e.basePrice = TEXTS.errPrice[lang]
-    if (form.standardCost !== '' && (isNaN(form.standardCost) || Number(form.standardCost) < 0)) e.standardCost = TEXTS.errPrice[lang]
+    // every numeric field is validated up-front so nothing bad reaches the API
+    const numericChecks = [
+      ['basePrice', form.basePrice],
+      ['averageCost', form.averageCost],
+      ['standardCost', form.standardCost],
+      ['tax', form.tax],
+      ['reorderPoint', reorderPoint],
+      ['maxOverPo', maxOverPo],
+      ['orderQty', orderQty],
+      ...uomRows.map((r, i) => [`uomFactor${i + 1}`, r.factor]),
+    ]
+    numericChecks.forEach(([key, value]) => {
+      if (value !== '' && value != null && (isNaN(value) || Number(value) < 0)) {
+        e[key] = TEXTS.errPrice[lang]
+      }
+    })
+    // code length matches the backend column (varchar(50))
+    if (form.code.length > 50) e.code = lang === 'en' ? 'Code must be at most 50 characters' : 'កូដត្រូវតែតិចជាងឬស្មើ៥០តួអក្សរ'
+    if (upc.length > 64) e.upc = lang === 'en' ? 'Barcode must be at most 64 characters' : 'បារកូដត្រូវតែតិចជាងឬស្មើ៦៤តួអក្សរ'
     return e
   }
 
@@ -352,9 +411,19 @@ export const AddProducts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (saving) return
     const v = validate()
-    setErrors(v)
-    if (Object.keys(v).length > 0 || saving) return
+    // surface a clear summary of what to fix instead of failing quietly
+    const summary = Object.keys(v).length > 0
+      ? (lang === 'en'
+        ? `Please fix ${Object.keys(v).length} field${Object.keys(v).length > 1 ? 's' : ''} before saving: ${Object.keys(v).join(', ')}`
+        : `សូមកែតម្រូវចំណុច${Object.keys(v).length}មុនពេលរក្សាទុក`)
+      : null
+    setErrors(summary ? { ...v, submit: summary } : v)
+    if (summary) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
 
     const defaultRow = uomRows.find((r) => r.isDefault) || uomRows[0]
 
@@ -396,7 +465,14 @@ export const AddProducts = () => {
       navigate('/admin/products/all')
       return saved
     } catch (err) {
-      setErrors({ submit: err.message })
+      // show the backend's real reason (validation detail, conflict, …)
+      // instead of a generic failure message
+      const fieldErrors = err.fields && typeof err.fields === 'object' ? err.fields : null
+      const summary = fieldErrors
+        ? `${err.message}: ${Object.entries(fieldErrors).map(([f, m]) => `${f} — ${m}`).join('; ')}`
+        : err.message
+      setErrors({ ...(fieldErrors || {}), submit: summary })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setSaving(false)
     }
@@ -571,9 +647,22 @@ export const AddProducts = () => {
                       {uomRows.map((row, i) => (
                         <tr key={row.id} className="border-b border-slate-800/60 last:border-0">
                           <td className="px-3 py-2">
-                            <select value={row.uom} onChange={(e) => setUomRow(row.id, { uom: e.target.value })} className={inputBase}>
+                            <select
+                              value={row.uom}
+                              onChange={(e) => {
+                                const v = e.target.value
+                                // picking a live unit prefills its saved conversion factor
+                                const live = units.find((u) => (u.description || u.code) === v)
+                                setUomRow(row.id, { uom: v, ...(live?.factor != null ? { factor: String(live.factor) } : {}) })
+                              }}
+                              className={inputBase}
+                            >
                               <option value="">{TEXTS.unitPlaceholder[lang]}</option>
-                              {UNITS.map((u) => <option key={u.en} value={u.en}>{u[lang]}</option>)}
+                              {/* live units first (Stocks → Unit of Measure), built-ins as fallback */}
+                              {units.length > 0 && units.map((u) => (
+                                <option key={`u-${u.id}`} value={u.description || u.code}>{u.description || u.code}</option>
+                              ))}
+                              {units.length === 0 && UNITS.map((u) => <option key={u.en} value={u.en}>{u[lang]}</option>)}
                             </select>
                           </td>
                           <td className="px-3 py-2">
@@ -645,9 +734,21 @@ export const AddProducts = () => {
                       <input id="standardCost" name="standardCost" type="number" min="0" step="0.01" placeholder="0.00" value={form.standardCost} onChange={handleChange} className="w-full px-3 py-2.5 text-sm text-white outline-none placeholder:text-slate-500" />
                     </div>
                   </Field>
-                  <Field label={TEXTS.reorderPoint[lang]}>
-                    <input id="reorderPoint" type="number" min="0" step="any" value={reorderPoint} onChange={(e) => setReorderPoint(e.target.value)} className={inputBase} />
-                  </Field>
+                  {/* Re-Order Point belongs to stocked items only — the
+                      textbox closes (is removed) while Non-Stock is picked */}
+                  {productType !== 'Non-Stock' && (
+                    <Field label={TEXTS.reorderPoint[lang]}>
+                      <input
+                        id="reorderPoint"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={reorderPoint}
+                        onChange={(e) => setReorderPoint(e.target.value)}
+                        className={inputBase}
+                      />
+                    </Field>
+                  )}
                   <Field label={TEXTS.maxOverPo[lang]}>
                     <input id="maxOverPo" type="number" min="0" step="any" value={maxOverPo} onChange={(e) => setMaxOverPo(e.target.value)} className={inputBase} />
                   </Field>
@@ -696,34 +797,65 @@ export const AddProducts = () => {
               <Card title={TEXTS.productOption[lang]}>
                 <div className="space-y-4">
                   <Field label={TEXTS.productType[lang]}>
-                    <select value={productType} onChange={(e) => setProductType(e.target.value)} className={inputBase}>
+                    <select
+                      value={productType}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        setProductType(v)
+                        // Non-Stock items are never reordered — clear + close
+                        // the Re-Order Point box while that type is picked
+                        if (v === 'Non-Stock') setReorderPoint('')
+                      }}
+                      className={inputBase}
+                    >
                       <option value="">{TEXTS.productTypePlaceholder[lang]}</option>
                       {PRODUCT_TYPES.map((t) => <option key={t.en} value={t.en}>{t[lang]}</option>)}
                     </select>
                   </Field>
                   <Field label={TEXTS.productGroup[lang]}>
-                    <select name="productGroup" value={form.productGroup} onChange={handleChange} className={inputBase}>
-                      <option value="">{TEXTS.groupPlaceholder[lang]}</option>
-                      {['Grocery', 'Beverage', 'Household'].map((g) => <option key={g} value={g}>{g}</option>)}
-                    </select>
+                    <GroupSearchSelect
+                      groups={productGroups}
+                      value={form.productGroup}
+                      onChange={(v) => setForm((prev) => ({ ...prev, productGroup: v }))}
+                      placeholder={TEXTS.groupPlaceholder[lang]}
+                      lang={lang}
+                    />
                   </Field>
                   <Field label={TEXTS.category[lang]}>
                     <select name="category" value={form.category} onChange={handleChange} className={inputBase}>
                       <option value="">{TEXTS.categoryPlaceholder[lang]}</option>
-                      {CATEGORIES.map((c) => <option key={c.en} value={c.en}>{c[lang]}</option>)}
+                      {/* live categories from Stocks → Categories; falls back to
+                          the built-in list only while master data is still empty */}
+                      {(categories.filter((c) => c.active !== false).length > 0
+                        ? categories.filter((c) => c.active !== false).map((c) => ({ id: c.id, value: c.description }))
+                        : CATEGORIES.map((c) => ({ id: c.en, value: c.en, kh: c.kh }))
+                      ).map(({ id, value }) => <option key={id} value={value}>{value}</option>)}
                     </select>
                   </Field>
                   <Field label={TEXTS.brand[lang]}>
-                    <select name="brand" value={form.brand} onChange={handleChange} className={inputBase}>
-                      <option value="">{TEXTS.brandPlaceholder[lang]}</option>
-                      {['B\'Groceries', 'Generic', 'Imported'].map((b) => <option key={b} value={b}>{b}</option>)}
-                    </select>
+                    {/* live brands from Stocks → Brands, falling back to the
+                        built-in trio when the master data is still empty */}
+                    {(brands.filter((b) => b.active !== false).length > 0 ? (
+                      <select name="brand" value={form.brand} onChange={handleChange} className={inputBase}>
+                        <option value="">{TEXTS.brandPlaceholder[lang]}</option>
+                        {brands.filter((b) => b.active !== false).map((b) => (
+                          <option key={b.id} value={b.description}>{b.description}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select name="brand" value={form.brand} onChange={handleChange} className={inputBase}>
+                        <option value="">{TEXTS.brandPlaceholder[lang]}</option>
+                        {['B\'Groceries', 'Generic', 'Imported'].map((b) => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                    ))}
                   </Field>
                   <Field label={TEXTS.country[lang]}>
-                    <select name="country" value={form.country} onChange={handleChange} className={inputBase}>
-                      <option value="">{TEXTS.countryPlaceholder[lang]}</option>
-                      {COUNTRIES.map((c) => <option key={c.en} value={c.en}>{c[lang]}</option>)}
-                    </select>
+                    <CountrySelect
+                      value={form.country}
+                      onChange={(v) => setForm((prev) => ({ ...prev, country: v }))}
+                      placeholder={TEXTS.countryPlaceholder[lang]}
+                      lang={lang}
+                    />
                   </Field>
                   <Field label={TEXTS.tags[lang]}>
                     <select value={tags} onChange={(e) => setTags(e.target.value)} className={inputBase}>
@@ -827,6 +959,349 @@ const CheckTile = ({ label, checked, onChange }) => (
     </span>
     {label}
   </label>
+)
+
+// Searchable Product Group dropdown — a text filter box on top, then the
+// group list showing each group's description (what the Products Groups page
+// stores). Click-outside and Escape close it; the picked value is the
+// group's description string, matching the Product.productGroup column.
+const GroupSearchSelect = ({ groups, value, onChange, placeholder, lang }) => {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const boxRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    const onDocDown = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false)
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDocDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  // only active groups are offered
+  const options = groups.filter((g) => g.active !== false)
+  const needle = search.trim().toLowerCase()
+  const filtered = needle
+    ? options.filter((g) =>
+        [g.description, g.nameKh, g.code].some((v) => String(v || '').toLowerCase().includes(needle)))
+    : options
+
+  return (
+    <div ref={boxRef} className="relative">
+      {/* trigger styled exactly like the other selects */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-slate-950/60 px-3 py-2.5 text-left text-sm font-medium outline-none transition focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10 ${value ? 'border-slate-700/70 text-white' : 'border-slate-700/70 text-slate-500'} hover:border-slate-600`}
+      >
+        <span className={`truncate ${value ? '' : 'text-slate-500'}`}>{value || placeholder}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={`shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-30 mt-1.5 w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-900 shadow-2xl shadow-black/40">
+          {/* search box */}
+          <div className="border-b border-slate-700/60 p-2">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500">
+                <SearchSmallIcon />
+              </span>
+              <input
+                autoFocus
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={lang === 'en' ? 'Search groups…' : 'ស្វែងរកក្រុម…'}
+                className="w-full rounded-md border border-slate-700/70 bg-slate-950/60 py-2 pl-8 pr-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950"
+              />
+            </div>
+          </div>
+
+          {/* options — each shows the group's description (+ Khmer second language) */}
+          <ul className="max-h-56 overflow-y-auto py-1">
+            {value && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => { onChange(''); setOpen(false) }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-slate-400 transition hover:bg-slate-800"
+                >
+                  <CloseSmallIcon /> {lang === 'en' ? 'Clear selection' : 'សម្អាតជម្រើស'}
+                </button>
+              </li>
+            )}
+            {filtered.length === 0 ? (
+              <li className="px-3 py-6 text-center text-sm text-slate-500">
+                {lang === 'en' ? 'No matching groups' : 'រកមិនឃើញក្រុម'}
+              </li>
+            ) : (
+              filtered.map((g) => {
+                const selected = g.description === value
+                return (
+                  <li key={g.id}>
+                    <button
+                      type="button"
+                      onClick={() => { onChange(g.description); setOpen(false) }}
+                      className={`flex w-full flex-col gap-0.5 px-3 py-2 text-left transition hover:bg-slate-800 ${selected ? 'bg-green-500/10' : ''}`}
+                    >
+                      <span className={`text-sm font-semibold ${selected ? 'text-green-300' : 'text-slate-200'}`}>
+                        {g.description}
+                      </span>
+                      {(g.nameKh || g.code) && (
+                        <span className="truncate text-xs text-slate-500">
+                          {g.nameKh}{g.nameKh && g.code ? ' · ' : ''}<span className="font-mono">{g.code}</span>
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Searchable country dropdown with real flag images (flagcdn.com) — same
+// interaction pattern as GroupSearchSelect above, polished up: flag tile in the trigger, a clear (×)
+// button, live result count and an Enter-selects-first shortcut. The option
+// panel renders in a portal under the trigger so the modal's overflow
+// clipping can't squash it to one visible row. Stores the English country
+// name on the form.
+const CountrySelect = ({ value, onChange, placeholder, lang }) => {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  // panel coords in viewport space (fixed positioning), measured from the button
+  const [panelPos, setPanelPos] = useState(null)
+  const boxRef = useRef(null)
+
+  // measured on open/scroll/resize — never synchronously inside the effect body
+  const syncPanelPos = () => {
+    const rect = boxRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setPanelPos({ left: rect.left, top: rect.bottom + 4, width: rect.width })
+  }
+
+  const toggleOpen = () => {
+    if (!open) syncPanelPos()
+    else setPanelPos(null)
+    setOpen((v) => !v)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    const onDocDown = (e) => {
+      if (
+        boxRef.current &&
+        !boxRef.current.contains(e.target) &&
+        !e.target.closest('[data-search-select-panel]')
+      ) setOpen(false)
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    // keep the panel glued to the button while the modal scrolls/resizes
+    window.addEventListener('scroll', syncPanelPos, true)
+    window.addEventListener('resize', syncPanelPos)
+    document.addEventListener('mousedown', onDocDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('scroll', syncPanelPos, true)
+      window.removeEventListener('resize', syncPanelPos)
+      document.removeEventListener('mousedown', onDocDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  // search matches English + Khmer names and the ISO code
+  const needle = search.trim().toLowerCase()
+  const filtered = needle
+    ? COUNTRIES.filter((c) =>
+        [c.en, c.kh, c.code].some((v) => String(v || '').toLowerCase().includes(needle)))
+    : COUNTRIES
+
+  const selectedCountry = COUNTRIES.find((c) => c.en === value)
+
+  const pick = (country) => {
+    onChange(country.en)
+    setSearch('')
+    setOpen(false)
+  }
+
+  const clearValue = () => {
+    onChange('')
+    setSearch('')
+  }
+
+  return (
+    <div ref={boxRef} className="relative">
+      {/* trigger styled exactly like the other selects */}
+      <button
+        type="button"
+        onClick={toggleOpen}
+        className={`flex w-full items-center gap-2.5 rounded-lg border border-slate-700/70 bg-slate-950/60 py-2 pl-2 pr-3 text-left text-sm font-medium outline-none transition hover:border-slate-600 focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10 ${value ? 'text-white' : 'text-slate-500'} ${open ? 'border-green-400 bg-slate-950 ring-4 ring-green-500/10' : ''}`}
+      >
+        {selectedCountry ? (
+          <>
+            {/* flag image — bigger than the list rows so the pick reads clearly */}
+            <CountryFlag code={selectedCountry.code} className="h-7 w-9 min-w-[36px] shadow-inner" />
+            <span className="truncate font-semibold">{selectedCountry[lang]}</span>
+            <span className="ml-auto shrink-0 rounded bg-slate-800 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-slate-400">{selectedCountry.code}</span>
+          </>
+        ) : (
+          <>
+            <span className="flex h-7 w-9 min-w-[36px] items-center justify-center rounded-md border border-dashed border-slate-700 bg-slate-900/80 text-slate-600">
+              <GlobeSmallIcon />
+            </span>
+            <span className="truncate text-slate-500">{placeholder}</span>
+          </>
+        )}
+        {/* inline clear button stops propagation so it never toggles the panel */}
+        {selectedCountry && (
+          <span
+            role="button"
+            tabIndex={-1}
+            aria-label={lang === 'en' ? 'Clear selection' : 'សម្អាតជម្រើស'}
+            onClick={(e) => { e.stopPropagation(); clearValue() }}
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-red-500/15 hover:text-red-400"
+          >
+            <CloseSmallIcon />
+          </span>
+        )}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className={`min-w-[12px] shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {/* portal panel — fixed to the viewport so nothing can clip it */}
+      {open && panelPos && createPortal(
+        <div
+          data-search-select-panel
+          style={{
+            position: 'fixed',
+            left: panelPos.left,
+            top: Math.max(8, Math.min(panelPos.top, window.innerHeight - 320)),
+            width: panelPos.width,
+          }}
+          className="z-[80] overflow-hidden rounded-xl border border-slate-600/80 bg-slate-900 shadow-2xl shadow-black/50 ring-4 ring-black/20"
+        >
+          {/* search box */}
+          <div
+            className="border-b border-slate-700/60 p-2.5"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && filtered.length > 0) {
+                e.preventDefault()
+                if (needle && filtered[0].en === value && !search) { setOpen(false); return }
+                pick(filtered[0])
+              }
+            }}
+          >
+            <div className="relative">
+              <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500">
+                <SearchSmallIcon />
+              </span>
+              <input
+                autoFocus
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={lang === 'en' ? 'Search countries…' : 'ស្វែងរកប្រទេស…'}
+                className="w-full rounded-lg border border-slate-700/70 bg-slate-950/60 py-2 pl-8 pr-14 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950"
+              />
+              {/* live result count inside the search box */}
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-black tabular-nums text-slate-400">
+                {filtered.length}
+              </span>
+            </div>
+          </div>
+
+          <ul className="max-h-[212px] overflow-y-auto py-1.5">
+            {value && (
+              <li className="sticky top-0 z-10 bg-slate-900 px-1.5 pb-1">
+                <button
+                  type="button"
+                  onClick={() => { clearValue(); setOpen(false) }}
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold text-slate-400 transition hover:bg-red-500/10 hover:text-red-300"
+                >
+                  <CloseSmallIcon /> {lang === 'en' ? 'Clear selection' : 'សម្អាតជម្រើស'}
+                </button>
+              </li>
+            )}
+            {filtered.length === 0 ? (
+              <li className="px-3 py-8 text-center">
+                <span className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-500"><GlobeSmallIcon /></span>
+                <p className="text-sm text-slate-500">{lang === 'en' ? 'No matching countries' : 'រកមិនឃើញប្រទេស'}</p>
+              </li>
+            ) : (
+              filtered.map((c) => {
+                const selected = c.en === value
+                return (
+                  <li key={c.code} className="px-1.5">
+                    <button
+                      type="button"
+                      onClick={() => pick(c)}
+                      className={`group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition ${selected ? 'bg-green-500/[0.12]' : 'hover:bg-slate-800'}`}
+                    >
+                      {/* per-row flag image */}
+                      <CountryFlag code={c.code} className="h-6 w-8 min-w-[32px] group-hover:border-slate-600" />
+                      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-200">
+                        {c[lang]}
+                        {c.kh !== c.en && lang === 'en' && (
+                          <span className="ml-2 text-xs font-normal text-slate-500">{c.kh}</span>
+                        )}
+                      </span>
+                      <span className={`shrink-0 font-mono text-[11px] font-bold tracking-wider ${selected ? 'text-green-400' : 'text-slate-600'}`}>{c.code}</span>
+                      {/* checkmark on the active row */}
+                      <span className={`flex h-4 w-4 min-w-[16px] items-center justify-center ${selected ? 'text-green-400' : 'opacity-0'}`}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </span>
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+        </div>,
+        document.body,
+      )}
+    </div>
+  )
+}
+
+const GlobeSmallIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+)
+
+const SearchSmallIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+    <circle cx="11" cy="11" r="7" />
+    <line x1="21" y1="21" x2="16.5" y2="16.5" />
+  </svg>
+)
+
+const CloseSmallIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
 )
 
 /* ---------- icons ---------- */

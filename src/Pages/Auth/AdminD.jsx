@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { applicationAPI, jobAPI, memberAPI } from '../../api/api'
+import { adminProductAPI, applicationAPI, jobAPI, memberAPI } from '../../api/api'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
@@ -15,6 +15,13 @@ import ProductsHub, { PRODUCT_SECTIONS, STOCK_OPERATIONS } from './ProductsHub'
 import { StocksList } from './StocksList'
 import CatalogSection from './CatalogSection'
 import MasterDataSection from './MasterDataSection'
+import ProductGroups from './ProductGroups'
+import Categories from './Categories'
+import Brands from './Brands'
+import Attributes from './Attributes'
+import { Units } from './Units'
+import SupplierGroups from './SupplierGroups'
+import { Suppliers } from './Suppliers'
 import TransactionSection from './TransactionSection'
 import ToolsSection, { SerialInformation } from './ToolsSection'
 import MemberList from './MemberList'
@@ -168,6 +175,7 @@ function AdminD() {
       setDashboardError(false)
 
       const requests = [
+        ['products', () => adminProductAPI.getAll()],
         ['jobs', () => jobAPI.getAll()],
         ['members', () => memberAPI.getAll()],
         ['applications', () => applicationAPI.getAll()],
@@ -340,8 +348,15 @@ function AdminD() {
       // the generic catalog landing.
       const sub = path.split('/')[3] || ''
       if (['add', 'edit', 'delete', 'update', 'manage'].includes(sub)) return <AddProducts />
+      if (sub === 'groups') return <ProductGroups />
+      if (sub === 'categories') return <Categories />
+      if (sub === 'brands') return <Brands />
+      if (sub === 'attributes') return <Attributes key="attributes" />
+      if (sub === 'units') return <Units />
+      if (sub === 'supplier-groups') return <SupplierGroups />
+      if (sub === 'suppliers') return <Suppliers />
       if (sub === 'serial-information') return <SerialInformation />
-      if (['groups', 'categories', 'brands', 'units', 'attributes', 'suppliers', 'supplier-groups'].includes(sub)) {
+      if (['groups', 'categories', 'brands', 'units', 'suppliers', 'supplier-groups'].includes(sub)) {
         return <MasterDataSection sectionKey={sub} key={sub} />
       }
       if (['receive-products', 'issue-products', 'adjustment-products', 'request-transfer', 'ship-request-transfer', 'transfer-products'].includes(sub)) {

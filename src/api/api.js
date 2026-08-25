@@ -30,7 +30,19 @@ async function request(path, options = {}) {
       throw new Error('Your session expired due to inactivity. Please log in again.')
     }
 
-    throw new Error(err.message || `Request failed with status ${res.status}`)
+    const error = new Error(err.message || `Request failed with status ${res.status}`)
+    // Backend errors put the payload in `data` (e.g. validation failures carry
+    // { fieldName: message }) — attach it so forms can show exact reasons.
+    error.data = err.data ?? null
+    if (err.data && typeof err.data === 'object' && !Array.isArray(err.data)) {
+      error.fields = err.data
+    }
+    // Validation failures carry { fieldName: message } details in `data` —
+    // attach them so forms can highlight exactly which inputs are wrong.
+    if (err.data && typeof err.data === 'object' && !Array.isArray(err.data)) {
+      error.fields = err.data
+    }
+    throw error
   }
   return res.json()
 }
@@ -120,6 +132,162 @@ export const adminProductAPI = {
 
   delete: (id) =>
     request(`/admin/products/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN PRODUCT GROUPS (Stocks → Groups) =====
+// Full product-group CRUD against /api/admin/product-groups (ROLE_ADMIN).
+// ProductGroupDto is the API contract: { id, code, name, nameKh, active,
+//   favorite, createdAt, updatedAt }. `code` may be sent blank/undefined on
+// create — the backend auto-generates PG-0001, PG-0002… Do not rename fields.
+export const adminProductGroupAPI = {
+  getAll: () => request('/admin/product-groups'),
+
+  getById: (id) => request(`/admin/product-groups/${id}`),
+
+  create: (data) =>
+    request('/admin/product-groups', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/product-groups/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/product-groups/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN CATEGORIES (Stocks → Categories) =====
+// Full category CRUD against /api/admin/categories (ROLE_ADMIN).
+// CategoryDto is the API contract: { id, code, description, nameKh, active,
+//   createdAt, updatedAt }. `code` may be sent blank/undefined on create —
+// the backend auto-generates CT-0001, CT-0002… Do not rename fields.
+export const adminCategoryAPI = {
+  getAll: () => request('/admin/categories'),
+
+  getById: (id) => request(`/admin/categories/${id}`),
+
+  create: (data) =>
+    request('/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/categories/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN BRANDS (Stocks → Brands) =====
+// Full brand CRUD against /api/admin/brands (ROLE_ADMIN).
+// BrandDto is the API contract: { id, code, description, nameKh, active,
+//   createdAt, updatedAt }. `code` may be sent blank/undefined on create —
+// the backend auto-generates BR-0001, BR-0002… Do not rename fields.
+export const adminBrandAPI = {
+  getAll: () => request('/admin/brands'),
+
+  getById: (id) => request(`/admin/brands/${id}`),
+
+  create: (data) =>
+    request('/admin/brands', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/brands/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/brands/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN UNITS OF MEASURE (Stocks → Unit of Measure) =====
+// Full unit CRUD against /api/admin/unit-of-measures (ROLE_ADMIN).
+// UnitOfMeasureDto is the API contract: { id, code, description, nameKh,
+//   factor, active, createdAt, updatedAt }. `code` may be sent
+// blank/undefined on create — the backend auto-generates UN-0001, UN-0002…
+// `factor` is the optional conversion factor relative to the base unit
+// (e.g. kg = 1000). Do not rename fields.
+export const adminUnitAPI = {
+  getAll: () => request('/admin/unit-of-measures'),
+
+  getById: (id) => request(`/admin/unit-of-measures/${id}`),
+
+  create: (data) =>
+    request('/admin/unit-of-measures', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/unit-of-measures/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/unit-of-measures/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN ATTRIBUTES (Stocks → Attribute) =====
+// Full attribute CRUD against /api/admin/attributes (ROLE_ADMIN).
+// AttributeDto is the API contract: { id, code, description, nameKh, type,
+//   values, active, createdAt, updatedAt }. `code` may be sent
+// blank/undefined on create — the backend auto-generates AT-0001, AT-0002…
+// `description` is the required attribute name (e.g. "Color"); `values`
+// holds the comma-separated allowed values ("Small, Medium, Large").
+// Do not rename fields.
+export const adminAttributeAPI = {
+  getAll: () => request('/admin/attributes'),
+
+  getById: (id) => request(`/admin/attributes/${id}`),
+
+  create: (data) =>
+    request('/admin/attributes', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/attributes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/attributes/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN SUPPLIER GROUPS (Stocks → Suppliers Group) =====
+// Full supplier-group CRUD against /api/admin/supplier-groups (ROLE_ADMIN).
+// SupplierGroupDto is the API contract: { id, code, description, nameKh,
+//   active, createdAt, updatedAt }. `code` may be sent blank/undefined on
+// create — the backend auto-generates SG-0001, SG-0002… Do not rename fields.
+export const adminSupplierGroupAPI = {
+  getAll: () => request('/admin/supplier-groups'),
+
+  getById: (id) => request(`/admin/supplier-groups/${id}`),
+
+  create: (data) =>
+    request('/admin/supplier-groups', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/supplier-groups/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/supplier-groups/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN SUPPLIERS (Stocks → Suppliers) =====
+// Full supplier CRUD against /api/admin/suppliers (ROLE_ADMIN).
+// SupplierDto is the API contract: { id, code, name, nameKh, supplierGroup,
+//   taxNumber, paymentTerm, poTemplateName, shipmentMethod, purchasePerson,
+//   termCondition, billTemplateName, currentBalance, debitDepositPaymentTerm,
+//   contactFirstName, contactLastName, contactGender, contactDob,
+//   contactPhone, contactMobile, contactEmail, contactWebsite,
+//   addressDescription, addressNameKh, addressLine1, addressLine2,
+//   addressCity, addressState, addressCountry, addressPhone,
+//   addressPhoneExt, addressFax, addressFaxExt, addressEmail, addressWebsite,
+//   active, createdAt, updatedAt }.
+// `code` may be sent blank/undefined on create — the backend auto-generates
+// SP-0001, SP-0002… `name` is the required field (not description). The
+// dropdown-backed fields are free-text until dedicated tables exist; the
+// contact*/address* columns hold the default Contact/Location row of the
+// create form. Do not rename fields.
+export const adminSupplierAPI = {
+  getAll: () => request('/admin/suppliers'),
+
+  getById: (id) => request(`/admin/suppliers/${id}`),
+
+  create: (data) =>
+    request('/admin/suppliers', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/suppliers/${id}`, { method: 'DELETE' }),
 }
 
 // ===== JOBS =====
