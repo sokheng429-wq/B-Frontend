@@ -4,6 +4,7 @@ import { adminProductAPI, applicationAPI, jobAPI, memberAPI } from '../../api/ap
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 import AddProducts from './AddProducts'
 import Addjobs from './Addjobs'
 import AddMember from './Addmember'
@@ -883,6 +884,9 @@ function AdminD() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {/* ENG / KH language toggle */}
+            <LanguageSwitcher />
+
             {/* Notification Bell with Dropdown */}
             <div className="relative" ref={notificationRef}>
               <button

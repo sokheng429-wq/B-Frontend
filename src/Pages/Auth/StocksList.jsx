@@ -123,6 +123,39 @@ export const StocksList = () => {
   // The edit page reads ?id= and loads the full record from the backend.
   const onEditProduct = (product) => navigate(`/admin/products/edit?id=${product.id}`)
 
+  // Delete with a confirm dialog; on success removes the row locally (and
+  // clears it from any active filters' source list) without a full reload.
+  const onDeleteProduct = (product) => {
+    const name = typeof product.name === 'object' ? product.name?.en : product.name
+    const msg = lang === 'en'
+      ? `Delete "${name || `#${product.id}`}"?\n\nThis permanently removes the product from the catalog. This cannot be undone.`
+      : `លុប "${name || `#${product.id}`}"?\n\nនេះនឹងលុបផលិតផលចេញពីកាតាឡុកជាអចិន្ត្រៃយ៍។ មិនអាចត្រឡប់វិញបានទេ។`
+    if (!window.confirm(msg)) return
+    setDeletingId(String(product.id))
+    adminProductAPI
+      .delete(product.id)
+      .then(() => {
+        setProducts((prev) => prev.filter((p) => String(p.id) !== String(product.id)))
+        setSelected((prev) => {
+          const next = new Set(prev)
+          next.delete(String(product.id))
+          return next
+        })
+        addNotification({
+          type: 'product',
+          action: 'delete',
+          title: lang === 'en' ? 'Product deleted' : 'បានលុបផលិតផល',
+          detail: name,
+        })
+      })
+      .catch((err) => {
+        window.alert(lang === 'en'
+          ? `Failed to delete: ${err.message}`
+          : `ការលុបបរាជ័យ៖ ${err.message}`)
+      })
+      .finally(() => setDeletingId(null))
+  }
+
   const [products, setProducts] = useState(DEMO_PRODUCTS)
   const [source, setSource] = useState('demo') // 'live' | 'demo'
   const [query, setQuery] = useState('')
@@ -144,6 +177,8 @@ export const StocksList = () => {
   // excel (CSV) import feedback
   const [importResult, setImportResult] = useState(null) // { ok, fail, errors[] }
   const [importing, setImporting] = useState(false)
+  // delete flow: id currently being deleted (shows a spinner on its button)
+  const [deletingId, setDeletingId] = useState(null)
 
   const mapBackendItem = (item, index) => ({
     id: item.id ?? index,
@@ -153,7 +188,12 @@ export const StocksList = () => {
         : { en: String(item.name ?? ''), kh: String(item.nameKh ?? item.name ?? '') },
     category: item.category || 'other',
     oldPrice: item.oldPrice ? Number(item.oldPrice) : null,
-    image: (typeof item.imageUrl === 'string' && item.imageUrl) || null,
+    // blob: URLs died with the page that created them — drop them so the
+    // placeholder shows instead of a permanently broken <img>
+    image:
+      typeof item.imageUrl === 'string' && item.imageUrl && !item.imageUrl.startsWith('blob:')
+        ? item.imageUrl
+        : null,
     // full ProductDto passthrough for the extended columns
     code: item.code ?? '',
     barCode: item.barCode ?? '',
@@ -462,6 +502,7 @@ export const StocksList = () => {
     next: { en: 'Next', kh: 'បន្ទាប់' },
     units: { en: 'units', kh: 'ឯកតា' },
     edit: { en: 'Edit', kh: 'កែប្រែ' },
+    delete: { en: 'Delete', kh: 'លុប' },
     importOk: { en: 'imported', kh: 'បាននាំចូល' },
     importFail: { en: 'failed', kh: 'បរាជ័យ' },
   }
@@ -477,7 +518,10 @@ export const StocksList = () => {
         return (
           <button type="button" onClick={() => onEditProduct(product)} className="flex items-center gap-3 text-left" title={lang === 'en' ? 'Click to edit this product' : 'ចុចដើម្បីកែប្រែផលិតផលនេះ'}>
             {product.image ? (
-              <img src={product.image} alt="" className="h-10 w-10 flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-700" onError={(e) => { e.currentTarget.style.visibility = 'hidden' }} />
+              <img src={product.image} alt="" className="h-10 w-10 flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-700" onError={(e) => {
+                // broken URL (e.g. truncated legacy upload) — swap to the placeholder
+                e.currentTarget.outerHTML = '<span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ring-slate-700" style="background-color:rgba(119,188,31,0.12)">🥫</span>'
+              }} />
             ) : (
               <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ring-slate-700" style={{ backgroundColor: 'rgba(119,188,31,0.12)' }}>🥫</span>
             )}
@@ -782,15 +826,28 @@ export const StocksList = () => {
                         </td>
                       ))}
                       <td className="px-3 py-3">
-                        <button
-                          type="button"
-                          onClick={() => onEditProduct(product)}
-                          aria-label={TEXTS.edit[lang]}
-                          title={TEXTS.edit[lang]}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:text-green-300"
-                        >
-                          <EditIcon />
-                        </button>
+                        <span className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onEditProduct(product)}
+                            aria-label={TEXTS.edit[lang]}
+                            title={TEXTS.edit[lang]}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:text-green-300"
+                          >
+                            <EditIcon />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onDeleteProduct(product)}
+                            disabled={deletingId === String(product.id)}
+                            aria-label={TEXTS.delete[lang]}
+                            title={TEXTS.delete[lang]}
+                            style={{ color: ORANGE }}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:scale-110 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            {deletingId === String(product.id) ? <SpinnerIcon /> : <TrashIcon />}
+                          </button>
+                        </span>
                       </td>
                     </tr>
                   )
@@ -1049,5 +1106,20 @@ const EditIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+)
+
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+)
+
+const SpinnerIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="animate-spin">
+    <path d="M21 12a9 9 0 1 1-6.2-8.56" />
   </svg>
 )

@@ -326,21 +326,36 @@ export const AddProducts = () => {
   // Convert the picked file into a compressed base64 data URL so it is saved
   // WITH the product (in imageUrl) instead of a temporary browser-only
   // blob: URL that disappears after the page is left — that was why images
-  // vanished after saving. Downscale to max 640px / ~80% JPEG to keep the
-  // payload small enough for the database column.
+  // vanished after saving. The backend image_url column is TEXT (~64 KB), so
+  // keep shrinking (scale then quality) until the data URL fits — bigger
+  // uploads used to get silently truncated and render as broken images.
+  const MAX_IMAGE_CHARS = 60000
+  const drawScaled = (img, scale) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(img.width * scale))
+    canvas.height = Math.max(1, Math.round(img.height * scale))
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+    return canvas
+  }
   const handleImage = (file) => {
     if (!file || !file.type.startsWith('image/')) return
     const reader = new FileReader()
     reader.onload = () => {
       const img = new Image()
       img.onload = () => {
-        const MAX = 640
-        const scale = Math.min(1, MAX / Math.max(img.width, img.height))
-        const canvas = document.createElement('canvas')
-        canvas.width = Math.max(1, Math.round(img.width * scale))
-        canvas.height = Math.max(1, Math.round(img.height * scale))
-        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
-        setImagePreview(canvas.toDataURL('image/jpeg', 0.8))
+        let scale = Math.min(1, 640 / Math.max(img.width, img.height))
+        let quality = 0.8
+        let dataUrl = drawScaled(img, scale).toDataURL('image/jpeg', quality)
+        while (dataUrl.length > MAX_IMAGE_CHARS && quality > 0.3) {
+          quality -= 0.1
+          dataUrl = drawScaled(img, scale).toDataURL('image/jpeg', quality)
+          if (quality <= 0.3 && dataUrl.length > MAX_IMAGE_CHARS && scale > 0.25) {
+            scale *= 0.7
+            quality = 0.8
+            dataUrl = drawScaled(img, scale).toDataURL('image/jpeg', quality)
+          }
+        }
+        setImagePreview(dataUrl)
         setImageFile(file)
       }
       img.src = reader.result
