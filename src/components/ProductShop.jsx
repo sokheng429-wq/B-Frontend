@@ -18,6 +18,7 @@ const TEXTS = {
   sortPriceLow: { en: 'Price: Low to High', kh: 'តម្លៃ៖ ទាបទៅខ្ពស់' },
   sortPriceHigh: { en: 'Price: High to Low', kh: 'តម្លៃ៖ ខ្ពស់ទៅទាប' },
   sortRating: { en: 'Top Rated', kh: 'ពិន្ទុខ្ពស់' },
+  sortNameAz: { en: 'Name: A to Z', kh: 'ឈ្មោះ៖ ក្រៅទៅខាងក្នុង' },
   noResults: { en: 'No products match your search.', kh: 'រកមិនឃើញផលិតផលដែលត្រូវគ្នា។' },
   noResultsHint: { en: 'Try a different keyword or clear the filters.', kh: 'សាកល្បងពាក្យផ្សេង ឬលុបចោលការត្រង។' },
   clearAll: { en: 'Clear filters', kh: 'លុបការត្រង' },
@@ -79,7 +80,9 @@ const pageItems = (page, total) => {
   return pages
 }
 
-export const ProductShop = ({ products = [], initialSort = 'default', showCategories = true }) => {
+// `categories` lets pages feed live master-data categories (Stocks →
+// Categories) into the rail; falls back to the built-in demo list.
+export const ProductShop = ({ products = [], initialSort = 'default', showCategories = true, categories = CATEGORIES }) => {
   const { lang } = useLanguage()
   const { addToCart } = useCart()
   const t = (k) => TEXTS[k][lang]
@@ -162,10 +165,12 @@ export const ProductShop = ({ products = [], initialSort = 'default', showCatego
       list = list.sort((a, b) => b.price - a.price)
     } else if (sort === 'rating') {
       list = list.sort((a, b) => b.rating - a.rating)
+    } else if (sort === 'name-az') {
+      list = list.sort((a, b) => (a.name.en || '').localeCompare(b.name.en || ''))
     } else if (sort === 'deal') {
       list = list.sort((a, b) => {
-        const aHasDeal = Boolean(a.oldPrice) ? 1 : 0
-        const bHasDeal = Boolean(b.oldPrice) ? 1 : 0
+        const aHasDeal = a.oldPrice ? 1 : 0
+        const bHasDeal = b.oldPrice ? 1 : 0
         if (bHasDeal !== aHasDeal) return bHasDeal - aHasDeal
         return b.sold - a.sold
       })
@@ -233,7 +238,7 @@ export const ProductShop = ({ products = [], initialSort = 'default', showCatego
               aria-expanded={sortOpen}
             >
               <SortIcon />
-              <span>{t(sort === 'default' ? 'sortDefault' : sort === 'deal' ? 'sortDeal' : sort === 'price-low' ? 'sortPriceLow' : sort === 'price-high' ? 'sortPriceHigh' : 'sortRating')}</span>
+              <span>{t(sort === 'default' ? 'sortDefault' : sort === 'deal' ? 'sortDeal' : sort === 'price-low' ? 'sortPriceLow' : sort === 'price-high' ? 'sortPriceHigh' : sort === 'name-az' ? 'sortNameAz' : 'sortRating')}</span>
               <ChevronDownIcon />
             </button>
             {sortOpen && (
@@ -244,6 +249,7 @@ export const ProductShop = ({ products = [], initialSort = 'default', showCatego
                   { key: 'price-low', label: t('sortPriceLow') },
                   { key: 'price-high', label: t('sortPriceHigh') },
                   { key: 'rating', label: t('sortRating') },
+                  { key: 'name-az', label: t('sortNameAz') },
                 ].map((s) => (
                   <button
                     key={s.key}
@@ -273,7 +279,7 @@ export const ProductShop = ({ products = [], initialSort = 'default', showCatego
             <span aria-hidden="true">🛒</span>
             {t('all')}
           </button>
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.key}
               type="button"

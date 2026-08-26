@@ -23,39 +23,25 @@ const TEMPLATES = [
   { value: 'blank', en: 'Blank', kh: 'ទំព័រទំនេរ' },
 ]
 
-export const ReceiveProductsCreate = ({ products, editingDoc, onPosted, onClose }) => {
+export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
   const { lang } = useLanguage()
   const t = (en, kh) => (lang === 'en' ? en : kh)
 
   /* ---------- general information ---------- */
   const [suppliers, setSuppliers] = useState([])
   const [units, setUnits] = useState([])
-  // editing an existing document keeps its code; creating generates a fresh one
-  const [code] = useState(() => editingDoc?.code || `GRN-${String(Date.now()).slice(-6)}`)
-  const [supplier, setSupplier] = useState(editingDoc?.supplier || '')
-  const [outlet, setOutlet] = useState(editingDoc?.outlet || 'main')
-  const [location, setLocation] = useState(editingDoc?.location || 'main')
-  const [receiveType, setReceiveType] = useState(editingDoc?.receiveType || 'Purchase Order')
-  const [receiveDate, setReceiveDate] = useState(editingDoc?.date || new Date().toISOString().slice(0, 10))
-  const [template, setTemplate] = useState(editingDoc?.template || 'default')
+  const [code] = useState(() => `GRN-${String(Date.now()).slice(-6)}`)
+  const [supplier, setSupplier] = useState('')
+  const [outlet, setOutlet] = useState('main')
+  const [location, setLocation] = useState('main')
+  const [receiveType, setReceiveType] = useState('Purchase Order')
+  const [receiveDate, setReceiveDate] = useState(new Date().toISOString().slice(0, 10))
+  const [template, setTemplate] = useState('default')
   const [noteType, setNoteType] = useState('')
   const [noteText, setNoteText] = useState('')
 
   /* ---------- product lines ---------- */
-  // editing restores the saved lines (without re-posting quantities)
-  const [lines, setLines] = useState(() => (editingDoc?.lines || []).map((l, i) => ({
-    productId: l.productId ?? `line-${i}`,
-    code: '',
-    barCode: '',
-    name: l.name || `#${l.productId}`,
-    imageUrl: products.find((p) => String(p.id) === String(l.productId))?.imageUrl || '',
-    onHand: Number(products.find((p) => String(p.id) === String(l.productId))?.onHand) || 0,
-    qty: String(Number(l.qty) || ''),
-    cost: String(Number(l.unitCost ?? 0).toFixed(2)),
-    uom: '',
-    raw: null,
-    serials: l.serials || [],
-  })))
+  const [lines, setLines] = useState([])
   const [productQuery, setProductQuery] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -127,29 +113,6 @@ export const ReceiveProductsCreate = ({ products, editingDoc, onPosted, onClose 
     }
     setSaving(true)
     setError(null)
-
-    // editing only updates the local document — quantities were already posted
-    if (editingDoc) {
-      onPosted({
-        code,
-        date: receiveDate,
-        supplier,
-        totalCost: Math.round(lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.cost) || 0), 0) * 100) / 100,
-        receiveType,
-        reference: '',
-        receivedBy: outlet,
-        status: 'Received',
-        outlet,
-        location,
-        template,
-        noteType: NOTE_OPTIONS.find((n) => n.value === noteType)?.[lang] || '',
-        note: noteText,
-        lines: lines.map((l) => ({ productId: l.productId, name: l.name, qty: Number(l.qty), unitCost: Number(l.cost) || 0, serials: l.serials })),
-      })
-      setPostedDoc({ fails: [], totalCost: grandTotal })
-      setSaving(false)
-      return
-    }
 
     const posted = []
     const fails = []

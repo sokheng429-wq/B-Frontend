@@ -32,6 +32,7 @@ const GENDER_OPTIONS = ['Male', 'Female', 'Other']
 // straight back through Import. contactName/address are derived columns
 // (composed from the default contact / location rows on the backend).
 const COLUMN_DEFS = [
+  { key: 'supplierGroup', label: { en: 'Suppliers Group', kh: 'ក្រុមអ្នកផ្គត់ផ្គង់' } },
   { key: 'contactName', label: { en: 'Contact Name', kh: 'ឈ្មោះទំនាក់ទំនង' } },
   { key: 'phone', label: { en: 'Phone', kh: 'ទូរស័ព្ទ' }, derivedKey: 'contactPhone' },
   { key: 'email', label: { en: 'Email', kh: 'អ៊ីមែល' }, derivedKey: 'contactEmail' },
@@ -43,7 +44,9 @@ const COLUMN_DEFS = [
 ]
 
 // Columns shown before the user customizes anything.
-const DEFAULT_COLS = ['contactName', 'phone', 'email', 'currentBalance', 'debitDepositPaymentTerm', 'purchasePerson', 'address', 'active']
+// Debit/Deposit Payment Term stays available in Choose Column but is
+// unticked by default.
+const DEFAULT_COLS = ['supplierGroup', 'contactName', 'phone', 'email', 'currentBalance', 'purchasePerson', 'address', 'active']
 
 // Build an .xlsx workbook from header + data rows and trigger a download.
 function downloadExcel(filename, sheetName, headerRow, dataRows) {
@@ -667,7 +670,7 @@ export const Suppliers = () => {
   }
 
   const TEXTS = {
-    back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+    back: { en: 'Stocks', kh: 'ស្តុក' },
     heroTitle: { en: 'Suppliers', kh: 'អ្នកផ្គត់ផ្គង់' },
     heroSub: {
       en: 'Everyone we buy stock from — groups, terms and purchasing setup.',
@@ -843,7 +846,7 @@ export const Suppliers = () => {
       {/* Page header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <Link to="/admin" className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-green-400 transition hover:text-green-300">
+          <Link to="/admin/products" className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-green-400 transition hover:text-green-300">
             <ChevronLeftIcon /> {TEXTS.back[lang]}
           </Link>
           <div className="flex flex-wrap items-center gap-3">

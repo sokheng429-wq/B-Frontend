@@ -458,7 +458,7 @@ export const StocksList = () => {
   }
 
   const TEXTS = {
-    back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+    back: { en: 'Stocks', kh: 'ស្តុក' },
     heroTitle: { en: 'All Products', kh: 'ផលិតផលទាំងអស់' },
     heroSub: {
       en: 'Every product in the B\'Groceries catalog — search, filter, import and export.',
@@ -577,7 +577,7 @@ export const StocksList = () => {
       {/* Page header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <Link to="/admin" className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-green-400 transition hover:text-green-300">
+          <Link to="/admin/products" className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-green-400 transition hover:text-green-300">
             <ChevronLeftIcon /> {TEXTS.back[lang]}
           </Link>
           <div className="flex flex-wrap items-center gap-3">
