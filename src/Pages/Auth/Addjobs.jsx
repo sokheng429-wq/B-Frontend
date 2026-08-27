@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { jobAPI } from '../../api/api'
+import './Addjobs.css'
 
 const DEPARTMENTS = [
   { en: 'Engineering', kh: 'វិស្វកម្ម' },

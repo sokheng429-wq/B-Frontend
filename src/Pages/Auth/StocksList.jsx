@@ -4,6 +4,8 @@ import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { adminProductAPI } from '../../api/api'
+import { ConfirmModal } from './stockUI'
+import './StocksList.css'
 import { PRODUCTS as DEMO_PRODUCTS, CATEGORIES, formatPrice } from '../../data/products'
 
 // Theme constants — B'Groceries dark admin palette.
@@ -123,37 +125,45 @@ export const StocksList = () => {
   // The edit page reads ?id= and loads the full record from the backend.
   const onEditProduct = (product) => navigate(`/admin/products/edit?id=${product.id}`)
 
+  const [confirmAction, setConfirmAction] = useState(null)
+
   // Delete with a confirm dialog; on success removes the row locally (and
   // clears it from any active filters' source list) without a full reload.
   const onDeleteProduct = (product) => {
     const name = typeof product.name === 'object' ? product.name?.en : product.name
-    const msg = lang === 'en'
-      ? `Delete "${name || `#${product.id}`}"?\n\nThis permanently removes the product from the catalog. This cannot be undone.`
-      : `លុប "${name || `#${product.id}`}"?\n\nនេះនឹងលុបផលិតផលចេញពីកាតាឡុកជាអចិន្ត្រៃយ៍។ មិនអាចត្រឡប់វិញបានទេ។`
-    if (!window.confirm(msg)) return
-    setDeletingId(String(product.id))
-    adminProductAPI
-      .delete(product.id)
-      .then(() => {
-        setProducts((prev) => prev.filter((p) => String(p.id) !== String(product.id)))
-        setSelected((prev) => {
-          const next = new Set(prev)
-          next.delete(String(product.id))
-          return next
-        })
-        addNotification({
-          type: 'product',
-          action: 'delete',
-          title: lang === 'en' ? 'Product deleted' : 'បានលុបផលិតផល',
-          detail: name,
-        })
-      })
-      .catch((err) => {
-        window.alert(lang === 'en'
-          ? `Failed to delete: ${err.message}`
-          : `ការលុបបរាជ័យ៖ ${err.message}`)
-      })
-      .finally(() => setDeletingId(null))
+    setConfirmAction({
+      title: { en: 'Delete Product', kh: 'លុបផលិតផល' },
+      message: {
+        en: `Are you sure you want to permanently delete "${name || `#${product.id}`}"? This action cannot be undone.`,
+        kh: `តើអ្នកពិតជាចង់លុប "${name || `#${product.id}`}" ចេញជាអចិន្ត្រៃយ៍មែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។`,
+      },
+      confirmText: { en: 'Confirm Delete', kh: 'យល់ព្រមលុប' },
+      cancelText: { en: 'Cancel', kh: 'បោះបង់' },
+      type: 'danger',
+      onConfirm: () => {
+        setDeletingId(String(product.id))
+        adminProductAPI
+          .delete(product.id)
+          .then(() => {
+            setProducts((prev) => prev.filter((p) => String(p.id) !== String(product.id)))
+            setSelected((prev) => {
+              const next = new Set(prev)
+              next.delete(String(product.id))
+              return next
+            })
+            addNotification({
+              type: 'product',
+              action: 'delete',
+              title: lang === 'en' ? 'Product deleted' : 'បានលុបផលិតផល',
+              detail: name,
+            })
+          })
+          .catch((err) => {
+            console.error(err)
+          })
+          .finally(() => setDeletingId(null))
+      },
+    })
   }
 
   const [products, setProducts] = useState(DEMO_PRODUCTS)
@@ -991,6 +1001,19 @@ export const StocksList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {confirmAction && (
+        <ConfirmModal
+          open={!!confirmAction}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={() => {
+            const fn = confirmAction.onConfirm
+            setConfirmAction(null)
+            fn?.()
+          }}
+          {...confirmAction}
+        />
       )}
     </div>
   )

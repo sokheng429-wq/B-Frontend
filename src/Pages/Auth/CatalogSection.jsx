@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { ALL_CATALOG_SECTIONS } from './ProductsHub'
+import './CatalogSection.css'
 
 // Generic landing page for one catalog sub-section (groups, categories,
 // brands, units, attributes, suppliers, supplier-groups). Renders the

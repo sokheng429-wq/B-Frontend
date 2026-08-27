@@ -411,3 +411,31 @@ export const orderAPI = {
 export const dashboardAPI = {
   getStats: () => request('/dashboard/stats'),
 }
+
+// ===== ADMIN STOCK DOCUMENTS (Stocks → Receive / Issue / Adjust) =====
+export const adminStockDocAPI = {
+  getAll: (docType) => {
+    const qs = docType ? `?docType=${encodeURIComponent(docType)}` : ''
+    return request(`/admin/stock-documents${qs}`)
+  },
+  getByProduct: (productId) => request(`/admin/stock-documents/by-product/${productId}`),
+  create: (data) => request('/admin/stock-documents', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stock-documents/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN TRANSFERS (Stocks → Request Transfer / Ship / Transfer Products) =====
+export const adminTransferAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams()
+    if (filters.docType) params.set('docType', filters.docType)
+    if (filters.status) params.set('status', filters.status)
+    const qs = params.toString()
+    return request(qs ? `/admin/transfers?${qs}` : '/admin/transfers')
+  },
+  getById: (id) => request(`/admin/transfers/${id}`),
+  create: (data) => request('/admin/transfers', { method: 'POST', body: JSON.stringify(data) }),
+  updateStatus: (id, data) => request(`/admin/transfers/${id}/status`, { method: 'PUT', body: JSON.stringify(data) }),
+  shipBulk: (data = {}) => request('/admin/transfers/ship-bulk', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/transfers/${id}`, { method: 'DELETE' }),
+}
+

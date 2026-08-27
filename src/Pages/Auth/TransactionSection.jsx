@@ -1,24 +1,31 @@
 import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI } from '../../api/api'
+import { adminProductAPI, adminStockDocAPI } from '../../api/api'
 import { useCollection, LOCATIONS } from './stockStore'
 import ReceiveProductsCreate from './ReceiveProductsCreate'
 import TransactionDocCreate from './TransactionDocCreate'
+import fileNewIcon from '../../assets/icon/3dicons-file-new-dynamic-color.png'
+import callOutIcon from '../../assets/icon/3dicons-call-out-dynamic-color.png'
+import toolsIcon from '../../assets/icon/3dicons-tools-dynamic-color.png'
+import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import { SectionShell, PrimaryButton, Modal, DataTable, Pill } from './stockUI'
+import './TransactionSection.css'
 
 const ORANGE = '#FF9900'
 
 // Per-operation configuration.
 const OPS = {
   'receive-products': {
-    icon: '📥', color: '#22c55e', kind: 'receive',
+    icon: fileNewIcon, color: '#22c55e', kind: 'receive',
     title: { en: 'Receive Products', kh: 'ទទួលទំនិញ' },
     subtitle: { en: 'Goods receipt from a supplier or PO — raises on-hand and recalculates moving average cost.', kh: 'ការទទួលទំនិញពីអ្នកផ្គត់ផ្គង់ ឬ PO — បង្កើនស្តុក និងគណនាចំណាយមធ្យមឡើងវិញ។' },
     docPrefix: 'GRN',
   },
   'issue-products': {
-    icon: '📤', color: '#f97316', kind: 'issue',
+    icon: callOutIcon, color: '#f97316', kind: 'issue',
     title: { en: 'Issue Products', kh: 'ដកទំនិញចេញ' },
     subtitle: { en: 'Deduct stock for internal use, write-offs, samples or other non-sale outflows.', kh: 'ដកស្តុកសម្រាប់ប្រើប្រាស់ខាងក្នុង ជាគំរូ ឬការដកចេញផ្សេងទៀត។' },
     docPrefix: 'GI',
@@ -28,7 +35,7 @@ const OPS = {
     searchFields: ['type', 'outlet'],
   },
   'adjustment-products': {
-    icon: '🔧', color: '#eab308', kind: 'adjust',
+    icon: toolsIcon, color: '#eab308', kind: 'adjust',
     title: { en: 'Adjustment Products', kh: 'កែតម្រូវស្តុក' },
     subtitle: { en: 'Reconcile physical counts with system quantities (breakage, theft, counting errors).', kh: 'តម្រឹមការរាប់ជាមួយបរិមាណក្នុងប្រព័ន្ធ (ខូច បាត់បង់ កំហុសរាប់)។' },
     docPrefix: 'ADJ',
@@ -39,7 +46,7 @@ const OPS = {
   },
   // ---- transfer workflow: request → ship → receive ------------------------
   'request-transfer': {
-    icon: '📨', color: '#0ea5e9', kind: 'transfer-request',
+    icon: mailIcon, color: '#0ea5e9', kind: 'transfer-request',
     title: { en: 'Request Transfer Products', kh: 'សំណើផ្ទេរទំនិញ' },
     subtitle: { en: 'A branch requests stock from another location. Requests start as PENDING until shipped.', kh: 'សាខាស្នើសុំស្តុកពីទីតាំងផ្សេង។ សំណើចាប់ផ្តើមជាស្ថានភាព PENDING រហូតដល់ដឹកជញ្ជូន។' },
     docPrefix: 'TR',
@@ -55,13 +62,13 @@ const OPS = {
     ],
   },
   'ship-request-transfer': {
-    icon: '🛫', color: '#8b5cf6', kind: 'transfer-ship',
+    icon: rocketIcon, color: '#8b5cf6', kind: 'transfer-ship',
     title: { en: 'Ship & Request Transfer Products', kh: 'ដឹកជញ្ជូនសំណើផ្ទេរ' },
     subtitle: { en: 'Review pending transfer requests, pick items and mark them In-Transit.', kh: 'ពិនិត្យសំណើដែលរង់ចាំ ជ្រើសរើសទំនិញ និងសម្គាល់ជាកំពុងដឹកជញ្ជូន។' },
     docPrefix: '',
   },
   'transfer-products': {
-    icon: '🔁', color: '#14b8a6', kind: 'transfer-receive',
+    icon: travelIcon, color: '#14b8a6', kind: 'transfer-receive',
     title: { en: 'Transfer Products', kh: 'ទទួលទំនិញផ្ទេរ' },
     subtitle: { en: 'Confirm receipt of in-transit items to add them to local on-hand stock.', kh: 'បញ្ជាក់ការទទួលទំនិញកំពុងដឹកជញ្ជូន ដើម្បីបន្ថែមលើស្តុកមូលដ្ឋាន។' },
     docPrefix: '',
@@ -169,13 +176,79 @@ export const TransactionSection = ({ sectionKey }) => {
 
   // ledgers — shared transfer workflow + per-op posting history
   const [requests, requestApi] = useCollection('tr-requests')
-  const [history, historyApi] = useCollection(`ledger-${sectionKey}`)
+  const [localHistory, historyApi] = useCollection(`ledger-${sectionKey}`)
+  const [liveHistory, setLiveHistory] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const docTypeMap = {
+    'receive': 'RECEIVE',
+    'issue': 'ISSUE',
+    'adjust': 'ADJUST',
+  }
+
+  const loadData = async () => {
+    setLoading(true)
+    try {
+      const [pRes, sRes] = await Promise.allSettled([
+        adminProductAPI.getAll(),
+        docTypeMap[op?.kind] ? adminStockDocAPI.getAll(docTypeMap[op.kind]) : Promise.resolve(null),
+      ])
+      if (pRes.status === 'fulfilled' && Array.isArray(pRes.value?.data)) {
+        setProducts(pRes.value.data)
+      }
+      if (sRes.status === 'fulfilled' && Array.isArray(sRes.value?.data)) {
+        const backendDocs = sRes.value.data.map((d) => ({
+          id: d.id,
+          code: d.code,
+          date: d.date,
+          type: d.receiveType || d.docType,
+          supplier: d.supplier,
+          receiveType: d.receiveType,
+          reference: d.reference || '',
+          receivedBy: d.receivedBy || '',
+          issuedBy: d.receivedBy || '',
+          outlet: d.locationKey || d.receivedBy || '',
+          location: d.locationKey || '',
+          totalCost: d.totalCost ?? 0,
+          status: d.status || (op.kind === 'receive' ? 'Received' : op.statusLabel?.[lang] || 'Completed'),
+          note: d.note || '',
+          posted: (d.lines || []).map((l) => ({
+            productId: l.productId,
+            name: l.nameSnapshot || `#${l.productId}`,
+            qty: l.qty,
+            counted: l.countedQty,
+            before: l.qtyBefore,
+            after: l.qtyAfter,
+            unitCost: l.unitCost,
+            diff: l.qty != null ? l.qty : (l.countedQty != null && l.qtyBefore != null ? l.countedQty - l.qtyBefore : 0),
+            serials: l.serials,
+          })),
+          lines: (d.lines || []).map((l) => ({
+            productId: l.productId,
+            name: l.nameSnapshot || `#${l.productId}`,
+            qty: l.qty,
+            counted: l.countedQty,
+            before: l.qtyBefore,
+            after: l.qtyAfter,
+            unitCost: l.unitCost,
+            diff: l.qty != null ? l.qty : (l.countedQty != null && l.qtyBefore != null ? l.countedQty - l.qtyBefore : 0),
+            serials: l.serials,
+          })),
+        }))
+        setLiveHistory(backendDocs)
+      }
+    } catch {
+      // fallback to local collection
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    adminProductAPI.getAll()
-      .then((res) => setProducts(Array.isArray(res?.data) ? res.data : []))
-      .catch(() => {})
-  }, [])
+    loadData()
+  }, [sectionKey])
+
+  const history = liveHistory.length > 0 ? liveHistory : localHistory
 
   if (!op) return null
 

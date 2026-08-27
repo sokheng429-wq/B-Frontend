@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { userAPI } from '../../api/api'
+import './ManageUsers.css'
 
 // Role hierarchy: ADMIN (full access, always on top) > STORE ("Online Store" —
 // products-side dashboard only) > USER (regular account).

@@ -2,7 +2,20 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { publicAPI } from '../../api/api'
+
+// Assets
 import careerHero from '../../assets/Career.png'
+
+// 3D Icons
+import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
+import heartIcon from '../../assets/icon/3dicons-heart-dynamic-color.png'
+import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
+import walletIcon from '../../assets/icon/3dicons-wallet-dynamic-color.png'
+import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+
 import './Career.css'
 
 const formatPosted = (iso, lang) => {
@@ -19,36 +32,37 @@ const formatPosted = (iso, lang) => {
 }
 
 const BENEFITS = [
-  { icon: '⏰', en: 'Flexible Hours', kh: 'ម៉ោងបត់បែន' },
-  { icon: '🏥', en: 'Health Insurance', kh: 'ធានារ៉ាប់រងសុខភាព' },
-  { icon: '📚', en: 'Learning Budget', kh: 'ថវិកាសិក្សា' },
-  { icon: '🎉', en: 'Team Events', kh: 'ព្រឹត្តិការណ៍ក្រុម' },
-  { icon: '📈', en: 'Growth Path', kh: 'ផ្លូវរីកចម្រើន' },
-  { icon: '🍎', en: 'Free Snacks', kh: 'អាហារសម្រន់ឥតគិតថ្លៃ' },
+  { icon: walletIcon, title: { en: 'Competitive Salary', kh: 'ប្រាក់បៀវត្សសមរម្យ' }, desc: { en: 'Above-market pay with performance bonuses.', kh: 'ប្រាក់បៀវត្សលើសទីផ្សារ ជាមួយប្រាក់រង្វាន់ការងារ។' } },
+  { icon: shieldIcon, title: { en: 'Health & Medical', kh: 'ធានារ៉ាប់រងសុខភាព' }, desc: { en: 'Comprehensive healthcare coverage for you and family.', kh: 'ការធានារ៉ាប់រងសុខភាពពេញលេញសម្រាប់អ្នកនិងគ្រួសារ។' } },
+  { icon: rocketIcon, title: { en: 'Accelerated Growth', kh: 'ឱកាសរីកចម្រើន' }, desc: { en: 'Rapid promotion tracks and skill development.', kh: 'ការដំឡើងតំណែងរហ័ស និងការបណ្តុះបណ្តាលជំនាញ។' } },
+  { icon: sunIcon, title: { en: 'Flexible Work', kh: 'ម៉ោងធ្វើការបត់បែន' }, desc: { en: 'Hybrid options and balanced work schedules.', kh: 'ការងារបត់បែន និងពេលវេលាការងារសមស្រប។' } },
+  { icon: heartIcon, title: { en: 'Daily Fresh Perks', kh: 'អាហារសម្រន់ស្រស់ៗ' }, desc: { en: 'Free organic farm snacks & 30% employee grocery discount.', kh: 'អាហារសម្រន់សរីរាង្គឥតគិតថ្លៃ និងបញ្ចុះតម្លៃ ៣០% លើគ្រឿងទេស។' } },
+  { icon: trophyIcon, title: { en: 'Annual Rewards', kh: 'រង្វាន់ប្រចាំឆ្នាំ' }, desc: { en: 'Annual company retreats, team outings, and awards.', kh: 'ដំណើរកម្សាន្តប្រចាំឆ្នាំ ព្រឹត្តិការណ៍ក្រុម និងពានរង្វាន់។' } },
 ]
 
 const STATS = [
-  { value: '200+', en: 'Team Members', kh: 'សមាជិកក្រុម' },
-  { value: '4', en: 'Cities', kh: 'ទីក្រុង' },
-  { value: '95%', en: 'Retention Rate', kh: 'អត្រារក្សាបុគ្គលិក' },
-  { value: '12+', en: 'Open Positions', kh: 'មុខតំណែងបើកទទួល' },
+  { value: '200+', en: 'Team Members', kh: 'សមាជិកក្រុម', icon: trophyIcon },
+  { value: '25', en: 'Provinces Covered', kh: 'ខេត្តគ្របដណ្តប់', icon: rocketIcon },
+  { value: '96%', en: 'Employee Retention', kh: 'អត្រារក្សាបុគ្គលិក', icon: heartIcon },
+  { value: '45m', en: 'Fast Pace Spirit', kh: 'ស្មារតីរហ័សរហួន', icon: flashIcon },
 ]
 
 const TEXTS = {
-  heroEyebrow: { en: "B'Groceries Careers", kh: "B'Groceries ការងារ" },
-  title: { en: 'Join Our Team', kh: 'ចូលរួមជាមួយក្រុមការងារយើង' },
-  subtitle: { en: "Build your career with Cambodia's fastest-growing grocery delivery service", kh: 'កសាងអាជីពរបស់អ្នកជាមួយសេវាកម្មដឹកជញ្ជូនគ្រឿងទេសដែលរីកចម្រើនលឿនបំផុតនៅកម្ពុជា' },
-  benefitsEyebrow: { en: 'Perks & Benefits', kh: 'អត្ថប្រយោជន៍' },
-  benefits: { en: 'Why Work With Us', kh: 'ហេតុអ្វីត្រូវធ្វើការជាមួយយើង' },
-  benefitsSub: { en: 'We take care of our people — because great service starts with a great team.', kh: 'យើងថែរក្សាបុគ្គលិករបស់យើង — ព្រោះសេវាកម្មដ៏អស្ចារ្យចាប់ផ្តើមពីក្រុមការងារដ៏អស្ចារ្យ។' },
-  apply: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវនេះ' },
-  details: { en: 'Details', kh: 'ព័ត៌មានលម្អិត' },
+  heroEyebrow: { en: "B'Groceries Careers", kh: "B'Groceries ឱកាសការងារ" },
+  title: { en: 'Build Cambodia’s Fresh Food Future', kh: 'រួមគ្នាកសាងអនាគតអាហារស្រស់នៅកម្ពុជា' },
+  subtitle: { en: 'Join a fast-moving, high-craft team transforming agriculture, cold-chain logistics, and e-commerce across Cambodia.', kh: 'ចូលរួមជាមួយក្រុមការងារដែលកំពុងផ្លាស់ប្តូរវិស័យកសិកម្ម ប្រព័ន្ធដឹកជញ្ជូនត្រជាក់ និងពាណិជ្ជកម្មអេឡិចត្រូនិកនៅកម្ពុជា។' },
+  benefitsEyebrow: { en: 'Perks & Culture', kh: 'វប្បធម៌ និងអត្ថប្រយោជន៍' },
+  benefits: { en: 'Why You’ll Love Working Here', kh: 'ហេតុអ្វីអ្នកនឹងស្រលាញ់ការងារនៅទីនេះ' },
+  benefitsSub: { en: 'We invest in our people — because delivering exceptional service starts with an empowered team.', kh: 'យើងវិនិយោគលើបុគ្គលិករបស់យើង — ព្រោះសេវាកម្មល្អឥតខ្ចោះចាប់ផ្តើមពីក្រុមការងារដែលមានសមត្ថភាព។' },
+  apply: { en: 'Apply Now', kh: 'ដាក់ពាក្យឥឡូវ' },
+  details: { en: 'Role Details', kh: 'ព័ត៌មានលម្អិត' },
   allDepartments: { en: 'All Departments', kh: 'គ្រប់ផ្នែក' },
-  noResults: { en: 'No open positions in this department right now — check back soon!', kh: 'មិនមានមុខតំណែងបើកក្នុងផ្នែកនេះទេឥឡូវ — សូមពិនិត្យម្តងទៀតនាពេលឆាប់ៗ!' },
+  noResults: { en: 'No open positions in this department right now — check back soon!', kh: 'មិនទាន់មានមុខតំណែងបើកក្នុងផ្នែកនេះទេ — សូមពិនិត្យម្តងទៀតឆាប់ៗ!' },
   loading: { en: 'Loading open positions...', kh: 'កំពុងផ្ទុកមុខតំណែង...' },
   loadError: { en: 'Could not load open positions.', kh: 'មិនអាចផ្ទុកមុខតំណែងបានទេ។' },
   retry: { en: 'Try again', kh: 'ព្យាយាមម្តងទៀត' },
   posted: { en: 'Posted', kh: 'បានប្រកាស' },
+  viewOpenings: { en: 'View All Open Roles', kh: 'មើលមុខតំណែងទាំងអស់' },
 }
 
 export const Career = () => {
@@ -78,7 +92,7 @@ export const Career = () => {
     }
   }, [refreshKey, lang])
 
-  // Department filter options are derived from the live data.
+  // Department filter options derived from data
   const departments = useMemo(
     () => [...new Set(jobs.map((j) => j.department).filter(Boolean))].sort(),
     [jobs]
@@ -95,84 +109,112 @@ export const Career = () => {
 
   return (
     <div className="career-page">
-      {/* Hero */}
-      <section className="career-hero">
-        <div className="career-hero-bg" />
-        <div className="career-hero-inner">
-          <div className="career-hero-copy">
-            <span className="career-hero-eyebrow">{TEXTS.heroEyebrow[lang]}</span>
-            <h1 className="career-hero-title">{TEXTS.title[lang]}</h1>
-            <p className="career-hero-subtitle">{TEXTS.subtitle[lang]}</p>
-          </div>
-          <div className="career-hero-visual">
-            <img
-              src={careerHero}
-              alt="B'Groceries team"
-              className="career-hero-img"
-            />
-          </div>
-        </div>
-        <div className="career-hero-stats">
-          {STATS.map((stat) => (
-            <div key={stat.value} className="career-stat">
-              <span className="career-stat-value">{stat.value}</span>
-              <span className="career-stat-label">{stat[lang]}</span>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Benefits */}
-      <section className="career-benefits">
+      {/* ===== 1. HERO SECTION ===== */}
+      <section className="career-hero">
+        <div className="career-hero-glow" />
         <div className="career-inner">
-          <div className="career-section-header">
-            <span className="career-section-eyebrow">{TEXTS.benefitsEyebrow[lang]}</span>
-            <h2 className="career-section-title">{TEXTS.benefits[lang]}</h2>
-            <p className="career-section-sub">{TEXTS.benefitsSub[lang]}</p>
+          <div className="career-hero-grid">
+            <div className="career-hero-copy">
+              <span className="career-section-eyebrow">
+                <img src={rocketIcon} alt="Rocket" className="career-3d-eyebrow-icon" />
+                <span>{TEXTS.heroEyebrow[lang]}</span>
+              </span>
+              <h1 className="career-hero-title">{TEXTS.title[lang]}</h1>
+              <p className="career-hero-subtitle">{TEXTS.subtitle[lang]}</p>
+              <div className="career-hero-actions">
+                <a href="#openings" className="career-btn-primary">
+                  <img src={bagIcon} alt="Job" className="career-btn-3d-icon" />
+                  <span>{TEXTS.viewOpenings[lang]}</span>
+                  <span className="career-btn-chevron">↓</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="career-hero-visual">
+              <div className="career-hero-frame">
+                <img src={careerHero} alt="B'Groceries team" className="career-hero-img" />
+              </div>
+            </div>
           </div>
-          <div className="benefits-grid">
-            {BENEFITS.map((b) => (
-              <div key={b.en} className="benefit-card">
-                <div className="benefit-icon-wrap">
-                  <span className="benefit-icon">{b.icon}</span>
+
+          {/* Stats strip */}
+          <div className="career-stats-strip">
+            {STATS.map((stat) => (
+              <div key={stat.value} className="career-stat-item">
+                <div className="career-stat-icon-wrap">
+                  <img src={stat.icon} alt={stat.en} className="career-stat-3d-icon" />
                 </div>
-                <span className="benefit-label">{b[lang]}</span>
+                <div className="career-stat-val">{stat.value}</div>
+                <div className="career-stat-lbl">{stat[lang]}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Jobs */}
-      <section className="career-jobs">
+      {/* ===== 2. PERKS & BENEFITS ===== */}
+      <section className="career-benefits">
+        <div className="career-inner">
+          <div className="career-section-header--center">
+            <span className="career-section-eyebrow">
+              <img src={heartIcon} alt="Heart" className="career-3d-eyebrow-icon" />
+              <span>{TEXTS.benefitsEyebrow[lang]}</span>
+            </span>
+            <h2 className="career-section-title">{TEXTS.benefits[lang]}</h2>
+            <div className="career-accent-line" />
+            <p className="career-section-sub">{TEXTS.benefitsSub[lang]}</p>
+          </div>
+
+          <div className="career-benefits-grid">
+            {BENEFITS.map((b) => (
+              <div key={b.title.en} className="career-benefit-card">
+                <div className="career-benefit-icon-box">
+                  <img src={b.icon} alt={b.title[lang]} className="career-benefit-3d-icon" />
+                </div>
+                <h3 className="career-benefit-title">{b.title[lang]}</h3>
+                <p className="career-benefit-desc">{b.desc[lang]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 3. OPEN POSITIONS ===== */}
+      <section id="openings" className="career-jobs-section">
         <div className="career-inner">
           <div className="career-jobs-header">
             <div>
-              <span className="career-section-eyebrow">{lang === 'en' ? `${filteredJobs.length} Openings` : `${filteredJobs.length} មុខតំណែង`}</span>
-              <h2 className="career-section-title">{lang === 'en' ? 'Open Positions' : 'មុខតំណែងដែលកំពុងទទួល'}</h2>
+              <span className="career-section-eyebrow">
+                <img src={flashIcon} alt="Jobs" className="career-3d-eyebrow-icon" />
+                <span>{lang === 'en' ? `${filteredJobs.length} Open Roles` : `${filteredJobs.length} មុខតំណែង`}</span>
+              </span>
+              <h2 className="career-section-title">{lang === 'en' ? 'Explore Open Positions' : 'ស្វែងរកមុខតំណែងដែលកំពុងត្រូវការ'}</h2>
             </div>
-          </div>
 
-          <div className="career-filters">
-            {filterOptions.map((dept) => (
-              <button
-                key={dept.key}
-                className={`career-filter-btn ${filter === dept.key ? 'career-filter-btn--active' : ''}`}
-                onClick={() => setFilter(dept.key)}
-              >
-                {dept.label}
-              </button>
-            ))}
+            {/* Department Filter Pills */}
+            <div className="career-filters">
+              {filterOptions.map((dept) => (
+                <button
+                  key={dept.key}
+                  type="button"
+                  className={`career-filter-pill ${filter === dept.key ? 'career-filter-pill--active' : ''}`}
+                  onClick={() => setFilter(dept.key)}
+                >
+                  {dept.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
-            <div className="career-empty">
-              <span className="career-empty-icon">⏳</span>
+            <div className="career-state-box">
+              <span className="career-spinner" />
               <p>{TEXTS.loading[lang]}</p>
             </div>
           ) : error ? (
-            <div className="career-empty">
-              <span className="career-empty-icon">⚠️</span>
+            <div className="career-state-box">
+              <span className="career-state-icon">⚠️</span>
               <p>{error}</p>
               <button
                 type="button"
@@ -182,94 +224,52 @@ export const Career = () => {
                 {TEXTS.retry[lang]}
               </button>
             </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="career-state-box">
+              <span className="career-state-icon">📭</span>
+              <p>{TEXTS.noResults[lang]}</p>
+            </div>
           ) : (
-            <div className="career-list">
+            <div className="career-job-list">
               {filteredJobs.map((job) => (
-                <div key={job.id} className="career-card">
-                  <div className="career-card-left">
-                    <div className="career-card-icon">
-                      <JobIcon />
+                <div key={job.id} className="career-job-card">
+                  <div className="career-job-main">
+                    <div className="career-job-top">
+                      <span className="career-job-dept-tag">{job.department || 'General'}</span>
+                      {job.createdAt && (
+                        <span className="career-job-posted">
+                          ⏱️ {TEXTS.posted[lang]} {formatPosted(job.createdAt, lang)}
+                        </span>
+                      )}
                     </div>
-                    <div className="career-card-info">
-                      <div className="career-card-header">
-                        <Link to={`/career-detail/${job.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                          <h3 className="career-card-title">{job.title}</h3>
-                        </Link>
-                      </div>
-                      <div className="career-card-meta">
-                        <span className="career-meta-item">
-                          <PinIcon /> {job.location}
-                        </span>
-                        <span className="career-meta-item">
-                          <ClockIcon /> {job.type}
-                        </span>
-                        <span className="career-meta-item">
-                          <DollarIcon /> {job.salary}
-                        </span>
-                        <span className="career-meta-item career-meta-posted">
-                          🕐 {TEXTS.posted[lang]} {formatPosted(job.createdAt, lang)}
-                        </span>
-                      </div>
+                    <h3 className="career-job-title">
+                      <Link to={`/career-detail/${job.id}`}>{job.title}</Link>
+                    </h3>
+                    <div className="career-job-meta">
+                      <span className="career-meta-chip">📍 {job.location || 'Phnom Penh'}</span>
+                      <span className="career-meta-chip">⏳ {job.type || 'Full-time'}</span>
+                      <span className="career-meta-chip career-meta-chip--salary">💰 {job.salary || 'Competitive'}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <Link to={`/career-detail/${job.id}`} className="career-apply-btn" style={{ background: '#232F3F', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>
+
+                  <div className="career-job-actions">
+                    <Link to={`/career-detail/${job.id}`} className="career-btn-details">
                       {TEXTS.details[lang]}
                     </Link>
-                    <Link to={`/apply-now?job=${job.id}`} className="career-apply-btn">
-                      {TEXTS.apply[lang]}
-                      <ChevronIcon />
+                    <Link to={`/apply-now?job=${job.id}`} className="career-btn-apply">
+                      <span>{TEXTS.apply[lang]}</span>
+                      <span className="career-btn-chevron">→</span>
                     </Link>
                   </div>
                 </div>
               ))}
             </div>
           )}
-
-          {!loading && !error && filteredJobs.length === 0 && (
-            <div className="career-empty">
-              <span className="career-empty-icon">📭</span>
-              <p>{TEXTS.noResults[lang]}</p>
-            </div>
-          )}
         </div>
       </section>
+
     </div>
   )
 }
-
-const JobIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-    <rect x="2" y="7" width="20" height="14" rx="2" />
-    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-  </svg>
-)
-
-const PinIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-)
-
-const ClockIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 6v6l4 2" />
-  </svg>
-)
-
-const DollarIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <line x1="12" y1="1" x2="12" y2="23" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-)
-
-const ChevronIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-)
 
 export default Career

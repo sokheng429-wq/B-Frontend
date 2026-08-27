@@ -1,38 +1,48 @@
 import { useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { useCart } from '../../context/CartContext'
 import {
-  PRODUCTS, REVIEWS, catLabel, storageFor, getProduct,
-  formatPrice, formatSold, discountPct, buildGallery, FALLBACK_IMG,
+  PRODUCTS, REVIEWS, catLabel, getProduct,
+  formatPrice, discountPct, buildGallery, FALLBACK_IMG,
 } from '../../data/products'
 import { ProductCard } from '../../components/ProductCard'
+
+// 3D Icons
+import leafIcon from '../../assets/icon/3dicons-leaf-dynamic-color.png'
+import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
+import medalIcon from '../../assets/icon/3dicons-medal-dynamic-color.png'
+
 import './Productdetail.css'
 
 const TEXTS = {
   home: { en: 'Home', kh: 'ទំព័រដើម' },
-  products: { en: 'Products', kh: 'ផលិតផល' },
-  inStock: { en: 'In stock', kh: 'មានក្នុងស្តុក' },
-  sold: { en: 'sold', kh: 'បានលក់' },
-  quantity: { en: 'Quantity', kh: 'ចំនួន' },
-  addToCart: { en: 'Add to Cart', kh: 'ដាក់ក្នុងកន្ត្រក' },
-  added: { en: 'Added ✓', kh: 'បានបន្ថែម ✓' },
-  buyNow: { en: 'Buy Now', kh: 'ទិញភ្លាមៗ' },
-  delivery45: { en: 'Delivery in 45 min', kh: 'ដឹកជញ្ជូនក្នុង ៤៥ នាទី' },
-  freshGuarantee: { en: 'Freshness Guaranteed', kh: 'ធានាភាពស្រស់' },
-  easyReturns: { en: 'Easy 7-day returns', kh: 'ប្តូរវិញ ៧ថ្ងៃ' },
-  tabDesc: { en: 'Description', kh: 'ការពិពណ៌នា' },
-  tabDetails: { en: 'Details', kh: 'លម្អិត' },
-  tabReviews: { en: 'Reviews', kh: 'ការវាយតម្លៃ' },
-  origin: { en: 'Origin', kh: 'ប្រភព' },
-  storage: { en: 'Storage', kh: 'ការរក្សាទុក' },
-  netWeight: { en: 'Net weight', kh: 'ទម្ងន់សុទ្ធ' },
-  category: { en: 'Category', kh: 'ប្រភេទ' },
-  unit: { en: 'Unit', kh: 'ឯកតា' },
-  related: { en: 'You may also like', kh: 'អាចចូលចិត្តផងដែរ' },
-  verified: { en: 'Verified purchase', kh: 'ការទិញដែលបានផ្ទៀងផ្ទាត់' },
+  products: { en: 'Store Products', kh: 'ផលិតផល' },
+  inStock: { en: 'In Stock · Harvested Fresh Today', kh: 'មានក្នុងស្តុក · ប្រមូលផលស្រស់ថ្ងៃនេះ' },
+  sold: { en: 'sold this month', kh: 'បានលក់ក្នុងខែនេះ' },
+  quantity: { en: 'Quantity Selection', kh: 'ជ្រើសរើសចំនួន' },
+  addToCart: { en: 'Add to Basket', kh: 'ដាក់ក្នុងកន្ត្រក' },
+  added: { en: 'Added to Basket ✓', kh: 'បានបន្ថែមក្នុងកន្ត្រក ✓' },
+  buyNow: { en: 'Instant Buy Now', kh: 'ទិញភ្លាមៗ' },
+  delivery45: { en: '45-Min Sub-Zero Delivery', kh: 'ដឹកជញ្ជូនត្រជាក់ ៤៥ នាទី' },
+  freshGuarantee: { en: '100% Freshness or Free Return', kh: 'ធានាភាពស្រស់ ១០០% ឬដូរវិញឥតគិតថ្លៃ' },
+  organicCert: { en: 'Cambodian GAP Certified Farm', kh: 'កសិដ្ឋានបញ្ជាក់ស្តង់ដារ CamGAP' },
+  tabDesc: { en: 'Product Story & Highlights', kh: 'ដំណើររឿង និងលក្ខណៈពិសេស' },
+  tabDetails: { en: 'Storage & Specifications', kh: 'ការរក្សាទុក និងព័ត៌មានលម្អិត' },
+  tabReviews: { en: 'Verified Reviews', kh: 'ការវាយតម្លៃអតិថិជន' },
+  origin: { en: 'Farm Origin', kh: 'ប្រភពកសិដ្ឋាន' },
+  storage: { en: 'Storage Temperature', kh: 'សីតុណ្ហភាពរក្សាទុក' },
+  netWeight: { en: 'Net Package Weight', kh: 'ទម្ងន់សុទ្ធ' },
+  category: { en: 'Product Category', kh: 'ប្រភេទផលិតផល' },
+  unit: { en: 'Sales Unit', kh: 'ឯកតាលក់' },
+  related: { en: 'Frequently Bought Together', kh: 'ទំនិញពេញនិយមទិញជាមួយគ្នា' },
+  verified: { en: 'Verified B\'Groceries Customer', kh: 'អតិថិជនបានផ្ទៀងផ្ទាត់' },
 }
 
-const StarRow = ({ rating, size = 15 }) => (
+const StarRow = ({ rating, size = 16 }) => (
   <span className="pd-stars" aria-label={`${rating} / 5`}>
     {[1, 2, 3, 4, 5].map((i) => (
       <svg
@@ -51,51 +61,16 @@ const StarRow = ({ rating, size = 15 }) => (
   </span>
 )
 
-const TruckIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 7h11v9H3z" />
-    <path d="M14 10h4l3 3v3h-7z" />
-    <circle cx="7" cy="18" r="1.6" />
-    <circle cx="17.5" cy="18" r="1.6" />
-  </svg>
-)
-const ShieldIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
-)
-const ReturnIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 12a9 9 0 1 0 3-6.7" />
-    <path d="M3 4v5h5" />
-  </svg>
-)
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-const CartIcon = () => (
-  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="9" cy="21" r="1" />
-    <circle cx="20" cy="21" r="1" />
-    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-  </svg>
-)
-
 export const Productdetail = () => {
   const { lang } = useLanguage()
   const location = useLocation()
-
   const product = location.state?.product || getProduct(1)
 
-  // Keying by product id remounts the view, so all local state is fresh
-  // (quantity, gallery image, active tab) whenever a new product is opened.
   return <ProductDetailView key={product.id} product={product} lang={lang} />
 }
 
 const ProductDetailView = ({ product, lang }) => {
+  const { addToCart } = useCart()
   const [qty, setQty] = useState(1)
   const [imgIdx, setImgIdx] = useState(0)
   const [tab, setTab] = useState('desc')
@@ -106,8 +81,14 @@ const ProductDetailView = ({ product, lang }) => {
   const discount = discountPct(product.oldPrice, product.price)
   const gallery = useMemo(() => buildGallery(product), [product])
 
+  const productName = typeof product.name === 'object' ? product.name[lang] || product.name.en : product.name
+  const productDesc = typeof product.desc === 'object' ? product.desc[lang] || product.desc.en : product.desc
+  const productOrigin = typeof product.origin === 'object' ? product.origin[lang] || product.origin.en : product.origin || 'Kandal Province, Cambodia'
+  const productUnit = typeof product.unit === 'object' ? product.unit[lang] || product.unit.en : product.unit || 'kg'
+  const productWeight = product.weight || '500g'
+
   const reviews = useMemo(() => {
-    const start = product.id % REVIEWS.length
+    const start = (Number(product.id) || 1) % REVIEWS.length
     return [0, 1, 2].map((i) => REVIEWS[(start + i) % REVIEWS.length])
   }, [product.id])
 
@@ -118,36 +99,40 @@ const ProductDetailView = ({ product, lang }) => {
   }, [product.id, product.category])
 
   const handleAdd = () => {
+    addToCart({ ...product, quantity: qty })
     setAdded(true)
-    window.setTimeout(() => setAdded(false), 1500)
+    window.setTimeout(() => setAdded(false), 1600)
   }
 
   return (
     <div className="pd-page">
       <div className="pd-inner">
 
-        {/* Breadcrumb */}
+        {/* ── Breadcrumb ── */}
         <nav className="pd-breadcrumb" aria-label="Breadcrumb">
           <Link to="/">{t('home')}</Link>
           <span className="pd-crumb-sep">/</span>
           <Link to="/products">{t('products')}</Link>
           <span className="pd-crumb-sep">/</span>
-          <span className="pd-crumb-current">{product.name[lang]}</span>
+          <span className="pd-crumb-current">{productName}</span>
         </nav>
 
+        {/* ── Main Layout ── */}
         <div className="pd-layout">
 
-          {/* Gallery */}
+          {/* LEFT: GALLERY */}
           <div className="pd-gallery">
             <div className="pd-gallery-main">
               <img
                 src={gallery[imgIdx]}
-                alt={product.name[lang]}
+                alt={productName}
                 onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMG }}
+                className="pd-main-image"
               />
-              {discount > 0 && <span className="pd-float-pct">-{discount}%</span>}
-              {product.badge && <span className="pd-float-badge">{product.badge[lang]}</span>}
+              {discount > 0 && <span className="pd-float-pct">-{discount}% OFF</span>}
+              {product.badge && <span className="pd-float-badge">{typeof product.badge === 'object' ? product.badge[lang] : product.badge}</span>}
             </div>
+
             <div className="pd-thumbs">
               {gallery.map((g, i) => (
                 <button
@@ -155,7 +140,7 @@ const ProductDetailView = ({ product, lang }) => {
                   type="button"
                   className={`pd-thumb ${i === imgIdx ? 'pd-thumb--on' : ''}`}
                   onClick={() => setImgIdx(i)}
-                  aria-label={`View image ${i + 1}`}
+                  aria-label={`View photo ${i + 1}`}
                 >
                   <img src={g} alt="" loading="lazy" />
                 </button>
@@ -163,139 +148,217 @@ const ProductDetailView = ({ product, lang }) => {
             </div>
           </div>
 
-          {/* Info */}
-          <div className="pd-info">
-            <div className="pd-info-top">
-              <span className="pd-cat">{cat.icon} {cat[lang]}</span>
-              <h1 className="pd-name">{product.name[lang]}</h1>
-              <div className="pd-rating-row">
-                <StarRow rating={product.rating} />
-                <span className="pd-rating-val">{product.rating}</span>
-                <span className="pd-rating-sep">·</span>
-                <span className="pd-rating-count">{formatSold(product.sold)} {t('sold')}</span>
+          {/* RIGHT: BUY BOX */}
+          <div className="pd-buy-box">
+            <div className="pd-header">
+              <div className="pd-cat-badge">
+                <img src={leafIcon} alt="Cat" className="pd-3d-micro" />
+                <span>{cat[lang]}</span>
+              </div>
+              <h1 className="pd-title">{productName}</h1>
+
+              <div className="pd-rating-strip">
+                <StarRow rating={product.rating || 4.8} />
+                <span className="pd-rating-val">{product.rating || 4.8}</span>
+                <span className="pd-rating-count">({product.sold || 340}+ {t('sold')})</span>
+              </div>
+
+              <div className="pd-price-row">
+                <span className="pd-price">{formatPrice(product.price)}</span>
+                <span className="pd-unit-label">/ {productUnit}</span>
+                {product.oldPrice && (
+                  <s className="pd-price-old">{formatPrice(product.oldPrice)}</s>
+                )}
+              </div>
+
+              <div className="pd-stock-pill">
+                <span className="pd-stock-dot" />
+                <span>{t('inStock')}</span>
               </div>
             </div>
 
-            <div className="pd-price-row">
-              <span className="pd-price">{formatPrice(product.price)}</span>
-              {product.oldPrice && <span className="pd-old">{formatPrice(product.oldPrice)}</span>}
-              <span className="pd-unit">{product.unit[lang]}</span>
-              <span className="pd-stock"><span className="pd-stock-dot" /> {t('inStock')}</span>
-            </div>
-
-            <div className="pd-qty-row">
+            {/* Quantity Selector */}
+            <div className="pd-qty-section">
               <span className="pd-qty-label">{t('quantity')}</span>
-              <div className="pd-stepper">
-                <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease quantity">−</button>
-                <span className="pd-qty-num">{qty}</span>
-                <button type="button" onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">+</button>
+              <div className="pd-qty-row">
+                <div className="pd-stepper">
+                  <button
+                    type="button"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                    aria-label="Decrease"
+                    className="pd-stepper-btn"
+                  >
+                    −
+                  </button>
+                  <span className="pd-stepper-num">{qty}</span>
+                  <button
+                    type="button"
+                    onClick={() => setQty((q) => q + 1)}
+                    aria-label="Increase"
+                    className="pd-stepper-btn"
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="pd-calc-total">
+                  = ${(Number(product.price) * qty).toFixed(2)}
+                </span>
               </div>
             </div>
 
-            <div className="pd-actions">
+            {/* Action Buttons */}
+            <div className="pd-action-buttons">
               <button
                 type="button"
-                className={`btn-outline-pd ${added ? 'btn-outline-pd--ok' : ''}`}
+                className={`pd-btn-add ${added ? 'pd-btn-add--done' : ''}`}
                 onClick={handleAdd}
               >
-                {added ? <><CheckIcon /> {t('added')}</> : <><CartIcon /> {t('addToCart')}</>}
+                <img src={bagIcon} alt="Bag" className="pd-btn-3d-icon" />
+                <span>{added ? t('added') : t('addToCart')}</span>
               </button>
-              <button type="button" className="btn-primary-pd">{t('buyNow')}</button>
+
+              <Link to="/cart" className="pd-btn-buy" onClick={() => addToCart({ ...product, quantity: qty })}>
+                <img src={flashIcon} alt="Express" className="pd-btn-3d-icon" />
+                <span>{t('buyNow')}</span>
+              </Link>
             </div>
 
-            <div className="pd-perks">
-              <div className="pd-perk"><TruckIcon /> {t('delivery45')}</div>
-              <div className="pd-perk"><ShieldIcon /> {t('freshGuarantee')}</div>
-              <div className="pd-perk"><ReturnIcon /> {t('easyReturns')}</div>
+            {/* Feature Guarantees */}
+            <div className="pd-guarantee-cards">
+              <div className="pd-guarantee-card">
+                <img src={flashIcon} alt="Speed" className="pd-guarantee-icon" />
+                <div>
+                  <h4>{t('delivery45')}</h4>
+                  <p>Strict 4°C sub-zero insulated boxes for peak freshness.</p>
+                </div>
+              </div>
+
+              <div className="pd-guarantee-card">
+                <img src={shieldIcon} alt="Quality" className="pd-guarantee-icon" />
+                <div>
+                  <h4>{t('freshGuarantee')}</h4>
+                  <p>Unhappy with crispness or taste? Instant replacement on the spot.</p>
+                </div>
+              </div>
+
+              <div className="pd-guarantee-card">
+                <img src={medalIcon} alt="Organic" className="pd-guarantee-icon" />
+                <div>
+                  <h4>{t('organicCert')}</h4>
+                  <p>Sourced directly from verified GAP-certified growers in Cambodia.</p>
+                </div>
+              </div>
             </div>
+
           </div>
+
         </div>
 
-        {/* Tabs */}
-        <div className="pd-tabs">
-          <div className="pd-tabs-bar" role="tablist">
-            {[
-              { key: 'desc', label: t('tabDesc') },
-              { key: 'details', label: t('tabDetails') },
-              { key: 'reviews', label: t('tabReviews') },
-            ].map((tb) => (
-              <button
-                key={tb.key}
-                type="button"
-                role="tab"
-                aria-selected={tab === tb.key}
-                className={`pd-tab ${tab === tb.key ? 'pd-tab--on' : ''}`}
-                onClick={() => setTab(tb.key)}
-              >
-                {tb.label}
-                {tb.key === 'reviews' && <span className="pd-tab-count">{reviews.length}</span>}
-              </button>
-            ))}
+        {/* ── TABS SECTION ── */}
+        <section className="pd-tabs-section">
+          <div className="pd-tab-bar" role="tablist">
+            <button
+              type="button"
+              className={`pd-tab-btn ${tab === 'desc' ? 'pd-tab-btn--on' : ''}`}
+              onClick={() => setTab('desc')}
+            >
+              <span>{t('tabDesc')}</span>
+            </button>
+            <button
+              type="button"
+              className={`pd-tab-btn ${tab === 'details' ? 'pd-tab-btn--on' : ''}`}
+              onClick={() => setTab('details')}
+            >
+              <span>{t('tabDetails')}</span>
+            </button>
+            <button
+              type="button"
+              className={`pd-tab-btn ${tab === 'reviews' ? 'pd-tab-btn--on' : ''}`}
+              onClick={() => setTab('reviews')}
+            >
+              <span>{t('tabReviews')} ({reviews.length})</span>
+            </button>
           </div>
 
-          <div className="pd-tab-panel" role="tabpanel">
+          <div className="pd-tab-content">
             {tab === 'desc' && (
-              <p className="pd-desc">{product.desc[lang]}</p>
+              <div className="pd-tab-pane">
+                <p className="pd-desc-lead">{productDesc}</p>
+                <div className="pd-desc-highlights">
+                  <div className="pd-highlight-item">
+                    <span className="pd-hl-dot">🌱</span>
+                    <span>Directly sourced at sunrise from partner farms to prevent nutrient loss.</span>
+                  </div>
+                  <div className="pd-highlight-item">
+                    <span className="pd-hl-dot">💧</span>
+                    <span>Washed with reverse-osmosis purified water and vacuum sealed.</span>
+                  </div>
+                  <div className="pd-highlight-item">
+                    <span className="pd-hl-dot">🚚</span>
+                    <span>Transported in refrigerated dispatch vans directly to Phnom Penh hubs.</span>
+                  </div>
+                </div>
+              </div>
             )}
 
             {tab === 'details' && (
-              <div className="pd-specs">
-                <div className="pd-spec-row"><span>{t('origin')}</span><span>{product.origin[lang]}</span></div>
-                <div className="pd-spec-row"><span>{t('storage')}</span><span>{storageFor(product.category)[lang]}</span></div>
-                <div className="pd-spec-row"><span>{t('netWeight')}</span><span>{product.weight}</span></div>
-                <div className="pd-spec-row"><span>{t('category')}</span><span>{cat[lang]}</span></div>
-                <div className="pd-spec-row"><span>{t('unit')}</span><span>{product.unit[lang]}</span></div>
+              <div className="pd-tab-pane pd-spec-grid">
+                <div className="pd-spec-row">
+                  <span className="pd-spec-k">{t('origin')}</span>
+                  <span className="pd-spec-v">{productOrigin}</span>
+                </div>
+                <div className="pd-spec-row">
+                  <span className="pd-spec-k">{t('storage')}</span>
+                  <span className="pd-spec-v">2°C – 4°C in chiller compartment</span>
+                </div>
+                <div className="pd-spec-row">
+                  <span className="pd-spec-k">{t('netWeight')}</span>
+                  <span className="pd-spec-v">{productWeight}</span>
+                </div>
+                <div className="pd-spec-row">
+                  <span className="pd-spec-k">{t('category')}</span>
+                  <span className="pd-spec-v">{cat[lang]}</span>
+                </div>
+                <div className="pd-spec-row">
+                  <span className="pd-spec-k">{t('unit')}</span>
+                  <span className="pd-spec-v">1 {productUnit}</span>
+                </div>
               </div>
             )}
 
             {tab === 'reviews' && (
-              <div className="pd-reviews">
-                <div className="pd-review-summary">
-                  <span className="pd-review-score">{product.rating}</span>
-                  <div className="pd-review-stars"><StarRow rating={product.rating} size={18} /></div>
-                  <span className="pd-review-note">{formatSold(product.sold)} {t('sold')}</span>
-                </div>
-                {reviews.map((r, i) => (
-                  <article className="pd-review" key={i}>
-                    <div className="pd-review-head">
-                      <span className="pd-review-avatar">{r.author[lang].charAt(0)}</span>
+              <div className="pd-tab-pane pd-reviews-list">
+                {reviews.map((rev, idx) => (
+                  <div key={idx} className="pd-review-card">
+                    <div className="pd-rev-head">
                       <div>
-                        <p className="pd-review-author">{r.author[lang]}</p>
-                        <p className="pd-review-date">{r.date} · {t('verified')}</p>
+                        <h4 className="pd-rev-author">{rev.author}</h4>
+                        <span className="pd-rev-badge">✓ {t('verified')}</span>
                       </div>
-                      <span className="pd-review-rating"><StarRow rating={r.rating} size={12} /></span>
+                      <StarRow rating={rev.rating} size={14} />
                     </div>
-                    <p className="pd-review-text">{r.text[lang]}</p>
-                  </article>
+                    <p className="pd-rev-comment">“{rev.comment}”</p>
+                    <span className="pd-rev-date">{rev.date}</span>
+                  </div>
                 ))}
               </div>
             )}
           </div>
-        </div>
+        </section>
 
-        {/* Related */}
-        <section className="pd-related">
-          <h2 className="pd-related-title">{t('related')}</h2>
+        {/* ── RELATED PRODUCTS ── */}
+        <section className="pd-related-section">
+          <div className="pd-related-head">
+            <img src={starIcon} alt="Related" className="pd-3d-sm" />
+            <h2 className="pd-related-title">{t('related')}</h2>
+          </div>
           <div className="pd-related-grid">
             {related.map((p) => (
-              <ProductCard key={p.id} product={p} size="sm" />
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
-      </div>
 
-      {/* Sticky mobile bar */}
-      <div className="pd-sticky">
-        <div className="pd-sticky-inner">
-          <div className="pd-sticky-price">
-            <span className="pd-sticky-amount">{formatPrice(product.price)}</span>
-            {product.oldPrice && <span className="pd-sticky-old">{formatPrice(product.oldPrice)}</span>}
-          </div>
-          <button type="button" className="pd-sticky-add" onClick={handleAdd}>
-            {added ? <CheckIcon /> : <CartIcon />}
-            {added ? t('added') : t('addToCart')}
-          </button>
-        </div>
       </div>
     </div>
   )

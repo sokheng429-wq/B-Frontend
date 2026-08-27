@@ -7,7 +7,7 @@
 
 ```
 ┌──────────────────┐       ┌──────────────────┐       ┌──────────────────┐
-│     products      │       │       jobs        │       │   applications   │
+│     products     │       │       jobs       │       │   applications   │
 ├──────────────────┤       ├──────────────────┤       ├──────────────────┤
 │ id (BIGSERIAL PK)│       │ id (BIGSERIAL PK)│       │ id (BIGSERIAL PK)│
 │ name (VARCHAR)   │       │ title (VARCHAR)   │       │ full_name(VARCHAR)│

@@ -1,280 +1,199 @@
-/* Terms & Privacy Page */
+/* ============================================================
+   B'GROCERIES TERMS & PRIVACY — Handcrafted Dark Design
+   Emil Kowalski Tactile Polish & Custom Easings
+   ============================================================ */
 
-/* ============ HERO ============ */
+.tp-page {
+  background: #232F3F;
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 60px 0 100px;
+  font-family: var(--font-sans, "Montserrat", "Kantumruy Pro", sans-serif);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(119, 188, 31, 0.05) 0%, transparent 60%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 700px, 32px 32px;
+}
+
+.tp-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Hero ── */
 .tp-hero {
-  position: relative;
-  padding: 80px 24px 64px;
   text-align: center;
-  overflow: hidden;
-  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 44px;
 }
 
-.tp-hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse 80% 80% at 50% 0%, var(--brand-tint-soft) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 60% at 80% 100%, var(--brand-tint-soft) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 50% at 20% 50%, rgba(69, 123, 157, 0.04) 0%, transparent 50%);
-}
-
-.tp-hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  translate: -50% 0;
-  width: 120px;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--brand), transparent);
-  border-radius: 2px;
-}
-
-.tp-hero-content {
-  position: relative;
-  z-index: 1;
-}
-
-.tp-hero-icon {
+.tp-section-eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
-  color: #fff;
-  margin-bottom: 24px;
-  box-shadow: 0 12px 32px var(--brand-tint);
+  gap: 8px;
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #77BC1F;
+  background: rgba(119, 188, 31, 0.08);
+  border: 1px solid rgba(119, 188, 31, 0.25);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.tp-3d-eyebrow-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .tp-hero-title {
-  font-size: clamp(28px, 5vw, 44px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--navy-dark);
-  margin: 0 0 12px;
+  font-size: clamp(2rem, 3.8vw, 2.8rem);
+  font-weight: 900;
+  color: #ffffff;
   line-height: 1.15;
+  margin: 0 0 16px;
 }
 
-.tp-hero-subtitle {
-  font-size: 16px;
-  color: rgba(255,255,255,0.55);
-  max-width: 480px;
-  margin: 0 auto;
-  line-height: 1.6;
+.tp-hero-sub {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 600px;
+  margin: 0 0 16px;
 }
 
-/* ============ TABS ============ */
-.tp-tabs-wrapper {
+.tp-last-updated {
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: #FF9900;
+  background: rgba(255, 153, 0, 0.1);
+  border: 1px solid rgba(255, 153, 0, 0.25);
+  padding: 4px 14px;
+  border-radius: 100px;
+  margin-bottom: 32px;
+}
+
+/* ── Tabs ── */
+.tp-tabs-bar {
   display: flex;
-  justify-content: center;
-  padding: 0 24px;
-  margin-bottom: 8px;
+  gap: 10px;
+  background: rgba(18, 26, 36, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px;
+  border-radius: 100px;
+  backdrop-filter: blur(12px);
 }
 
-.tp-tabs {
-  display: flex;
-  background: var(--surface-2);
-  border-radius: 14px;
-  padding: 5px;
-  gap: 4px;
-}
-
-.tp-tab {
-  position: relative;
-  background: none;
+.tp-tab-pill {
+  background: transparent;
   border: none;
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
-  padding: 12px 28px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
-  border-radius: 11px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
+  transition: all 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.tp-tab:hover {
-  color: rgba(255,255,255,0.7);
+.tp-tab-pill:hover {
+  color: #ffffff;
 }
 
-.tp-tab.active {
-  background: var(--navy);
-  color: var(--brand);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+.tp-tab-pill:active {
+  transform: scale(0.97);
 }
 
-/* ============ CONTENT ============ */
-.tp-content-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
+.tp-tab-pill--active {
+  background: #77BC1F;
+  color: #1A232F;
+  box-shadow: 0 4px 14px rgba(119, 188, 31, 0.35);
 }
 
-.tp-updated {
-  text-align: center;
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0 0 40px;
-  font-style: italic;
-}
-
-/* ============ CARDS ============ */
-.tp-cards {
+/* ── Cards List ── */
+.tp-cards-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .tp-card {
+  background: rgba(18, 26, 36, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  padding: 30px 32px;
   display: flex;
-  gap: 20px;
-  background: var(--navy);
-  border: 1px solid var(--border-default);
-  border-radius: 16px;
-  padding: 24px 28px;
-  transition: all 0.3s ease;
-  animation: tpFadeUp 0.5s ease backwards;
+  align-items: flex-start;
+  gap: 24px;
+  backdrop-filter: blur(12px);
+  transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms ease, box-shadow 180ms ease;
 }
-
-.tp-card:nth-child(1) { animation-delay: 0.05s; }
-.tp-card:nth-child(2) { animation-delay: 0.1s; }
-.tp-card:nth-child(3) { animation-delay: 0.15s; }
-.tp-card:nth-child(4) { animation-delay: 0.2s; }
-.tp-card:nth-child(5) { animation-delay: 0.25s; }
 
 .tp-card:hover {
-  border-color: var(--border-default);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  border-color: rgba(119, 188, 31, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
-@keyframes tpFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.tp-card-num {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 48px;
-  padding-top: 2px;
-}
-
-.tp-card-num span {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--brand);
-  background: var(--brand-tint-soft);
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+.tp-card-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
-.tp-card-num svg {
-  color: var(--text-muted);
+.tp-card-3d-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
-.tp-card-body {
+.tp-card-copy {
   flex: 1;
-  min-width: 0;
 }
 
 .tp-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--navy-dark);
-  margin: 0 0 8px;
-  line-height: 1.3;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px;
 }
 
 .tp-card-text {
-  font-size: 14px;
+  font-size: 0.925rem;
   line-height: 1.75;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
 }
 
-/* ============ FOOTNOTE ============ */
-.tp-footnote {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 48px;
-  padding: 20px 24px;
-  background: linear-gradient(135deg, var(--surface-2), #2d3f50);
-  border: 1px solid var(--brand-tint-soft);
-  border-radius: 14px;
-}
-
-.tp-footnote svg {
-  flex-shrink: 0;
-  color: var(--brand);
-  margin-top: 1px;
-}
-
-.tp-footnote p {
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.7;
-}
-
-/* ============ RESPONSIVE ============ */
-@media (max-width: 600px) {
-  .tp-hero {
-    padding: 48px 20px 40px;
-  }
-
-  .tp-hero-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    margin-bottom: 16px;
-  }
-
-  .tp-hero-icon svg {
-    width: 28px;
-    height: 28px;
-  }
-
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
   .tp-card {
-    padding: 20px;
-    gap: 14px;
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 16px;
   }
 
-  .tp-card-num {
-    width: 36px;
+  .tp-tabs-bar {
+    width: 100%;
   }
 
-  .tp-card-num span {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-    border-radius: 8px;
-  }
-
-  .tp-tab {
-    padding: 10px 18px;
-    font-size: 13px;
-  }
-
-  .tp-content-wrapper {
-    padding-bottom: 48px;
+  .tp-tab-pill {
+    flex: 1;
+    text-align: center;
+    padding: 10px 14px;
   }
 }

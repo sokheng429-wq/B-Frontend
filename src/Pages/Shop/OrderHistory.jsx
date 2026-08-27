@@ -3,55 +3,39 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { ORDERS, STATUS_LABEL, STAGE_STEP, STEPS, formatOrderDate, orderTotal } from '../../data/orders'
 import { formatPrice, FALLBACK_IMG } from '../../data/products'
+
+// 3D Icons
+import clockIcon from '../../assets/icon/3dicons-clock-dynamic-color.png'
+import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+
 import './OrderHistory.css'
 
 const TEXTS = {
-  eyebrow: { en: 'Account · Shopping history', kh: 'គណនី · ប្រវត្តិទិញទំនិញ' },
-  title: { en: 'My orders', kh: 'ការបញ្ជាទិញរបស់ខ្ញុំ' },
+  eyebrow: { en: 'Personal Account · Order Tracking', kh: 'គណនីផ្ទាល់ខ្លួន · ការតាមដាន' },
+  title: { en: 'My Order History & Live Dispatches', kh: 'ប្រវត្តិបញ្ជាទិញ និងការដឹកជញ្ជូន' },
   subtitle: {
-    en: 'Every grocery run in one place — see what is moving, what arrived, and what is easy to buy again.',
-    kh: 'រាល់ការទិញទំនិញនៅកន្លែងតែមួយ — មើលអ្វីកំពុងដឹកជញ្ជូន អ្វីបានមកដល់ និងអ្វីអាចទិញឡើងវិញបានងាយ។',
+    en: 'Real-time overview of your active cold-chain grocery dispatches, recent receipts, and 1-click reorder shortcuts.',
+    kh: 'ទិដ្ឋភាពទូទៅនៃដំណើរការដឹកជញ្ជូនត្រជាក់ បង្កាន់ដៃទូទាត់ និងការបញ្ជាទិញឡើងវិញដោយចុច ១ ដង។',
   },
-  all: { en: 'All', kh: 'ទាំងអស់' },
-  processing: { en: 'Packing', kh: 'កំពុងវេចខ្ចប់' },
-  transit: { en: 'On the way', kh: 'កំពុងមកដល់' },
+  all: { en: 'All Orders', kh: 'ទាំងអស់' },
+  processing: { en: 'Chiller Packing', kh: 'កំពុងវេចខ្ចប់' },
+  transit: { en: 'On The Way', kh: 'កំពុងមកដល់' },
   delivered: { en: 'Delivered', kh: 'បានដឹកជញ្ជូន' },
-  order: { en: 'Order', kh: 'ការបញ្ជាទិញ' },
-  placed: { en: 'Placed', kh: 'បានបញ្ជាទិញ' },
-  items: { en: 'items', kh: 'ទំនិញ' },
-  total: { en: 'Total', kh: 'សរុប' },
-  track: { en: 'Track order', kh: 'តាមដានការដឹកជញ្ជូន' },
-  reorder: { en: 'Buy again', kh: 'ទិញម្តងទៀត' },
-  active: { en: 'Active now', kh: 'កំពុងដំណើរការ' },
-  receipt: { en: 'Receipt', kh: 'បង្កាន់ដៃ' },
-  eta: { en: 'ETA', kh: 'ពេលមកដល់' },
-  noOrders: { en: 'No orders in this lane yet.', kh: 'មិនទាន់មានការបញ្ជាទិញនៅផ្នែកនេះទេ។' },
-  noOrdersHint: { en: 'Try another filter or start a fresh grocery basket.', kh: 'សាកល្បងតម្រងផ្សេង ឬចាប់ផ្តើមកន្ត្រកថ្មី។' },
-  browse: { en: 'Browse products', kh: 'មើលផលិតផល' },
+  orderNum: { en: 'Order Ref', kh: 'លេខបញ្ជាទិញ' },
+  placed: { en: 'Placed on', kh: 'កាលបរិច្ឆេទ' },
+  items: { en: 'Items', kh: 'មុខទំនិញ' },
+  total: { en: 'Total Amount', kh: 'ទឹកប្រាក់សរុប' },
+  track: { en: 'Track Live Rider', kh: 'តាមដានការដឹកផ្ទាល់' },
+  reorder: { en: 'Buy Basket Again', kh: 'ទិញម្តងទៀត' },
+  active: { en: 'Live Dispatches', kh: 'កំពុងដឹកជញ្ជូន' },
+  eta: { en: 'Estimated ETA', kh: 'ពេលមកដល់' },
+  noOrders: { en: 'No order history in this category.', kh: 'មិនទាន់មានប្រវត្តិបញ្ជាទិញក្នុងផ្នែកនេះទេ។' },
+  noOrdersHint: { en: 'Choose a different filter pill or explore today’s fresh market harvest.', kh: 'ជ្រើសរើសតម្រងផ្សេង ឬចូលមើលទីផ្សារស្រស់ៗ។' },
+  browse: { en: 'Browse Fresh Market', kh: 'ទិញទំនិញឥឡូវនេះ' },
 }
-
-const ReceiptIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M6 2h12v20l-2-1.2L14 22l-2-1.2L10 22l-2-1.2L6 22V2Z" />
-    <line x1="9" y1="7" x2="15" y2="7" />
-    <line x1="9" y1="11" x2="15" y2="11" />
-    <line x1="9" y1="15" x2="13" y2="15" />
-  </svg>
-)
-const TruckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 7h11v9H3z" />
-    <path d="M14 10h4l3 3v3h-7z" />
-    <circle cx="7" cy="18" r="1.6" />
-    <circle cx="17.5" cy="18" r="1.6" />
-  </svg>
-)
-const RefreshIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M21 12a9 9 0 1 1-2.64-6.36" />
-    <path d="M21 3v6h-6" />
-  </svg>
-)
 
 const FILTERS = [
   { key: 'all', text: 'all' },
@@ -80,7 +64,7 @@ const ProgressRing = ({ percent, label }) => {
           strokeDashoffset={offset}
         />
       </svg>
-      <span>{percent}</span>
+      <span className="oh-ring-text">{percent}%</span>
     </span>
   )
 }
@@ -101,47 +85,62 @@ export const OrderHistory = () => {
 
   return (
     <div className="oh-page">
+      {/* ── HERO BANNER ── */}
       <section className="oh-hero">
         <div className="oh-hero-inner">
           <div className="oh-copy">
-            <span className="oh-eyebrow"><ReceiptIcon /> {TEXTS.eyebrow[lang]}</span>
+            <span className="oh-eyebrow">
+              <img src={clockIcon} alt="History" className="oh-3d-micro" />
+              <span>{TEXTS.eyebrow[lang]}</span>
+            </span>
             <h1 className="oh-title">{TEXTS.title[lang]}</h1>
             <p className="oh-subtitle">{TEXTS.subtitle[lang]}</p>
           </div>
-          <div className="oh-hero-ticket" aria-label={TEXTS.active[lang]}>
-            <span className="oh-ticket-label">{TEXTS.active[lang]}</span>
-            <strong>{activeOrders}</strong>
-            <span className="oh-ticket-note">{TEXTS.processing[lang]} + {TEXTS.transit[lang]}</span>
+
+          <div className="oh-hero-ticket">
+            <div className="oh-ticket-icon-box">
+              <img src={flashIcon} alt="Active" className="oh-ticket-3d-icon" />
+            </div>
+            <div>
+              <span className="oh-ticket-label">{TEXTS.active[lang]}</span>
+              <strong className="oh-ticket-number">{activeOrders}</strong>
+              <span className="oh-ticket-note">{stats.processing} Packing · {stats.transit} On Route</span>
+            </div>
           </div>
         </div>
       </section>
 
       <main className="oh-inner">
-        <div className="oh-filters" role="tablist" aria-label="Order status">
+        {/* ── FILTER TABS ── */}
+        <div className="oh-filters-bar" role="tablist" aria-label="Order status">
           {FILTERS.map((f) => (
             <button
               key={f.key}
               type="button"
               role="tab"
               aria-selected={filter === f.key}
-              className={`oh-filter ${filter === f.key ? 'oh-filter--on' : ''}`}
+              className={`oh-filter-pill ${filter === f.key ? 'oh-filter-pill--active' : ''}`}
               onClick={() => setFilter(f.key)}
             >
               <span>{TEXTS[f.text][lang]}</span>
-              <strong>{stats[f.key]}</strong>
+              <span className="oh-filter-count">{stats[f.key]}</span>
             </button>
           ))}
         </div>
 
+        {/* ── ORDERS LIST ── */}
         {filtered.length === 0 ? (
-          <div className="oh-empty">
-            <span className="oh-empty-icon" aria-hidden="true">🧺</span>
-            <p className="oh-empty-title">{TEXTS.noOrders[lang]}</p>
+          <div className="oh-empty-card">
+            <img src={bagIcon} alt="Empty" className="oh-empty-3d-img" />
+            <h3 className="oh-empty-title">{TEXTS.noOrders[lang]}</h3>
             <p className="oh-empty-hint">{TEXTS.noOrdersHint[lang]}</p>
-            <Link to="/products" className="oh-empty-btn">{TEXTS.browse[lang]}</Link>
+            <Link to="/products" className="oh-empty-btn">
+              <span>{TEXTS.browse[lang]}</span>
+              <span>→</span>
+            </Link>
           </div>
         ) : (
-          <div className="oh-list" aria-live="polite">
+          <div className="oh-list">
             {filtered.map((order) => {
               const total = orderTotal(order) + order.delivery.fee
               const percent = stagePercent(order.stage)
@@ -150,66 +149,83 @@ export const OrderHistory = () => {
               const extraItems = order.items.length - previewItems.length
 
               return (
-                <article className={`oh-card oh-card--${order.stage} ${isActive ? 'oh-card--active' : ''}`} key={order.id}>
-                  <div className="oh-card-main">
-                    <div className="oh-card-left">
+                <article className={`oh-card ${isActive ? 'oh-card--active' : ''}`} key={order.id}>
+                  <div className="oh-card-header">
+                    <div className="oh-card-header-left">
                       <ProgressRing percent={percent} label={STATUS_LABEL[order.stage][lang]} />
                       <div>
                         <div className="oh-card-title-row">
-                          <h2>{TEXTS.order[lang]} #{order.id}</h2>
-                          {isActive && <span className="oh-live-pill">{TEXTS.active[lang]}</span>}
+                          <h3 className="oh-order-code">#{order.id}</h3>
+                          <span className={`oh-status-tag oh-status-tag--${order.stage}`}>
+                            {STATUS_LABEL[order.stage][lang]}
+                          </span>
+                          {isActive && <span className="oh-live-pulse-tag">● LIVE</span>}
                         </div>
-                        <p className="oh-date">{TEXTS.placed[lang]} {formatOrderDate(order.date, lang)}</p>
-                        <span className={`oh-status oh-status--${order.stage}`}>
-                          <span className="oh-status-dot" />
-                          {STATUS_LABEL[order.stage][lang]}
+                        <span className="oh-order-date">
+                          {TEXTS.placed[lang]}: {formatOrderDate(order.date, lang)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="oh-product-stack" aria-label={`${order.items.length} ${TEXTS.items[lang]}`}>
-                      {previewItems.map((it, index) => (
-                        <span className="oh-stack-thumb" style={{ '--i': index }} key={it.product.id}>
+                    <div className="oh-card-header-right">
+                      <span className="oh-total-label">{TEXTS.total[lang]}</span>
+                      <strong className="oh-total-amount">${formatPrice(total).slice(1)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="oh-card-body">
+                    {/* Items preview */}
+                    <div className="oh-items-preview">
+                      {previewItems.map((item, idx) => (
+                        <div key={idx} className="oh-item-chip">
                           <img
-                            src={it.product.image}
-                            alt={it.product.name[lang]}
-                            loading="lazy"
+                            src={item.image}
+                            alt={item.name[lang]}
                             onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMG }}
+                            className="oh-item-img"
                           />
-                        </span>
+                          <span className="oh-item-name">{item.name[lang]}</span>
+                          <span className="oh-item-qty">x{item.qty}</span>
+                        </div>
                       ))}
-                      {extraItems > 0 && <span className="oh-stack-more">+{extraItems}</span>}
+                      {extraItems > 0 && (
+                        <span className="oh-extra-count">+{extraItems} more</span>
+                      )}
+                    </div>
+
+                    {/* ETA or Delivery Note */}
+                    <div className="oh-delivery-info">
+                      {isActive ? (
+                        <div className="oh-eta-box">
+                          <img src={flashIcon} alt="ETA" className="oh-eta-icon" />
+                          <span><strong>{TEXTS.eta[lang]}:</strong> {order.eta[lang] || '45 mins'}</span>
+                        </div>
+                      ) : (
+                        <div className="oh-delivered-box">
+                          <img src={shieldIcon} alt="Done" className="oh-done-icon" />
+                          <span>Delivered to {order.delivery.address}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="oh-items">
-                    {order.items.map((it) => (
-                      <div className="oh-item" key={it.product.id}>
-                        <span className="oh-item-name">{it.product.name[lang]}</span>
-                        <span className="oh-item-qty">×{it.qty}</span>
-                        <span className="oh-item-total">{formatPrice(it.product.price * it.qty)}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <div className="oh-card-footer">
+                    <div className="oh-rider-brief">
+                      <span>Rider: <strong>{order.rider.name}</strong> ({order.rider.phone})</span>
+                    </div>
 
-                  <div className="oh-card-foot">
-                    <div className="oh-delivery">
-                      <TruckIcon />
-                      <span>{order.delivery.label[lang]}</span>
-                      <span className="oh-dot-sep" />
-                      <span>{TEXTS.eta[lang]}: {order.eta[lang]}</span>
-                    </div>
-                    <div className="oh-total">
-                      <span>{TEXTS.total[lang]}</span>
-                      <strong>{formatPrice(total)}</strong>
-                    </div>
-                    <div className="oh-actions">
-                      <button type="button" className="oh-btn oh-btn--ghost">
-                        <RefreshIcon /> {TEXTS.reorder[lang]}
-                      </button>
-                      <Link to="/tracking" state={{ orderId: order.id }} className="oh-btn oh-btn--solid">
-                        <TruckIcon /> {TEXTS.track[lang]}
+                    <div className="oh-footer-actions">
+                      <Link to="/products" className="oh-btn-reorder">
+                        <span>{TEXTS.reorder[lang]}</span>
                       </Link>
+
+                      {isActive && (
+                        <Link to="/tracking" state={{ orderId: order.id }} className="oh-btn-track">
+                          <img src={rocketIcon} alt="Track" className="oh-btn-3d-micro" />
+                          <span>{TEXTS.track[lang]}</span>
+                          <span>→</span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </article>

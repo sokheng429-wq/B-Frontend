@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { memberAPI } from '../../api/api'
+import { ConfirmModal } from './stockUI'
+import './MemberList.css'
 
 const TEXTS = {
   back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
@@ -63,6 +65,7 @@ export default function MemberList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [confirmAction, setConfirmAction] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -111,20 +114,31 @@ export default function MemberList() {
     })
   }, [members, searchTerm])
 
-  const handleDelete = async (member) => {
-    if (!window.confirm(TEXTS.confirmDelete[lang])) return
-    try {
-      await memberAPI.delete(member.id)
-      addNotification({
-        type: 'member',
-        action: 'delete',
-        title: TEXTS.deleted[lang],
-        detail: member.fullName,
-      })
-      setRefreshKey((k) => k + 1)
-    } catch (err) {
-      setError(err.message || TEXTS.error[lang])
-    }
+  const handleDelete = (member) => {
+    setConfirmAction({
+      title: { en: 'Delete Team Member', kh: 'លុបសមាជិកក្រុម' },
+      message: {
+        en: `Are you sure you want to delete "${member.fullName || member.memberCode}"? This action cannot be undone.`,
+        kh: `តើអ្នកពិតជាចង់លុប "${member.fullName || member.memberCode}" មែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។`,
+      },
+      confirmText: { en: 'Confirm Delete', kh: 'យល់ព្រមលុប' },
+      cancelText: { en: 'Cancel', kh: 'បោះបង់' },
+      type: 'danger',
+      onConfirm: async () => {
+        try {
+          await memberAPI.delete(member.id)
+          addNotification({
+            type: 'member',
+            action: 'delete',
+            title: TEXTS.deleted[lang],
+            detail: member.fullName,
+          })
+          setRefreshKey((k) => k + 1)
+        } catch (err) {
+          setError(err.message || TEXTS.error[lang])
+        }
+      },
+    })
   }
 
   const inputBase = 'w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:bg-slate-950 focus:ring-4 focus:ring-blue-500/10'
@@ -307,6 +321,19 @@ export default function MemberList() {
           </div>
         )}
       </section>
+
+      {confirmAction && (
+        <ConfirmModal
+          open={!!confirmAction}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={() => {
+            const fn = confirmAction.onConfirm
+            setConfirmAction(null)
+            fn?.()
+          }}
+          {...confirmAction}
+        />
+      )}
     </div>
   )
 }

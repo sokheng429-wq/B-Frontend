@@ -3,44 +3,57 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
 import { userAPI } from '../../api/api'
+
+// Assets
+import profileAvatar from '../../assets/Profile.avif'
+
+// 3D Icons
+import walletIcon from '../../assets/icon/3dicons-wallet-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import heartIcon from '../../assets/icon/3dicons-heart-dynamic-color.png'
+import bellIcon from '../../assets/icon/3dicons-bell-dynamic-color.png'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import mapPinIcon from '../../assets/icon/3dicons-map-pin-dynamic-color.png'
+import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
+
 import './Profile.css'
 
 const PROFILE_TEXTS = {
   en: {
-    logout: 'Log Out',
-    accountDetails: 'Account Details',
-    edit: 'Edit',
-    cancel: 'Cancel',
-    save: 'Save',
-    notSet: 'Not set',
+    logout: 'Sign Out',
+    accountDetails: 'Personal Account Profile',
+    edit: 'Edit Profile',
+    cancel: 'Discard Changes',
+    save: 'Save Changes',
+    notSet: 'Not specified',
     firstName: 'First Name',
     lastName: 'Last Name',
-    email: 'Email Address',
+    email: 'Registered Email',
     phone: 'Phone Number',
     dob: 'Date of Birth',
     gender: 'Gender',
     nationality: 'Nationality',
-    changePassword: 'Change Password',
-    deleteAccountTitle: 'Delete Account',
-    deleteAccountDesc: 'Permanently remove your account and all associated data.',
+    dangerZone: 'Security & Account Management',
+    deleteAccountTitle: 'Deactivate / Delete Account',
+    deleteAccountDesc: 'Permanently remove your profile and all order history.',
     deleteAccountBtn: 'Delete Account',
     nav: {
-      info: 'Account Info',
+      info: 'Account Profile',
       orders: 'Order History',
       addresses: 'Saved Addresses',
-      wallet: 'My Wallet',
-      payment: 'Payment Methods',
-      notifications: 'Notifications',
-      coupons: 'My Coupons',
-      points: 'Reward Points',
+      wallet: 'ABA & Wallet Balance',
+      payment: 'Saved Payment Methods',
+      notifications: 'Alerts & Messages',
+      coupons: 'Farm Coupons',
+      points: 'Fresh Rewards Club',
     }
   },
   kh: {
     logout: 'ចាកចេញ',
-    accountDetails: 'ព័ត៌មានលម្អិតគណនី',
-    edit: 'កែប្រែ',
+    accountDetails: 'ព័ត៌មានគណនីផ្ទាល់ខ្លួន',
+    edit: 'កែប្រែព័ត៌មាន',
     cancel: 'បោះបង់',
-    save: 'រក្សាទុក',
+    save: 'រក្សាទុកការកែប្រែ',
     notSet: 'មិនទាន់កំណត់',
     firstName: 'នាមខ្លួន',
     lastName: 'នាមត្រកូល',
@@ -49,403 +62,296 @@ const PROFILE_TEXTS = {
     dob: 'ថ្ងៃខែឆ្នាំកំណើត',
     gender: 'ភេទ',
     nationality: 'សញ្ជាតិ',
-    changePassword: 'ផ្លាស់ប្តូរពាក្យសម្ងាត់',
+    dangerZone: 'សុវត្ថិភាព និងការគ្រប់គ្រងគណនី',
     deleteAccountTitle: 'លុបគណនី',
-    deleteAccountDesc: 'លុបគណនី និងទិន្នន័យទាំងអស់របស់អ្នកជារៀងរហូត។',
+    deleteAccountDesc: 'លុបគណនី និងទិន្នន័យបញ្ជាទិញទាំងអស់របស់អ្នកជារៀងរហូត។',
     deleteAccountBtn: 'លុបគណនី',
     nav: {
       info: 'ព័ត៌មានគណនី',
       orders: 'ប្រវត្តិបញ្ជាទិញ',
-      addresses: 'អាសយដ្ឋាន',
-      wallet: 'កាបូបប្រាក់',
+      addresses: 'អាសយដ្ឋានដឹកជញ្ជូន',
+      wallet: 'កាបូបប្រាក់ និង ABA',
       payment: 'វិធីសាស្ត្រទូទាត់',
       notifications: 'ការជូនដំណឹង',
       coupons: 'ប័ណ្ណបញ្ចុះតម្លៃ',
-      points: 'ពិន្ទុរង្វាន់',
+      points: 'ក្លឹបរង្វាន់ភាពស្រស់',
     }
   }
 }
 
 const NAV_ITEMS = [
-    { key: 'info', icon: <UserIcon /> },
-    { key: 'orders', icon: <OrdersIcon /> },
-    { key: 'addresses', icon: <PinIcon /> },
-    { key: 'wallet', icon: <WalletIcon /> },
-    { key: 'payment', icon: <CardIcon /> },
-    { key: 'notifications', icon: <BellIcon /> },
-    { key: 'coupons', icon: <TagIcon /> },
-    { key: 'points', icon: <StarIcon /> },
+  { key: 'info', icon: shieldIcon },
+  { key: 'orders', icon: bagIcon },
+  { key: 'addresses', icon: mapPinIcon },
+  { key: 'wallet', icon: walletIcon },
+  { key: 'payment', icon: shieldIcon },
+  { key: 'notifications', icon: bellIcon },
+  { key: 'coupons', icon: heartIcon },
+  { key: 'points', icon: starIcon },
 ]
 
-/* Gender options (bilingual) */
 const GENDER_OPTIONS = [
-    { value: 'Male', label: { en: 'Male', kh: 'ប្រុស' } },
-    { value: 'Female', label: { en: 'Female', kh: 'ស្រី' } },
-]
-
-/* Nationalities (English demonyms for every country) */
-const NATIONALITIES = [
-    'Afghan', 'Albanian', 'Algerian', 'American', 'Andorran', 'Angolan',
-    'Antiguan', 'Argentine', 'Armenian', 'Australian', 'Austrian', 'Azerbaijani',
-    'Bahamian', 'Bahraini', 'Bangladeshi', 'Barbadian', 'Belarusian', 'Belgian',
-    'Belizean', 'Beninese', 'Bhutanese', 'Bolivian', 'Bosnian', 'Botswanan',
-    'Brazilian', 'British', 'Bruneian', 'Bulgarian', 'Burkinabé', 'Burundian',
-    'Cambodian', 'Cameroonian', 'Canadian', 'Cape Verdean', 'Central African',
-    'Chadian', 'Chilean', 'Chinese', 'Colombian', 'Comorian', 'Congolese',
-    'Costa Rican', 'Croatian', 'Cuban', 'Cypriot', 'Czech', 'Danish', 'Djiboutian',
-    'Dominican', 'East Timorese', 'Ecuadorian', 'Egyptian', 'Emirati', 'English',
-    'Equatorial Guinean', 'Eritrean', 'Estonian', 'Ethiopian', 'Fijian', 'Filipino',
-    'Finnish', 'French', 'Gabonese', 'Gambian', 'Georgian', 'German', 'Ghanaian',
-    'Greek', 'Grenadian', 'Guatemalan', 'Guinean', 'Guinean-Bissau', 'Guyanese',
-    'Haitian', 'Honduran', 'Hungarian', 'Icelandic', 'Indian', 'Indonesian',
-    'Iranian', 'Iraqi', 'Irish', 'Israeli', 'Italian', 'Ivorian', 'Jamaican',
-    'Japanese', 'Jordanian', 'Kazakhstani', 'Kenyan', 'Kiribati', 'Kuwaiti',
-    'Kyrgyz', 'Laotian', 'Latvian', 'Lebanese', 'Liberian', 'Libyan',
-    'Liechtensteiner', 'Lithuanian', 'Luxembourgish', 'Malagasy', 'Malawian',
-    'Malaysian', 'Maldivian', 'Malian', 'Maltese', 'Marshallese', 'Mauritanian',
-    'Mauritian', 'Mexican', 'Micronesian', 'Moldovan', 'Monacan', 'Mongolian',
-    'Montenegrin', 'Moroccan', 'Mozambican', 'Myanmar (Burmese)', 'Namibian',
-    'Nauruan', 'Nepali', 'New Zealander', 'Nicaraguan', 'Nigerien', 'Nigerian',
-    'North Korean', 'North Macedonian', 'Norwegian', 'Omani', 'Pakistani',
-    'Palauan', 'Palestinian', 'Panamanian', 'Papua New Guinean', 'Paraguayan',
-    'Peruvian', 'Polish', 'Portuguese', 'Qatari', 'Romanian', 'Russian', 'Rwandan',
-    'Saint Kitts and Nevis', 'Saint Lucian', 'Saint Vincentian', 'Salvadoran',
-    'Samoan', 'San Marinese', 'São Toméan', 'Saudi Arabian', 'Senegalese',
-    'Serbian', 'Seychellois', 'Sierra Leonean', 'Singaporean', 'Slovak',
-    'Slovenian', 'Solomon Islander', 'Somali', 'South African', 'South Korean',
-    'South Sudanese', 'Spanish', 'Sri Lankan', 'Sudanese', 'Surinamese', 'Swazi',
-    'Swedish', 'Swiss', 'Syrian', 'Taiwanese', 'Tajik', 'Tanzanian', 'Thai',
-    'Togolese', 'Tongan', 'Trinidadian and Tobagonian', 'Tunisian', 'Turkish',
-    'Turkmen', 'Tuvaluan', 'Ugandan', 'Ukrainian', 'Uruguayan', 'Uzbek',
-    'Vanuatuan', 'Venezuelan', 'Vietnamese', 'Yemeni', 'Zambian', 'Zimbabwean',
+  { value: 'Male', label: { en: 'Male', kh: 'ប្រុស' } },
+  { value: 'Female', label: { en: 'Female', kh: 'ស្រី' } },
+  { value: 'Other', label: { en: 'Other', kh: 'ផ្សេងទៀត' } },
 ]
 
 export const Profile = () => {
-    const { lang } = useLanguage()
-    const { user: authUser, login, logout } = useAuth()
-    const navigate = useNavigate()
-    const tp = PROFILE_TEXTS[lang] || PROFILE_TEXTS.en
+  const { lang } = useLanguage()
+  const { user: authUser, login, logout } = useAuth()
+  const navigate = useNavigate()
+  const tp = PROFILE_TEXTS[lang] || PROFILE_TEXTS.en
 
-    const [activeTab, setActiveTab] = useState('info')
-    const [editing, setEditing] = useState(false)
-    const [saving, setSaving] = useState(false)
-    const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState('info')
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-    // Seed profile fields from the authenticated user (backend UserResponse).
-    const fullNameParts = (authUser?.fullName || authUser?.name || '').trim().split(/\s+/).filter(Boolean)
+  const fullNameParts = (authUser?.fullName || authUser?.name || '').trim().split(/\s+/).filter(Boolean)
 
-    const [user, setUser] = useState({
-        firstName: fullNameParts[0] || '',
-        lastName: fullNameParts.slice(1).join(' ') || '',
-        email: authUser?.email || '',
-        phone: authUser?.phoneNumber || '',
-        dob: authUser?.dateOfBirth || '',
-        gender: authUser?.gender || '',
-        nationality: authUser?.nationality || '',
-    })
-    const [draft, setDraft] = useState(user)
+  const [user, setUser] = useState({
+    firstName: fullNameParts[0] || '',
+    lastName: fullNameParts.slice(1).join(' ') || '',
+    email: authUser?.email || '',
+    phone: authUser?.phoneNumber || '',
+    dob: authUser?.dateOfBirth || '',
+    gender: authUser?.gender || '',
+    nationality: authUser?.nationality || 'Cambodian',
+  })
+  const [draft, setDraft] = useState(user)
 
-    // Rebuild the form state from a backend UserResponse.
-    const applyUser = (u) => {
-        const parts = (u.fullName || '').trim().split(/\s+/).filter(Boolean)
-        const next = {
-            firstName: parts[0] || '',
-            lastName: parts.slice(1).join(' ') || '',
-            email: u.email || '',
-            phone: u.phoneNumber || '',
-            dob: u.dateOfBirth || '',
-            gender: u.gender || '',
-            nationality: u.nationality || '',
-        }
-        setUser(next)
-        setDraft(next)
+  const applyUser = (u) => {
+    const parts = (u.fullName || '').trim().split(/\s+/).filter(Boolean)
+    const next = {
+      firstName: parts[0] || '',
+      lastName: parts.slice(1).join(' ') || '',
+      email: u.email || '',
+      phone: u.phoneNumber || '',
+      dob: u.dateOfBirth || '',
+      gender: u.gender || '',
+      nationality: u.nationality || 'Cambodian',
     }
+    setUser(next)
+    setDraft(next)
+  }
 
-    const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U'
-    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Guest User'
+  const handleEdit = () => {
+    setDraft(user)
+    setError('')
+    setEditing(true)
+  }
 
-    const startEdit = () => {
-        setDraft(user)
-        setEditing(true)
+  const handleCancel = () => {
+    setDraft(user)
+    setError('')
+    setEditing(false)
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setDraft((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSave = async () => {
+    setError('')
+    setSaving(true)
+    try {
+      const payload = {
+        fullName: [draft.firstName, draft.lastName].filter(Boolean).join(' ').trim(),
+        email: draft.email,
+        phoneNumber: draft.phone,
+        dateOfBirth: draft.dob || null,
+        gender: draft.gender || null,
+        nationality: draft.nationality || null,
+      }
+      const res = await userAPI.updateProfile(payload)
+      const updated = res.data?.user || res.data
+      if (updated) {
+        applyUser(updated)
+        if (login && authUser) login({ ...authUser, ...updated })
+      } else {
+        setUser(draft)
+      }
+      setEditing(false)
+    } catch (err) {
+      setError(err.message || (lang === 'kh' ? 'មិនអាចរក្សាទុកបានទេ។' : 'Failed to update profile.'))
+    } finally {
+      setSaving(false)
     }
+  }
 
-    const cancelEdit = () => {
-        setDraft(user)
-        setEditing(false)
-    }
+  const handleLogout = () => {
+    if (logout) logout()
+    navigate('/')
+  }
 
-    const saveEdit = async (e) => {
-        e.preventDefault()
-        setError('')
-        setSaving(true)
-        try {
-            const res = await userAPI.updateProfile({
-                fullName: [draft.firstName, draft.lastName].filter(Boolean).join(' ').trim(),
-                email: draft.email.trim() || null,
-                phoneNumber: draft.phone.trim() || null,
-                dateOfBirth: draft.dob.trim() || null,
-                gender: draft.gender.trim() || null,
-                nationality: draft.nationality.trim() || null,
-            })
-            // Backend re-issues the JWT (phone may have changed) and returns the
-            // updated user — store both so the UI and future requests stay in sync.
-            login(res.data)
-            applyUser(res.data.user)
-            setEditing(false)
-        } catch (err) {
-            setError(err.message)
-        } finally {
-            setSaving(false)
-        }
-    }
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || authUser?.username || 'Valued Member'
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setDraft((prev) => ({ ...prev, [name]: value }))
-    }
+  return (
+    <div className="profile-page">
+      <div className="profile-inner">
 
-    const FIELD_ROWS = [
-        { key: 'firstName', label: tp.firstName, editable: true, type: 'text' },
-        { key: 'lastName', label: tp.lastName, editable: true, type: 'text' },
-        { key: 'email', label: tp.email, editable: true, type: 'email' },
-        { key: 'phone', label: tp.phone, editable: true, type: 'tel' },
-        { key: 'dob', label: tp.dob, editable: true, type: 'date' },
-        { key: 'gender', label: tp.gender, editable: true, type: 'select', options: GENDER_OPTIONS },
-        { key: 'nationality', label: tp.nationality, editable: true, type: 'select', options: NATIONALITIES },
-    ]
+        {/* ===== PROFILE CONTAINER ===== */}
+        <div className="profile-layout">
 
-    return (
-        <div className="profile-page">
-            <div className="profile-container">
-
-                {/* Account bar */}
-                <div className="profile-account-bar">
-                    <div className="profile-account-identity">
-                        <div className="profile-avatar">{initials}</div>
-                        <span className="profile-account-name">{fullName}</span>
-                    </div>
-                    <button type="button" className="profile-logout" onClick={() => { logout(); navigate('/'); }}>
-                        <LogoutIcon />
-                        {tp.logout}
-                    </button>
-                </div>
-
-                <div className="profile-body">
-
-                    {/* Sidebar */}
-                    <nav className="profile-sidebar">
-                        {NAV_ITEMS.map((item) => (
-                            <button
-                                key={item.key}
-                                type="button"
-                                className={`profile-nav-item ${activeTab === item.key ? 'active' : ''}`}
-                                onClick={() => setActiveTab(item.key)}
-                            >
-                                {item.icon}
-                                {tp.nav[item.key]}
-                            </button>
-                        ))}
-                    </nav>
-
-                    {/* Main content */}
-                    <div className="profile-main">
-                        {activeTab === 'info' ? (
-                            <>
-                                <div className="profile-card">
-                                    <div className="profile-card-header">
-                                        <span className="profile-card-title">{tp.accountDetails}</span>
-                                        {!editing ? (
-                                            <button type="button" className="profile-edit-btn" onClick={startEdit}>
-                                                <PencilIcon /> {tp.edit}
-                                            </button>
-                                        ) : (
-                                            <div className="profile-edit-actions">
-                                                <button type="button" className="profile-cancel-btn" onClick={cancelEdit}>
-                                                    {tp.cancel}
-                                                </button>
-                                                <button type="submit" form="profile-form" className="profile-save-btn" disabled={saving}>
-                                                    {saving ? 'Saving…' : tp.save}
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {error && <p className="profile-error">{error}</p>}
-
-                                    <form id="profile-form" onSubmit={saveEdit}>
-                                        {FIELD_ROWS.map((field) => (
-                                            <div className="profile-field-row" key={field.key}>
-                                                <span className="profile-field-label">{field.label}</span>
-
-                                                {editing && field.editable ? (
-                                                    field.type === 'select' ? (
-                                                        <select
-                                                            className="profile-field-input"
-                                                            name={field.key}
-                                                            value={draft[field.key]}
-                                                            onChange={handleChange}
-                                                        >
-                                                            <option value="">{tp.notSet}</option>
-                                                            {field.options.map((opt) => {
-                                                                const value = typeof opt === 'string' ? opt : opt.value
-                                                                const label = typeof opt === 'string' ? opt : opt.label[lang]
-                                                                return <option key={value} value={value}>{label}</option>
-                                                            })}
-                                                        </select>
-                                                    ) : (
-                                                        <input
-                                                            className="profile-field-input"
-                                                            type={field.type}
-                                                            name={field.key}
-                                                            value={draft[field.key]}
-                                                            onChange={handleChange}
-                                                            placeholder={tp.notSet}
-                                                        />
-                                                    )
-                                                ) : (
-                                                    <span className="profile-field-value">
-                                                        {user[field.key] || tp.notSet}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </form>
-                                </div>
-
-                                <button type="button" className="profile-collapse-row">
-                                    <span className="profile-collapse-label">
-                                        <LockIcon /> {tp.changePassword}
-                                    </span>
-                                    <ChevronIcon />
-                                </button>
-
-                                <div className="profile-danger-zone">
-                                    <div>
-                                        <p className="profile-danger-title">{tp.deleteAccountTitle}</p>
-                                        <p className="profile-danger-desc">{tp.deleteAccountDesc}</p>
-                                    </div>
-                                    <button type="button" className="profile-danger-btn">
-                                        <TrashIcon /> {tp.deleteAccountBtn}
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="profile-card profile-placeholder">
-                                {tp.nav[activeTab]}
-                            </div>
-                        )}
-                    </div>
-                </div>
+          {/* Sidebar */}
+          <aside className="profile-sidebar">
+            <div className="profile-user-card">
+              <div className="profile-avatar-frame">
+                <img src={profileAvatar} alt={displayName} className="profile-avatar-img" />
+              </div>
+              <h2 className="profile-user-name">{displayName}</h2>
+              <p className="profile-user-email">{user.email || 'customer@bgroceries.com'}</p>
+              <div className="profile-member-badge">
+                <img src={starIcon} alt="Star" className="profile-badge-icon" />
+                <span>Club Gold Member</span>
+              </div>
             </div>
-        </div>
-    )
-}
 
-/* ---------- Icons ---------- */
-function UserIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" />
-        </svg>
-    )
-}
-function OrdersIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 7h18l-1.5 12.5a2 2 0 0 1-2 1.5H6.5a2 2 0 0 1-2-1.5L3 7Z" />
-            <path d="M8 7V5a4 4 0 0 1 8 0v2" />
-        </svg>
-    )
-}
-function PinIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-        </svg>
-    )
-}
-function WalletIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="6" width="18" height="13" rx="2" />
-            <path d="M3 10h18" />
-            <path d="M16 14h2" />
-        </svg>
-    )
-}
-function CardIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="5" width="20" height="14" rx="2" />
-            <path d="M2 10h20" />
-        </svg>
-    )
-}
-function BellIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-        </svg>
-    )
-}
-function TagIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M20.6 12.2 12.9 20a2 2 0 0 1-2.8 0l-7-7a2 2 0 0 1 0-2.8L10.9 2.5A2 2 0 0 1 12.3 2H19a2 2 0 0 1 2 2v6.7a2 2 0 0 1-.4 1.5Z" />
-            <circle cx="15" cy="7" r="1.2" fill="currentColor" stroke="none" />
-        </svg>
-    )
-}
-function StarIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m12 2 2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8L6 21l1.6-7-5.4-4.7 7.1-.6L12 2Z" />
-        </svg>
-    )
-}
-function LogoutIcon() {
-    return (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <path d="M16 17l5-5-5-5" />
-            <path d="M21 12H9" />
-        </svg>
-    )
-}
-function PencilIcon() {
-    return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-        </svg>
-    )
-}
-function LockIcon() {
-    return (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="4" y="11" width="16" height="9" rx="2" />
-            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
-    )
-}
-function ChevronIcon() {
-    return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="m9 18 6-6-6-6" />
-        </svg>
-    )
-}
-function TrashIcon() {
-    return (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 6h18" />
-            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-        </svg>
-    )
+            <nav className="profile-nav-menu">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={`profile-nav-btn ${activeTab === item.key ? 'profile-nav-btn--active' : ''}`}
+                  onClick={() => setActiveTab(item.key)}
+                >
+                  <img src={item.icon} alt={tp.nav[item.key]} className="profile-nav-3d-icon" />
+                  <span>{tp.nav[item.key]}</span>
+                  <span className="profile-nav-arrow">→</span>
+                </button>
+              ))}
+
+              <button
+                type="button"
+                className="profile-nav-btn profile-nav-btn--logout"
+                onClick={handleLogout}
+              >
+                <span className="profile-logout-icon">🚪</span>
+                <span>{tp.logout}</span>
+              </button>
+            </nav>
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="profile-main">
+            {activeTab === 'info' ? (
+              <div className="profile-content-card">
+                <div className="profile-content-header">
+                  <div>
+                    <h1 className="profile-content-title">{tp.accountDetails}</h1>
+                    <p className="profile-content-sub">Manage your personal identification, phone, and delivery preferences.</p>
+                  </div>
+                  {!editing ? (
+                    <button type="button" className="profile-btn-edit" onClick={handleEdit}>
+                      <span>✏️ {tp.edit}</span>
+                    </button>
+                  ) : (
+                    <div className="profile-edit-actions">
+                      <button type="button" className="profile-btn-cancel" onClick={handleCancel} disabled={saving}>
+                        {tp.cancel}
+                      </button>
+                      <button type="button" className="profile-btn-save" onClick={handleSave} disabled={saving}>
+                        {saving ? 'Saving...' : tp.save}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="profile-err-banner">
+                    <span>⚠️</span> {error}
+                  </div>
+                )}
+
+                {/* Form Fields */}
+                <div className="profile-fields-grid">
+                  <div className="profile-field-box">
+                    <label>{tp.firstName}</label>
+                    {editing ? (
+                      <input name="firstName" value={draft.firstName} onChange={handleChange} />
+                    ) : (
+                      <div className="profile-val">{user.firstName || tp.notSet}</div>
+                    )}
+                  </div>
+
+                  <div className="profile-field-box">
+                    <label>{tp.lastName}</label>
+                    {editing ? (
+                      <input name="lastName" value={draft.lastName} onChange={handleChange} />
+                    ) : (
+                      <div className="profile-val">{user.lastName || tp.notSet}</div>
+                    )}
+                  </div>
+
+                  <div className="profile-field-box">
+                    <label>{tp.email}</label>
+                    <div className="profile-val profile-val--muted">{user.email || tp.notSet}</div>
+                  </div>
+
+                  <div className="profile-field-box">
+                    <label>{tp.phone}</label>
+                    {editing ? (
+                      <input name="phone" value={draft.phone} onChange={handleChange} />
+                    ) : (
+                      <div className="profile-val">{user.phone || tp.notSet}</div>
+                    )}
+                  </div>
+
+                  <div className="profile-field-box">
+                    <label>{tp.dob}</label>
+                    {editing ? (
+                      <input type="date" name="dob" value={draft.dob} onChange={handleChange} />
+                    ) : (
+                      <div className="profile-val">{user.dob || tp.notSet}</div>
+                    )}
+                  </div>
+
+                  <div className="profile-field-box">
+                    <label>{tp.gender}</label>
+                    {editing ? (
+                      <select name="gender" value={draft.gender} onChange={handleChange}>
+                        <option value="">--</option>
+                        {GENDER_OPTIONS.map((g) => (
+                          <option key={g.value} value={g.value}>{g.label[lang]}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="profile-val">
+                        {GENDER_OPTIONS.find((g) => g.value === user.gender)?.label[lang] || user.gender || tp.notSet}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Danger Zone */}
+                <div className="profile-danger-zone">
+                  <h3 className="profile-danger-title">{tp.dangerZone}</h3>
+                  <div className="profile-danger-box">
+                    <div>
+                      <strong>{tp.deleteAccountTitle}</strong>
+                      <p>{tp.deleteAccountDesc}</p>
+                    </div>
+                    <button type="button" className="profile-btn-danger">
+                      {tp.deleteAccountBtn}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="profile-content-card profile-content-card--empty">
+                <img src={walletIcon} alt="Tab" className="profile-empty-3d-icon" />
+                <h2>{tp.nav[activeTab]}</h2>
+                <p>No active records found in this section. Your transaction history and rewards will appear here automatically.</p>
+              </div>
+            )}
+          </main>
+
+        </div>
+
+      </div>
+    </div>
+  )
 }
 
 export default Profile

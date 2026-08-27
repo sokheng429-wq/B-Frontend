@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI, adminUnitAPI } from '../../api/api'
+import { adminProductAPI, adminUnitAPI, adminStockDocAPI } from '../../api/api'
 import { LOCATIONS } from './stockStore'
 import { Field, TextInput, SelectInput, PrimaryButton, GhostButton, Pill } from './stockUI'
+import './TransactionDocCreate.css'
 
 const ORANGE = '#FF9900'
 
@@ -192,31 +193,63 @@ export const TransactionDocCreate = ({ sectionKey, products, onCreated, onClose 
 
     const posted = []
     const fails = []
-    for (const l of lines) {
-      try {
-        const p = fresh.find((x) => String(x.id) === String(l.productId))
-        if (!p) throw new Error(t('product not found', 'រកមិនឃើញផលិតផល'))
-        const onHand = Number(p.onHand) || 0
-        const before = onHand
-        let after
-        if (cfg.kind === 'issue') {
-          const qty = Number(l.qty)
-          if (qty > onHand) throw new Error(t('insufficient stock', 'ស្តុកមិនគ្រប់គ្រាន់'))
-          after = before - qty
-        } else {
-          after = Number(l.counted) || 0
+
+    try {
+      const docPayload = {
+        docType: cfg.kind === 'issue' ? 'ISSUE' : 'ADJUST',
+        code,
+        date,
+        receiveType: docType,
+        reference: reference || '',
+        receivedBy: issuedBy || '',
+        locationKey: outlet || '',
+        note,
+        totalCost: Math.round(grandTotal * 100) / 100,
+        lines: lines.map((l) => ({
+          productId: l.productId,
+          nameSnapshot: l.name,
+          qty: isAdjust ? null : Number(l.qty),
+          countedQty: isAdjust ? Number(l.counted) : null,
+          unitCost: Number(l.cost) || 0,
+        })),
+      }
+      await adminStockDocAPI.create(docPayload)
+    } catch (err) {
+      console.warn('Backend stock document create fallback to direct product update', err)
+      for (const l of lines) {
+        try {
+          const p = fresh.find((x) => String(x.id) === String(l.productId))
+          if (!p) throw new Error(t('product not found', 'រកមិនឃើញផលិតផល'))
+          const onHand = Number(p.onHand) || 0
+          const before = onHand
+          let after
+          if (cfg.kind === 'issue') {
+            const qty = Number(l.qty)
+            if (qty > onHand) throw new Error(t('insufficient stock', 'ស្តុកមិនគ្រប់គ្រាន់'))
+            after = before - qty
+          } else {
+            after = Number(l.counted) || 0
+          }
+          await adminProductAPI.update(p.id, { ...p, onHand: after })
+        } catch (subErr) {
+          fails.push(`${l.name}: ${subErr.message}`)
         }
-        await adminProductAPI.update(p.id, { ...p, onHand: after })
-        posted.push({
-          productId: l.productId, name: l.name, qty: isAdjust ? null : Number(l.qty),
-          counted: isAdjust ? Number(l.counted) : null, before, after, diff: after - before,
-        })
-      } catch (err) {
-        fails.push(`${l.name}: ${err.message}`)
       }
     }
+
+    for (const l of lines) {
+      const p = fresh.find((x) => String(x.id) === String(l.productId))
+      const onHand = Number(p?.onHand) || 0
+      const before = onHand
+      const after = cfg.kind === 'issue' ? before - (Number(l.qty) || 0) : (Number(l.counted) || 0)
+      posted.push({
+        productId: l.productId, name: l.name, qty: isAdjust ? null : Number(l.qty),
+        counted: isAdjust ? Number(l.counted) : null, before, after, diff: after - before,
+      })
+    }
+
     setSaving(false)
-    if (!posted.length) {
+    if (!posted.length && fails.length) {
       setError(t('Nothing was saved.', 'មិនមានអ្វីបានរក្សាទុកទេ។'))
       return
     }

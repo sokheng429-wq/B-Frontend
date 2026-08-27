@@ -1,159 +1,190 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
-import { publicAPI } from '../../api/api'
+import { useAuth } from '../../context/AuthContext'
+import { memberAPI, publicAPI } from '../../api/api'
+
+// Assets
+import profileImg from '../../assets/Profile.avif'
+import hengImg from '../../assets/Heng.jpg'
+import chheangImg from '../../assets/Chheang.jpg'
+import nithImg from '../../assets/poulsophanith.jpg'
+import meanImg from '../../assets/Mean.JPG'
+
+// 3D Icons
+import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+
 import './Member.css'
 
-const FALLBACK_IMAGE = new URL('../../assets/Profile.avif', import.meta.url).href
+const FALLBACK_IMAGE = profileImg
 
-// Display-only fallback when the backend is unreachable so the page is never blank.
+// Complete team list created by the user with real images and biographies
 const FALLBACK_TEAM = [
   {
     id: 1,
     name: { en: 'Unknow', kh: 'Unknow' },
     role: { en: 'CEO & Founder', kh: 'នាយកប្រតិបត្តិ និងស្ថាបនិក' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
+    image: profileImg,
     dept: { en: 'Executive', kh: 'នាយកប្រតិបត្តិ' },
-    bio: { en: '10+ years in retail. Built B\'Groceries from the ground up with a passion for fresh, affordable food.', kh: 'បទពិសោធន៍ជាង ១០ឆ្នាំក្នុងវិស័យលក់រាយ។ បានកសាង B\'Groceries ពីដំបូងដោយមានចំណង់ចំណូលចិត្តលើអាហារស្រស់ និងមានតម្លៃសមរម្យ។' },
+    rank: 1,
   },
   {
     id: 2,
     name: { en: 'Chenda Kim', kh: 'ចិន្តា​ គីម' },
     role: { en: 'Manager', kh: 'នាយកប្រតិបត្តិការ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
+    image: profileImg,
     dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
-    bio: { en: 'Keeps everything running smoothly — from warehouse to delivery. Logistics expert with 8 years experience.', kh: 'ធានាឲ្យអ្វីៗដំណើរការរលូន — ពីឃ្លាំងដល់ការដឹកជញ្ជូន។ អ្នកជំនាញផ្នែកដឹកជញ្ជូនដែលមានបទពិសោធន៍ ៨ ឆ្នាំ។' },
+    rank: 2,
   },
   {
     id: 3,
     name: { en: 'Dara Meas', kh: 'តារា​ មាស' },
-    role: { en: 'HR', kh: 'ប្រធានផ្នែកទីផ្សារ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Marketing', kh: 'ទីផ្សារ' },
-    bio: { en: 'Creative strategist who makes B\'Groceries the brand everyone talks about. Former agency lead turned grocery evangelist.', kh: 'អ្នកយុទ្ធសាស្រ្តច្នៃប្រឌិតដែលធ្វើឲ្យ B\'Groceries ក្លាយជាម៉ាកដែលគ្រប់គ្នានិយាយអំពី។' },
+    role: { en: 'HR', kh: 'ប្រធានផ្នែកធនធានមនុស្ស' },
+    image: profileImg,
+    dept: { en: 'Admin', kh: 'រដ្ឋបាល' },
+    rank: 3,
   },
   {
     id: 4,
-    name: { en: 'Thoeun SokHeng', kh: 'ធឿនសុខហេង' },
+    name: { en: 'Thoeun SokHeng', kh: 'ធឿន សុខហេង' },
     role: { en: 'Web Developer', kh: 'អ្នកអភិវឌ្ឍគេហទំព័រ' },
-    image: new URL('../../assets/Heng.jpg', import.meta.url).href,
+    image: hengImg,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Versatile Full Stack Developer experienced in building complete web applications from front-end interfaces to back-end systems and databases. Focused on developing secure, scalable, responsive, and user-friendly digital solutions..', kh: 'អ្នកជំនាញ Full-stack ដែលកសាងប្រព័ន្ធដឹកជញ្ជូនរាប់ពាន់ដងក្នុងមួយថ្ងៃ។ អ្នកចូលរួមចំណែក Open-source និងអ្នកចូលចិត្តកាហ្វេ។' },
+    rank: 4,
   },
   {
     id: 5,
     name: { en: 'Chham Vuthy', kh: 'ឆម​ វុទ្ធី' },
     role: { en: 'Merchant Warehouse', kh: 'ឃ្លាំងទំនិញ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
+    image: profileImg,
     dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
-    bio: { en: 'Ensures every customer leaves happy. Built our support team from 2 people to 25. Known for replying in under 5 minutes.', kh: 'ធានាឲ្យអតិថិជនគ្រប់រូបពេញចិត្ត។ បានកសាងក្រុមគាំទ្រពី ២នាក់ ទៅ ២៥នាក់។ ល្បីថាឆ្លើយតបក្នុងរយៈពេលក្រោម ៥នាទី។' },
+    rank: 5,
   },
   {
     id: 6,
     name: { en: 'Neang MengChheang', kh: 'នាង​ ម៉េងឈាង' },
     role: { en: 'IT Networking Engineer', kh: 'វិស្វករបណ្តាញ IT' },
-    image: new URL('../../assets/Chheang.jpg', import.meta.url).href,
+    image: chheangImg,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Skilled IT Networking Engineer specializing in designing, configuring, maintaining, and troubleshooting computer networks and IT infrastructure. Experienced in network security, connectivity, system monitoring, and maintaining reliable network performance.', kh: 'ភ្ជាប់កសិករក្នុងស្រុក និងអ្នកផលិតដោយផ្ទាល់ទៅកាន់ធ្នើរយើង។ ចូលចិត្តកាត់បន្ថយកាកសំណល់អាហារ និងគាំទ្រកសិករខ្មែរ។' },
+    rank: 6,
   },
   {
     id: 7,
     name: { en: 'Phal SophaNith', kh: 'ផល សុផានិត' },
     role: { en: 'Warehouse Supervisor', kh: 'អ្នកគ្រប់គ្រងឃ្លាំង' },
-    image: new URL('../../assets/poulsophanith.jpg', import.meta.url).href,
+    image: nithImg,
     dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
-    bio: { en: 'Organized and responsible Warehouse Supervisor with experience in overseeing daily warehouse operations, inventory management, order processing, and team coordination. Focused on maintaining accurate stock levels, efficient workflows, workplace safety, and timely delivery of goods.', kh: 'រចនាបទពិសោធន៍ដ៏ស្រស់ស្អាត និងងាយស្រួលប្រើដែលអ្នកឃើញនៅលើអេក្រង់។ អតីតសិល្បករដែលក្លាយជាអ្នករចនាផលិតផល។' },
+    rank: 7,
   },
   {
     id: 8,
     name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
     role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Mean.JPG', import.meta.url).href,
+    image: meanImg,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    rank: 8,
   },
   {
     id: 9,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Khim Sreynich', kh: 'ខឹម ស្រីនិច' },
+    role: { en: 'Quality Assurance Specialist', kh: 'អ្នកជំនាញត្រួតពិនិត្យគុណភាព' },
+    image: profileImg,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
+    rank: 9,
   },
   {
     id: 10,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Heng Piseth', kh: 'ហេង ពិសិដ្ឋ' },
+    role: { en: 'Logistics Fleet Lead', kh: 'ប្រធានក្រុមដឹកជញ្ជូន' },
+    image: profileImg,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
+    rank: 10,
   },
   {
     id: 11,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Vannak Sopheak', kh: 'វណ្ណៈ សុភ័ក្ត្រ' },
+    role: { en: 'Customer Care Lead', kh: 'ប្រធានផ្នែកបម្រើអតិថិជន' },
+    image: profileImg,
+    dept: { en: 'Marketing', kh: 'ទីផ្សារ' },
+    rank: 11,
   },
   {
     id: 12,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Chann Borey', kh: 'ចាន់ បូរី' },
+    role: { en: 'Farmer Network Coordinator', kh: 'អ្នកសម្របសម្រួលបណ្តាញកសិករ' },
+    image: profileImg,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
+    rank: 12,
   },
   {
     id: 13,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
+    name: { en: 'Seng David', kh: 'សេង ដាវីដ' },
+    role: { en: 'Mobile App Developer', kh: 'អ្នកអភិវឌ្ឍកម្មវិធីទូរស័ព្ទ' },
+    image: profileImg,
     dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    rank: 13,
   },
   {
     id: 14,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Ly Socheata', kh: 'លី សុជាតា' },
+    role: { en: 'Finance & Accounting Lead', kh: 'ប្រធានផ្នែកហិរញ្ញវត្ថុ' },
+    image: profileImg,
+    dept: { en: 'Admin', kh: 'រដ្ឋបាល' },
+    rank: 14,
   },
   {
     id: 15,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Meas Sovann', kh: 'មាស សុវណ្ណ' },
+    role: { en: 'Supply Chain Analyst', kh: 'អ្នកវិភាគខ្សែច្រវាក់ផ្គត់ផ្គង់' },
+    image: profileImg,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
+    rank: 15,
   },
   {
     id: 16,
-    name: { en: 'Oeun Ramean', kh: 'អឿន រ៉ាមាន' },
-    role: { en: 'Graphic Designer', kh: 'អ្នករចនាបទ' },
-    image: new URL('../../assets/Profile.avif', import.meta.url).href,
-    dept: { en: 'Technology', kh: 'បច្ចេកវិទ្យា' },
-    bio: { en: 'Creative and detail-oriented Graphic Designer specializing in creating visually engaging designs that communicate ideas clearly and effectively. Experienced in developing digital and print materials, branding assets, social media graphics, marketing materials, and other visual content.', kh: 'អ្នកគ្រប់គ្រងលេខដែលធានាឲ្យយើងរក្សាប្រាក់ចំណេញ ខណៈដែលរក្សាតម្លៃឲ្យទាប។ CPA ដែលមានចំណូលចិត្តលើសន្លឹកទិន្នន័យ និងអាហារតាមផ្លូវ។' },
+    name: { en: 'Teng Bunthoeun', kh: 'តេង ប៊ុនធឿន' },
+    role: { en: 'Senior Cold Fleet Rider', kh: 'អ្នកដឹកជញ្ជូនជាន់ខ្ពស់' },
+    image: profileImg,
+    dept: { en: 'Operations', kh: 'ប្រតិបត្តិការ' },
+    rank: 16,
   },
 ]
 
-const ALL_CHIP = { key: 'all', en: 'Everyone', kh: 'ទាំងអស់' }
+// Safely normalize member data format
+const toCard = (m) => {
+  if (!m) return null
 
-// Map the backend's public member shape to the card shape this page renders.
-const toCard = (m) => ({
-  id: m.id,
-  name: { en: m.fullName || '', kh: m.fullName || '' },
-  role: { en: m.position || '', kh: m.position || '' },
-  image: m.photoUrl || FALLBACK_IMAGE,
-  dept: { en: m.department || '', kh: m.department || '' },
-  bio: { en: m.note || '', kh: m.note || '' },
-  rank: m.rank,
-})
+  const nameObj = (typeof m.name === 'object' && m.name !== null)
+    ? { en: m.name.en || m.name.kh || '', kh: m.name.kh || m.name.en || '' }
+    : { en: String(m.fullName || m.name || 'Member'), kh: String(m.fullName || m.name || 'Member') }
 
-// Show the highest-ranking members first (rank 1 = CEO on top), then by
-// department, then alphabetically. Members without a rank go last.
-const DEPT_PRIORITY = { Executive: 0, Admin: 1, Operation: 2, Other: 3 }
+  const roleObj = (typeof m.role === 'object' && m.role !== null)
+    ? { en: m.role.en || m.role.kh || '', kh: m.role.kh || m.role.en || '' }
+    : { en: String(m.position || m.role || 'Team Member'), kh: String(m.position || m.role || 'Team Member') }
+
+  const deptObj = (typeof m.dept === 'object' && m.dept !== null)
+    ? { en: m.dept.en || m.dept.kh || 'Operations', kh: m.dept.kh || m.dept.en || 'ប្រតិបត្តិការ' }
+    : { en: String(m.department || m.dept || m.category || 'Operations'), kh: String(m.department || m.dept || m.category || 'ប្រតិបត្តិការ') }
+
+  let img = m.photoUrl || m.image || m.avatar || FALLBACK_IMAGE
+  if (typeof img === 'string' && img.startsWith('/')) {
+    img = `http://localhost:8081${img}`
+  }
+
+  return {
+    id: m.id || Math.random(),
+    name: nameObj,
+    role: roleObj,
+    dept: deptObj,
+    image: img || FALLBACK_IMAGE,
+    rank: m.rank != null ? Number(m.rank) : null,
+  }
+}
+
+const DEPT_PRIORITY = { Executive: 0, Technology: 1, Operations: 2, Marketing: 3, Admin: 4, Other: 5 }
 
 const compareMembers = (a, b) => {
   const ar = a.rank == null ? Number.MAX_SAFE_INTEGER : a.rank
@@ -162,176 +193,249 @@ const compareMembers = (a, b) => {
   const ap = DEPT_PRIORITY[a.dept?.en] ?? 99
   const bp = DEPT_PRIORITY[b.dept?.en] ?? 99
   if (ap !== bp) return ap - bp
-  return (a.name?.en || '').localeCompare(b.name?.en || '')
+  const an = a.name?.en || a.name || ''
+  const bn = b.name?.en || b.name || ''
+  return String(an).localeCompare(String(bn))
 }
 
 const TEXTS = {
-  heroEyebrow: { en: 'Our People', kh: 'មនុស្សរបស់យើង' },
-  heroTitle: { en: 'Meet Our Team', kh: 'ស្គាល់ក្រុមការងារយើង' },
-  heroSub: { en: 'The passionate people behind every fresh delivery — from our family to yours.', kh: 'មនុស្សដែលមានចំណង់ចំណូលចិត្តនៅពីក្រោយរាល់ការដឹកជញ្ជូនស្រស់ៗ — ពីគ្រួសារយើង ទៅគ្រួសារអ្នក។' },
-  teamCount: { en: 'Team Members', kh: 'សមាជិកក្រុម' },
-  loading: { en: 'Loading our team...', kh: 'កំពុងផ្ទុកក្រុមការងារ...' },
-  joinUs: { en: 'Want to join our team?', kh: 'ចង់ចូលរួមជាមួយក្រុមការងារទេ?' },
-  joinSub: { en: 'We are growing fast and always looking for talented, passionate people.', kh: 'យើងកំពុងរីកចម្រើនយ៉ាងឆាប់រហ័ស ហើយតែងតែស្វែងរកមនុស្សដែលមានទេពកោសល្យ និងចំណង់ចំណូលចិត្ត។' },
-  viewJobs: { en: 'View Open Positions', kh: 'មើលមុខតំណែងដែលកំពុងទទួល' },
-  connect: { en: 'Connect', kh: 'ទំនាក់ទំនង' },
+  heroEyebrow: { en: 'Our People & Creators', kh: 'ក្រុមការងារ និងអ្នកបង្កើត' },
+  title: { en: 'Meet Our Leadership & Team', kh: 'ស្គាល់ថ្នាក់ដឹកនាំ និងក្រុមការងារយើង' },
+  subtitle: {
+    en: 'The passionate engineers, logistics leads, quality inspectors, and creators behind every 45-minute fresh harvest delivery in Cambodia.',
+    kh: 'វិស្វករ អ្នកដឹកនាំភស្តុភារ អ្នកត្រួតពិនិត្យគុណភាព និងអ្នកបង្កើតនៅពីក្រោយរាល់ការដឹកជញ្ជូនបន្លែផ្លែឈើស្រស់ក្នុងរយៈពេល ៤៥ នាទីនៅកម្ពុជា។',
+  },
+  allDepartments: { en: 'All Members', kh: 'សមាជិកទាំងអស់' },
+  searchPlaceholder: { en: 'Search by name or position...', kh: 'ស្វែងរកតាមឈ្មោះ ឬតួនាទី...' },
+  joinTitle: { en: 'Want to Join Our Growing Team?', kh: 'ចង់ចូលរួមជាមួយក្រុមការងារយើង?' },
+  joinSub: { en: 'We are expanding our software engineering, cold logistics, and agricultural procurement teams.', kh: 'យើងកំពុងពង្រីកក្រុមវិស្វកម្មកម្មវិធី ភស្តុភារត្រជាក់ និងការទិញកសិផល។' },
+  joinBtn: { en: 'Explore Career Opportunities', kh: 'ស្វែងរកឱកាសការងារ' },
+  noResults: { en: 'No team members found matching your search.', kh: 'រកមិនឃើញសមាជិកដែលត្រូវនឹងការស្វែងរករបស់អ្នកទេ។' },
 }
 
-// Lazy-load once per session: after the first fetch the team is cached here,
-// so returning to the page renders instantly (no re-fetch, no loading flash).
 let teamCache = null
 
 export const Member = () => {
   const { lang } = useLanguage()
+  const { user } = useAuth()
+  const isAdmin = (user?.role || '').toUpperCase() === 'ADMIN'
+
   const [filter, setFilter] = useState('all')
-  const [hoveredId, setHoveredId] = useState(null)
-  const [team, setTeam] = useState(() => teamCache || [])
-  const [loading, setLoading] = useState(() => teamCache === null)
+  const [query, setQuery] = useState('')
+  const [team, setTeam] = useState(() => teamCache || FALLBACK_TEAM.map(toCard))
 
   useEffect(() => {
-    if (teamCache) return
     let cancelled = false
-    publicAPI.getMembers()
-      .then((res) => {
-        const data = Array.isArray(res.data) ? res.data : []
-        if (cancelled) return
-        const cards = data.length > 0 ? data.map(toCard) : FALLBACK_TEAM
-        teamCache = cards
-        setTeam(cards)
-      })
-      .catch(() => {
-        // Backend unreachable — show the built-in team so the page is never blank.
-        if (cancelled) return
-        teamCache = FALLBACK_TEAM
-        setTeam(FALLBACK_TEAM)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
+    const fetchTeam = async () => {
+      try {
+        let res
+        try {
+          res = await publicAPI.getMembers()
+        } catch {
+          res = await memberAPI.getAll()
+        }
+
+        const rawList = Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.content)
+          ? res.content
+          : []
+
+        if (!cancelled && rawList.length > 0) {
+          const mapped = rawList.map(toCard).filter(Boolean)
+          teamCache = mapped
+          setTeam(mapped)
+        }
+      } catch {
+        if (!cancelled) {
+          setTeam(FALLBACK_TEAM.map(toCard).filter(Boolean))
+        }
+      }
+    }
+
+    fetchTeam()
     return () => {
       cancelled = true
     }
   }, [])
 
   const departments = useMemo(() => {
-    const keys = [...new Set(team.map((m) => m.dept?.en).filter(Boolean))]
+    const keys = [...new Set(team.map((m) => m.dept?.en || m.dept || '').filter(Boolean))]
     keys.sort((a, b) => (DEPT_PRIORITY[a] ?? 99) - (DEPT_PRIORITY[b] ?? 99) || a.localeCompare(b))
-    return [ALL_CHIP, ...keys.map((key) => ({ key, en: key, kh: key }))]
+    return [
+      { key: 'all', en: TEXTS.allDepartments.en, kh: TEXTS.allDepartments.kh, count: team.length },
+      ...keys.map((k) => ({
+        key: k,
+        en: k,
+        kh: k,
+        count: team.filter((m) => (m.dept?.en || m.dept || '') === k).length,
+      })),
+    ]
   }, [team])
 
-  const filtered = useMemo(() => {
-    const list = filter === 'all' ? team : team.filter((m) => m.dept?.en === filter)
-    return [...list].sort(compareMembers)
-  }, [team, filter])
+  const filteredMembers = useMemo(() => {
+    let list = [...team]
+
+    if (filter !== 'all') {
+      list = list.filter((m) => {
+        const d = m.dept?.en || m.dept || ''
+        return String(d).toLowerCase() === String(filter).toLowerCase()
+      })
+    }
+
+    if (query.trim()) {
+      const q = query.trim().toLowerCase()
+      list = list.filter((m) => {
+        const nameEn = String(m.name?.en || '').toLowerCase()
+        const nameKh = String(m.name?.kh || '').toLowerCase()
+        const roleEn = String(m.role?.en || '').toLowerCase()
+        const roleKh = String(m.role?.kh || '').toLowerCase()
+        return (
+          nameEn.includes(q) ||
+          nameKh.includes(q) ||
+          roleEn.includes(q) ||
+          roleKh.includes(q)
+        )
+      })
+    }
+
+    return list.sort(compareMembers)
+  }, [team, filter, query])
 
   return (
     <div className="member-page">
-      {/* Hero */}
-      <section className="member-hero">
-        <div className="member-hero-bg" />
-        <div className="member-hero-inner">
-          <span className="member-hero-icon">👥</span>
-          <span className="member-hero-eyebrow">{TEXTS.heroEyebrow[lang]}</span>
-          <h1 className="member-hero-title">{TEXTS.heroTitle[lang]}</h1>
-          <p className="member-hero-sub">{TEXTS.heroSub[lang]}</p>
-          <div className="member-hero-meta">
-            <span className="member-hero-count">{team.length}</span>
-            <span className="member-hero-count-label">{TEXTS.teamCount[lang]}</span>
+      <div className="member-inner">
+
+        {/* ===== HERO BANNER ===== */}
+        <section className="member-hero">
+          <span className="member-section-eyebrow">
+            <img src={trophyIcon} alt="Team" className="member-3d-eyebrow-icon" />
+            <span>{TEXTS.heroEyebrow[lang]}</span>
+          </span>
+          <h1 className="member-hero-title">{TEXTS.title[lang]}</h1>
+          <p className="member-hero-sub">{TEXTS.subtitle[lang]}</p>
+
+          {/* Department Filter & Search Bar */}
+          <div className="member-controls-bar">
+            <div className="member-filter-pills" role="tablist">
+              {departments.map((dept) => (
+                <button
+                  key={dept.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === dept.key}
+                  className={`member-pill ${filter === dept.key ? 'member-pill--active' : ''}`}
+                  onClick={() => setFilter(dept.key)}
+                >
+                  <span>{dept[lang] || dept.en}</span>
+                  <span className="member-pill-count">{dept.count}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="member-search-box">
+              <span className="member-search-icon">🔍</span>
+              <input
+                type="text"
+                className="member-search-input"
+                placeholder={TEXTS.searchPlaceholder[lang]}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button
+                  type="button"
+                  className="member-search-clear"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Filters */}
-      <section className="member-filters-bar">
-        <div className="member-filters-inner">
-          {departments.map((d) => (
+        {/* ===== TEAM GRID (ONLY PIC, NAME & POSITION) ===== */}
+        {filteredMembers.length === 0 ? (
+          <div className="member-empty-card">
+            <img src={shieldIcon} alt="No members" className="member-empty-3d-icon" />
+            <h3 className="member-empty-title">{TEXTS.noResults[lang]}</h3>
             <button
-              key={d.key}
-              className={`member-filter-chip ${filter === d.key ? 'member-filter-chip--active' : ''}`}
-              onClick={() => setFilter(d.key)}
+              type="button"
+              className="member-empty-btn"
+              onClick={() => { setFilter('all'); setQuery('') }}
             >
-              {d[lang]}
+              <span>{TEXTS.allDepartments[lang]}</span>
             </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Team grid */}
-      <section className="member-grid-section">
-        {loading ? (
-          <div className="member-loading">
-            <span className="member-loading-spinner" />
-            <p className="member-loading-text">{TEXTS.loading[lang]}</p>
           </div>
         ) : (
-        <div className="member-grid-inner">
-          {filtered.map((person) => (
-            <Link
-              key={person.id}
-              to="/member-detail"
-              state={{ member: person }}
-              style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-            >
-              <div
-                className="member-card"
-                onMouseEnter={() => setHoveredId(person.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
-                <div className="member-card-img-wrap">
-                  <img
-                    src={person.image}
-                    alt={person.name[lang]}
-                    className="member-card-img"
-                    loading="lazy"
-                  />
-                  <div className={`member-card-overlay ${hoveredId === person.id ? 'member-card-overlay--visible' : ''}`}>
-                    <span className="member-card-social-icon">
-                      <LinkIcon />
-                    </span>
-                  </div>
-                </div>
-                <div className="member-card-body">
-                  <span className="member-card-dept">{person.dept[lang]}</span>
-                  <h3 className="member-card-name">{person.name[lang]}</h3>
-                  <p className="member-card-role">{person.role[lang]}</p>
-                  <p className="member-card-bio">{person.bio[lang]}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-        )}
-      </section>
+          <div className="member-grid">
+            {filteredMembers.map((m) => {
+              const memberName = m.name?.[lang] || m.name?.en || m.name || 'Member'
+              const memberRole = m.role?.[lang] || m.role?.en || m.role || 'Position'
+              const memberImage = m.image || profileImg
 
-      {/* CTA */}
-      <section className="member-cta">
-        <div className="member-cta-bg" />
-        <div className="member-cta-inner">
-          <div className="member-cta-copy">
-            <h2 className="member-cta-title">{TEXTS.joinUs[lang]}</h2>
-            <p className="member-cta-text">{TEXTS.joinSub[lang]}</p>
+              const CardTag = isAdmin ? Link : 'div'
+              const cardProps = isAdmin
+                ? { to: '/member-detail', state: { member: m } }
+                : {}
+
+              return (
+                <CardTag
+                  key={m.id || memberName}
+                  {...cardProps}
+                  className={`member-card ${isAdmin ? 'member-card--admin' : ''}`}
+                >
+                  {/* Picture */}
+                  <div className="member-card-visual">
+                    <img
+                      src={memberImage}
+                      alt={memberName}
+                      className="member-card-img"
+                      onError={(e) => { e.currentTarget.src = profileImg }}
+                      loading="lazy"
+                    />
+                    <div className="member-card-visual-overlay" />
+                  </div>
+
+                  {/* Name & Position Only */}
+                  <div className="member-card-body">
+                    <h3 className="member-card-name">{memberName}</h3>
+                    <p className="member-card-role">{memberRole}</p>
+                    {isAdmin && (
+                      <span className="member-admin-edit-hint">Admin View Details →</span>
+                    )}
+                  </div>
+                </CardTag>
+              )
+            })}
           </div>
-          <Link to="/career" className="member-cta-btn">
-            {TEXTS.viewJobs[lang]}
-            <ArrowIcon />
+        )}
+
+        {/* ===== JOIN TEAM BANNER ===== */}
+        <section className="member-join-banner">
+          <div className="member-join-left">
+            <div className="member-join-icon-box">
+              <img src={rocketIcon} alt="Join" className="member-join-3d-icon" />
+            </div>
+            <div>
+              <h3 className="member-join-title">{TEXTS.joinTitle[lang]}</h3>
+              <p className="member-join-sub">{TEXTS.joinSub[lang]}</p>
+            </div>
+          </div>
+          <Link to="/career" className="member-btn-join">
+            <img src={flashIcon} alt="Roles" className="member-join-btn-icon" />
+            <span>{TEXTS.joinBtn[lang]}</span>
+            <span>→</span>
           </Link>
-        </div>
-      </section>
+        </section>
+
+      </div>
     </div>
   )
 }
-
-const ArrowIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-    <path d="m9 18 6-6-6-6" />
-  </svg>
-)
-
-const LinkIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-  </svg>
-)
 
 export default Member

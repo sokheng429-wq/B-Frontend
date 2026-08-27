@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
 import { useCollection } from './stockStore'
-import { SectionShell, Field, TextInput, SelectInput, PrimaryButton, GhostButton, Modal, DataTable } from './stockUI'
+import { SectionShell, Field, TextInput, SelectInput, PrimaryButton, GhostButton, Modal, DataTable, ConfirmModal } from './stockUI'
+import './MasterDataSection.css'
 
 const ORANGE = '#FF9900'
 
@@ -101,6 +102,7 @@ export const MasterDataSection = ({ sectionKey }) => {
   const [form, setForm] = useState(() => blankForm(cfg ? cfg.fields : []))
   const [query, setQuery] = useState('')
 
+  const [confirmAction, setConfirmAction] = useState(null)
   if (!cfg) return null
 
   const filtered = items.filter((it) => JSON.stringify(it).toLowerCase().includes(query.toLowerCase()))
@@ -124,9 +126,37 @@ export const MasterDataSection = ({ sectionKey }) => {
     setFormOpen(false)
   }
 
-  const removeItem = (item) => {
+  const promptSaveForm = () => {
+    if (!String(form.name || '').trim()) return
     const label = lang === 'en' ? cfg.entity.en : cfg.entity.kh
-    if (window.confirm(lang === 'en' ? `Delete "${item.name}"?` : `លុប "${item.name}" (${label})?`)) itemApi.remove(item.id)
+    setConfirmAction({
+      title: editingId == null
+        ? { en: `Create New ${cfg.entity.en}`, kh: `បង្កើត ${cfg.entity.kh} ថ្មី` }
+        : { en: `Save Changes to ${cfg.entity.en}`, kh: `រក្សាទុកការផ្លាស់ប្តូរ ${cfg.entity.kh}` },
+      message: {
+        en: `Are you sure you want to save "${form.name}"?`,
+        kh: `តើអ្នកពិតជាចង់រក្សាទុក "${form.name}" (${label}) មែនទេ?`,
+      },
+      confirmText: { en: 'Confirm & Save', kh: 'យល់ព្រមរក្សាទុក' },
+      cancelText: { en: 'Cancel', kh: 'បោះបង់' },
+      type: 'save',
+      onConfirm: saveForm,
+    })
+  }
+
+  const promptRemoveItem = (item) => {
+    const label = lang === 'en' ? cfg.entity.en : cfg.entity.kh
+    setConfirmAction({
+      title: { en: `Delete ${cfg.entity.en}`, kh: `លុប ${cfg.entity.kh}` },
+      message: {
+        en: `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+        kh: `តើអ្នកពិតជាចង់លុប "${item.name}" (${label}) មែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។`,
+      },
+      confirmText: { en: 'Confirm Delete', kh: 'យល់ព្រមលុប' },
+      cancelText: { en: 'Cancel', kh: 'បោះបង់' },
+      type: 'danger',
+      onConfirm: () => itemApi.remove(item.id),
+    })
   }
 
   const t = (en, kh) => (lang === 'en' ? en : kh)
@@ -143,6 +173,19 @@ export const MasterDataSection = ({ sectionKey }) => {
         </PrimaryButton>
       }
     >
+      {confirmAction && (
+        <ConfirmModal
+          open={!!confirmAction}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={() => {
+            const fn = confirmAction.onConfirm
+            setConfirmAction(null)
+            fn?.()
+          }}
+          {...confirmAction}
+        />
+      )}
+
       <div className="max-w-sm">
         <TextInput placeholder={t('Search…', 'ស្វែងរក…')} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
@@ -159,7 +202,7 @@ export const MasterDataSection = ({ sectionKey }) => {
               <GhostButton onClick={() => openEdit(item)}>{t('Edit', 'កែ')}</GhostButton>
               <button
                 type="button"
-                onClick={() => removeItem(item)}
+                onClick={() => promptRemoveItem(item)}
                 className="transition hover:scale-110"
                 style={{ color: ORANGE }}
                 aria-label={t('Delete', 'លុប')}
@@ -204,7 +247,7 @@ export const MasterDataSection = ({ sectionKey }) => {
         </div>
         <div className="mt-5 flex justify-end gap-3">
           <GhostButton onClick={() => setFormOpen(false)}>{t('Cancel', 'បោះបង់')}</GhostButton>
-          <PrimaryButton onClick={saveForm} disabled={!String(form.name || '').trim()}>
+          <PrimaryButton onClick={promptSaveForm} disabled={!String(form.name || '').trim()}>
             {t('Save', 'រក្សាទុក')}
           </PrimaryButton>
         </div>

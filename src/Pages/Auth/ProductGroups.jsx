@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
 import { adminProductGroupAPI } from '../../api/api'
 import { SectionShell, Field, TextInput, PrimaryButton, GhostButton, Modal, Pill } from './stockUI'
+import './ProductGroups.css'
 
 const ORANGE = '#FF9900'
 

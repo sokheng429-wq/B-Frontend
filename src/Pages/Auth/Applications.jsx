@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { applicationAPI } from '../../api/api'
+import './Applications.css'
 
 const STATUS_ORDER = ['NEW', 'REVIEWED', 'ACCEPTED', 'REJECTED']
 

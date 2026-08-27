@@ -26,7 +26,6 @@ import Profile from './Pages/Home/Profile'
 import Memberdetail from './Pages/Home/Memberdetail'
 import Productdetail from './Pages/Shop/Productdetail'
 import Careerdetail from './Pages/Home/Careerdetail'
-import AddDriver from './Pages/Auth/AddDriver'
 import Partners from './Pages/Shop/Partners'
 import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
@@ -74,7 +73,7 @@ function App() {
           <Route path="/career-detail/:id" element={<Careerdetail />} />
 
           <Route path="/member" element={<Member />} />
-          <Route path="/member-detail" element={<Memberdetail />} />
+          <Route path="/member-detail" element={<AdminRoute><Memberdetail /></AdminRoute>} />
 
           <Route path="/partners" element={<ShopLayout><Partners /></ShopLayout>} />
           <Route path="/orders" element={<ShopLayout><OrderHistory /></ShopLayout>} />

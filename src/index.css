@@ -28,7 +28,7 @@
 
 @theme {
   /* Navy — from the B'Groceries logo */
-  --color-navy-900: #0B0F14;
+  --color-navy-900: #1A232F;
   --color-navy-800: #232F3F;
   --color-navy-700: #34455c;
   --color-navy-600: #4a5d78;
@@ -72,7 +72,7 @@
   --accent-border-strong: rgba(255, 153, 0, 0.3);
 
   --navy: #232F3F;
-  --navy-dark: #0B0F14;
+  --navy-dark: #1A232F;
 
   /* Navy-based surface palette — matches Header/Header2 */
   --surface-0: #232F3F;

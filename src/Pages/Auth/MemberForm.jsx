@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { memberAPI } from '../../api/api'
+import './MemberForm.css'
 
 const DEPARTMENTS = [
   { en: 'Executive', kh: 'នាយកប្រតិបត្តិ' },

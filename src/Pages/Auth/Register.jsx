@@ -1,32 +1,41 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
 import { authAPI } from '../../api/api'
 import { useTelegramLogin } from '../../hooks/useTelegramLogin'
 import { Logo } from '../../components/Logo'
+import crownIcon from '../../assets/icon/3dicons-crown-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import giftIcon from '../../assets/icon/3dicons-gift-box-dynamic-color.png'
+import heartIcon from '../../assets/icon/3dicons-heart-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
 import './Register.css'
 
 const TEXTS = {
-  eyebrow: { en: "Join B'Groceries", kh: 'ចូលរួមជាមួយ B\'Groceries' },
+  eyebrow: { en: "Join B'Groceries Club", kh: "ចូលរួមក្លឹប B'Groceries" },
   title1: { en: 'Create an account, ', kh: 'បង្កើតគណនី ' },
   titleHighlight: { en: 'shop smarter', kh: 'ទិញទំនិញឆ្លាតជាងមុន' },
-  subtitle: { en: 'Free delivery, member-only prices, and faster checkout every time you shop.', kh: 'ដឹកជញ្ជូនឥតគិតថ្លៃ តម្លៃសម្រាប់សមាជិក និងការទូទាត់លឿនជាងមុនរាល់ពេលដែលអ្នកទិញទំនិញ។' },
-  testimonial: { en: '"Signing up took two minutes and I\'ve saved way more than that on member pricing already."', kh: '"ការចុះឈ្មោះចំណាយពេលតែពីរនាទី ហើយខ្ញុំបានសន្សំច្រើនជាងនោះលើតម្លៃសមាជិករួចទៅហើយ។"' },
-  author: { en: 'Dara, member since 2025', kh: 'តារា សមាជិកតាំងពីឆ្នាំ ២០២៥' },
+  subtitle: { en: 'Free delivery, member-only prices, and instant reward points every time you shop.', kh: 'ដឹកជញ្ជូនឥតគិតថ្លៃ តម្លៃសម្រាប់សមាជិក និងពិន្ទុរង្វាន់ភ្លាមៗរាល់ពេលដែលអ្នកទិញទំនិញ។' },
+  testimonial: { en: '"Signing up took 1 minute and the member discounts on weekly groceries saved us a lot!"', kh: '"ការចុះឈ្មោះចំណាយពេលតែ ១នាទី ហើយការបញ្ចុះតម្លៃសមាជិកលើគ្រឿងទេសបានជួយសន្សំច្រើនណាស់!"' },
+  author: { en: 'Dara V., VIP Member', kh: 'តារា វ., សមាជិក VIP' },
+  perk1: { en: '$10 Instant Welcome Credit', kh: 'កាដូស្វាគមន៍ ១០ដុល្លារ ភ្លាមៗ' },
+  perk2: { en: 'Free Express Delivery on 3 Orders', kh: 'ដឹកជញ្ជូនរហ័សឥតគិតថ្លៃ ៣ដង' },
+  perk3: { en: '2x Points on Fresh Organic Produce', kh: 'ទទួលបានពិន្ទុគុណនឹង ២ លើបន្លែស្រស់' },
+  perk4: { en: 'Priority Member Support & Returns', kh: 'សេវាកម្មអាទិភាព & ប្តូរទំនិញរហ័ស' },
   heading: { en: 'Create your account', kh: 'បង្កើតគណនីរបស់អ្នក' },
-  alreadyHave: { en: 'Already have one?', kh: 'មានគណនីហើយ?' },
-  logIn: { en: 'Log in', kh: 'ចូលគណនី' },
+  alreadyHave: { en: 'Already have an account?', kh: 'មានគណនីរួចហើយ?' },
+  logIn: { en: 'Log in here', kh: 'ចូលគណនីនៅទីនេះ' },
+  secBasic: { en: 'Basic Information', kh: 'ព័ត៌មានមូលដ្ឋាន' },
+  secContact: { en: 'Contact & Profile', kh: 'ទំនាក់ទំនង & ប្រវត្តិរូប' },
+  secSecurity: { en: 'Account Security', kh: 'សុវត្ថិភាពគណនី' },
   usernameLabel: { en: 'Username', kh: 'ឈ្មោះអ្នកប្រើ' },
-  usernamePlaceholder: { en: 'e.g. Username', kh: 'ឧ. Username' },
+  usernamePlaceholder: { en: 'e.g. YourName', kh: 'ឧ. YourName' },
   nameLabel: { en: 'Full name', kh: 'ឈ្មោះពេញ' },
-  namePlaceholder: { en: 'Your Name', kh: 'ឈ្មោះរបស់អ្នក' },
-  emailLabel: { en: 'Email (Gmail)', kh: 'អ៊ីមែល (Gmail)' },
-  emailPlaceholder: { en: 'e.g. Your@gmail.com', kh: 'ឧ. Your@gmail.com' },
-  telegramLabel: { en: 'Telegram handle', kh: 'ឈ្មោះតេឡេក្រាម' },
-  telegramPlaceholder: { en: 'e.g. @sokheng', kh: 'ឧ. @sokheng' },
-  facebookLabel: { en: 'Facebook', kh: 'ហ្វេសប៊ុក' },
-  facebookPlaceholder: { en: 'e.g. sokheng.fb', kh: 'ឧ. sokheng.fb' },
+  namePlaceholder: { en: 'Your full name', kh: 'ឈ្មោះពេញរបស់អ្នក' },
+  emailLabel: { en: 'Email Address', kh: 'អាសយដ្ឋានអ៊ីមែល' },
+  emailPlaceholder: { en: 'you@example.com', kh: 'you@example.com' },
   phoneLabel: { en: 'Phone number (required)', kh: 'លេខទូរស័ព្ទ (ចាំបាច់)' },
   phonePlaceholder: { en: '012 345 678', kh: '០១២ ៣៤៥ ៦៧៨' },
   dateOfBirthLabel: { en: 'Date of Birth', kh: 'ថ្ងៃខែឆ្នាំកំណើត' },
@@ -39,23 +48,27 @@ const TEXTS = {
   nationalityLabel: { en: 'Nationality', kh: 'សញ្ជាតិ' },
   nationalityPlaceholder: { en: 'Select nationality', kh: 'ជ្រើសរើសសញ្ជាតិ' },
   passwordLabel: { en: 'Password', kh: 'ពាក្យសម្ងាត់' },
-  passwordPlaceholder: { en: 'Create a password', kh: 'បង្កើតពាក្យសម្ងាត់' },
+  passwordPlaceholder: { en: 'At least 8 characters', kh: 'យ៉ាងតិច ៨តួអក្សរ' },
   confirmLabel: { en: 'Confirm password', kh: 'បញ្ជាក់ពាក្យសម្ងាត់' },
-  confirmPlaceholder: { en: 'Re-enter your password', kh: 'បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត' },
+  confirmPlaceholder: { en: 'Re-enter password', kh: 'បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត' },
   agree1: { en: 'I agree to the ', kh: 'ខ្ញុំយល់ព្រមនឹង ' },
   terms: { en: 'Terms of Service', kh: 'លក្ខខណ្ឌសេវាកម្ម' },
   agree2: { en: ' and ', kh: ' និង ' },
   privacy: { en: 'Privacy Policy', kh: 'គោលការណ៍ឯកជនភាព' },
-  submitBtn: { en: 'Create account', kh: 'បង្កើតគណនី' },
-  passwordMismatch: { en: "Passwords don't match", kh: 'ពាក្យសម្ងាត់មិនត្រូវគ្នា' },
+  submitBtn: { en: 'Create Account', kh: 'បង្កើតគណនី' },
+  passwordMismatch: { en: "Passwords do not match.", kh: 'ពាក្យសម្ងាត់ទាំងពីរមិនត្រូវគ្នាទេ។' },
   socialOr: { en: 'or register with', kh: 'ឬចុះឈ្មោះជាមួយ' },
-  socialGmail: { en: 'Sign up with Gmail', kh: 'ចុះឈ្មោះជាមួយ Gmail' },
-  socialTelegram: { en: 'Sign up with Telegram', kh: 'ចុះឈ្មោះជាមួយ Telegram' },
-  socialFacebook: { en: 'Sign up with Facebook', kh: 'ចុះឈ្មោះជាមួយ Facebook' },
-  socialNote: { en: 'You\'ll be signed up instantly (an account is created the first time).', kh: 'អ្នកនឹងត្រូវបានចុះឈ្មោះភ្លាមៗ (គណនីនឹងត្រូវបានបង្កើតនៅពេលដំបូង)។' },
+  socialNote: { en: 'Your account is automatically created & synced securely.', kh: 'គណនីរបស់អ្នកនឹងត្រូវបានបង្កើត និងតភ្ជាប់ដោយសុវត្ថិភាព។' },
+  // Strength meter
+  strengthWeak: { en: 'Weak', kh: 'ខ្សោយ' },
+  strengthMedium: { en: 'Medium', kh: 'មធ្យម' },
+  strengthStrong: { en: 'Strong', kh: 'រឹងមាំ' },
+  reqLen: { en: '8+ chars', kh: '៨+ តួ' },
+  reqNum: { en: 'Number', kh: 'លេខ' },
+  reqUpper: { en: 'Uppercase', kh: 'អក្សរធំ' },
+  reqMatch: { en: 'Match', kh: 'ដូចគ្នា' },
 }
 
-// List of countries
 const COUNTRIES = [
   'Cambodia', 'Thailand', 'Vietnam', 'Laos', 'Myanmar',
   'Singapore', 'Malaysia', 'Indonesia', 'Philippines',
@@ -68,12 +81,24 @@ export const Register = () => {
   const { lang } = useLanguage()
   const { login } = useAuth()
   const navigate = useNavigate()
+
   const [form, setForm] = useState({
-    username: '', name: '', email: '',
-    phone: '', password: '', confirmPassword: '', agree: false,
-    dateOfBirth: '', gender: '', nationality: ''
+    username: '',
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+    agree: true,
+    dateOfBirth: '',
+    gender: '',
+    nationality: 'Cambodia'
   })
+
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const [socialBusy, setSocialBusy] = useState('')
 
   const handleChange = (e) => {
@@ -81,19 +106,51 @@ export const Register = () => {
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
+  // Password strength calculation
+  const strengthInfo = useMemo(() => {
+    const pwd = form.password
+    const hasLen = pwd.length >= 8
+    const hasNum = /[0-9]/.test(pwd)
+    const hasUpper = /[A-Z]/.test(pwd)
+    const hasMatch = pwd && form.confirmPassword && pwd === form.confirmPassword
+
+    let score = 0
+    if (pwd.length >= 6) score++
+    if (hasLen) score++
+    if (hasNum) score++
+    if (hasUpper) score++
+
+    let label = TEXTS.strengthWeak[lang]
+    let color = 'bg-rose-500'
+    let width = '33%'
+
+    if (score >= 4) {
+      label = TEXTS.strengthStrong[lang]
+      color = 'bg-emerald-500'
+      width = '100%'
+    } else if (score >= 2) {
+      label = TEXTS.strengthMedium[lang]
+      color = 'bg-amber-500'
+      width = '66%'
+    }
+
+    return { score, label, color, width, hasLen, hasNum, hasUpper, hasMatch }
+  }, [form.password, form.confirmPassword, lang])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (form.password !== form.confirmPassword) {
-      alert(TEXTS.passwordMismatch[lang])
+      setError(TEXTS.passwordMismatch[lang])
       return
     }
     setError('')
+    setLoading(true)
     try {
       const res = await authAPI.register({
-        username: form.username,
-        fullName: form.name,
-        email: form.email,
-        phoneNumber: form.phone,
+        username: form.username.trim(),
+        fullName: form.name.trim(),
+        email: form.email.trim(),
+        phoneNumber: form.phone.trim(),
         password: form.password,
         confirmPassword: form.confirmPassword,
         dateOfBirth: form.dateOfBirth || undefined,
@@ -103,11 +160,13 @@ export const Register = () => {
       login(res.data)
       navigate('/')
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Registration failed. Please try again.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Telegram signup (keeps existing implementation)
+  // Telegram signup
   const handleTelegramAuth = async (telegramUser) => {
     setError('')
     setSocialBusy('telegram')
@@ -128,160 +187,396 @@ export const Register = () => {
   })
 
   return (
-    <div className="auth">
-
+    <div className="auth auth--register">
+      {/* Left Perks Showcase Panel */}
       <div className="auth-panel">
         <div className="auth-panel-top">
           <Logo />
         </div>
 
         <div className="auth-panel-body">
-          <span className="auth-panel-eyebrow">{TEXTS.eyebrow[lang]}</span>
+          <div className="auth-panel-eyebrow-wrap">
+            <span className="auth-panel-eyebrow">
+              <img src={crownIcon} alt="" className="h-4 w-4 object-contain inline-block mr-1" />
+              {TEXTS.eyebrow[lang]}
+            </span>
+          </div>
+
           <h2 className="auth-panel-title">
-            {TEXTS.title1[lang]}<span>{TEXTS.titleHighlight[lang]}</span>
+            {TEXTS.title1[lang]}
+            <span className="text-emerald-400">{TEXTS.titleHighlight[lang]}</span>
           </h2>
+
           <p className="auth-panel-subtitle">{TEXTS.subtitle[lang]}</p>
 
+          {/* 4 Key Perks with 3D Icons */}
+          <div className="auth-perks-list">
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-amber-500/15 border border-amber-500/30">
+                <img src={crownIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk1[lang]}</h4>
+              </div>
+            </div>
+
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-emerald-500/15 border border-emerald-500/30">
+                <img src={rocketIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk2[lang]}</h4>
+              </div>
+            </div>
+
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-lime-500/15 border border-lime-500/30">
+                <img src={giftIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk3[lang]}</h4>
+              </div>
+            </div>
+
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-rose-500/15 border border-rose-500/30">
+                <img src={heartIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk4[lang]}</h4>
+              </div>
+            </div>
+          </div>
+
+          {/* Member Testimonial Card */}
           <div className="auth-panel-card">
-            <p>{TEXTS.testimonial[lang]}</p>
-            <span className="auth-panel-card-author">— {TEXTS.author[lang]}</span>
+            <div className="flex items-center gap-1 mb-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <img key={i} src={starIcon} alt="" className="h-4 w-4 object-contain" />
+              ))}
+            </div>
+            <p className="italic text-slate-100 text-xs leading-relaxed">{TEXTS.testimonial[lang]}</p>
+            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/10">
+              <div className="w-6 h-6 rounded-full bg-amber-500/30 flex items-center justify-center font-bold text-amber-300 text-[10px]">
+                D
+              </div>
+              <span className="auth-panel-card-author text-xs font-semibold text-amber-300">
+                {TEXTS.author[lang]}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="auth-panel-blob" />
+        <div className="auth-panel-blob auth-panel-blob--1" />
+        <div className="auth-panel-blob auth-panel-blob--2" />
       </div>
 
+      {/* Right Registration Form Side */}
       <div className="auth-form-side">
-        <div className="auth-form-wrap">
+        <div className="auth-form-wrap auth-form-wrap--wide">
           <div className="auth-mobile-logo">
             <Logo />
           </div>
 
-          <h1 className="auth-title">{TEXTS.heading[lang]}</h1>
-          <p className="auth-subtitle">
-            {TEXTS.alreadyHave[lang]} <Link to="/login">{TEXTS.logIn[lang]}</Link>
-          </p>
+          <div className="auth-header-block">
+            <div className="flex items-center justify-between">
+              <h1 className="auth-title">{TEXTS.heading[lang]}</h1>
+              <img src={shieldIcon} alt="" className="h-8 w-8 object-contain drop-shadow hidden sm:block" />
+            </div>
+            <p className="auth-subtitle">
+              {TEXTS.alreadyHave[lang]}{' '}
+              <Link to="/login" className="auth-link-highlight">
+                {TEXTS.logIn[lang]}
+              </Link>
+            </p>
+          </div>
 
-          {/* Manual registration form */}
           <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="field">
-              <label htmlFor="username">{TEXTS.usernameLabel[lang]}</label>
-              <input id="username" name="username" type="text" placeholder={TEXTS.usernamePlaceholder[lang]} value={form.username} onChange={handleChange} required />
+            {/* Section 1: Basic Information */}
+            <div className="auth-section-card">
+              <h3 className="auth-section-title">
+                <span>👤</span> {TEXTS.secBasic[lang]}
+              </h3>
+              <div className="auth-grid-2">
+                <div className="field">
+                  <label htmlFor="name">{TEXTS.nameLabel[lang]} *</label>
+                  <div className="input-wrap">
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder={TEXTS.namePlaceholder[lang]}
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="username">{TEXTS.usernameLabel[lang]} *</label>
+                  <div className="input-wrap">
+                    <input
+                      id="username"
+                      name="username"
+                      type="text"
+                      placeholder={TEXTS.usernamePlaceholder[lang]}
+                      value={form.username}
+                      onChange={handleChange}
+                      required
+                      autoComplete="username"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="field mt-3">
+                <label htmlFor="email">{TEXTS.emailLabel[lang]} *</label>
+                <div className="input-wrap">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder={TEXTS.emailPlaceholder[lang]}
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="field">
-              <label htmlFor="name">{TEXTS.nameLabel[lang]}</label>
-              <input id="name" name="name" type="text" placeholder={TEXTS.namePlaceholder[lang]} value={form.name} onChange={handleChange} required />
+            {/* Section 2: Contact & Profile */}
+            <div className="auth-section-card">
+              <h3 className="auth-section-title">
+                <span>📱</span> {TEXTS.secContact[lang]}
+              </h3>
+              <div className="auth-grid-2">
+                <div className="field">
+                  <label htmlFor="phone">{TEXTS.phoneLabel[lang]} *</label>
+                  <div className="input-wrap">
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder={TEXTS.phonePlaceholder[lang]}
+                      value={form.phone}
+                      onChange={handleChange}
+                      required
+                      autoComplete="tel"
+                    />
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="dateOfBirth">{TEXTS.dateOfBirthLabel[lang]}</label>
+                  <div className="input-wrap">
+                    <input
+                      id="dateOfBirth"
+                      name="dateOfBirth"
+                      type="date"
+                      value={form.dateOfBirth}
+                      onChange={handleChange}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="auth-grid-2 mt-3">
+                <div className="field">
+                  <label htmlFor="gender">{TEXTS.genderLabel[lang]}</label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                    className="auth-select"
+                  >
+                    <option value="">{TEXTS.genderPlaceholder[lang]}</option>
+                    <option value="Male">{TEXTS.genderMale[lang]}</option>
+                    <option value="Female">{TEXTS.genderFemale[lang]}</option>
+                    <option value="Other">{TEXTS.genderOther[lang]}</option>
+                    <option value="Prefer not to say">{TEXTS.genderPreferNot[lang]}</option>
+                  </select>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="nationality">{TEXTS.nationalityLabel[lang]}</label>
+                  <select
+                    id="nationality"
+                    name="nationality"
+                    value={form.nationality}
+                    onChange={handleChange}
+                    className="auth-select"
+                  >
+                    <option value="">{TEXTS.nationalityPlaceholder[lang]}</option>
+                    {COUNTRIES.map((country) => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div className="field">
-              <label htmlFor="email">{TEXTS.emailLabel[lang]} <span className="req">*</span></label>
-              <input id="email" name="email" type="email" placeholder={TEXTS.emailPlaceholder[lang]} value={form.email} onChange={handleChange} required />
+            {/* Section 3: Security & Passwords */}
+            <div className="auth-section-card">
+              <h3 className="auth-section-title">
+                <span>🔒</span> {TEXTS.secSecurity[lang]}
+              </h3>
+
+              <div className="auth-grid-2">
+                <div className="field">
+                  <label htmlFor="password">{TEXTS.passwordLabel[lang]} *</label>
+                  <div className="input-wrap input-wrap--password">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder={TEXTS.passwordPlaceholder[lang]}
+                      value={form.password}
+                      onChange={handleChange}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex="-1"
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="confirmPassword">{TEXTS.confirmLabel[lang]} *</label>
+                  <div className="input-wrap input-wrap--password">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder={TEXTS.confirmPlaceholder[lang]}
+                      value={form.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      tabIndex="-1"
+                    >
+                      {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Password Strength Meter */}
+              {form.password && (
+                <div className="auth-pwd-meter-box mt-3">
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="text-slate-400">Password Strength:</span>
+                    <span className="font-bold text-slate-200">{strengthInfo.label}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-700/60 rounded-full overflow-hidden mb-2">
+                    <div
+                      className={`h-full ${strengthInfo.color} transition-all duration-300`}
+                      style={{ width: strengthInfo.width }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1 text-[10px]">
+                    <span className={`px-2 py-0.5 rounded-md ${strengthInfo.hasLen ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
+                      {strengthInfo.hasLen ? '✓' : '○'} {TEXTS.reqLen[lang]}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-md ${strengthInfo.hasNum ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
+                      {strengthInfo.hasNum ? '✓' : '○'} {TEXTS.reqNum[lang]}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-md ${strengthInfo.hasUpper ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
+                      {strengthInfo.hasUpper ? '✓' : '○'} {TEXTS.reqUpper[lang]}
+                    </span>
+                    {form.confirmPassword && (
+                      <span className={`px-2 py-0.5 rounded-md ${strengthInfo.hasMatch ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                        {strengthInfo.hasMatch ? '✓' : '✗'} {TEXTS.reqMatch[lang]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="field">
-              <label htmlFor="phone">{TEXTS.phoneLabel[lang]}</label>
-              <input id="phone" name="phone" type="tel" placeholder={TEXTS.phonePlaceholder[lang]} value={form.phone} onChange={handleChange} required />
-            </div>
-
-            <div className="field">
-              <label htmlFor="dateOfBirth">{TEXTS.dateOfBirthLabel[lang]}</label>
+            {/* Terms Checkbox */}
+            <label className="checkbox-label mt-1">
               <input
-                id="dateOfBirth"
-                name="dateOfBirth"
-                type="date"
-                value={form.dateOfBirth}
+                type="checkbox"
+                name="agree"
+                checked={form.agree}
                 onChange={handleChange}
-                max={new Date().toISOString().split('T')[0]}
+                required
               />
-            </div>
-
-            <div className="field">
-              <label htmlFor="gender">{TEXTS.genderLabel[lang]}</label>
-              <select
-                id="gender"
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
-                className="auth-select"
-              >
-                <option value="">{TEXTS.genderPlaceholder[lang]}</option>
-                <option value="Male">{TEXTS.genderMale[lang]}</option>
-                <option value="Female">{TEXTS.genderFemale[lang]}</option>
-                <option value="Other">{TEXTS.genderOther[lang]}</option>
-                <option value="Prefer not to say">{TEXTS.genderPreferNot[lang]}</option>
-              </select>
-            </div>
-
-            <div className="field">
-              <label htmlFor="nationality">{TEXTS.nationalityLabel[lang]}</label>
-              <select
-                id="nationality"
-                name="nationality"
-                value={form.nationality}
-                onChange={handleChange}
-                className="auth-select"
-              >
-                <option value="">{TEXTS.nationalityPlaceholder[lang]}</option>
-                {COUNTRIES.map((country) => (
-                  <option key={country} value={country}>{country}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="field">
-              <label htmlFor="password">{TEXTS.passwordLabel[lang]}</label>
-              <input id="password" name="password" type="password" placeholder={TEXTS.passwordPlaceholder[lang]} value={form.password} onChange={handleChange} required />
-            </div>
-
-            <div className="field">
-              <label htmlFor="confirmPassword">{TEXTS.confirmLabel[lang]}</label>
-              <input id="confirmPassword" name="confirmPassword" type="password" placeholder={TEXTS.confirmPlaceholder[lang]} value={form.confirmPassword} onChange={handleChange} required />
-            </div>
-
-            <label className="checkbox-label">
-              <input type="checkbox" name="agree" checked={form.agree} onChange={handleChange} required />
-              <span className="terms-text">
+              <span className="terms-text text-xs leading-relaxed">
                 {TEXTS.agree1[lang]}
-                <Link to="/terms-privacy">{TEXTS.terms[lang]}</Link>
+                <Link to="/terms-privacy" className="text-emerald-400 hover:underline">
+                  {TEXTS.terms[lang]}
+                </Link>
                 {TEXTS.agree2[lang]}
-                <Link to="/terms-privacy">{TEXTS.privacy[lang]}</Link>
+                <Link to="/terms-privacy" className="text-emerald-400 hover:underline">
+                  {TEXTS.privacy[lang]}
+                </Link>
               </span>
             </label>
 
-            {error && <p className="auth-error">{error}</p>}
-            <button type="submit" className="btn-submit">{TEXTS.submitBtn[lang]}</button>
+            {error && (
+              <div className="auth-error-alert animate-shake">
+                <span>⚠️ {error}</span>
+                <button type="button" onClick={() => setError('')} className="auth-error-dismiss">✕</button>
+              </div>
+            )}
+
+            <button type="submit" className="btn-submit btn-submit--gradient" disabled={loading}>
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <SpinnerIcon /> {lang === 'en' ? 'Creating Account…' : 'កំពុងបង្កើតគណនី…'}
+                </span>
+              ) : (
+                <span>{TEXTS.submitBtn[lang]} →</span>
+              )}
+            </button>
           </form>
 
-          <div className="auth-divider"><span>{TEXTS.socialOr[lang]}</span></div>
+          {/* Social Signups */}
+          <div className="auth-divider">
+            <span>{TEXTS.socialOr[lang]}</span>
+          </div>
 
-          {/* Social signup — simple anchor tag redirects */}
           <div className="social-auth">
-            {/* Google Signup - Simple redirect to backend OAuth2 */}
             <a
               href="http://localhost:8081/oauth2/authorization/google"
-              className="social-btn social-btn--gmail"
+              className="social-btn social-btn--gmail group"
             >
               <GmailIcon />
-              <span>Sign up with <strong>Google</strong></span>
+              <span>Google</span>
             </a>
 
-            {/* Facebook Signup - Simple redirect to backend OAuth2 */}
             <a
               href="http://localhost:8081/oauth2/authorization/facebook"
-              className="social-btn social-btn--facebook"
+              className="social-btn social-btn--facebook group"
             >
               <FacebookIcon />
-              <span>Sign up with <strong>Facebook</strong></span>
+              <span>Facebook</span>
             </a>
 
-            {/* Telegram - Keep existing implementation */}
-            <div className="social-btn social-btn--telegram social-btn--gis-wrap">
+            <div className="social-btn social-btn--telegram social-btn--gis-wrap group">
               {socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />}
-              <span>Sign up with <strong>Telegram</strong></span>
+              <span>Telegram</span>
               <div ref={telegramButtonRef} className="social-btn--gis-overlay" />
             </div>
           </div>
+
           <p className="auth-social-note">{TEXTS.socialNote[lang]}</p>
         </div>
       </div>
@@ -289,7 +584,7 @@ export const Register = () => {
   )
 }
 
-/* Brand logos for the social buttons (filled, full color) */
+/* Social icons */
 const GmailIcon = () => (
   <svg width="18" height="18" viewBox="0 0 48 48">
     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
@@ -318,3 +613,4 @@ const SpinnerIcon = () => (
 )
 
 export default Register
+

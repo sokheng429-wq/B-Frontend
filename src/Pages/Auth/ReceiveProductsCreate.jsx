@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI, adminSupplierAPI, adminUnitAPI } from '../../api/api'
+import { adminProductAPI, adminSupplierAPI, adminUnitAPI, adminStockDocAPI } from '../../api/api'
 import { nextAverageCost, LOCATIONS } from './stockStore'
 import { Field, TextInput, SelectInput, PrimaryButton, GhostButton, Pill } from './stockUI'
+import './ReceiveProductsCreate.css'
 
 // Full-page Stock Receive form (opened by "Create" on the Receive Products
 // list). Layout follows the Suppliers Group dark theme: General Information
@@ -116,33 +117,65 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
 
     const posted = []
     const fails = []
-    for (const l of lines) {
-      try {
-        const p = l.raw
-        const onHand = Number(p.onHand) || 0
-        const qty = Number(l.qty)
-        const newAvg = nextAverageCost(onHand, p.averageCost, qty, Number(l.cost) || 0)
-        await adminProductAPI.update(p.id, {
-          ...p,
-          onHand: onHand + qty,
-          averageCost: newAvg,
-          availableStock: Number(p.availableStock) ? Number(p.availableStock) + qty : null,
-        })
-        posted.push({ ...l, qty: Number(l.qty), cost: Number(l.cost) || 0 })
-      } catch (err) {
-        fails.push(`${l.name}: ${err.message}`)
+    
+    const supplierName = suppliers.find((s) => String(s.id) === String(supplier))?.name || supplier || ''
+    const totalCost = Math.round(lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.cost) || 0), 0) * 100) / 100
+
+    try {
+      const docPayload = {
+        docType: 'RECEIVE',
+        code,
+        date: receiveDate,
+        supplier: supplierName,
+        receiveType,
+        reference: '',
+        receivedBy: outlet,
+        locationKey: location,
+        note: noteText,
+        totalCost,
+        lines: lines.map((l) => ({
+          productId: l.productId,
+          nameSnapshot: l.name,
+          qty: Number(l.qty),
+          unitCost: Number(l.cost) || 0,
+          serials: (l.serials || []).join(', '),
+        })),
+      }
+      await adminStockDocAPI.create(docPayload)
+    } catch (err) {
+      console.warn('Backend stock document create failed, fallback to direct product update', err)
+      for (const l of lines) {
+        try {
+          const p = l.raw
+          const onHand = Number(p.onHand) || 0
+          const qty = Number(l.qty)
+          const newAvg = nextAverageCost(onHand, p.averageCost, qty, Number(l.cost) || 0)
+          await adminProductAPI.update(p.id, {
+            ...p,
+            onHand: onHand + qty,
+            averageCost: newAvg,
+            availableStock: Number(p.availableStock) ? Number(p.availableStock) + qty : null,
+          })
+        } catch (subErr) {
+          fails.push(`${l.name}: ${subErr.message}`)
+        }
       }
     }
+
+    for (const l of lines) {
+      posted.push({ ...l, qty: Number(l.qty), cost: Number(l.cost) || 0 })
+    }
+
     setSaving(false)
-    if (!posted.length) {
+    if (!posted.length && fails.length) {
       setError(t('Nothing was saved.', 'មិនមានអ្វីបានរក្សាទុកទេ។'))
       return
     }
-    const totalCost = Math.round(posted.reduce((s, l) => s + l.qty * l.cost, 0) * 100) / 100
+
     onPosted({
       code,
       date: receiveDate,
-      supplier: suppliers.find((s) => String(s.id) === String(supplier))?.name || supplier || '',
+      supplier: supplierName,
       totalCost,
       receiveType,
       reference: '',
@@ -160,8 +193,6 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
     })
     setPostedDoc({ fails, totalCost })
   }
-
-  const supplierName = suppliers.find((s) => String(s.id) === String(supplier))?.name
 
   return (
     <div className="space-y-5">

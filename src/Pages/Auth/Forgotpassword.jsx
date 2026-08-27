@@ -1,95 +1,187 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { authAPI } from '../../api/api'
 import { Logo } from '../../components/Logo'
+import lockIcon from '../../assets/icon/3dicons-lock-dynamic-color.png'
+import keyIcon from '../../assets/icon/3dicons-key-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
+import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
 import './Forgotpassword.css'
 
 const TEXTS = {
-  eyebrow: { en: 'Account recovery', kh: 'ការស្តារគណនីឡើងវិញ' },
-  title1: { en: 'Locked out? ', kh: 'ជាប់គាំង? ' },
-  titleHighlight: { en: "We'll get you back in", kh: 'យើងនឹងជួយអ្នកចូលវិញ' },
-  subtitle: { en: "Enter your email address and we'll send you a one-time code to reset your password.", kh: 'បញ្ចូលអាសយដ្ឋានអ៊ីមែលរបស់អ្នក ហើយយើងនឹងផ្ញើលេខកូដម្តងដើម្បីកំណត់ពាក្យសម្ងាត់ឡើងវិញ។' },
-  heading: { en: 'Forgot your password?', kh: 'ភ្លេចពាក្យសម្ងាត់?' },
+  eyebrow: { en: 'Secure Account Recovery', kh: 'ការស្តារគណនីប្រកបដោយសុវត្ថិភាព' },
+  title1: { en: 'Locked out? ', kh: 'ភ្លេចពាក្យសម្ងាត់? ' },
+  titleHighlight: { en: "We'll get you back in", kh: 'យើងនឹងជួយអ្នកចូលវិញភ្លាមៗ' },
+  subtitle: { en: "Follow the simple 3-step verification to restore full access to your B'Groceries account safely.", kh: 'អនុវត្តតាមការផ្ទៀងផ្ទាត់ ៣ជំហានងាយៗ ដើម្បីចូលប្រើប្រាស់គណនី B\'Groceries របស់អ្នកឡើងវិញដោយសុវត្ថិភាព។' },
+  perk1: { en: 'End-to-End Encrypted Verification', kh: 'ការផ្ទៀងផ្ទាត់ដែលបានអ៊ិនគ្រីបកម្រិតខ្ពស់' },
+  perk2: { en: 'Instant 6-Digit One-Time Passcode', kh: 'លេខកូដសម្ងាត់ OTP ៦ខ្ទង់ភ្លាមៗ' },
+  perk3: { en: 'Zero Data Loss on Cart & History', kh: 'រក្សាទុកទំនិញក្នុងកន្ត្រក & ប្រវត្តិទិញដដែល' },
+  heading: { en: 'Reset your password', kh: 'កំណត់ពាក្យសម្ងាត់ឡើងវិញ' },
   backToLogin: { en: 'back to login', kh: 'ត្រលប់ទៅចូលគណនី' },
-  noWorries: { en: 'No worries — ', kh: 'កុំបារម្ភ — ' },
-  emailLabel: { en: 'Email address', kh: 'អាសយដ្ឋានអ៊ីមែល' },
+  noWorries: { en: 'Remember your password? ', kh: 'ចាំពាក្យសម្ងាត់វិញហើយ? ' },
+  emailLabel: { en: 'Registered Email Address', kh: 'អាសយដ្ឋានអ៊ីមែលដែលបានចុះឈ្មោះ' },
   emailPlaceholder: { en: 'you@example.com', kh: 'you@example.com' },
-  sendOtp: { en: 'Send OTP', kh: 'ផ្ញើលេខកូដ' },
-  sending: { en: 'Sending...', kh: 'កំពុងផ្ញើ...' },
+  sendOtp: { en: 'Send Reset Code', kh: 'ផ្ញើលេខកូដកំណត់ឡើងវិញ' },
+  sending: { en: 'Sending Code…', kh: 'កំពុងផ្ញើលេខកូដ…' },
   // Step 2: OTP
-  enterOtp: { en: 'Enter OTP Code', kh: 'បញ្ចូលលេខកូដ OTP' },
-  otpSentTo: { en: 'We sent a 6‑digit code to ', kh: 'យើងបានផ្ញើលេខកូដ ៦ខ្ទង់ទៅកាន់ ' },
-  verifyOtp: { en: 'Verify OTP', kh: 'ផ្ទៀងផ្ទាត់លេខកូដ' },
+  enterOtp: { en: 'Enter 6-Digit OTP', kh: 'បញ្ចូលលេខកូដ OTP ៦ខ្ទង់' },
+  otpSentTo: { en: 'We sent a verification code to ', kh: 'យើងបានផ្ញើលេខកូដផ្ទៀងផ្ទាត់ទៅកាន់ ' },
+  verifyOtp: { en: 'Verify & Continue', kh: 'ផ្ទៀងផ្ទាត់ & បន្ត' },
   resendOtp: { en: 'Resend code', kh: 'ផ្ញើលេខកូដម្តងទៀត' },
-  changeEmail: { en: 'Change email address', kh: 'ផ្លាស់ប្តូរអាសយដ្ឋានអ៊ីមែល' },
+  changeEmail: { en: 'Change email address', kh: 'ប្តូរអាសយដ្ឋានអ៊ីមែល' },
   expiresIn: { en: 'Code expires in ', kh: 'កូដផុតកំណត់ក្នុងរយៈពេល ' },
-  expired: { en: 'Code expired — please resend.', kh: 'កូដបានផុតកំណត់ — សូមផ្ញើម្តងទៀត។' },
+  expired: { en: 'Code expired. Please request a new one.', kh: 'កូដបានផុតកំណត់។ សូមស្នើសុំកូដថ្មី។' },
   // Step 3: New password
-  newPasswordTitle: { en: 'Set new password', kh: 'កំណត់ពាក្យសម្ងាត់ថ្មី' },
+  newPasswordTitle: { en: 'Create new password', kh: 'បង្កើតពាក្យសម្ងាត់ថ្មី' },
+  newPasswordSubtitle: { en: 'Choose a strong password to protect your account.', kh: 'ជ្រើសរើសពាក្យសម្ងាត់ដែលរឹងមាំដើម្បីការពារគណនីរបស់អ្នក។' },
   newPasswordLabel: { en: 'New password', kh: 'ពាក្យសម្ងាត់ថ្មី' },
-  newPasswordPlaceholder: { en: 'Create a new password', kh: 'បង្កើតពាក្យសម្ងាត់ថ្មី' },
-  confirmLabel: { en: 'Confirm password', kh: 'បញ្ជាក់ពាក្យសម្ងាត់' },
-  confirmPlaceholder: { en: 'Re-enter your password', kh: 'បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត' },
-  resetBtn: { en: 'Reset Password', kh: 'កំណត់ពាក្យសម្ងាត់ឡើងវិញ' },
-  passwordMismatch: { en: "Passwords don't match", kh: 'ពាក្យសម្ងាត់មិនត្រូវគ្នា' },
+  newPasswordPlaceholder: { en: 'At least 8 characters', kh: 'យ៉ាងតិច ៨តួអក្សរ' },
+  confirmLabel: { en: 'Confirm new password', kh: 'បញ្ជាក់ពាក្យសម្ងាត់ថ្មី' },
+  confirmPlaceholder: { en: 'Re-enter new password', kh: 'បញ្ចូលពាក្យសម្ងាត់ម្តងទៀត' },
+  resetBtn: { en: 'Update Password', kh: 'ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់' },
+  passwordMismatch: { en: "Passwords do not match.", kh: 'ពាក្យសម្ងាត់ទាំងពីរមិនត្រូវគ្នាទេ។' },
   // Success
-  successTitle: { en: 'Password updated!', kh: 'ពាក្យសម្ងាត់បានធ្វើបច្ចុប្បន្នភាព!' },
-  successText: { en: 'Your password has been reset. You can now log in with your new password.', kh: 'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានកំណត់ឡើងវិញ។ អ្នកអាចចូលគណនីដោយប្រើពាក្យសម្ងាត់ថ្មីរបស់អ្នក។' },
-  goToLogin: { en: 'Go to Login', kh: 'ទៅចូលគណនី' },
+  successTitle: { en: 'Password Reset Successful!', kh: 'កំណត់ពាក្យសម្ងាត់បានជោគជ័យ!' },
+  successText: { en: 'Your password has been safely updated. You can now log in with your new credentials.', kh: 'ពាក្យសម្ងាត់របស់អ្នកត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។ អ្នកអាចចូលគណនីដោយប្រើពាក្យសម្ងាត់ថ្មី។' },
+  goToLogin: { en: 'Go to Login Now', kh: 'ចូលគណនីឥឡូវនេះ' },
+  autoRedirect: { en: 'Redirecting to login in ', kh: 'នឹងប្តូរទៅទំព័រចូលគណនីក្នុង ' },
+  // Strength meter
+  strengthWeak: { en: 'Weak', kh: 'ខ្សោយ' },
+  strengthMedium: { en: 'Medium', kh: 'មធ្យម' },
+  strengthStrong: { en: 'Strong', kh: 'រឹងមាំ' },
 }
 
 export const ForgotPassword = () => {
   const { lang } = useLanguage()
+  const navigate = useNavigate()
+
   const [step, setStep] = useState(1)
   const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState('')
+  
+  // 6-digit segmented OTP
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', ''])
+  const otpInputRefs = useRef([])
+
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  
   const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [expiresAt, setExpiresAt] = useState(null)
   const [remaining, setRemaining] = useState(null)
+  const [redirectCountdown, setRedirectCountdown] = useState(5)
 
+  // Full OTP string
+  const fullOtp = otpDigits.join('')
+
+  // Handle OTP Segment Input
+  const handleDigitChange = (index, value) => {
+    const val = value.replace(/\D/g, '').slice(-1)
+    const newDigits = [...otpDigits]
+    newDigits[index] = val
+    setOtpDigits(newDigits)
+
+    if (val && index < 5) {
+      otpInputRefs.current[index + 1]?.focus()
+    }
+  }
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    if (pastedData) {
+      const newDigits = [...otpDigits]
+      for (let i = 0; i < pastedData.length; i++) {
+        newDigits[i] = pastedData[i]
+      }
+      setOtpDigits(newDigits)
+      const nextIndex = Math.min(pastedData.length, 5)
+      otpInputRefs.current[nextIndex]?.focus()
+    }
+  }
+
+  // Password strength calculation
+  const strengthInfo = useMemo(() => {
+    const pwd = newPassword
+    const hasLen = pwd.length >= 8
+    const hasNum = /[0-9]/.test(pwd)
+    const hasUpper = /[A-Z]/.test(pwd)
+
+    let score = 0
+    if (pwd.length >= 6) score++
+    if (hasLen) score++
+    if (hasNum) score++
+    if (hasUpper) score++
+
+    let label = TEXTS.strengthWeak[lang]
+    let color = 'bg-rose-500'
+    let width = '33%'
+
+    if (score >= 4) {
+      label = TEXTS.strengthStrong[lang]
+      color = 'bg-emerald-500'
+      width = '100%'
+    } else if (score >= 2) {
+      label = TEXTS.strengthMedium[lang]
+      color = 'bg-amber-500'
+      width = '66%'
+    }
+
+    return { label, color, width }
+  }, [newPassword, lang])
+
+  // Step 1: Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault()
     if (sending) return
     setSending(true)
     setError('')
     try {
-      const res = await authAPI.sendForgotPasswordOtp(email)
+      const res = await authAPI.sendForgotPasswordOtp(email.trim())
       startCountdown(res)
       setStep(2)
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Failed to send reset code. Please verify your email.')
     } finally {
       setSending(false)
     }
   }
 
+  // Resend OTP
   const handleResendOtp = async () => {
     if (sending) return
     setSending(true)
     setError('')
     try {
-      const res = await authAPI.sendForgotPasswordOtp(email)
+      const res = await authAPI.sendForgotPasswordOtp(email.trim())
       startCountdown(res)
+      setOtpDigits(['', '', '', '', '', ''])
+      otpInputRefs.current[0]?.focus()
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Failed to resend code.')
     } finally {
       setSending(false)
     }
   }
 
-  // Start the expiry countdown from the server-reported TTL (defaults to 5 min).
   const startCountdown = (res) => {
     const seconds = res?.expiresInSeconds ?? 300
     setExpiresAt(Date.now() + seconds * 1000)
     setRemaining(seconds)
   }
 
-  // Tick the countdown every second while on the OTP step.
+  // Tick the countdown
   useEffect(() => {
     if (step !== 2 || !expiresAt) return
     const tick = () => setRemaining(Math.max(0, Math.round((expiresAt - Date.now()) / 1000)))
@@ -103,156 +195,437 @@ export const ForgotPassword = () => {
   const mm = Math.floor(secondsLeft / 60)
   const ss = String(secondsLeft % 60).padStart(2, '0')
 
+  // Step 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault()
-    setError('')
-    try {
-      await authAPI.verifyForgotPasswordOtp(email, otp)
-      setStep(3)
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  const handleReset = async (e) => {
-    e.preventDefault()
-    if (newPassword !== confirmPassword) {
-      alert(TEXTS.passwordMismatch[lang])
+    if (fullOtp.length < 6) {
+      setError(lang === 'en' ? 'Please enter the complete 6-digit OTP code.' : 'សូមបញ្ចូលលេខកូដ OTP ៦ខ្ទង់ឱ្យបានពេញលេញ។')
       return
     }
     setError('')
+    setLoading(true)
     try {
-      await authAPI.resetPassword(email, newPassword)
-      setStep(4)
+      await authAPI.verifyForgotPasswordOtp(email.trim(), fullOtp)
+      setStep(3)
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Invalid or expired OTP code.')
+    } finally {
+      setLoading(false)
     }
   }
 
+  // Step 3: Reset Password
+  const handleReset = async (e) => {
+    e.preventDefault()
+    if (newPassword !== confirmPassword) {
+      setError(TEXTS.passwordMismatch[lang])
+      return
+    }
+    setError('')
+    setLoading(true)
+    try {
+      await authAPI.resetPassword(email.trim(), newPassword)
+      setStep(4)
+    } catch (err) {
+      setError(err.message || 'Failed to update password. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Auto redirect on step 4
+  useEffect(() => {
+    if (step === 4) {
+      const interval = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval)
+            navigate('/login')
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [step, navigate])
+
   const goToStep = (s) => {
     setStep(s)
-    if (s === 1) { setOtp(''); setNewPassword(''); setConfirmPassword('') }
+    if (s === 1) {
+      setOtpDigits(['', '', '', '', '', ''])
+      setNewPassword('')
+      setConfirmPassword('')
+    }
   }
 
   return (
-    <div className="auth">
+    <div className="auth auth--forgot">
+      {/* Left Trust & Recovery Panel */}
       <div className="auth-panel">
         <div className="auth-panel-top">
           <Logo />
         </div>
+
         <div className="auth-panel-body">
-          <span className="auth-panel-eyebrow">{TEXTS.eyebrow[lang]}</span>
+          <div className="auth-panel-eyebrow-wrap">
+            <span className="auth-panel-eyebrow">
+              <img src={lockIcon} alt="" className="h-4 w-4 object-contain inline-block mr-1" />
+              {TEXTS.eyebrow[lang]}
+            </span>
+          </div>
+
           <h2 className="auth-panel-title">
-            {TEXTS.title1[lang]}<span>{TEXTS.titleHighlight[lang]}</span>
+            {TEXTS.title1[lang]}
+            <span className="text-emerald-400">{TEXTS.titleHighlight[lang]}</span>
           </h2>
+
           <p className="auth-panel-subtitle">{TEXTS.subtitle[lang]}</p>
+
+          {/* Recovery assurances */}
+          <div className="auth-perks-list">
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-emerald-500/15 border border-emerald-500/30">
+                <img src={shieldIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk1[lang]}</h4>
+              </div>
+            </div>
+
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-amber-500/15 border border-amber-500/30">
+                <img src={keyIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk2[lang]}</h4>
+              </div>
+            </div>
+
+            <div className="auth-perk-item">
+              <div className="auth-perk-icon-box bg-lime-500/15 border border-lime-500/30">
+                <img src={mailIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
+              </div>
+              <div className="auth-perk-text">
+                <h4 className="text-white font-bold text-xs">{TEXTS.perk3[lang]}</h4>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="auth-panel-blob" />
+
+        <div className="auth-panel-blob auth-panel-blob--1" />
+        <div className="auth-panel-blob auth-panel-blob--2" />
       </div>
 
+      {/* Right Stepper Flow Side */}
       <div className="auth-form-side">
         <div className="auth-form-wrap">
           <div className="auth-mobile-logo">
             <Logo />
           </div>
 
-          {/* Step progress */}
-          <div className="forgot-steps">
-            {[1, 2, 3].map((s) => (
-              <div key={s} className={`forgot-step ${s < step ? 'forgot-step--done' : ''} ${s === step ? 'forgot-step--active' : ''}`}>
-                <span className="forgot-step-dot">{s < step ? <CheckSmallIcon /> : s}</span>
-                <span className={`forgot-step-label ${s === step ? '' : 'forgot-step-label--dim'}`}>
-                  {s === 1 ? (lang === 'en' ? 'Email' : 'អ៊ីមែល') : s === 2 ? 'OTP' : (lang === 'en' ? 'Reset' : 'កំណត់')}
+          {/* Prominent Back to Login Button */}
+          <div className="forgot-back-top mb-4">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-emerald-400 transition-colors py-1 px-2.5 rounded-lg bg-slate-800/60 border border-slate-700/50 hover:border-emerald-500/40 no-underline"
+            >
+              <span>←</span>
+              <span>{TEXTS.backToLogin[lang]}</span>
+            </Link>
+          </div>
+
+          {/* 4-Step Progress Indicator */}
+          <div className="forgot-steps-bar">
+            {[1, 2, 3, 4].map((s) => (
+              <div
+                key={s}
+                className={`forgot-step-node ${s < step ? 'forgot-step-node--done' : ''} ${s === step ? 'forgot-step-node--active' : ''}`}
+              >
+                <div className="forgot-step-circle">
+                  {s < step ? '✓' : s}
+                </div>
+                <span className="forgot-step-title">
+                  {s === 1
+                    ? (lang === 'en' ? 'Email' : 'អ៊ីមែល')
+                    : s === 2
+                    ? 'OTP'
+                    : s === 3
+                    ? (lang === 'en' ? 'Password' : 'ពាក្យសម្ងាត់')
+                    : (lang === 'en' ? 'Done' : 'រួចរាល់')}
                 </span>
               </div>
             ))}
           </div>
 
+          {/* STEP 1: ENTER EMAIL */}
           {step === 1 && (
-            <>
-              <h1 className="auth-title">{TEXTS.heading[lang]}</h1>
-              <p className="auth-subtitle">
-                {TEXTS.noWorries[lang]}<Link to="/login">{TEXTS.backToLogin[lang]}</Link>
-              </p>
+            <div className="auth-step-container">
+              <div className="auth-header-block">
+                <h1 className="auth-title">{TEXTS.heading[lang]}</h1>
+                <p className="auth-subtitle">
+                  {TEXTS.noWorries[lang]}
+                  <Link to="/login" className="auth-link-highlight">
+                    {TEXTS.backToLogin[lang]}
+                  </Link>
+                </p>
+              </div>
+
               <form className="auth-form" onSubmit={handleSendOtp}>
                 <div className="field">
-                  <label htmlFor="email">{TEXTS.emailLabel[lang]}</label>
-                  <input id="email" name="email" type="email" placeholder={TEXTS.emailPlaceholder[lang]} value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <label htmlFor="email">
+                    <span className="field-icon">✉️</span>
+                    {TEXTS.emailLabel[lang]}
+                  </label>
+                  <div className="input-wrap">
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder={TEXTS.emailPlaceholder[lang]}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      autoFocus
+                      autoComplete="email"
+                    />
+                  </div>
                 </div>
-                {error && <p className="auth-error">{error}</p>}
-                <button type="submit" className="btn-submit" disabled={sending}>
-                  {sending ? <SpinnerIcon /> : null}
-                  {sending ? TEXTS.sending[lang] : TEXTS.sendOtp[lang]}
+
+                {error && (
+                  <div className="auth-error-alert animate-shake">
+                    <span>⚠️ {error}</span>
+                    <button type="button" onClick={() => setError('')} className="auth-error-dismiss">✕</button>
+                  </div>
+                )}
+
+                <button type="submit" className="btn-submit btn-submit--gradient" disabled={sending}>
+                  {sending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <SpinnerIcon /> {TEXTS.sending[lang]}
+                    </span>
+                  ) : (
+                    <span>{TEXTS.sendOtp[lang]} →</span>
+                  )}
                 </button>
               </form>
-            </>
+            </div>
           )}
 
+          {/* STEP 2: ENTER 6-DIGIT OTP */}
           {step === 2 && (
-            <>
-              <h1 className="auth-title">{TEXTS.enterOtp[lang]}</h1>
-              <p className="auth-subtitle">
-                {TEXTS.otpSentTo[lang]}<strong>{email}</strong>
-              </p>
+            <div className="auth-step-container">
+              <div className="auth-header-block">
+                <h1 className="auth-title">{TEXTS.enterOtp[lang]}</h1>
+                <p className="auth-subtitle">
+                  {TEXTS.otpSentTo[lang]}<strong className="text-emerald-400">{email}</strong>
+                </p>
+              </div>
+
               <form className="auth-form" onSubmit={handleVerifyOtp}>
                 <div className="field">
-                  <label htmlFor="otp">{TEXTS.enterOtp[lang]}</label>
-                  <input id="otp" name="otp" type="text" inputMode="numeric" maxLength={6} placeholder="000000" className="forgot-otp-input" value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} required autoFocus />
+                  <label className="text-center block mb-2">{TEXTS.enterOtp[lang]}</label>
+                  
+                  {/* Segmented 6-Box OTP Input */}
+                  <div className="segmented-otp-wrap" onPaste={handlePaste}>
+                    {otpDigits.map((digit, idx) => (
+                      <input
+                        key={idx}
+                        ref={(el) => (otpInputRefs.current[idx] = el)}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength="1"
+                        value={digit}
+                        onChange={(e) => handleDigitChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(idx, e)}
+                        className="segmented-otp-box"
+                        autoFocus={idx === 0}
+                      />
+                    ))}
+                  </div>
                 </div>
-                {error && <p className="auth-error">{error}</p>}
-                <div className={`otp-countdown ${isExpired ? 'otp-countdown--expired' : ''}`}>
-                  {isExpired
-                    ? TEXTS.expired[lang]
-                    : <>{TEXTS.expiresIn[lang]}<strong>{mm}:{ss}</strong></>}
-                </div>
-                <button type="submit" className="btn-submit" disabled={isExpired}>{TEXTS.verifyOtp[lang]}</button>
 
-                <div className="forgot-otp-links">
-                  <button type="button" className="forgot-link-btn" onClick={() => goToStep(1)}>{TEXTS.changeEmail[lang]}</button>
-                  <button type="button" className="forgot-link-btn" onClick={handleResendOtp} disabled={sending}>
+                {/* Countdown Timer */}
+                <div className={`otp-timer-badge ${isExpired ? 'otp-timer-badge--expired' : ''}`}>
+                  {isExpired ? (
+                    <span>⚠️ {TEXTS.expired[lang]}</span>
+                  ) : (
+                    <span>
+                      ⏱️ {TEXTS.expiresIn[lang]}
+                      <strong className="font-mono text-emerald-300 font-bold ml-1">{mm}:{ss}</strong>
+                    </span>
+                  )}
+                </div>
+
+                {error && (
+                  <div className="auth-error-alert animate-shake">
+                    <span>⚠️ {error}</span>
+                    <button type="button" onClick={() => setError('')} className="auth-error-dismiss">✕</button>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="btn-submit btn-submit--gradient"
+                  disabled={isExpired || loading || fullOtp.length < 6}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <SpinnerIcon /> {lang === 'en' ? 'Verifying…' : 'កំពុងផ្ទៀងផ្ទាត់…'}
+                    </span>
+                  ) : (
+                    <span>{TEXTS.verifyOtp[lang]} →</span>
+                  )}
+                </button>
+
+                <div className="flex items-center justify-between text-xs pt-2">
+                  <button
+                    type="button"
+                    className="text-slate-400 hover:text-white transition-colors"
+                    onClick={() => goToStep(1)}
+                  >
+                    ← {TEXTS.changeEmail[lang]}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`font-bold transition-colors ${
+                      sending ? 'text-slate-500 cursor-not-allowed' : 'text-emerald-400 hover:underline'
+                    }`}
+                    onClick={handleResendOtp}
+                    disabled={sending}
+                  >
                     {sending ? TEXTS.sending[lang] : TEXTS.resendOtp[lang]}
                   </button>
                 </div>
               </form>
-            </>
+            </div>
           )}
 
+          {/* STEP 3: CREATE NEW PASSWORD */}
           {step === 3 && (
-            <>
-              <h1 className="auth-title">{TEXTS.newPasswordTitle[lang]}</h1>
+            <div className="auth-step-container">
+              <div className="auth-header-block">
+                <h1 className="auth-title">{TEXTS.newPasswordTitle[lang]}</h1>
+                <p className="auth-subtitle">{TEXTS.newPasswordSubtitle[lang]}</p>
+              </div>
+
               <form className="auth-form" onSubmit={handleReset}>
                 <div className="field">
-                  <label htmlFor="newPassword">{TEXTS.newPasswordLabel[lang]}</label>
-                  <div className="password-wrap">
-                    <input id="newPassword" name="newPassword" type={showPassword ? 'text' : 'password'} placeholder={TEXTS.newPasswordPlaceholder[lang]} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-                    <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
-                      {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  <label htmlFor="newPassword">
+                    <span className="field-icon">🔑</span>
+                    {TEXTS.newPasswordLabel[lang]}
+                  </label>
+                  <div className="input-wrap input-wrap--password">
+                    <input
+                      id="newPassword"
+                      name="newPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder={TEXTS.newPasswordPlaceholder[lang]}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      autoFocus
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex="-1"
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
                     </button>
                   </div>
                 </div>
+
+                {newPassword && (
+                  <div className="auth-pwd-meter-box">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-slate-400">Password Strength:</span>
+                      <span className="font-bold text-slate-200">{strengthInfo.label}</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-700/60 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${strengthInfo.color} transition-all duration-300`}
+                        style={{ width: strengthInfo.width }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="field">
-                  <label htmlFor="confirmPassword">{TEXTS.confirmLabel[lang]}</label>
-                  <div className="password-wrap">
-                    <input id="confirmPassword" name="confirmPassword" type={showPassword ? 'text' : 'password'} placeholder={TEXTS.confirmPlaceholder[lang]} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                    <button type="button" className="password-toggle" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
-                      {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  <label htmlFor="confirmPassword">
+                    <span className="field-icon">🔒</span>
+                    {TEXTS.confirmLabel[lang]}
+                  </label>
+                  <div className="input-wrap input-wrap--password">
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder={TEXTS.confirmPlaceholder[lang]}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      tabIndex="-1"
+                    >
+                      {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
                     </button>
                   </div>
                 </div>
-                {error && <p className="auth-error">{error}</p>}
-                <button type="submit" className="btn-submit">{TEXTS.resetBtn[lang]}</button>
+
+                {error && (
+                  <div className="auth-error-alert animate-shake">
+                    <span>⚠️ {error}</span>
+                    <button type="button" onClick={() => setError('')} className="auth-error-dismiss">✕</button>
+                  </div>
+                )}
+
+                <button type="submit" className="btn-submit btn-submit--gradient" disabled={loading}>
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <SpinnerIcon /> {lang === 'en' ? 'Updating…' : 'កំពុងធ្វើបច្ចុប្បន្នភាព…'}
+                    </span>
+                  ) : (
+                    <span>{TEXTS.resetBtn[lang]} →</span>
+                  )}
+                </button>
               </form>
-            </>
+            </div>
           )}
 
+          {/* STEP 4: SUCCESS CONFIRMED */}
           {step === 4 && (
-            <div className="reset-sent">
-              <div className="reset-sent-icon">
-                <ShieldCheckIcon />
+            <div className="auth-step-container text-center py-4">
+              <div className="w-20 h-20 mx-auto mb-4 bg-emerald-500/20 border-2 border-emerald-500/40 rounded-full flex items-center justify-center animate-bounce">
+                <img src={trophyIcon} alt="" className="h-12 w-12 object-contain drop-shadow" />
               </div>
-              <h1 className="auth-title">{TEXTS.successTitle[lang]}</h1>
-              <p className="auth-subtitle">{TEXTS.successText[lang]}</p>
-              <Link to="/login" className="btn-submit" style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center' }}>{TEXTS.goToLogin[lang]}</Link>
+
+              <h1 className="auth-title text-2xl mb-2">{TEXTS.successTitle[lang]}</h1>
+              <p className="auth-subtitle text-sm mb-6 leading-relaxed">
+                {TEXTS.successText[lang]}
+              </p>
+
+              <div className="p-3 bg-slate-800/80 border border-slate-700/60 rounded-xl text-xs text-slate-400 mb-6">
+                <span>
+                  {TEXTS.autoRedirect[lang]}
+                  <strong className="text-emerald-400 font-bold ml-1">{redirectCountdown}s</strong>…
+                </span>
+              </div>
+
+              <Link
+                to="/login"
+                className="btn-submit btn-submit--gradient inline-flex items-center justify-center no-underline"
+              >
+                {TEXTS.goToLogin[lang]} →
+              </Link>
             </div>
           )}
         </div>
@@ -261,33 +634,6 @@ export const ForgotPassword = () => {
   )
 }
 
-const CheckSmallIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
-
-const ShieldCheckIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <polyline points="9 12 11 14 15 10" />
-  </svg>
-)
-
-const EyeIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-)
-
-const EyeOffIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-)
-
 const SpinnerIcon = () => (
   <svg className="spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" strokeDasharray="40 20" strokeLinecap="round" />
@@ -295,3 +641,4 @@ const SpinnerIcon = () => (
 )
 
 export default ForgotPassword
+

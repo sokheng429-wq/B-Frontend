@@ -1,97 +1,98 @@
-// src/Pages/TermsPrivacy.jsx
 import { useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
+
+// 3D Icons
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
+import walletIcon from '../../assets/icon/3dicons-wallet-dynamic-color.png'
+import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
+import heartIcon from '../../assets/icon/3dicons-heart-dynamic-color.png'
+
 import './Terms&Privacy.css'
 
 const TABS = {
   terms: { en: 'Terms of Service', kh: 'លក្ខខណ្ឌប្រើប្រាស់' },
-  privacy: { en: 'Privacy Policy', kh: 'គោលការណ៍ភាពឯកជន' },
+  privacy: { en: 'Privacy & Data Policy', kh: 'គោលការណ៍ភាពឯកជន' },
 }
 
-const LAST_UPDATED = { en: 'Last updated: August 2026', kh: 'ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ សីហា ២០២៦' }
+const LAST_UPDATED = { en: 'Last Updated: August 2026', kh: 'ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ៖ សីហា ២០២៦' }
 
 const TERMS_SECTIONS = [
   {
-    title: { en: 'Acceptance of Terms', kh: 'ការទទួលយកលក្ខខណ្ឌ' },
+    icon: shieldIcon,
+    title: { en: '1. Acceptance & Contractual Binding', kh: '១. ការទទួលយកលក្ខខណ្ឌ' },
     body: {
-      en: 'By accessing or using our website and services, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.',
-      kh: 'ដោយចូលប្រើ ឬប្រើប្រាស់គេហទំព័រ និងសេវាកម្មរបស់យើង អ្នកយល់ព្រមចងភ្ជាប់ខ្លួនអ្នកជាមួយលក្ខខណ្ឌទាំងនេះ។ ប្រសិនបើអ្នកមិនយល់ព្រម សូមកុំប្រើប្រាស់សេវាកម្មរបស់យើង។',
+      en: 'By accessing the B’Groceries platform, web portal, or placing orders via our digital catalog, you confirm full agreement to these Terms of Service.',
+      kh: 'ដោយចូលប្រើ ឬប្រើប្រាស់គេហទំព័រ B’Groceries និងសេវាកម្មរបស់យើង អ្នកយល់ព្រមចងភ្ជាប់ខ្លួនអ្នកជាមួយលក្ខខណ្ឌទាំងនេះ។',
     },
   },
   {
-    title: { en: 'Orders & Payment', kh: 'ការបញ្ជាទិញ និងការទូទាត់' },
+    icon: walletIcon,
+    title: { en: '2. Farm Direct Pricing & Instant Checkout', kh: '២. ការកំណត់តម្លៃ និងការទូទាត់' },
     body: {
-      en: 'All orders are subject to product availability. Prices are listed in USD and may change without prior notice. Payment must be completed before delivery unless otherwise agreed.',
-      kh: 'ការបញ្ជាទិញទាំងអស់អាស្រ័យលើភាពមានស្តុករបស់ផលិតផល។ តម្លៃត្រូវបានចុះជាដុល្លារ និងអាចផ្លាស់ប្តូរដោយគ្មានការជូនដំណឹងជាមុន។ ការទូទាត់ត្រូវតែបញ្ចប់មុនការដឹកជញ្ជូន លុះត្រាតែមានការយល់ព្រមផ្សេង។',
+      en: 'All produce prices are displayed in USD/KHR and reflect direct farm-gate negotiations. We accept ABA KHQR, credit cards, and Cash on Delivery.',
+      kh: 'តម្លៃកសិផលទាំងអស់ត្រូវបានបង្ហាញជាដុល្លារ/រៀល និងឆ្លុះបញ្ចាំងពីតម្លៃកសិដ្ឋានពិតប្រាកដ។ យើងទទួលយក ABA KHQR, កាតធនាគារ និងទូទាត់ពេលទទួលទំនិញ។',
     },
   },
   {
-    title: { en: 'Delivery', kh: 'ការដឹកជញ្ជូន' },
+    icon: flashIcon,
+    title: { en: '3. 45-Minute Cold-Chain Dispatch', kh: '៣. ការដឹកជញ្ជូនត្រជាក់ ៤៥ នាទី' },
     body: {
-      en: 'Delivery times are estimates only and are not guaranteed. We are not responsible for delays caused by events outside our control.',
-      kh: 'ពេលវេលាដឹកជញ្ជូនគឺជាការប៉ាន់ស្មានតែប៉ុណ្ណោះ និងមិនត្រូវបានធានា។ យើងមិនទទួលខុសត្រូវចំពោះការពន្យារពេលដែលបណ្តាលមកពីកត្តានៅក្រៅការគ្រប់គ្រងរបស់យើងទេ។',
+      en: 'We guarantee sub-zero insulated dispatch within 45 minutes across Phnom Penh. Extreme weather or road conditions may cause minor scheduling adjustments.',
+      kh: 'យើងធានាការដឹកជញ្ជូនក្នុងប្រអប់ត្រជាក់ក្នុងរយៈពេល ៤៥ នាទីនៅភ្នំពេញ។ ករណីអាកាសធាតុធ្ងន់ធ្ងរអាចមានការផ្លាស់ប្តូរពេលវេលាបន្តិចបន្តួច។',
     },
   },
   {
-    title: { en: 'Returns & Refunds', kh: 'ការប្រគល់មកវិញ និងការសងប្រាក់វិញ' },
+    icon: heartIcon,
+    title: { en: '4. "Fresh or 100% Free" Guarantee', kh: '៤. ការធានាភាពស្រស់ ឬឥតគិតថ្លៃ ១០០%' },
     body: {
-      en: 'Damaged or incorrect items must be reported within 24 hours of delivery for a replacement or refund. Opened beverage items cannot be returned for hygiene reasons.',
-      kh: 'ទំនិញខូច ឬខុសត្រូវរាយការណ៍ក្នុងរយៈពេល២៤ម៉ោងបន្ទាប់ពីការដឹកជញ្ជូន ដើម្បីទទួលបានការជំនួស ឬការសងប្រាក់វិញ។ ភេសជ្ជៈដែលបានបើកមិនអាចប្រគល់មកវិញបានទេ ដោយសារហេតុផលអនាម័យ។',
+      en: 'If any produce arrives damaged or less than peak harvest quality, submit a photo within 24 hours for an instant 100% refund with zero return friction.',
+      kh: 'ប្រសិនបើបន្លែផ្លែឈើខូច ឬមិនស្រស់ ថតរូបផ្ញើក្នុងរយៈពេល ២៤ ម៉ោងដើម្បីទទួលបានប្រាក់វិញ ១០០% ភ្លាមៗ។',
     },
   },
   {
-    title: { en: 'Limitation of Liability', kh: 'ការកំណត់ទំនួលខុសត្រូវ' },
+    icon: trophyIcon,
+    title: { en: '5. Zero Single-Use Plastic Mandate', kh: '៥. គោលការណ៍កាត់បន្ថយប្លាស្ទិក' },
     body: {
-      en: 'We are not liable for any indirect or incidental damages resulting from the use of our products or services.',
-      kh: 'យើងមិនទទួលខុសត្រូវចំពោះការខូចខាតដោយប្រយោលឬដោយចៃដន្យណាមួយដែលបណ្តាលមកពីការប្រើប្រាស់ផលិតផល ឬសេវាកម្មរបស់យើងទេ។',
+      en: 'Customers agree to return sanitized delivery crates on subsequent deliveries to help us maintain a 100% circular zero-waste ecosystem.',
+      kh: 'អតិថិជនយល់ព្រមប្រគល់ប្រអប់រក្សាភាពត្រជាក់វិញនៅពេលដឹកលើកក្រោយ ដើម្បីចូលរួមចំណែកការពារបរិស្ថាន។',
     },
   },
 ]
 
 const PRIVACY_SECTIONS = [
   {
-    title: { en: 'Information We Collect', kh: 'ព័ត៌មានដែលយើងប្រមូល' },
+    icon: shieldIcon,
+    title: { en: '1. Personal Information Collection', kh: '១. ព័ត៌មានដែលយើងប្រមូល' },
     body: {
-      en: 'We collect information you provide directly, such as your name, phone number, delivery address, and payment details, in order to process your orders.',
-      kh: 'យើងប្រមូលព័ត៌មានដែលអ្នកផ្តល់ដោយផ្ទាល់ ដូចជាឈ្មោះ លេខទូរស័ព្ទ អាសយដ្ឋានដឹកជញ្ជូន និងព័ត៌មានទូទាត់ ដើម្បីដំណើរការការបញ្ជាទិញរបស់អ្នក។',
+      en: 'We collect your name, delivery address, phone number, and optional dietary preferences strictly to fulfill 45-minute order dispatch and customer support.',
+      kh: 'យើងប្រមូលឈ្មោះ អាសយដ្ឋានដឹកជញ្ជូន លេខទូរស័ព្ទ និងចំណង់ចំណូលចិត្តអាហាររបស់អ្នក ដើម្បីដំណើរការការបញ្ជាទិញ និងសេវាបម្រើអតិថិជន។',
     },
   },
   {
-    title: { en: 'How We Use Your Information', kh: 'របៀបយើងប្រើប្រាស់ព័ត៌មានរបស់អ្នក' },
+    icon: walletIcon,
+    title: { en: '2. Payment Security & Zero Card Storage', kh: '២. សុវត្ថិភាពការទូទាត់' },
     body: {
-      en: 'Your information is used to fulfill orders, provide customer support, send order updates, and improve our services. We do not sell your personal data to third parties.',
-      kh: 'ព័ត៌មានរបស់អ្នកត្រូវបានប្រើដើម្បីបំពេញការបញ្ជាទិញ ផ្តល់ជំនួយអតិថិជន ផ្ញើការធ្វើបច្ចុប្បន្នភាពការបញ្ជាទិញ និងកែលម្អសេវាកម្មរបស់យើង។ យើងមិនលក់ទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកទៅភាគីទីបីទេ។',
+      en: 'All ABA KHQR and card transactions are encrypted end-to-end via Bakong and PCI-DSS compliant gateways. We never store credit card numbers on our servers.',
+      kh: 'រាល់ប្រតិបត្តិការ ABA KHQR និងកាត ត្រូវបានការពារសុវត្ថិភាពខ្ពស់បំផុត។ យើងមិនដែលរក្សាទុកលេខកាតរបស់អ្នកនៅលើ Server របស់យើងឡើយ។',
     },
   },
   {
-    title: { en: 'Cookies', kh: 'ខូគី' },
+    icon: flashIcon,
+    title: { en: '3. Zero Data Resale Guarantee', kh: '៣. ធានាមិនលក់ទិន្នន័យផ្ទាល់ខ្លួន' },
     body: {
-      en: 'Our website may use cookies to remember your language preference and improve your browsing experience.',
-      kh: 'គេហទំព័ររបស់យើងអាចប្រើខូគីដើម្បីចងចាំចំណូលចិត្តភាសារបស់អ្នក និងកែលម្អបទពិសោធន៍រុករករបស់អ្នក។',
+      en: 'B’Groceries does not monetize, broker, or sell customer profiles to third-party ad networks. Your grocery history is private and confidential.',
+      kh: 'B’Groceries មិនលក់ ឬចែករំលែកទិន្នន័យអតិថិជនទៅកាន់ភាគីទីបីឡើយ។ ប្រវត្តិទិញទំនិញរបស់អ្នកត្រូវបានរក្សាជាការសម្ងាត់។',
     },
   },
   {
-    title: { en: 'Data Security', kh: 'សុវត្ថិភាពទិន្នន័យ' },
+    icon: trophyIcon,
+    title: { en: '4. Right to Deletion & Data Portability', kh: '៤. សិទ្ធិក្នុងការលុបទិន្នន័យ' },
     body: {
-      en: 'We take reasonable measures to protect your personal information, but no method of transmission over the internet is 100% secure.',
-      kh: 'យើងចាត់វិធានការសមហេតុផលដើម្បីការពារព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក ប៉ុន្តែគ្មានវិធីសាស្ត្របញ្ជូនតាមអ៊ីនធឺណិតណាមួយមានសុវត្ថិភាព១០០%ទេ។',
+      en: 'You may export or permanently delete your account data at any time via your Profile Settings or by emailing bgroceriescompany@gmail.com.',
+      kh: 'អ្នកអាចស្នើសុំទាញយក ឬលុបទិន្នន័យគណនីរបស់អ្នកជារៀងរហូតគ្រប់ពេល តាមរយៈទំព័រ Profile ឬតាមអ៊ីមែល។',
     },
   },
-  {
-    title: { en: 'Your Rights', kh: 'សិទ្ធិរបស់អ្នក' },
-    body: {
-      en: 'You may request to access, update, or delete your personal information at any time by contacting our support team.',
-      kh: 'អ្នកអាចស្នើសុំចូលប្រើ ធ្វើបច្ចុប្បន្នភាព ឬលុបព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នកនៅពេលណាមួយ ដោយទាក់ទងក្រុមជំនួយរបស់យើង។',
-    },
-  },
-]
-
-const SECTION_ICONS = [
-  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
-  <><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" /><path d="M12 6v6l4 2" /></>,
-  <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></>,
-  <path d="M20 7h-5v10h5V7zM4 7h5v10H4V7zM12 7h5v10h-5V7z" />,
-  <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />,
 ]
 
 export const TermsPrivacy = () => {
@@ -101,61 +102,46 @@ export const TermsPrivacy = () => {
 
   return (
     <div className="tp-page">
-      {/* Hero */}
-      <section className="tp-hero">
-        <div className="tp-hero-bg" />
-        <div className="tp-hero-content">
-          <div className="tp-hero-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <path d="M14 2v6h6" />
-              <path d="M12 18v-6" />
-              <path d="M9 15h6" />
-            </svg>
-          </div>
-          <h1 className="tp-hero-title">
+      <div className="tp-inner">
+
+        {/* ===== HERO ===== */}
+        <section className="tp-hero">
+          <span className="tp-section-eyebrow">
+            <img src={shieldIcon} alt="Legal" className="tp-3d-eyebrow-icon" />
+            <span>{activeTab === 'terms' ? 'Legal Terms' : 'Data Privacy'}</span>
+          </span>
+          <h1 className="tp-hero-title">{TABS[activeTab][lang]}</h1>
+          <p className="tp-hero-sub">
             {activeTab === 'terms'
-              ? { en: 'Terms of Service', kh: 'លក្ខខណ្ឌប្រើប្រាស់' }[lang]
-              : { en: 'Privacy Policy', kh: 'គោលការណ៍ភាពឯកជន' }[lang]}
-          </h1>
-          <p className="tp-hero-subtitle">
-            {activeTab === 'terms'
-              ? { en: 'The rules we live by so you can shop with confidence.', kh: 'ច្បាប់ដែលយើងអនុវត្ត ដើម្បីឲ្យអ្នកទិញទំនិញដោយទំនុកចិត្ត។' }[lang]
-              : { en: 'How we protect and respect your personal information.', kh: 'របៀបដែលយើងការពារ និងគោរពព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក។' }[lang]}
+              ? { en: 'Clear, transparent rules built to ensure trust and speed for every Cambodian shopper.', kh: 'ច្បាប់ច្បាស់លាស់ និងមានតម្លាភាព ដើម្បីធានាទំនុកចិត្តលើការទិញទំនិញរបស់អ្នក។' }[lang]
+              : { en: 'How we rigorously protect your personal information, address data, and payment security.', kh: 'របៀបដែលយើងការពារព័ត៌មានផ្ទាល់ខ្លួន អាសយដ្ឋាន និងសុវត្ថិភាពទូទាត់របស់អ្នក។' }[lang]}
           </p>
-        </div>
-      </section>
 
-      {/* Tabs */}
-      <div className="tp-tabs-wrapper">
-        <div className="tp-tabs">
-          {Object.entries(TABS).map(([key, label]) => (
-            <button
-              key={key}
-              className={`tp-tab${activeTab === key ? ' active' : ''}`}
-              onClick={() => setActiveTab(key)}
-            >
-              {label[lang]}
-              {activeTab === key && <span className="tp-tab-indicator" />}
-            </button>
-          ))}
-        </div>
-      </div>
+          <span className="tp-last-updated">{LAST_UPDATED[lang]}</span>
 
-      {/* Content */}
-      <section className="tp-content-wrapper">
-        <p className="tp-updated">{LAST_UPDATED[lang]}</p>
+          {/* Tab Switcher */}
+          <div className="tp-tabs-bar">
+            {Object.entries(TABS).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                className={`tp-tab-pill ${activeTab === key ? 'tp-tab-pill--active' : ''}`}
+                onClick={() => setActiveTab(key)}
+              >
+                <span>{label[lang]}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
-        <div className="tp-cards">
-          {sections.map((section, i) => (
-            <div key={i} className="tp-card">
-              <div className="tp-card-num">
-                <span>{String(i + 1).padStart(2, '0')}</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  {SECTION_ICONS[i % SECTION_ICONS.length]}
-                </svg>
+        {/* ===== SECTION CARDS ===== */}
+        <div className="tp-cards-list">
+          {sections.map((section) => (
+            <div key={section.title.en} className="tp-card">
+              <div className="tp-card-icon-box">
+                <img src={section.icon} alt="Icon" className="tp-card-3d-icon" />
               </div>
-              <div className="tp-card-body">
+              <div className="tp-card-copy">
                 <h3 className="tp-card-title">{section.title[lang]}</h3>
                 <p className="tp-card-text">{section.body[lang]}</p>
               </div>
@@ -163,20 +149,7 @@ export const TermsPrivacy = () => {
           ))}
         </div>
 
-        {/* Footer note */}
-        <div className="tp-footnote">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4" />
-            <path d="M12 8h.01" />
-          </svg>
-          <p>
-            {lang === 'kh'
-              ? 'ប្រសិនបើអ្នកមានសំណួរ សូមទាក់ទងមកយើងខ្ញុំតាមរយៈ hello@bgroceries.com'
-              : 'If you have any questions about these terms, reach out to us at hello@bgroceries.com'}
-          </p>
-        </div>
-      </section>
+      </div>
     </div>
   )
 }

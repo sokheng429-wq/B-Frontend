@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import './Addpromotion.css'
 
 const TEXTS = {
   heroTitle: { en: 'Promotions', kh: 'ការផ្សព្វផ្សាយ' },

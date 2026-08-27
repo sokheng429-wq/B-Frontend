@@ -1,398 +1,342 @@
-/* ===== SHIPPING PAGE ===== */
+/* ============================================================
+   B'GROCERIES SHIPPING & DELIVERY — Brand Palette Design
+   Primary Green: #77BC1F | Accent Orange: #FF9900 | Navy: #232F3F
+   NO Black Backgrounds
+   ============================================================ */
+
 .shipping-page {
+  background: #232F3F;
+  color: #ffffff;
   min-height: 100vh;
-  background: var(--surface-2);
+  padding: 40px 0 100px;
+  font-family: var(--font-sans, "Montserrat", "Kantumruy Pro", sans-serif);
 }
 
 .shipping-inner {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
 }
 
-/* ===== HERO ===== */
-.shipping-hero {
-  position: relative;
-  padding: 80px 20px 64px;
+/* ── Hero ── */
+.shipping-hero-card {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.shipping-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #77BC1F;
+  background: rgba(119, 188, 31, 0.14);
+  border: 1px solid rgba(119, 188, 31, 0.35);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.shipping-3d-micro {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.shipping-title {
+  font-size: clamp(2.2rem, 3.8vw, 3rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.15;
+  margin: 0 0 16px;
+}
+
+.shipping-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 640px;
+  margin: 0;
+}
+
+/* ── Delivery Tiers ── */
+.shipping-tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.shipping-tier-card {
+  background: #1E2836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms ease;
+}
+
+.shipping-tier-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(119, 188, 31, 0.4);
+}
+
+.shipping-tier-card--featured {
+  background: #28374A;
+  border-color: rgba(119, 188, 31, 0.45);
+}
+
+.shipping-tier-tag {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 0.725rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #77BC1F;
+  background: rgba(119, 188, 31, 0.14);
+  border: 1px solid rgba(119, 188, 31, 0.3);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.shipping-tier-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: #232F3F;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.shipping-tier-3d-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.shipping-tier-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.shipping-tier-time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #77BC1F;
+  margin-bottom: 12px;
+}
+
+.shipping-tier-desc {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0 0 24px;
+}
+
+.shipping-tier-cost-badge {
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px;
+  border-radius: 14px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.shipping-tier-card--featured .shipping-tier-cost-badge {
+  background: #77BC1F;
+  color: #1A232F;
+  border-color: #77BC1F;
+}
+
+/* ── Section Header ── */
+.shipping-section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.shipping-section-3d-sm {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.shipping-section-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.shipping-section-sub {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* ── Steps ── */
+.shipping-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.shipping-step-card {
+  background: #1E2836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.shipping-step-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shipping-step-num {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #77BC1F;
+}
+
+.shipping-step-3d-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.shipping-step-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px;
+}
+
+.shipping-step-desc {
+  font-size: 0.825rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* ── Freshness Banner ── */
+.shipping-freshness-banner {
+  background: #1E2836;
+  border: 1px solid rgba(119, 188, 31, 0.35);
+  border-radius: 28px;
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  position: relative;
   overflow: hidden;
 }
 
-.shipping-hero-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--surface-2) 0%, var(--brand-light) 40%, var(--brand-light) 100%);
-  z-index: 0;
+.shipping-freshness-3d-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
-.shipping-hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 45%),
-    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.35) 0%, transparent 45%);
-}
-
-.shipping-hero-inner {
-  position: relative;
-  z-index: 1;
-}
-
-.shipping-hero-emoji {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 16px;
-  animation: shipBounce 2.2s ease-in-out infinite;
-}
-
-@keyframes shipBounce {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-10px) scale(1.08); }
-}
-
-.shipping-hero-title {
-  font-size: 2.6rem;
-  font-weight: 800;
-  color: var(--brand-dark);
+.shipping-freshness-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
   margin: 0 0 8px;
-  letter-spacing: -0.5px;
 }
 
-.shipping-hero-sub {
-  font-size: 1.1rem;
-  color: var(--brand);
+.shipping-freshness-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
   margin: 0;
-  max-width: 480px;
-  margin: 0 auto;
 }
 
-/* ===== DELIVERY TIERS ===== */
-.shipping-tiers {
-  padding: 0 20px;
-  margin-top: -32px;
-}
-
-.shipping-tier-grid {
+/* ── Zones ── */
+.shipping-zones-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
-.shipping-tier-card {
-  position: relative;
-  background: var(--navy);
-  border-radius: 16px;
-  padding: 32px 24px 28px;
-  text-align: center;
-  border: 2px solid var(--border-default);
-  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
-}
-
-.shipping-tier-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.08);
-}
-
-.shipping-tier-card--featured {
-  border-color: var(--brand);
-  box-shadow: 0 8px 32px rgba(27, 94, 32, 0.12);
-  transform: scale(1.03);
-}
-
-.shipping-tier-card--featured:hover {
-  transform: scale(1.03) translateY(-4px);
-  box-shadow: 0 16px 42px rgba(27, 94, 32, 0.16);
-}
-
-.shipping-tier-tag {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--brand-dark);
-  color: #fff;
-  padding: 4px 18px;
-  border-radius: 50px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
-  letter-spacing: 0.3px;
-}
-
-.shipping-tier-icon {
-  font-size: 2.6rem;
-  margin-bottom: 12px;
-}
-
-.shipping-tier-name {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-strong);
-  margin: 0 0 6px;
-}
-
-.shipping-tier-time {
-  font-size: 0.92rem;
-  color: rgba(255,255,255,0.55);
-  margin: 0 0 16px;
-  line-height: 1.4;
-}
-
-.shipping-tier-cost {
-  display: inline-block;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--brand);
-  background: var(--surface-2);
-  padding: 8px 20px;
-  border-radius: 50px;
-}
-
-.shipping-tier-card--featured .shipping-tier-cost {
-  background: var(--brand-dark);
-  color: #fff;
-}
-
-/* ===== SECTION HEADERS ===== */
-.shipping-section-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
-
-.shipping-section-eyebrow {
-  font-size: 1.6rem;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.shipping-section-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--brand-dark);
-  margin: 0 0 8px;
-}
-
-.shipping-section-sub {
-  font-size: 1rem;
-  color: rgba(255,255,255,0.55);
-  margin: 0;
-}
-
-/* ===== HOW IT WORKS ===== */
-.shipping-how {
-  padding: 80px 20px;
-}
-
-.shipping-steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  position: relative;
-}
-
-.shipping-step {
-  text-align: center;
-  padding: 0 16px;
-  position: relative;
-}
-
-.shipping-step-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--brand-dark);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-}
-
-.shipping-step-icon {
-  font-size: 2.4rem;
-  margin-bottom: 12px;
-}
-
-.shipping-step-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-strong);
-  margin: 0 0 8px;
-}
-
-.shipping-step-text {
-  font-size: 0.88rem;
-  color: rgba(255,255,255,0.55);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.shipping-step-line {
-  display: none;
-}
-
-/* ===== FRESHNESS PROMISE ===== */
-.shipping-freshness {
-  padding: 0 20px 60px;
-}
-
-.shipping-freshness-card {
-  background: linear-gradient(135deg, var(--surface-2), var(--brand-light));
-  border-radius: 20px;
-  padding: 36px 40px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.shipping-freshness-icon {
-  font-size: 3.5rem;
-  flex-shrink: 0;
-  animation: shipBounce 2.2s ease-in-out infinite;
-}
-
-.shipping-freshness-copy h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--brand-dark);
-  margin: 0 0 8px;
-}
-
-.shipping-freshness-copy p {
-  margin: 0;
-  color: var(--brand);
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-/* ===== DELIVERY ZONES ===== */
-.shipping-zones {
-  padding: 0 20px 80px;
-}
-
-.shipping-zone-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .shipping-zone-card {
-  background: var(--navy);
-  border-radius: 14px;
-  padding: 22px 28px;
-  border: 1px solid var(--border-default);
+  background: #1E2836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.shipping-zone-head {
   display: flex;
-  align-items: center;
-  gap: 24px;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
-.shipping-zone-card:hover {
-  border-color: var(--brand-light);
-  box-shadow: 0 4px 20px rgba(27, 94, 32, 0.06);
-}
-
-.shipping-zone-meta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-shrink: 0;
-  min-width: 240px;
-}
-
-.shipping-zone-area {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-strong);
+.shipping-zone-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0;
 }
 
-.shipping-zone-time {
-  display: inline-block;
-  background: var(--surface-2);
-  color: var(--brand);
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: 50px;
-  white-space: nowrap;
+.shipping-zone-time-pill {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #77BC1F;
+  background: rgba(119, 188, 31, 0.14);
+  border: 1px solid rgba(119, 188, 31, 0.3);
+  padding: 4px 10px;
+  border-radius: 100px;
 }
 
 .shipping-zone-districts {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.4;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .shipping-tier-grid {
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .shipping-tiers-grid {
     grid-template-columns: 1fr;
   }
 
-  .shipping-tier-card--featured {
-    transform: none;
+  .shipping-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .shipping-tier-card--featured:hover {
-    transform: translateY(-4px);
-  }
-
-  .shipping-steps {
+  .shipping-zones-grid {
     grid-template-columns: 1fr;
   }
 
-  .shipping-step {
-    padding: 0 0 32px;
-  }
-
-  .shipping-step:last-child {
-    padding-bottom: 0;
-  }
-
-  .shipping-freshness-card {
-    flex-direction: column;
-    text-align: center;
-    padding: 28px 24px;
-  }
-
-  .shipping-zone-card {
+  .shipping-freshness-banner {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 18px 20px;
-  }
-
-  .shipping-zone-meta {
-    min-width: auto;
-  }
-}
-
-@media (max-width: 560px) {
-  .shipping-hero {
-    padding: 56px 16px 44px;
-  }
-
-  .shipping-hero-title {
-    font-size: 1.8rem;
-  }
-
-  .shipping-section-title {
-    font-size: 1.6rem;
-  }
-
-  .shipping-how,
-  .shipping-zones {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .shipping-zone-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    padding: 28px;
   }
 }

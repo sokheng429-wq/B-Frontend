@@ -1,403 +1,245 @@
 /* ============================================================
-   PROMOTION PAGE — flash-sale hero + promo codes + deal shop
+   B'GROCERIES PROMOTIONS & DEALS — Brand Palette Design
+   Primary Green: #77BC1F | Accent Orange: #FF9900 | Navy: #232F3F
+   NO Black Backgrounds
    ============================================================ */
 
-.promotion-page {
-  position: relative;
-  background: var(--surface-0);
-  color: var(--text-strong);
-  padding: 0 0 80px;
-  overflow: hidden;
+.promo-page {
+  width: 100%;
+  background: #232F3F;
+  color: #ffffff;
+  min-height: 100vh;
+  padding: 40px 0 100px;
+  font-family: var(--font-sans, "Montserrat", "Kantumruy Pro", sans-serif);
 }
 
-/* ── Hero ── */
-.promo-hero {
-  position: relative;
-  padding: 60px 0 52px;
-  background:
-    radial-gradient(circle at 80% 30%, var(--accent-tint) 0%, transparent 50%),
-    radial-gradient(circle at 15% 80%, var(--brand-tint) 0%, transparent 50%),
-    linear-gradient(180deg, var(--surface-1) 0%, var(--surface-0) 100%);
-  border-bottom: 1px solid var(--brand-border);
-  overflow: hidden;
-}
-
-.promo-hero-inner {
-  position: relative;
-  max-width: 1280px;
+.promo-inner {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
+  flex-direction: column;
+  gap: 48px;
 }
 
-.promo-hero-copy { position: relative; z-index: 2; max-width: 620px; }
+/* ── Hero ── */
+.promo-hero-card {
+  background: #1E2836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px;
+  padding: 48px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.promo-hero-left {
+  max-width: 600px;
+}
 
 .promo-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 14px;
+  color: #FF9900;
+  background: rgba(255, 153, 0, 0.14);
+  border: 1px solid rgba(255, 153, 0, 0.35);
+  padding: 6px 16px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.promo-3d-micro {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .promo-title {
-  margin: 0 0 12px;
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
   font-weight: 900;
-  line-height: 1.1;
+  color: #ffffff;
+  line-height: 1.15;
+  margin: 0 0 14px;
 }
 
-.promo-title-highlight { color: var(--brand); }
+.promo-title-highlight {
+  color: #FF9900;
+}
 
 .promo-subtitle {
-  margin: 0 0 26px;
-  max-width: 560px;
-  font-size: 1rem;
-  line-height: 1.65;
-  color: var(--text-body);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
 }
 
-/* Timer */
-.promo-timer-wrap {
-  display: inline-flex;
+/* Countdown */
+.promo-timer-box {
+  background: #232F3F;
+  border: 1px solid rgba(255, 153, 0, 0.35);
+  border-radius: 24px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 18px;
+  min-width: 280px;
 }
 
-.promo-timer-label {
-  font-size: 0.8125rem;
-  font-weight: 700;
+.promo-timer-lbl {
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  color: #FF9900;
+  margin-bottom: 12px;
 }
 
-.promo-timer {
+.promo-timer-digits {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
 }
 
-.promo-timer-group { display: flex; align-items: center; }
-
-.promo-timer-cell {
+.promo-digit-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 58px;
-  height: 62px;
-  background: var(--surface-3);
-  border: 1px solid var(--brand-border-strong);
+  background: #1E2836;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
   border-radius: 12px;
+  min-width: 48px;
 }
 
-.promo-timer-num {
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: var(--text-strong);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.promo-timer-unit {
-  margin-top: 3px;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text-faint);
-}
-
-.promo-timer-colon {
+.promo-digit-num {
   font-size: 1.4rem;
   font-weight: 900;
-  color: var(--accent);
-  padding: 0 4px;
+  color: #ffffff;
 }
 
-/* Hero art */
-.promo-hero-art {
-  position: relative;
-  width: 300px;
-  height: 240px;
-  flex-shrink: 0;
+.promo-digit-lbl {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
 }
 
-.promo-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(2px);
-}
-
-.promo-orb-a {
-  width: 200px;
-  height: 200px;
-  right: 10px;
-  top: 0;
-  background: radial-gradient(circle at 35% 35%, var(--brand) 0%, var(--brand-dark) 60%, transparent 75%);
-  opacity: 0.9;
-}
-
-.promo-orb-b {
-  width: 130px;
-  height: 130px;
-  left: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 40% 40%, var(--accent) 0%, var(--accent-dark) 65%, transparent 78%);
-  opacity: 0.85;
-}
-
-.promo-big-tag {
-  position: absolute;
-  top: 12px;
-  right: 40px;
-  z-index: 2;
-  font-size: 2.4rem;
+.promo-timer-sep {
+  font-size: 1.4rem;
   font-weight: 900;
-  color: var(--navy-dark);
-  background: var(--accent);
-  padding: 10px 22px;
-  border-radius: 18px;
-  transform: rotate(6deg);
-  box-shadow: 0 16px 40px rgba(255, 153, 0, 0.5);
+  color: #FF9900;
 }
 
-.promo-big-tag--alt {
-  top: auto;
-  right: auto;
-  left: 6px;
-  bottom: 34px;
-  font-size: 1.1rem;
-  padding: 8px 16px;
-  background: var(--brand);
-  transform: rotate(-8deg);
-  box-shadow: 0 14px 34px rgba(119, 188, 31, 0.5);
-}
-
-.promo-hero-glyph {
-  position: absolute;
-  right: 24px;
-  bottom: 8px;
-  font-size: 3.4rem;
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
-  animation: promo-float 3.4s ease-in-out infinite;
-}
-
-@keyframes promo-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* ── Promo codes ── */
-.promo-inner {
-  position: relative;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 44px 24px 0;
-}
-
-.promo-codes { margin-bottom: 48px; }
-
-.promo-codes-head {
+/* ── Vouchers Section ── */
+.promo-vouchers-section {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.promo-section-head {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 18px;
 }
 
-.promo-codes-title {
-  margin: 0;
+.promo-section-3d-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.promo-section-title {
   font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--text-strong);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
 }
 
-.promo-codes-note {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-}
-
-.promo-codes-grid {
+.promo-vouchers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
-.promo-code-card {
+.promo-voucher-card {
+  background: #1E2836;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  background: var(--surface-2);
-  border: 1px solid var(--brand-border);
-  border-radius: 18px;
-  overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s ease, border-color 0.25s ease;
+  gap: 12px;
+  transition: transform 160ms ease, border-color 160ms ease;
 }
 
-.promo-code-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--brand-border-strong);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+.promo-voucher-card:hover {
+  transform: translateY(-3px);
+  border-color: #77BC1F;
 }
 
-.promo-code-media {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-}
-
-.promo-code-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.promo-code-card:hover .promo-code-media img { transform: scale(1.05); }
-
-.promo-code-save {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--navy-dark);
-  background: var(--accent);
-  padding: 5px 12px;
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(255, 153, 0, 0.4);
-}
-
-.promo-code-body {
+.promo-voucher-top {
   display: flex;
-  flex-direction: column;
-  gap: 7px;
-  padding: 14px 16px 16px;
-  flex: 1;
-}
-
-.promo-code-badge {
-  align-self: flex-start;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  color: var(--brand);
-  background: var(--brand-tint);
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-
-.promo-code-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-strong);
-  text-decoration: none;
-  line-height: 1.35;
-}
-
-.promo-code-name:hover { color: var(--brand); }
-
-.promo-code-cat {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.promo-code-price-row {
-  display: flex;
+  justify-content: space-between;
   align-items: baseline;
-  gap: 8px;
 }
 
-.promo-code-price {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--brand);
-}
-
-.promo-code-old {
-  font-size: 0.875rem;
-  color: var(--text-faint);
-}
-
-.promo-code-pct {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.promo-code-copy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: auto;
-  padding: 10px;
-  font-family: var(--font-family);
-  font-size: 0.8125rem;
-  font-weight: 800;
+.promo-voucher-code {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #77BC1F;
   letter-spacing: 0.04em;
-  color: var(--text-strong);
-  background: var(--surface-3);
-  border: 1px dashed var(--brand-border-strong);
-  border-radius: 11px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.promo-code-copy:hover {
-  border-color: var(--brand);
-  background: var(--brand-tint-soft);
+.promo-voucher-discount {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #FF9900;
 }
 
-.promo-code-copy--ok {
-  border-style: solid;
-  border-color: var(--brand);
-  background: var(--brand);
-  color: var(--navy-dark);
-}
-
-/* ── Deal shop ── */
-.promo-shop-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.promo-shop-title {
+.promo-voucher-desc {
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
-  font-size: 1.4rem;
+  line-height: 1.5;
+}
+
+.promo-voucher-btn {
+  margin-top: auto;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
   font-weight: 800;
-  color: var(--text-strong);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 140ms ease;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .promo-codes-grid { grid-template-columns: repeat(2, 1fr); }
-  .promo-hero-art { display: none; }
+.promo-voucher-btn:hover {
+  background: #77BC1F;
+  color: #1A232F;
+  border-color: #77BC1F;
 }
 
-@media (max-width: 768px) {
-  .promo-hero { padding: 40px 0 36px; }
-  .promo-title { font-size: 1.9rem; }
-  .promo-timer-wrap { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .promo-timer-cell { width: 52px; height: 56px; }
-  .promo-inner { padding-top: 28px; }
-  .promo-codes { margin-bottom: 36px; }
-}
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .promo-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-@media (max-width: 560px) {
-  .promo-codes-grid { grid-template-columns: 1fr; }
-  .promo-codes-head { flex-direction: column; gap: 4px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .promo-hero-glyph { animation: none; }
+  .promo-vouchers-grid {
+    grid-template-columns: 1fr;
+  }
 }

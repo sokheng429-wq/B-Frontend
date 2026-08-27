@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import './AddPartner.css'
 
 const CATEGORY_OPTIONS = [
   { key: 'fresh', icon: '🥬', en: 'Fruits & Vegetables', kh: 'ផ្លែឈើ និងបន្លែ' },

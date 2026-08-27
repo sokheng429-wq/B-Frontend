@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import './AddDriver.css'
 
 const VEHICLE_OPTIONS = [
   { key: 'motorbike', icon: '🏍️', en: 'Motorbike', kh: 'ម៉ូតូ' },

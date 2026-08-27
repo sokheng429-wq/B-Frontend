@@ -5,6 +5,19 @@ import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
+import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import targetIcon from '../../assets/icon/3dicons-target-dynamic-color.png'
+import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
+import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
+import giftIcon from '../../assets/icon/3dicons-gift-box-dynamic-color.png'
+import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
+import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
+import canIcon from '../../assets/icon/3dicons-can-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import cupIcon from '../../assets/icon/3dicons-cup-dynamic-color.png'
+import boyIcon from '../../assets/icon/3dicons-boy-dynamic-color.png'
 import AddProducts from './AddProducts'
 import Addjobs from './Addjobs'
 import AddMember from './Addmember'
@@ -24,6 +37,11 @@ import { Units } from './Units'
 import SupplierGroups from './SupplierGroups'
 import { Suppliers } from './Suppliers'
 import TransactionSection from './TransactionSection'
+import RequestTransferSection from './RequestTransferSection'
+import ShipRequestTransferSection from './ShipRequestTransferSection'
+import TransferProductsSection from './TransferProductsSection'
+import ProductsQuantitiesSection from './ProductsQuantitiesSection'
+import PrintLabelSection from './PrintLabelSection'
 import ToolsSection, { SerialInformation } from './ToolsSection'
 import MemberList from './MemberList'
 import MemberForm from './MemberForm'
@@ -208,14 +226,14 @@ function AdminD() {
 
   const stats = useMemo(() => {
     const items = [
-      { label: { en: 'Total Products', kh: 'ផលិតផលសរុប' }, value: dashboardData.products?.length, icon: '📦', color: '#4caf50', bg: '#e8f5e9', link: '/admin/products' },
+      { label: { en: 'Total Products', kh: 'ផលិតផលសរុប' }, value: dashboardData.products?.length, icon: bagIcon, color: '#4caf50', bg: 'rgba(76, 175, 80, 0.15)', link: '/admin/products' },
     ]
 
     if (isAdmin) {
       items.push(
-        { label: { en: 'Open Jobs', kh: 'ការងារកំពុងរើស' }, value: dashboardData.jobs?.length, icon: '💼', color: '#ff9800', bg: '#fff3e0', link: '/admin/jobs' },
-        { label: { en: 'Team Members', kh: 'សមាជិកក្រុម' }, value: dashboardData.members?.length, icon: '👥', color: '#2196f3', bg: '#e3f2fd', link: '/admin/members' },
-        { label: { en: 'Applications', kh: 'ពាក្យសុំការងារ' }, value: dashboardData.applications?.length, icon: '📋', color: '#9c27b0', bg: '#f3e5f5', link: '/admin/applications' },
+        { label: { en: 'Open Jobs', kh: 'ការងារកំពុងរើស' }, value: dashboardData.jobs?.length, icon: targetIcon, color: '#ff9800', bg: 'rgba(255, 152, 0, 0.15)', link: '/admin/jobs' },
+        { label: { en: 'Team Members', kh: 'សមាជិកក្រុម' }, value: dashboardData.members?.length, icon: trophyIcon, color: '#2196f3', bg: 'rgba(33, 150, 243, 0.15)', link: '/admin/members' },
+        { label: { en: 'Applications', kh: 'ពាក្យសុំការងារ' }, value: dashboardData.applications?.length, icon: mailIcon, color: '#9c27b0', bg: 'rgba(156, 39, 176, 0.15)', link: '/admin/applications' },
       )
     }
 
@@ -357,13 +375,18 @@ function AdminD() {
       if (sub === 'supplier-groups') return <SupplierGroups />
       if (sub === 'suppliers') return <Suppliers />
       if (sub === 'serial-information') return <SerialInformation />
+      if (sub === 'request-transfer') return <RequestTransferSection key="request-transfer" />
+      if (sub === 'ship-request-transfer') return <ShipRequestTransferSection key="ship-request-transfer" />
+      if (sub === 'transfer-products') return <TransferProductsSection key="transfer-products" />
+      if (sub === 'products-quantities') return <ProductsQuantitiesSection key="products-quantities" />
+      if (sub === 'print-label') return <PrintLabelSection key="print-label" />
       if (['groups', 'categories', 'brands', 'units', 'suppliers', 'supplier-groups'].includes(sub)) {
         return <MasterDataSection sectionKey={sub} key={sub} />
       }
-      if (['receive-products', 'issue-products', 'adjustment-products', 'request-transfer', 'ship-request-transfer', 'transfer-products'].includes(sub)) {
+      if (['receive-products', 'issue-products', 'adjustment-products'].includes(sub)) {
         return <TransactionSection sectionKey={sub} key={sub} />
       }
-      if (['products-quantities', 'products-prices', 'print-label', 'products-scale', 'change-attribute', 'cost-change', 'products-supplier'].includes(sub)) {
+      if (['products-prices', 'products-scale', 'change-attribute', 'cost-change', 'products-supplier'].includes(sub)) {
         return <ToolsSection sectionKey={sub} key={sub} />
       }
       return <CatalogSection />
@@ -418,8 +441,12 @@ function AdminD() {
           {stats.map((stat) => (
             <Link to={stat.link} key={stat.label.en} className="group block bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
-                <span className="w-12 h-12 flex items-center justify-center rounded-xl text-2xl" style={{ background: stat.bg, color: stat.color }}>
-                  {stat.icon}
+                <span className="w-13 h-13 p-2 flex items-center justify-center rounded-2xl ring-1 ring-white/10 shadow-lg shadow-black/20" style={{ background: stat.bg }}>
+                  {typeof stat.icon === 'string' && (stat.icon.includes('/') || stat.icon.endsWith('.png')) ? (
+                    <img src={stat.icon} alt="" className="h-8 w-8 object-contain drop-shadow transition-transform duration-300 group-hover:scale-110" />
+                  ) : (
+                    <span className="text-2xl">{stat.icon}</span>
+                  )}
                 </span>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${stat.value === null || stat.value === undefined ? 'bg-slate-700/60 text-slate-300' : 'bg-green-500/20 text-green-400'}`}>
                   {stat.value === null || stat.value === undefined ? TEXTS.unavailable[lang] : TEXTS.liveData[lang]}
@@ -494,7 +521,9 @@ function AdminD() {
             </div>
             <div className="space-y-2">
               <Link to="/admin/products/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-green-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] flex items-center justify-center rounded-xl text-xl" style={{ background: '#e8f5e9', color: '#4caf50' }}>📦</span>
+                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-green-500/15 ring-1 ring-green-400/30">
+                  <img src={bagIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
+                </span>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-white">{TEXTS.addProduct[lang]}</h4>
                   <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'List new grocery items in the shop' : 'បន្ថែមទំនិញថ្មីទៅក្នុងហាង'}</p>
@@ -502,7 +531,9 @@ function AdminD() {
                 <ChevronIcon />
               </Link>
               <Link to="/admin/jobs/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-orange-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] flex items-center justify-center rounded-xl text-xl" style={{ background: '#fff3e0', color: '#ff9800' }}>💼</span>
+                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-orange-500/15 ring-1 ring-orange-400/30">
+                  <img src={targetIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
+                </span>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-white">{TEXTS.addJob[lang]}</h4>
                   <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Create a new career opening' : 'ប្រកាសការងារថ្មី'}</p>
@@ -510,7 +541,9 @@ function AdminD() {
                 <ChevronIcon />
               </Link>
               <Link to="/admin/members/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] flex items-center justify-center rounded-xl text-xl" style={{ background: '#e3f2fd', color: '#2196f3' }}>👤</span>
+                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-blue-500/15 ring-1 ring-blue-400/30">
+                  <img src={boyIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
+                </span>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-white">{TEXTS.addMember[lang]}</h4>
                   <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Onboard a new team member' : 'បន្ថែមសមាជិកក្រុមថ្មី'}</p>
@@ -518,7 +551,9 @@ function AdminD() {
                 <ChevronIcon />
               </Link>
               <Link to="/admin/promotions/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-pink-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] flex items-center justify-center rounded-xl text-xl" style={{ background: '#fce4ec', color: '#e91e63' }}>🏷️</span>
+                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-pink-500/15 ring-1 ring-pink-400/30">
+                  <img src={giftIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
+                </span>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-white">{TEXTS.promotions[lang]}</h4>
                   <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Create and edit promotional deals' : 'បង្កើត និងកែប្រែការផ្សព្វផ្សាយ'}</p>
@@ -526,7 +561,9 @@ function AdminD() {
                 <ChevronIcon />
               </Link>
               <Link to="/products" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-slate-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] flex items-center justify-center rounded-xl text-xl" style={{ background: '#eceff1', color: '#607d8b' }}>🛒</span>
+                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-slate-700/50 ring-1 ring-slate-500/30">
+                  <img src={canIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
+                </span>
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-bold text-white">{lang === 'en' ? 'View Public Shop' : 'មើលហាងទំនិញ'}</h4>
                   <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'See the storefront as customers do' : 'មើលហាងដូចអតិថិជនមើល'}</p>
@@ -587,270 +624,242 @@ function AdminD() {
 
         {/* Scrollable Navigation */}
         <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900 hover:scrollbar-thumb-slate-600">{/* ... rest of nav content ... */}
+          {/* Main Group */}
           <div className="mb-6">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Main' : 'មេ'}</span>
-            <Link to="/admin" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 shadow-lg shadow-green-500/10' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-              <span className="w-5 h-5 flex items-center justify-center"><HomeIcon /></span>
-              <span>{TEXTS.dashboard[lang]}</span>
+            <Link to="/admin" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 border border-green-500/30 shadow-lg shadow-green-500/10' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}>
+              <img src={sunIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+              <span className="font-semibold">{TEXTS.dashboard[lang]}</span>
             </Link>
           </div>
 
+          {/* Management Group */}
           <div className="mb-6">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Management' : 'ការគ្រប់គ្រង'}</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Management Hub' : 'មជ្ឈមណ្ឌលគ្រប់គ្រង'}</span>
 
-            {/* Stocks: click opens the options page; the arrow toggles the dropdown */}
+            {/* 1. Stocks & Inventory Hub (ADMIN + STORE) */}
             {canStore && (
-              <div className="mb-1 flex items-stretch">
-                <Link
-                  to="/admin/products"
-                  className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-l-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white hover:rounded-l-lg'}`}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><PackageIcon /></span>
-                  <span>{TEXTS.products[lang]}</span>
-                </Link>
-                <button
-                  type="button"
-                  aria-label={lang === 'en' ? 'Toggle stocks menu' : 'បើកម៉ឺនុយស្តុក'}
-                  aria-expanded={openDropdowns.products}
-                  className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-r-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white hover:rounded-r-lg'}`}
-                  onClick={() => toggleDropdown('products')}
-                >
-                  <span className={`transition-transform duration-200 ${openDropdowns.products ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
-              </div>
-            )}
-                {openDropdowns.products && canStore && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/products/all" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+              <div className="mb-2">
+                <div className="flex items-stretch">
+                  <Link
+                    to="/admin/products"
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-l-xl border-y border-l border-green-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                  >
+                    <img src={bagIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{TEXTS.products[lang]}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? 'Toggle stocks menu' : 'បើកម៉ឺនុយស្តុក'}
+                    aria-expanded={openDropdowns.products}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/products') || location.pathname === '/add-products' ? 'bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-400 rounded-r-xl border-y border-r border-green-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    onClick={() => toggleDropdown('products')}
+                  >
+                    <span className={`transition-transform duration-200 ${openDropdowns.products ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+                </div>
+                {openDropdowns.products && (
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-slate-700/60 space-y-1 py-1">
+                    <Link to="/admin/products/all" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">📋</span> {lang === 'en' ? 'All Products' : 'ផលិតផលទាំងអស់'}
                     </Link>
-                    <Link to="/admin/products/manage" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📦</span> {lang === 'en' ? 'Products' : 'ផលិតផល'}
+                    <Link to="/admin/products/manage" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📦</span> {lang === 'en' ? 'Add / Edit Catalog' : 'កាតាឡុកផលិតផល'}
                     </Link>
-                    {PRODUCT_SECTIONS.filter((section) => section.key !== 'manage').map((section) => (
-                      <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                        <span className="text-sm">{section.icon}</span> {lang === 'kh' ? section.kh : section.en}
-                      </Link>
-                    ))}
+                    {PRODUCT_SECTIONS.filter((s) => s.key !== 'manage').map((section) => {
+                      const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
+                      return (
+                        <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                          {isImg ? (
+                            <img src={section.icon} alt="" className="h-4 w-4 object-contain" />
+                          ) : (
+                            <span className="text-sm">{section.icon}</span>
+                          )}
+                          <span>{lang === 'kh' ? section.kh : section.en}</span>
+                        </Link>
+                      )
+                    })}
 
-                    {/* Divider line, then stock operations */}
-                    <div className="my-2 border-t border-slate-700/70" role="separator" />
-                    {STOCK_OPERATIONS.map((section) => (
-                      <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                        <span className="text-sm">{section.icon}</span> {lang === 'kh' ? section.kh : section.en}
-                      </Link>
-                    ))}
+                    <div className="my-2 border-t border-slate-700/60" role="separator" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2 block">{lang === 'en' ? 'Stock Operations' : 'ប្រតិបត្តិការស្តុក'}</span>
+                    {STOCK_OPERATIONS.map((section) => {
+                      const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
+                      return (
+                        <Link key={section.key} to={`/admin/products/${section.key}`} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                          {isImg ? (
+                            <img src={section.icon} alt="" className="h-4 w-4 object-contain" />
+                          ) : (
+                            <span className="text-sm">{section.icon}</span>
+                          )}
+                          <span>{lang === 'kh' ? section.kh : section.en}</span>
+                        </Link>
+                      )
+                    })}
                   </div>
                 )}
+              </div>
+            )}
 
-            {/* Jobs Dropdown (ADMIN only) */}
+            {/* 2. Jobs & Careers Hub (ADMIN only) */}
             {isAdmin && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('jobs')}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><BriefcaseIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.jobs[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.jobs ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
+              <div className="mb-2">
+                <div className="flex items-stretch">
+                  <Link
+                    to="/admin/jobs"
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' || location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400 rounded-l-xl border-y border-l border-orange-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                  >
+                    <img src={targetIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{TEXTS.jobs[lang]}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? 'Toggle jobs menu' : 'បើកម៉ឺនុយការងារ'}
+                    aria-expanded={openDropdowns.jobs}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' || location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400 rounded-r-xl border-y border-r border-orange-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    onClick={() => toggleDropdown('jobs')}
+                  >
+                    <span className={`transition-transform duration-200 ${openDropdowns.jobs ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+                </div>
                 {openDropdowns.jobs && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/jobs/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-orange-500/30 space-y-1 py-1">
+                    <Link to="/admin/jobs" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">💼</span> {lang === 'en' ? 'Manage Jobs' : 'គ្រប់គ្រងការងារ'}
+                    </Link>
+                    <Link to="/admin/jobs/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">➕</span> {TEXTS.addJob[lang]}
                     </Link>
-                    <Link to="/admin/jobs/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">✏️</span> {TEXTS.editJob[lang]}
-                    </Link>
-                    <Link to="/admin/jobs/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🗑️</span> {TEXTS.deleteJob[lang]}
-                    </Link>
-                    <Link to="/admin/jobs/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🔄</span> {TEXTS.updateJob[lang]}
+                    <Link to="/admin/applications" className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="flex items-center gap-2">
+                        <span className="text-sm">📋</span> {TEXTS.applications[lang]}
+                      </span>
+                      {Number(dashboardData.applications?.length) > 0 && (
+                        <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-400 border border-orange-500/40">
+                          {dashboardData.applications.length}
+                        </span>
+                      )}
                     </Link>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Applications Link (ADMIN only) */}
+            {/* 3. Company Side Information (ADMIN only) */}
             {isAdmin && (
-              <div className="mb-1">
-                <Link
-                  to="/admin/applications"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><ClipboardIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.applications[lang]}</span>
-                </Link>
-              </div>
-            )}
-
-            {/* Members Dropdown (ADMIN only) */}
-            {isAdmin && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('members')}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><UsersIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.members[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.members ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
+              <div className="mb-2">
+                <div className="flex items-stretch">
+                  <Link
+                    to="/admin/members"
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' || location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400 rounded-l-xl border-y border-l border-blue-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                  >
+                    <img src={trophyIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{lang === 'en' ? 'Company Info' : 'ព័ត៌មានក្រុមហ៊ុន'}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? 'Toggle company menu' : 'បើកម៉ឺនុយក្រុមហ៊ុន'}
+                    aria-expanded={openDropdowns.members}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' || location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400 rounded-r-xl border-y border-r border-blue-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    onClick={() => toggleDropdown('members')}
+                  >
+                    <span className={`transition-transform duration-200 ${openDropdowns.members ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+                </div>
                 {openDropdowns.members && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/members" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📋</span> {TEXTS.members[lang]}
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-blue-500/30 space-y-1 py-1">
+                    <Link to="/admin/members" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">👥</span> {TEXTS.members[lang]}
                     </Link>
-                    <Link to="/admin/members/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <Link to="/admin/members/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">➕</span> {TEXTS.addMember[lang]}
                     </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Users Dropdown (ADMIN only) */}
-            {isAdmin && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/users') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('users')}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><ShieldIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.users[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.users ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
-                {openDropdowns.users && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/users" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📋</span> {TEXTS.users[lang]}
+                    <Link to="/admin/partners" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🤝</span> {TEXTS.partners[lang]}
                     </Link>
-                    <Link to="/admin/users" onClick={() => { }} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addUser[lang]}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Promotions Dropdown (ADMIN + STORE) */}
-            {canStore && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('promotions')}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><TagIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.promotions[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
-                {openDropdowns.promotions && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/promotions/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
-                    </Link>
-                    <Link to="/admin/promotions/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">✏️</span> {TEXTS.editPromotion[lang]}
-                    </Link>
-                    <Link to="/admin/promotions/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🗑️</span> {TEXTS.deletePromotion[lang]}
-                    </Link>
-                    <Link to="/admin/promotions/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🔄</span> {TEXTS.updatePromotion[lang]}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Partners Dropdown (ADMIN + STORE) */}
-            {canStore && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('partners')}
-                >
-                  <span className="w-5 h-5 flex items-center justify-center"><HandshakeIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.partners[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.partners ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
-                {openDropdowns.partners && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/partners/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <Link to="/admin/partners/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">➕</span> {TEXTS.addPartner[lang]}
                     </Link>
-                    <Link to="/admin/partners/edit" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">✏️</span> {TEXTS.editPartner[lang]}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 4. Shop Side & Operations (ADMIN + STORE) */}
+            {canStore && (
+              <div className="mb-2">
+                <div className="flex items-stretch">
+                  <button
+                    type="button"
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-l-xl border-y border-l border-pink-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    onClick={() => toggleDropdown('promotions')}
+                  >
+                    <img src={giftIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{lang === 'en' ? 'Shop Side' : 'ផ្នែកហាង'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? 'Toggle shop operations menu' : 'បើកម៉ឺនុយហាង'}
+                    aria-expanded={openDropdowns.promotions}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-r-xl border-y border-r border-pink-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    onClick={() => toggleDropdown('promotions')}
+                  >
+                    <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+                </div>
+                {openDropdowns.promotions && (
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-pink-500/30 space-y-1 py-1">
+                    <Link to="/admin/promotions" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🏷️</span> {TEXTS.promotions[lang]}
                     </Link>
-                    <Link to="/admin/partners/delete" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🗑️</span> {TEXTS.deletePartner[lang]}
+                    <Link to="/admin/promotions/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
                     </Link>
-                    <Link to="/admin/partners/update" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🔄</span> {TEXTS.updatePartner[lang]}
+                    <Link to="/admin/drivers" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🚚</span> {TEXTS.drivers[lang]}
+                    </Link>
+                    <Link to="/admin/drivers/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {lang === 'en' ? 'Add Driver' : 'បន្ថែមអ្នកដឹកជញ្ជូន'}
                     </Link>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Delivery Drivers Dropdown (ADMIN + STORE) */}
-            {canStore && (
-              <div className="mb-1">
-                <button
-                  type="button"
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-                  onClick={() => toggleDropdown('drivers')}
+            {/* 5. User Access & Roles (ADMIN only) */}
+            {isAdmin && (
+              <div className="mb-2">
+                <Link
+                  to="/admin/users"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname.startsWith('/admin/users') || location.pathname === '/manage-users' ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
                 >
-                  <span className="w-5 h-5 flex items-center justify-center"><TruckIcon /></span>
-                  <span className="flex-1 text-left">{TEXTS.drivers[lang]}</span>
-                  <span className={`transition-transform duration-200 ${openDropdowns.drivers ? 'rotate-180' : ''}`}>
-                    <ChevronDownIcon />
-                  </span>
-                </button>
-                {openDropdowns.drivers && (
-                  <div className="mt-1 ml-8 space-y-0.5">
-                    <Link to="/admin/drivers/add" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {lang === 'en' ? 'Add Driver' : 'បន្ថែមអ្នកដឹកជញ្ជូន'}
-                    </Link>
-                    <Link to="/admin/drivers/list" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📋</span> {lang === 'en' ? 'Driver List' : 'បញ្ជីអ្នកដឹកជញ្ជូន'}
-                    </Link>
-                  </div>
-                )}
+                  <img src={shieldIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                  <span>{TEXTS.users[lang]}</span>
+                </Link>
               </div>
             )}
           </div>
 
+          {/* Public Storefront Group */}
           <div className="mb-6">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Public Pages' : 'ទំព័រសាធារណៈ'}</span>
-            <Link to="/products" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <span className="w-5 h-5 flex items-center justify-center"><ShopIcon /></span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Public Storefront' : 'ទំព័រសាធារណៈ'}</span>
+            <Link to="/products" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+              <img src={canIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
               <span>{TEXTS.shop[lang]}</span>
             </Link>
-            <Link to="/career" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <span className="w-5 h-5 flex items-center justify-center"><GlobeIcon /></span>
+            <Link to="/career" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+              <img src={rocketIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
               <span>{TEXTS.career[lang]}</span>
             </Link>
-            <Link to="/member" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <span className="w-5 h-5 flex items-center justify-center"><TeamIcon /></span>
+            <Link to="/member" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+              <img src={cupIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
               <span>{TEXTS.team[lang]}</span>
             </Link>
           </div>

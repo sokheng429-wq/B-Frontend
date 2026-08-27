@@ -1,12 +1,35 @@
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
+import bookmarkIcon from '../../assets/icon/3dicons-bookmark-fav-dynamic-color.png'
+import crownIcon from '../../assets/icon/3dicons-crown-dynamic-color.png'
+import cubeIcon from '../../assets/icon/3dicons-cube-dynamic-color.png'
+import paletteIcon from '../../assets/icon/3dicons-color-palette-dynamic-color.png'
+import moneyBagIcon from '../../assets/icon/3dicons-money-bag-dynamic-color.png'
+import folderFavIcon from '../../assets/icon/3dicons-folder-fav-dynamic-color.png'
+import fileNewIcon from '../../assets/icon/3dicons-file-new-dynamic-color.png'
+import callOutIcon from '../../assets/icon/3dicons-call-out-dynamic-color.png'
+import toolsIcon from '../../assets/icon/3dicons-tools-dynamic-color.png'
+import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
+import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
+import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
+import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
+import dollarIcon from '../../assets/icon/3dicons-dollar-dynamic-color.png'
+import copyIcon from '../../assets/icon/3dicons-copy-dynamic-color.png'
+import calculatorIcon from '../../assets/icon/3dicons-calculator-dynamic-color.png'
+import toggleIcon from '../../assets/icon/3dicons-toggle-dynamic-color.png'
+import walletIcon from '../../assets/icon/3dicons-wallet-dynamic-color.png'
+import hashIcon from '../../assets/icon/3dicons-hash-dynamic-color.png'
+import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
+import './ProductsHub.css'
 
 // The eight catalog sub-sections reachable from this hub. Keys are used as this Will Show when click on Stocks
 // URL segments: /admin/products/<key>.
 export const PRODUCT_SECTIONS = [
   {
     key: 'manage',
-    icon: '📦',
+    icon: bagIcon,
     en: 'Products',
     kh: 'ផលិតផល',
     descEn: 'Create, edit and delete products in the shop catalog.',
@@ -16,7 +39,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'groups',
-    icon: '🗂️',
+    icon: folderIcon,
     en: 'Product Groups',
     kh: 'ក្រុមផលិតផល',
     descEn: 'Group related products together for pricing and filtering.',
@@ -26,7 +49,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'categories',
-    icon: '🏷️',
+    icon: bookmarkIcon,
     en: 'Category',
     kh: 'ប្រភេទ',
     descEn: 'Manage the product categories shown across the shop.',
@@ -36,7 +59,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'brands',
-    icon: '🅰️',
+    icon: crownIcon,
     en: 'Brands',
     kh: 'ម៉ាក',
     descEn: 'Register the brands carried by B\'Groceries.',
@@ -46,7 +69,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'units',
-    icon: '⚖️',
+    icon: cubeIcon,
     en: 'Unit of Measure',
     kh: 'ឯកតាវាស់',
     descEn: 'Define units such as kg, g, L, ml and piece.',
@@ -56,7 +79,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'attributes',
-    icon: '🧬',
+    icon: paletteIcon,
     en: 'Attribute',
     kh: 'លក្ខណៈសម្បត្តិ',
     descEn: 'Extra specs like origin, organic label or storage temp.',
@@ -66,7 +89,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'suppliers',
-    icon: '🚛',
+    icon: moneyBagIcon,
     en: 'Suppliers',
     kh: 'អ្នកផ្គត់ផ្គង់',
     descEn: 'Contact details for farms, producers and wholesalers.',
@@ -76,7 +99,7 @@ export const PRODUCT_SECTIONS = [
   },
   {
     key: 'supplier-groups',
-    icon: '👥',
+    icon: folderFavIcon,
     en: 'Suppliers Group',
     kh: 'ក្រុមអ្នកផ្គត់ផ្គង់',
     descEn: 'Organize suppliers into regional or category groups.',
@@ -91,7 +114,7 @@ export const PRODUCT_SECTIONS = [
 export const STOCK_OPERATIONS = [
   {
     key: 'receive-products',
-    icon: '📥',
+    icon: fileNewIcon,
     en: 'Receive Products',
     kh: 'ទទួលផលិតផល',
     descEn: 'Record incoming stock deliveries from suppliers.',
@@ -101,7 +124,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'issue-products',
-    icon: '📤',
+    icon: callOutIcon,
     en: 'Issue Products',
     kh: 'បញ្ចេញផលិតផល',
     descEn: 'Issue stock out of the warehouse for orders or usage.',
@@ -111,7 +134,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'adjustment-products',
-    icon: '🔧',
+    icon: toolsIcon,
     en: 'Adjustment Products',
     kh: 'កែតម្លៃផលិតផល',
     descEn: 'Correct stock counts after audits or damages.',
@@ -121,7 +144,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'request-transfer',
-    icon: '📨',
+    icon: mailIcon,
     en: 'Request Transfer Products',
     kh: 'សំណើបញ្ជូនផលិតផល',
     descEn: 'Ask another branch or warehouse to send stock.',
@@ -131,7 +154,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'ship-request-transfer',
-    icon: '🛫',
+    icon: rocketIcon,
     en: 'Ship & Request Transfer Products',
     kh: 'ដឹកជញ្ជូន និងសំណើបញ្ជូនផលិតផល',
     descEn: 'Ship requested transfers and track them in transit.',
@@ -141,7 +164,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'transfer-products',
-    icon: '🔁',
+    icon: travelIcon,
     en: 'Transfer Products',
     kh: 'បញ្ជូនផលិតផល',
     descEn: 'Move products between warehouses and stores.',
@@ -151,7 +174,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'products-quantities',
-    icon: '🔢',
+    icon: chartIcon,
     en: 'Products Quantities',
     kh: 'បរិមាណផលិតផល',
     descEn: 'See and set on-hand quantities per location.',
@@ -161,7 +184,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'products-prices',
-    icon: '💲',
+    icon: dollarIcon,
     en: 'Products Prices',
     kh: 'តម្លៃផលិតផល',
     descEn: 'Manage cost and selling prices per product.',
@@ -171,7 +194,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'print-label',
-    icon: '🖨️',
+    icon: copyIcon,
     en: 'Print Label',
     kh: 'បោះពុម្ពស្លាក',
     descEn: 'Print barcode and price labels for shelf items.',
@@ -181,7 +204,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'products-scale',
-    icon: '🧮',
+    icon: calculatorIcon,
     en: 'Products Scale',
     kh: 'ទំនឹងផលិតផល',
     descEn: 'Configure scale-linked weighed goods.',
@@ -191,7 +214,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'change-attribute',
-    icon: '🔀',
+    icon: toggleIcon,
     en: 'Change Attribute',
     kh: 'ផ្លាស់ប្តូរលក្ខណៈសម្បត្តិ',
     descEn: 'Bulk-edit product attribute values.',
@@ -201,7 +224,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'cost-change',
-    icon: '💱',
+    icon: walletIcon,
     en: 'Cost Change',
     kh: 'ផ្លាស់ប្តូរចំណាយ',
     descEn: 'Review and apply supplier cost changes.',
@@ -211,7 +234,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'serial-information',
-    icon: '🔖',
+    icon: hashIcon,
     en: 'Serial Information',
     kh: 'ព័ត៌មានស៊េរី',
     descEn: 'Track serialized items by serial number.',
@@ -221,7 +244,7 @@ export const STOCK_OPERATIONS = [
   },
   {
     key: 'products-supplier',
-    icon: '🏭',
+    icon: linkIcon,
     en: 'Products Supplier',
     kh: 'អ្នកផ្គត់ផ្គង់ផលិតផល',
     descEn: 'Link products to the suppliers who provide them.',
@@ -251,30 +274,37 @@ const TEXTS = {
 // One grid of section cards. Used for both groups on the hub.
 const SectionGrid = ({ items, lang }) => (
   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    {items.map((section) => (
-      <Link
-        key={section.key}
-        to={`/admin/products/${section.key}`}
-        className="group flex flex-col rounded-2xl border border-slate-700/60 bg-slate-950/50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-slate-500 hover:bg-slate-950 hover:shadow-xl"
-      >
-        <span
-          className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl text-2xl ring-1 ring-white/10"
-          style={{ background: section.bg }}
+    {items.map((section) => {
+      const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
+      return (
+        <Link
+          key={section.key}
+          to={`/admin/products/${section.key}`}
+          className="group flex flex-col rounded-2xl border border-slate-700/60 bg-slate-950/50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-slate-500 hover:bg-slate-950 hover:shadow-xl"
         >
-          {section.icon}
-        </span>
-        <h3 className="text-base font-black text-white">{lang === 'kh' ? section.kh : section.en}</h3>
-        <p className="mt-1.5 flex-1 text-xs leading-5 text-slate-400">
-          {lang === 'kh' ? section.descKh : section.descEn}
-        </p>
-        <span
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold transition-transform group-hover:translate-x-1"
-          style={{ color: section.color }}
-        >
-          {lang === 'en' ? 'Open' : 'បើក'} <ChevronIcon />
-        </span>
-      </Link>
-    ))}
+          <span
+            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl p-2 ring-1 ring-white/10 shadow-lg shadow-black/20"
+            style={{ background: section.bg }}
+          >
+            {isImg ? (
+              <img src={section.icon} alt="" className="h-9 w-9 object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-110" />
+            ) : (
+              <span className="text-2xl">{section.icon}</span>
+            )}
+          </span>
+          <h3 className="text-base font-black text-white">{lang === 'kh' ? section.kh : section.en}</h3>
+          <p className="mt-1.5 flex-1 text-xs leading-5 text-slate-400">
+            {lang === 'kh' ? section.descKh : section.descEn}
+          </p>
+          <span
+            className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold transition-transform group-hover:translate-x-1"
+            style={{ color: section.color }}
+          >
+            {lang === 'en' ? 'Open' : 'បើក'} <ChevronIcon />
+          </span>
+        </Link>
+      )
+    })}
   </div>
 )
 
@@ -292,7 +322,9 @@ export const ProductsHub = () => {
             <ChevronLeftIcon /> {TEXTS.back[lang]}
           </Link>
           <div className="flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/15 text-3xl ring-1 ring-green-400/30">📦</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/15 p-2 ring-1 ring-green-400/30 shadow-lg shadow-green-500/20">
+              <img src={bagIcon} alt="" className="h-9 w-9 object-contain drop-shadow-md" />
+            </span>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.28em] text-green-300">{TEXTS.eyebrow[lang]}</p>
               <h1 className="mt-1 text-3xl font-black tracking-tight text-white md:text-4xl">{TEXTS.heroTitle[lang]}</h1>

@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import './stockUI.css'
 
 // Shared building blocks for the Stocks sub-module pages (master data +
 // transactions). Keeps every section visually identical: dark admin theme,
 // green primary, orange destructive accents.
 
-export const SectionShell = ({ icon, color, title, subtitle, actions, children }) => {
+export const SectionShell = ({ icon, color = '#22c55e', title, subtitle, actions, children }) => {
   const { lang } = useLanguage()
+  const isImg = typeof icon === 'string' && (icon.includes('/') || icon.endsWith('.png') || icon.endsWith('.svg') || icon.endsWith('.webp'))
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -15,8 +18,12 @@ export const SectionShell = ({ icon, color, title, subtitle, actions, children }
             <ChevronLeftIcon /> {lang === 'en' ? 'Stocks' : 'ផលិតផល'}
           </Link>
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl text-2xl" style={{ background: `${color}22` }}>
-              {icon}
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl p-1.5 shadow-lg shadow-black/20 ring-1 ring-white/10" style={{ background: `${color}25` }}>
+              {isImg ? (
+                <img src={icon} alt="" className="h-8 w-8 object-contain drop-shadow-md" />
+              ) : (
+                <span className="text-2xl">{icon}</span>
+              )}
             </span>
             <h1 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">{title[lang]}</h1>
           </div>
@@ -147,6 +154,73 @@ export const Pill = ({ tone = 'green', children }) => {
     <span className="inline-block rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: bg, color: fg }}>
       {children}
     </span>
+  )
+}
+
+// Confirmation Modal Dialog (for Save & Delete actions)
+export const ConfirmModal = ({
+  open,
+  onClose,
+  onConfirm,
+  title = { en: 'Confirm Action', kh: 'បញ្ជាក់សកម្មភាព' },
+  message = { en: 'Are you sure you want to proceed?', kh: 'តើអ្នកប្រាកដជាចង់បន្តឬ?' },
+  confirmText = { en: 'Confirm', kh: 'យល់ព្រម' },
+  cancelText = { en: 'Cancel', kh: 'បោះបង់' },
+  type = 'danger', // 'danger' | 'save' | 'primary' | 'warning'
+  loading = false,
+}) => {
+  const { lang } = useLanguage()
+  const t = (val) => (typeof val === 'object' && val !== null ? (lang === 'en' ? val.en : val.kh) : val)
+
+  if (!open) return null
+
+  const isDanger = type === 'danger'
+  const isSave = type === 'save' || type === 'primary'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl shadow-black/80"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-4">
+          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl ${
+            isDanger ? 'bg-red-500/20 text-red-400' : isSave ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
+          }`}>
+            {isDanger ? '🗑️' : isSave ? '💾' : '⚠️'}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-extrabold text-white">
+              {t(title)}
+            </h3>
+            <p className="mt-1.5 text-xs text-slate-300 leading-relaxed font-medium">
+              {t(message)}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
+          <GhostButton onClick={onClose} disabled={loading}>
+            {t(cancelText)}
+          </GhostButton>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={onConfirm}
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black shadow-lg transition active:scale-95 disabled:opacity-50 ${
+              isDanger
+                ? 'bg-red-600 text-white shadow-red-600/30 hover:bg-red-500'
+                : 'bg-green-500 text-slate-950 shadow-green-500/25 hover:bg-green-400'
+            }`}
+          >
+            {loading ? (lang === 'en' ? 'Processing…' : 'កំពុងដំណើរការ…') : t(confirmText)}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -7,6 +7,7 @@ import { useNotifications } from '../../context/NotificationContext'
 import { adminSupplierAPI, adminSupplierGroupAPI } from '../../api/api'
 import { COUNTRIES } from '../../data/countries'
 import { CountryFlag } from '../../components/CountryFlag'
+import './Suppliers.css'
 
 // Theme constants — B'Groceries dark admin palette.
 const GREEN = '#77BC1F'

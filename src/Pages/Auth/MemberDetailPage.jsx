@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { memberAPI } from '../../api/api'
+import './MemberDetailPage.css'
 
 const TEXTS = {
   back: { en: 'Members', kh: 'សមាជិក' },
