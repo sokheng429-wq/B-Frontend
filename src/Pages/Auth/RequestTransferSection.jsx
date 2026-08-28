@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { adminProductAPI, adminTransferAPI } from '../../api/api'
 import { useCollection } from './stockStore'
+import { PageLoader } from '../../components/PageLoader'
 import RequestTransferCreate from './RequestTransferCreate'
 import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill, ConfirmModal } from './stockUI'
@@ -262,6 +263,7 @@ export const RequestTransferSection = () => {
   const activeColumns = [CODE_COL, ...OPTIONAL_COLS.filter((c) => visibleCols.has(c.key))]
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading transfers…' : 'កំពុងផ្ទុកទិន្នន័យ…'}>
     <SectionShell
       icon={mailIcon}
       color="#06b6d4"
@@ -582,6 +584,7 @@ export const RequestTransferSection = () => {
       </Modal>
 
     </SectionShell>
+    </PageLoader>
   )
 }
 

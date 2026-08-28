@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { userAPI } from '../../api/api'
+import { PageLoader } from '../../components/PageLoader'
 import './ManageUsers.css'
 
 // Role hierarchy: ADMIN (full access, always on top) > STORE ("Online Store" —
@@ -243,6 +244,7 @@ export default function ManageUsers() {
   const errorInput = 'border-red-500/80 bg-red-500/10 focus:border-red-400 focus:ring-red-500/10'
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading users…' : 'កំពុងផ្ទុកអ្នកប្រើប្រាស់…'}>
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-3xl border border-purple-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-purple-500/10">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-purple-500/20 blur-3xl" />
@@ -553,6 +555,7 @@ export default function ManageUsers() {
         )}
       </aside>
     </div>
+    </PageLoader>
   )
 }
 

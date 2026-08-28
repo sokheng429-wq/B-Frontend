@@ -311,8 +311,8 @@ export const jobAPI = {
   // Public application (permitAll). Resume is sent as base64 TEXT + filename +
   // content type (no multipart): { jobId, fullName, email, phone, linkedinUrl,
   //   coverLetter, resumeName, resumeData, resumeContentType }
-  applyJob: (jobId, payload) =>
-    request(`/public/jobs/${jobId}/apply`, { method: 'POST', body: JSON.stringify(payload) }),
+  applyJob: (data) =>
+    request(`/public/jobs/${data.jobId}/apply`, { method: 'POST', body: JSON.stringify(data) }),
 }
 
 // ===== TEAM MEMBERS =====
@@ -438,4 +438,22 @@ export const adminTransferAPI = {
   shipBulk: (data = {}) => request('/admin/transfers/ship-bulk', { method: 'POST', body: JSON.stringify(data) }),
   delete: (id) => request(`/admin/transfers/${id}`, { method: 'DELETE' }),
 }
+
+// ===== ACTIVITY & NOTIFICATION AUDIT LOGS =====
+export const activityLogAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams()
+    if (filters.keyword) params.set('keyword', filters.keyword)
+    if (filters.entityType) params.set('entityType', filters.entityType)
+    if (filters.actionType) params.set('actionType', filters.actionType)
+    if (filters.userRole) params.set('userRole', filters.userRole)
+    const qs = params.toString()
+    return request(qs ? `/activity-logs?${qs}` : '/activity-logs')
+  },
+  getRecent: (limit = 20) => request(`/activity-logs/recent?limit=${limit}`),
+  create: (data) => request('/activity-logs', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/activity-logs/${id}`, { method: 'DELETE' }),
+  clearAll: () => request('/activity-logs/clear', { method: 'DELETE' }),
+}
+
 

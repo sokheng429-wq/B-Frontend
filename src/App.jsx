@@ -45,7 +45,7 @@ const AdminRoute = ({ children }) => {
 function App() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
-  const useHeader2 = ['/products', '/promotion', '/partners', '/product-detail', '/orders', '/tracking'].includes(location.pathname)
+  const useHeader2 = ['/products', '/promotion', '/partners', '/product-detail', '/orders', '/tracking', '/cart'].includes(location.pathname)
 
   return (
     <>

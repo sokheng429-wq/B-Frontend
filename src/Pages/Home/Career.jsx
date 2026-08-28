@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { publicAPI } from '../../api/api'
+import { PageLoader } from '../../components/PageLoader'
 
 // Assets
 import careerHero from '../../assets/Career.png'

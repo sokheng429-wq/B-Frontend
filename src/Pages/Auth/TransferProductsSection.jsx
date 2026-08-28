@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { adminProductAPI, adminTransferAPI } from '../../api/api'
 import { useCollection } from './stockStore'
+import { PageLoader } from '../../components/PageLoader'
 import TransferProductsCreate from './TransferProductsCreate'
 import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill, ConfirmModal } from './stockUI'
@@ -262,6 +263,7 @@ export const TransferProductsSection = () => {
   const activeColumns = [CODE_COL, ...OPTIONAL_COLS.filter((c) => visibleCols.has(c.key))]
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading transfers…' : 'កំពុងផ្ទុកទិន្នន័យ…'}>
     <SectionShell
       icon={travelIcon}
       color="#14b8a6"
@@ -577,6 +579,7 @@ export const TransferProductsSection = () => {
       </Modal>
 
     </SectionShell>
+    </PageLoader>
   )
 }
 

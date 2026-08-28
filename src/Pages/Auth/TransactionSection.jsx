@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { adminProductAPI, adminStockDocAPI } from '../../api/api'
+import { PageLoader } from '../../components/PageLoader'
 import { useCollection, LOCATIONS } from './stockStore'
 import ReceiveProductsCreate from './ReceiveProductsCreate'
 import TransactionDocCreate from './TransactionDocCreate'
@@ -529,6 +530,7 @@ export const TransactionSection = ({ sectionKey }) => {
   }
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading data…' : 'កំពុងផ្ទុកទិន្នន័យ…'}>
     <SectionShell
       icon={op.icon}
       color={op.color}
@@ -893,6 +895,7 @@ export const TransactionSection = ({ sectionKey }) => {
         </Modal>
       )}
     </SectionShell>
+    </PageLoader>
   )
 }
 

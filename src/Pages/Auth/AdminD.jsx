@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { adminProductAPI, applicationAPI, jobAPI, memberAPI } from '../../api/api'
+import { adminProductAPI, applicationAPI, jobAPI, memberAPI, userAPI } from '../../api/api'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
+import DashboardOverview from './Dashboard/DashboardOverview'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
 import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
 import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
@@ -26,6 +27,7 @@ import Addpromotion from './Addpromotion'
 import AddPartner from './AddPartner'
 import AddDriver from './AddDriver'
 import ProductsHub, { PRODUCT_SECTIONS, STOCK_OPERATIONS } from './ProductsHub'
+import InformationHub from './InformationHub'
 import { StocksList } from './StocksList'
 import CatalogSection from './CatalogSection'
 import MasterDataSection from './MasterDataSection'
@@ -47,12 +49,14 @@ import MemberList from './MemberList'
 import MemberForm from './MemberForm'
 import MemberDetailPage from './MemberDetailPage'
 import Applications from './Applications'
+import ActivityHistory from './ActivityHistory'
 
 const EMPTY_DASHBOARD_DATA = {
   products: null,
   jobs: null,
   members: null,
   applications: null,
+  users: null,
 }
 
 const CATEGORY_META = [
@@ -98,6 +102,11 @@ const normalizeCollection = (response) => (Array.isArray(response?.data) ? respo
 
 const TEXTS = {
   dashboard: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
+  inventorySystem: { en: 'Inventory System', kh: 'ប្រព័ន្ធគ្រប់គ្រងស្តុក' },
+  informationSide: { en: 'Information Side', kh: 'ផ្នែកព័ត៌មាន' },
+  companyInfo: { en: 'Company Info', kh: 'ព័ត៌មានក្រុមហ៊ុន' },
+  shopSide: { en: 'Shop Side', kh: 'ផ្នែកហាង' },
+  auditHistory: { en: 'Audit History', kh: 'ប្រវត្តិសកម្មភាព' },
   products: { en: 'Stocks', kh: 'ផលិតផល' },
   jobs: { en: 'Jobs', kh: 'ការងារ' },
   applications: { en: 'Applications', kh: 'ពាក្យសុំការងារ' },
@@ -198,6 +207,7 @@ function AdminD() {
         ['jobs', () => jobAPI.getAll()],
         ['members', () => memberAPI.getAll()],
         ['applications', () => applicationAPI.getAll()],
+        ['users', () => userAPI.getAll()],
       ]
       const results = await Promise.allSettled(requests.map(([, request]) => Promise.resolve().then(request)))
       if (cancelled) return
@@ -321,6 +331,55 @@ function AdminD() {
   const maxCategoryValue = Math.max(...categoryData.map((category) => category.value), 1)
   const maxMonthlyValue = Math.max(...monthlyData.map((month) => month.value), 1)
 
+  // CEO analytics — computed from live data
+  const stockKpis = useMemo(() => {
+    const prods = dashboardData.products || []
+    let inventoryValue = 0
+    let lowStock = 0
+    let outOfStock = 0
+    let activeCount = 0
+    prods.forEach((p) => {
+      const qty = Number(p.onHand ?? 0)
+      const cost = Number(p.averageCost ?? p.standardCost ?? 0)
+      inventoryValue += qty * cost
+      if (qty <= 0) outOfStock++
+      else if (qty <= 5) lowStock++
+      if (p.active !== false) activeCount++
+    })
+    return { total: prods.length, inventoryValue, lowStock, outOfStock, active: activeCount }
+  }, [dashboardData.products])
+
+  const appsByStatus = useMemo(() => {
+    const apps = dashboardData.applications || []
+    const map = {}
+    apps.forEach((a) => {
+      const s = (a.status || 'PENDING').toUpperCase()
+      map[s] = (map[s] || 0) + 1
+    })
+    return map
+  }, [dashboardData.applications])
+
+  const topLowStock = useMemo(() => {
+    return (dashboardData.products || [])
+      .filter((p) => Number(p.onHand ?? 0) <= 5)
+      .sort((a, b) => Number(a.onHand ?? 0) - Number(b.onHand ?? 0))
+      .slice(0, 6)
+  }, [dashboardData.products])
+
+  const monthlyProducts = useMemo(() => {
+    const year = new Date().getFullYear()
+    const counts = Array(12).fill(0)
+    ;(dashboardData.products || []).forEach((p) => {
+      const ts = toTimestamp(p.createdAt || p.createDate)
+      if (!ts) return
+      const d = new Date(ts)
+      if (d.getFullYear() === year) counts[d.getMonth()]++
+    })
+    return MONTHS.map((m, i) => ({ ...m, value: counts[i] }))
+  }, [dashboardData.products])
+
+  const maxProductsMonthly = Math.max(...monthlyProducts.map((m) => m.value), 1)
+
   const renderContent = () => {
     const path = location.pathname
 
@@ -330,7 +389,8 @@ function AdminD() {
       path === '/add-jobs' || path.startsWith('/admin/jobs') ||
       path === '/add-member' || path.startsWith('/admin/members') ||
       path === '/manage-users' || path.startsWith('/admin/users') ||
-      path === '/admin/applications' || path.startsWith('/admin/applications')
+      path === '/admin/applications' || path.startsWith('/admin/applications') ||
+      path === '/admin/information' || path.startsWith('/admin/information')
     const storeOnly =
       path === '/add-products' || path.startsWith('/admin/products') ||
       path === '/add-promotion' || path.startsWith('/admin/promotions') ||
@@ -349,6 +409,10 @@ function AdminD() {
           </Link>
         </div>
       )
+    }
+
+    if (path === '/admin/information' || path === '/admin/information/') {
+      return <InformationHub />
     }
 
     if (path === '/add-products') {
@@ -418,192 +482,29 @@ function AdminD() {
     if (path === '/add-driver' || path.startsWith('/admin/drivers')) {
       return <AddDriver />
     }
+    if (path === '/admin/notifications' || path.startsWith('/admin/notifications') || path.startsWith('/admin/history')) {
+      return <ActivityHistory />
+    }
 
     return (
-      <>
-        {(dashboardLoading || dashboardError) && (
-          <div className={`mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm ${dashboardError ? 'border-amber-500/40 bg-amber-500/10 text-amber-200' : 'border-green-500/30 bg-green-500/10 text-green-200'}`}>
-            <span>{dashboardLoading ? TEXTS.loadingOverview[lang] : TEXTS.overviewError[lang]}</span>
-            {dashboardError && (
-              <button
-                type="button"
-                onClick={() => setDashboardRefreshKey((key) => key + 1)}
-                className="rounded-lg border border-amber-400/50 px-3 py-1.5 text-xs font-bold text-amber-100 transition hover:bg-amber-400/15"
-              >
-                {TEXTS.retry[lang]}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Stats row */}
-        <div className={`grid grid-cols-1 gap-6 mb-8 ${isAdmin ? 'md:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-1 xl:grid-cols-1'}`}>
-          {stats.map((stat) => (
-            <Link to={stat.link} key={stat.label.en} className="group block bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50 hover:border-green-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-4">
-                <span className="w-13 h-13 p-2 flex items-center justify-center rounded-2xl ring-1 ring-white/10 shadow-lg shadow-black/20" style={{ background: stat.bg }}>
-                  {typeof stat.icon === 'string' && (stat.icon.includes('/') || stat.icon.endsWith('.png')) ? (
-                    <img src={stat.icon} alt="" className="h-8 w-8 object-contain drop-shadow transition-transform duration-300 group-hover:scale-110" />
-                  ) : (
-                    <span className="text-2xl">{stat.icon}</span>
-                  )}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${stat.value === null || stat.value === undefined ? 'bg-slate-700/60 text-slate-300' : 'bg-green-500/20 text-green-400'}`}>
-                  {stat.value === null || stat.value === undefined ? TEXTS.unavailable[lang] : TEXTS.liveData[lang]}
-                </span>
-              </div>
-              <p className="text-4xl font-black text-white mb-1">{stat.value ?? '—'}</p>
-              <p className="text-slate-400 text-sm font-medium">{stat.label[lang]}</p>
-            </Link>
-          ))}
-        </div>
-
-        {/* Analytics row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-          {/* Category chart */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50">
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-bold text-white">{TEXTS.prodCategoryTitle[lang]}</h3>
-              <span className="text-xs text-slate-400">{TEXTS.prodCategorySub[lang]}</span>
-            </div>
-            {dashboardData.products === null ? (
-              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.productDataUnavailable[lang]}</p>
-            ) : categoryData.length === 0 ? (
-              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.noProducts[lang]}</p>
-            ) : (
-              <div className="space-y-4">
-                {categoryData.map((cat) => (
-                  <div className="flex items-center gap-3" key={cat.label.en}>
-                    <span className="text-xs font-semibold text-slate-400 w-28 text-right">{cat.label[lang]}</span>
-                    <div className="flex-1 h-2.5 bg-slate-700/50 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700 ease-out"
-                        style={{ width: `${(cat.value / maxCategoryValue) * 100}%`, background: cat.color }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold text-white w-6">{cat.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Monthly overview */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50">
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-bold text-white">{TEXTS.activityTitle[lang]}</h3>
-              <span className="text-xs text-slate-400">{TEXTS.activitySub[lang]}</span>
-            </div>
-            <div className="flex items-end justify-between gap-2 h-52 pt-4">
-              {monthlyData.map((month) => (
-                <div className="flex flex-col items-center flex-1 h-full" key={month.en}>
-                  <div className="flex-1 w-full max-w-[40px] bg-slate-700/30 rounded-t-lg flex items-end overflow-hidden">
-                    <div
-                      className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-700 ease-out"
-                      style={{ height: `${month.value === 0 ? 0 : Math.max((month.value / maxMonthlyValue) * 100, 4)}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-white mt-2">{month.value}</span>
-                  <span className="text-[10px] text-slate-400 font-medium mt-0.5">{month[lang]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-          {/* Quick actions */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50">
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-bold text-white">{TEXTS.quickActions[lang]}</h3>
-              <span className="text-xs text-slate-400">{TEXTS.quickActionsSub[lang]}</span>
-            </div>
-            <div className="space-y-2">
-              <Link to="/admin/products/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-green-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-green-500/15 ring-1 ring-green-400/30">
-                  <img src={bagIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-white">{TEXTS.addProduct[lang]}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'List new grocery items in the shop' : 'បន្ថែមទំនិញថ្មីទៅក្នុងហាង'}</p>
-                </div>
-                <ChevronIcon />
-              </Link>
-              <Link to="/admin/jobs/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-orange-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-orange-500/15 ring-1 ring-orange-400/30">
-                  <img src={targetIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-white">{TEXTS.addJob[lang]}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Create a new career opening' : 'ប្រកាសការងារថ្មី'}</p>
-                </div>
-                <ChevronIcon />
-              </Link>
-              <Link to="/admin/members/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-blue-500/15 ring-1 ring-blue-400/30">
-                  <img src={boyIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-white">{TEXTS.addMember[lang]}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Onboard a new team member' : 'បន្ថែមសមាជិកក្រុមថ្មី'}</p>
-                </div>
-                <ChevronIcon />
-              </Link>
-              <Link to="/admin/promotions/add" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-pink-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-pink-500/15 ring-1 ring-pink-400/30">
-                  <img src={giftIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-white">{TEXTS.promotions[lang]}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'Create and edit promotional deals' : 'បង្កើត និងកែប្រែការផ្សព្វផ្សាយ'}</p>
-                </div>
-                <ChevronIcon />
-              </Link>
-              <Link to="/products" className="group flex items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 hover:border-slate-500/50 hover:bg-slate-800/50 transition-all">
-                <span className="w-11 h-11 min-w-[44px] p-2 flex items-center justify-center rounded-xl bg-slate-700/50 ring-1 ring-slate-500/30">
-                  <img src={canIcon} alt="" className="h-7 w-7 object-contain drop-shadow" />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold text-white">{lang === 'en' ? 'View Public Shop' : 'មើលហាងទំនិញ'}</h4>
-                  <p className="text-xs text-slate-400 mt-0.5">{lang === 'en' ? 'See the storefront as customers do' : 'មើលហាងដូចអតិថិជនមើល'}</p>
-                </div>
-                <ChevronIcon />
-              </Link>
-            </div>
-          </div>
-
-          {/* Recent activity */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700/50">
-            <div className="flex items-baseline justify-between mb-6">
-              <h3 className="text-lg font-bold text-white">{TEXTS.recentTitle[lang]}</h3>
-              <span className="text-xs text-slate-400">{TEXTS.recentSub[lang]}</span>
-            </div>
-            {recentActivity.length === 0 ? (
-              <p className="rounded-xl border border-slate-700/60 bg-slate-900/50 px-4 py-8 text-center text-sm text-slate-400">{TEXTS.noActivity[lang]}</p>
-            ) : (
-              <div className="space-y-0">
-                {recentActivity.map((item, index) => (
-                  <div className="flex gap-4" key={item.id}>
-                    <div className="flex flex-col items-center flex-shrink-0">
-                      <span className="w-9 h-9 flex items-center justify-center rounded-full text-base border-2 border-slate-700" style={{ background: item.color }}>
-                        {item.icon}
-                      </span>
-                      {index < recentActivity.length - 1 && <div className="w-0.5 flex-1 bg-slate-700/50 my-1 rounded-full min-h-[20px]" />}
-                    </div>
-                    <div className={index < recentActivity.length - 1 ? 'pb-5' : ''}>
-                      <p className="text-sm text-slate-300 leading-relaxed">
-                        {item.type === 'job' ? TEXTS.jobPosted[lang] : TEXTS.applicationReceived[lang]}: <strong className="text-white font-semibold">{item.detail}</strong>
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">{formatTime(item.timestamp)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </>
+      <DashboardOverview
+        dashboardData={dashboardData}
+        dashboardLoading={dashboardLoading}
+        dashboardError={dashboardError}
+        setDashboardRefreshKey={setDashboardRefreshKey}
+        lang={lang}
+        isAdmin={isAdmin}
+        user={user}
+        categoryData={categoryData}
+        monthlyProducts={monthlyProducts}
+        monthlyData={monthlyData}
+        stockKpis={stockKpis}
+        appsByStatus={appsByStatus}
+        topLowStock={topLowStock}
+        recentActivity={recentActivity}
+        formatTime={formatTime}
+        TEXTS={TEXTS}
+      />
     )
   }
 
@@ -633,12 +534,23 @@ function AdminD() {
             </Link>
           </div>
 
-          {/* Management Group */}
-          <div className="mb-6">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Management Hub' : 'មជ្ឈមណ្ឌលគ្រប់គ្រង'}</span>
+          {/* Inventory Management System Side (ADMIN + STORE) */}
+          {canStore && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between px-3 mb-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  {TEXTS.inventorySystem[lang]}
+                </span>
+                <Link
+                  to="/admin/products"
+                  className="text-[10px] font-bold text-green-400 hover:text-green-300 transition-colors uppercase tracking-wider"
+                  title={lang === 'en' ? 'Open Inventory Hub' : 'បើកផ្ទាំងស្តុក'}
+                >
+                  {lang === 'en' ? 'Hub' : 'ផ្ទាំង'} ↗
+                </Link>
+              </div>
 
-            {/* 1. Stocks & Inventory Hub (ADMIN + STORE) */}
-            {canStore && (
+              {/* 1. Stocks & Inventory Hub */}
               <div className="mb-2">
                 <div className="flex items-stretch">
                   <Link
@@ -700,10 +612,78 @@ function AdminD() {
                   </div>
                 )}
               </div>
-            )}
 
-            {/* 2. Jobs & Careers Hub (ADMIN only) */}
-            {isAdmin && (
+              {/* 2. Shop Side & Operations */}
+              <div className="mb-2">
+                <div className="flex items-stretch">
+                  <button
+                    type="button"
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-l-xl border-y border-l border-pink-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    onClick={() => toggleDropdown('promotions')}
+                  >
+                    <img src={giftIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{TEXTS.shopSide[lang]}</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={lang === 'en' ? 'Toggle shop operations menu' : 'បើកម៉ឺនុយហាង'}
+                    aria-expanded={openDropdowns.promotions}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-r-xl border-y border-r border-pink-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    onClick={() => toggleDropdown('promotions')}
+                  >
+                    <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+                </div>
+                {openDropdowns.promotions && (
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-pink-500/30 space-y-1 py-1">
+                    <Link to="/admin/promotions" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🏷️</span> {TEXTS.promotions[lang]}
+                    </Link>
+                    <Link to="/admin/promotions/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
+                    </Link>
+                    <Link to="/admin/drivers" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">🚚</span> {TEXTS.drivers[lang]}
+                    </Link>
+                    <Link to="/admin/drivers/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">➕</span> {lang === 'en' ? 'Add Driver' : 'បន្ថែមអ្នកដឹកជញ្ជូន'}
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Notifications & Stored History */}
+              <div className="mb-2">
+                <Link
+                  to="/admin/notifications"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin/notifications' || location.pathname.startsWith('/admin/history') ? 'bg-gradient-to-r from-purple-500/20 to-indigo-600/10 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
+                >
+                  <span className="text-lg">🔔</span>
+                  <span className="truncate">{TEXTS.auditHistory[lang]}</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Information Side Group (ADMIN only) */}
+          {isAdmin && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between px-3 mb-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  {TEXTS.informationSide[lang]}
+                </span>
+                <Link
+                  to="/admin/information"
+                  className="text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wider"
+                  title={lang === 'en' ? 'Open Information Hub' : 'បើកផ្ទាំងព័ត៌មាន'}
+                >
+                  {lang === 'en' ? 'Hub' : 'ផ្ទាំង'} ↗
+                </Link>
+              </div>
+
+              {/* 1. Jobs & Careers */}
               <div className="mb-2">
                 <div className="flex items-stretch">
                   <Link
@@ -746,10 +726,8 @@ function AdminD() {
                   </div>
                 )}
               </div>
-            )}
 
-            {/* 3. Company Side Information (ADMIN only) */}
-            {isAdmin && (
+              {/* 2. Company Info (Members & Partners) */}
               <div className="mb-2">
                 <div className="flex items-stretch">
                   <Link
@@ -757,7 +735,7 @@ function AdminD() {
                     className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' || location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400 rounded-l-xl border-y border-l border-blue-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
                     <img src={trophyIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-                    <span className="truncate">{lang === 'en' ? 'Company Info' : 'ព័ត៌មានក្រុមហ៊ុន'}</span>
+                    <span className="truncate">{TEXTS.companyInfo[lang]}</span>
                   </Link>
                   <button
                     type="button"
@@ -788,53 +766,8 @@ function AdminD() {
                   </div>
                 )}
               </div>
-            )}
 
-            {/* 4. Shop Side & Operations (ADMIN + STORE) */}
-            {canStore && (
-              <div className="mb-2">
-                <div className="flex items-stretch">
-                  <button
-                    type="button"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-l-xl border-y border-l border-pink-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
-                    onClick={() => toggleDropdown('promotions')}
-                  >
-                    <img src={giftIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-                    <span className="truncate">{lang === 'en' ? 'Shop Side' : 'ផ្នែកហាង'}</span>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={lang === 'en' ? 'Toggle shop operations menu' : 'បើកម៉ឺនុយហាង'}
-                    aria-expanded={openDropdowns.promotions}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/promotions') || location.pathname === '/add-promotion' || location.pathname.startsWith('/admin/drivers') || location.pathname === '/add-driver' ? 'bg-gradient-to-r from-pink-500/20 to-pink-600/10 text-pink-400 rounded-r-xl border-y border-r border-pink-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
-                    onClick={() => toggleDropdown('promotions')}
-                  >
-                    <span className={`transition-transform duration-200 ${openDropdowns.promotions ? 'rotate-180' : ''}`}>
-                      <ChevronDownIcon />
-                    </span>
-                  </button>
-                </div>
-                {openDropdowns.promotions && (
-                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-pink-500/30 space-y-1 py-1">
-                    <Link to="/admin/promotions" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🏷️</span> {TEXTS.promotions[lang]}
-                    </Link>
-                    <Link to="/admin/promotions/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addPromotion[lang]}
-                    </Link>
-                    <Link to="/admin/drivers" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🚚</span> {TEXTS.drivers[lang]}
-                    </Link>
-                    <Link to="/admin/drivers/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {lang === 'en' ? 'Add Driver' : 'បន្ថែមអ្នកដឹកជញ្ជូន'}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 5. User Access & Roles (ADMIN only) */}
-            {isAdmin && (
+              {/* 3. User Access & Roles */}
               <div className="mb-2">
                 <Link
                   to="/admin/users"
@@ -844,8 +777,8 @@ function AdminD() {
                   <span>{TEXTS.users[lang]}</span>
                 </Link>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Public Storefront Group */}
           <div className="mb-6">
@@ -889,7 +822,6 @@ function AdminD() {
             </button>
             <div>
               <h1 className="text-white font-bold text-2xl">{TEXTS.overviewTitle[lang]}</h1>
-              <p className="text-slate-400 text-sm mt-0.5">{new Date().toLocaleDateString(lang === 'kh' ? 'km-KH' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -975,6 +907,18 @@ function AdminD() {
                         ))}
                       </ul>
                     )}
+                  </div>
+
+                  {/* Dropdown Footer: Full Stored History */}
+                  <div className="border-t border-slate-800 bg-slate-950 p-2 text-center">
+                    <Link
+                      to="/admin/notifications"
+                      onClick={() => setShowNotifications(false)}
+                      className="flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold text-purple-400 hover:bg-purple-500/10 hover:text-purple-300 transition"
+                    >
+                      <span>📜</span>
+                      <span>{lang === 'en' ? 'View Full Stored History' : 'មើលប្រវត្តិសកម្មភាពទាំងអស់'} →</span>
+                    </Link>
                   </div>
                 </div>
               )}

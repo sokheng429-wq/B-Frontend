@@ -446,7 +446,8 @@ export const AddProducts = () => {
     // object URL stored until an upload endpoint exists.
     const payload = {
       ...form,
-      barCode: upc || defaultRow?.barcode || form.barCode || null,
+      barCode: upc || ean || defaultRow?.barcode || form.barCode || null,
+      uom: defaultRow?.uom || form.uom || null,
       imageUrl: imageFile ? imagePreview : (form.imageUrl?.trim() || imagePreview || null),
       basePrice: num(form.basePrice),
       averageCost: num(form.averageCost),

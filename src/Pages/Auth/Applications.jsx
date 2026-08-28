@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { applicationAPI } from '../../api/api'
+import { PageLoader } from '../../components/PageLoader'
 import './Applications.css'
 
 const STATUS_ORDER = ['NEW', 'REVIEWED', 'ACCEPTED', 'REJECTED']
@@ -192,6 +193,7 @@ export default function Applications() {
   const inputBase = 'w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-indigo-400 focus:bg-slate-950 focus:ring-4 focus:ring-indigo-500/10'
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading applications…' : 'កំពុងផ្ទុកពាក្យសុំ…'}>
     <div className="space-y-6">
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-indigo-500/10">
@@ -455,6 +457,7 @@ export default function Applications() {
         </div>
       )}
     </div>
+    </PageLoader>
   )
 }
 

@@ -5,6 +5,7 @@ import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { adminProductAPI } from '../../api/api'
 import { ConfirmModal } from './stockUI'
+import { PageLoader } from '../../components/PageLoader'
 import './StocksList.css'
 import { PRODUCTS as DEMO_PRODUCTS, CATEGORIES, formatPrice } from '../../data/products'
 
@@ -47,7 +48,7 @@ const COLUMN_DEFS = [
 ]
 
 // Columns shown before the user customizes anything.
-const DEFAULT_COLS = ['name', 'category', 'basePrice', 'onHand', 'status']
+const DEFAULT_COLS = ['barcode', 'name', 'category', 'basePrice', 'onHand', 'status']
 
 // Flexible CSV header → DTO field. Our own exports round-trip because the
 // normalized header ("barcode", "baseprice"…) hits the same aliases.
@@ -189,6 +190,7 @@ export const StocksList = () => {
   const [importing, setImporting] = useState(false)
   // delete flow: id currently being deleted (shows a spinner on its button)
   const [deletingId, setDeletingId] = useState(null)
+  const [pageLoading, setPageLoading] = useState(true)
 
   const mapBackendItem = (item, index) => ({
     id: item.id ?? index,
@@ -247,6 +249,7 @@ export const StocksList = () => {
         }
       })
       .catch(() => {})
+      .finally(() => setPageLoading(false))
   }
 
   useEffect(() => {
@@ -583,6 +586,7 @@ export const StocksList = () => {
   ]
 
   return (
+    <PageLoader loading={pageLoading} message={lang === 'en' ? 'Loading products…' : 'កំពុងផ្ទុកផលិតផល…'}>
     <div className="space-y-5">
       {/* Page header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -1016,6 +1020,7 @@ export const StocksList = () => {
         />
       )}
     </div>
+    </PageLoader>
   )
 }
 

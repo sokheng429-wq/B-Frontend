@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { memberAPI } from '../../api/api'
 import { ConfirmModal } from './stockUI'
+import { PageLoader } from '../../components/PageLoader'
 import './MemberList.css'
 
 const TEXTS = {
@@ -144,6 +145,7 @@ export default function MemberList() {
   const inputBase = 'w-full rounded-xl border border-slate-700/70 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:bg-slate-950 focus:ring-4 focus:ring-blue-500/10'
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading members…' : 'កំពុងផ្ទុកសមាជិក…'}>
     <div className="space-y-6">
       {/* Hero */}
       <section className="relative overflow-hidden rounded-3xl border border-blue-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-blue-500/10">
@@ -335,6 +337,7 @@ export default function MemberList() {
         />
       )}
     </div>
+    </PageLoader>
   )
 }
 

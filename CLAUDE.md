@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-B'Groceries Frontend — a bilingual (English/Khmer) e-commerce grocery platform built with React 19, React Router 7, Vite 8, and Tailwind CSS 4. It connects to a Spring Boot backend (`B-backend` repo) running on `http://localhost:8081/api`.
+B'Groceries Frontend — a bilingual (English/Khmer) e-commerce grocery platform built with:
+- React 19
+- React Router 7  
+- Vite 8 (dev server on port 5173 - critical for OAuth redirects)
+- Tailwind CSS 4
+
+It connects to a Spring Boot backend (`B-backend` repo) running on `http://localhost:8081/api` (CORS is open).
 
 **Theme colors:** Primary Orange `#FF9900`, Primary Green `#77BC1F`, Dark Background `#0B0F14`, Secondary Dark `#232F3F`
 
@@ -80,6 +86,7 @@ const { lang } = useLanguage()
 ## Backend Contract
 
 - Base URL `http://localhost:8081/api` (hardcoded in `src/api/api.js`); CORS is open
+- Backend runs on port 8081, frontend dev server on port 5173
 - Login accepts multiple identifier types: username, full name, email, phone, telegram, facebook + password
 - JWT stored in localStorage key `token`; tokens are tracked server-side for inactivity eviction (`POST /auth/logout` evicts)
 - Register requires `phoneNumber` and `username`

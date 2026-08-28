@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext'
 import { adminProductAPI } from '../../api/api'
 import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill } from './stockUI'
+import { PageLoader } from '../../components/PageLoader'
 
 // Primary identity column (Always shown)
 const BARCODE_COL = { key: 'barcode', label: { en: 'Barcode', kh: 'បារកូដ' } }
@@ -172,6 +173,7 @@ export const ProductsQuantitiesSection = () => {
   const activeColumns = [BARCODE_COL, ...OPTIONAL_COLS.filter((c) => visibleCols.has(c.key))]
 
   return (
+    <PageLoader loading={loading} message={lang === 'en' ? 'Loading inventory…' : 'កំពុងផ្ទុកស្តុក…'}>
     <SectionShell
       icon={chartIcon}
       color="#0ea5e9"
@@ -480,6 +482,7 @@ export const ProductsQuantitiesSection = () => {
       </Modal>
 
     </SectionShell>
+    </PageLoader>
   )
 }
 

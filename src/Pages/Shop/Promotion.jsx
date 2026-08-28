@@ -151,14 +151,16 @@ export const Promotion = () => {
                 </div>
                 <div className="promo-voucher-right">
                   <p className="promo-voucher-desc">{v.desc[lang]}</p>
-                  <button
-                    type="button"
-                    className={`promo-btn-copy ${copiedCode === v.code ? 'promo-btn-copy--done' : ''}`}
-                    onClick={() => copyToClipboard(v.code)}
-                  >
-                    <img src={copyIcon3d} alt="Copy" className="promo-copy-icon" />
-                    <span>{copiedCode === v.code ? TEXTS.copied[lang] : `${TEXTS.copy[lang]}: ${v.code}`}</span>
-                  </button>
+                  <div className="promo-voucher-code-row">
+                    <span className="promo-voucher-code-tag">{v.code}</span>
+                    <button
+                      type="button"
+                      className={`promo-btn-copy ${copiedCode === v.code ? 'promo-btn-copy--done' : ''}`}
+                      onClick={() => copyToClipboard(v.code)}
+                    >
+                      {copiedCode === v.code ? '✓ Copied!' : TEXTS.copy[lang]}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

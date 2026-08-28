@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { adminProductAPI } from '../../api/api'
 import { useCollection, eanCheckDigit } from './stockStore'
+import { PageLoader } from '../../components/PageLoader'
 import dollarIcon from '../../assets/icon/3dicons-dollar-dynamic-color.png'
 import calculatorIcon from '../../assets/icon/3dicons-calculator-dynamic-color.png'
 import toggleIcon from '../../assets/icon/3dicons-toggle-dynamic-color.png'
@@ -53,8 +54,8 @@ export const ToolsSection = ({ sectionKey }) => {
   const [costFixed, setCostFixed] = useState('')
   const [costReason, setCostReason] = useState('Supplier Price Adjustment')
   const [costColModalOpen, setCostColModalOpen] = useState(false)
-  const [visibleCostCols, setVisibleCostCols] = useState(() => new Set(['name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))
-  const [draftCostCols, setDraftCostCols] = useState(() => new Set(['name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))
+  const [visibleCostCols, setVisibleCostCols] = useState(() => new Set(['barcode', 'name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))
+  const [draftCostCols, setDraftCostCols] = useState(() => new Set(['barcode', 'name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))
   const [confirmAction, setConfirmAction] = useState(null)
   const [suppliers] = useCollection('md-suppliers')
   const [supplierLinks, supplierLinkApi] = useCollection('ps-links')
@@ -63,16 +64,17 @@ export const ToolsSection = ({ sectionKey }) => {
   const [changeAttr, setChangeAttr] = useState({ attrId: '', value: '' })
   const [labelSize, setLabelSize] = useState('58x40')
   const [selectedLabelProducts, setSelectedLabelProducts] = useState(() => new Set())
+  const [pageLoading, setPageLoading] = useState(true)
 
   useEffect(() => {
     adminProductAPI.getAll()
       .then((res) => {
         const list = Array.isArray(res?.data) ? res.data : []
         setProducts(list)
-        // Default select all for label printing
         setSelectedLabelProducts(new Set(list.map((p) => p.id)))
       })
       .catch(() => {})
+      .finally(() => setPageLoading(false))
   }, [])
 
   const t = (en, kh) => (lang === 'en' ? en : kh)
@@ -92,6 +94,8 @@ export const ToolsSection = ({ sectionKey }) => {
       return nameEn.includes(q) || nameKh.includes(q) || code.includes(q) || barcode.includes(q)
     })
   }, [products, query, searchBy])
+
+  if (pageLoading) return <PageLoader loading={true} message={t('Loading products…', 'កំពុងផ្ទុកផលិតផល…')} />
 
   /* =========================================================================
      1. PRODUCTS PRICES (💲)
@@ -201,6 +205,7 @@ export const ToolsSection = ({ sectionKey }) => {
         {feedback && <Banner feedback={feedback} onClose={() => setFeedback(null)} />}
         {confirmAction && (
           <ConfirmModal
+            {...confirmAction}
             open={!!confirmAction}
             onClose={() => setConfirmAction(null)}
             onConfirm={() => {
@@ -208,7 +213,6 @@ export const ToolsSection = ({ sectionKey }) => {
               setConfirmAction(null)
               fn?.()
             }}
-            {...confirmAction}
           />
         )}
 
@@ -259,12 +263,22 @@ export const ToolsSection = ({ sectionKey }) => {
                 const newPriceVal = priceEdits[p.id] !== undefined ? Number(priceEdits[p.id]) : curPrice
                 const isDirty = priceEdits[p.id] !== undefined && priceEdits[p.id] !== String(curPrice)
                 const margin = newPriceVal > 0 ? (((newPriceVal - cost) / newPriceVal) * 100) : 0
+                const imgUrl = p.imageUrl || p.image
 
                 return (
                   <tr key={p.id} className={`border-b border-slate-800/60 transition ${isDirty ? 'bg-green-500/10' : 'hover:bg-slate-800/30'}`}>
                     <td className="px-4 py-3 font-mono text-xs font-bold text-slate-300">{p.code || '—'}</td>
                     <td className="px-4 py-3 font-mono text-xs text-slate-400">{p.barCode || p.barcode || '—'}</td>
-                    <td className="px-4 py-3 font-semibold text-white">{pName(p)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {imgUrl && !imgUrl.startsWith('blob:') ? (
+                          <img src={imgUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-700" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                        ) : (
+                          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-base ring-1 ring-slate-700" style={{ backgroundColor: 'rgba(119,188,31,0.1)' }}>🥫</span>
+                        )}
+                        <span className="font-semibold text-white">{pName(p)}</span>
+                      </div>
+                    </td>
                     <td className="px-4 py-3 font-medium text-slate-300 font-khmer">{pNameKh(p)}</td>
                     <td className="px-4 py-3 text-right font-mono text-amber-300">${cost.toFixed(2)}</td>
                     <td className="px-4 py-3 text-right font-mono text-slate-400">${curPrice.toFixed(2)}</td>
@@ -337,7 +351,7 @@ export const ToolsSection = ({ sectionKey }) => {
             <div class="bc">${p.barCode || p.barcode || p.code || '8850000000000'}</div>
           </div>
           <div class="footer">
-            <span class="code">${p.code || ''}</span>
+            <span class="code">${p.barCode || p.barcode || p.code || ''}</span>
             <span class="pr">$${Number(p.basePrice ?? 0).toFixed(2)}</span>
           </div>
         </div>`)
@@ -447,7 +461,7 @@ export const ToolsSection = ({ sectionKey }) => {
                 </div>
 
                 <div className="flex items-end justify-between border-t border-slate-800 pt-2">
-                  <span className="font-mono text-xs text-slate-400">{p.code || 'SKU-001'}</span>
+                  <span className="font-mono text-xs text-slate-400">{p.barCode || p.barcode || p.code || '—'}</span>
                   <span className="font-mono text-lg font-black text-green-300">
                     ${Number(p.basePrice ?? 0).toFixed(2)}
                   </span>
@@ -658,6 +672,7 @@ export const ToolsSection = ({ sectionKey }) => {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-slate-700/60 bg-slate-800/50 text-xs font-bold uppercase tracking-wide text-slate-400">
+                <th className="px-4 py-3.5">{t('Barcode', 'បារកូដ')}</th>
                 <th className="px-4 py-3.5">{t('Code', 'កូដ')}</th>
                 <th className="px-4 py-3.5">{t('Product Name', 'ឈ្មោះផលិតផល')}</th>
                 <th className="px-4 py-3.5">{t('Current Attributes / Description', 'លក្ខណៈសម្បត្តិបច្ចុប្បន្ន')}</th>
@@ -666,6 +681,7 @@ export const ToolsSection = ({ sectionKey }) => {
             <tbody>
               {filtered.map((p) => (
                 <tr key={p.id} className="border-b border-slate-800/60 transition hover:bg-slate-800/30">
+                  <td className="px-4 py-3 font-mono text-xs font-bold text-sky-300">{p.barCode || p.barcode || '—'}</td>
                   <td className="px-4 py-3 font-mono text-xs font-bold text-pink-300">{p.code || '—'}</td>
                   <td className="px-4 py-3 font-semibold text-white">{pName(p)}</td>
                   <td className="px-4 py-3">
@@ -945,7 +961,7 @@ export const ToolsSection = ({ sectionKey }) => {
                 <span className="text-slate-600">·</span>
                 <button
                   type="button"
-                  onClick={() => setDraftCostCols(new Set(['name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))}
+                  onClick={() => setDraftCostCols(new Set(['barcode', 'name', 'currentCost', 'projectedCost', 'costDelta', 'retailPrice']))}
                   className="text-slate-400 hover:underline"
                 >
                   {t('Reset Default', 'កំណត់ឡើងវិញ')}
