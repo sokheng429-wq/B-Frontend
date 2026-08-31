@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI, adminSupplierAPI, adminUnitAPI, adminStockDocAPI } from '../../api/api'
+import { adminProductAPI, adminSupplierAPI, adminUnitAPI, adminReceiveDocAPI } from '../../api/api'
 import { nextAverageCost, LOCATIONS } from './stockStore'
 import { Field, TextInput, SelectInput, PrimaryButton, GhostButton, Pill } from './stockUI'
 import './ReceiveProductsCreate.css'
@@ -29,6 +29,7 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
   const t = (en, kh) => (lang === 'en' ? en : kh)
 
   /* ---------- general information ---------- */
+  const [liveProducts, setLiveProducts] = useState(Array.isArray(products) ? products : [])
   const [suppliers, setSuppliers] = useState([])
   const [units, setUnits] = useState([])
   const [code] = useState(() => `GRN-${String(Date.now()).slice(-6)}`)
@@ -44,6 +45,8 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
   /* ---------- product lines ---------- */
   const [lines, setLines] = useState([])
   const [productQuery, setProductQuery] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
+  const searchBoxRef = useRef(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [postedDoc, setPostedDoc] = useState(null) // set after save → print-preview message
@@ -53,20 +56,52 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
   useEffect(() => {
     adminSupplierAPI.getAll().then((res) => setSuppliers(Array.isArray(res?.data) ? res.data : [])).catch(() => {})
     adminUnitAPI.getAll().then((res) => setUnits(Array.isArray(res?.data) ? res.data : [])).catch(() => {})
+    adminProductAPI.getAll()
+      .then((res) => {
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          setLiveProducts(res.data)
+        }
+      })
+      .catch(() => {})
   }, [])
 
-  const productName = (p) => (typeof p.name === 'object' ? p.name?.en : p.name) || `#${p.id}`
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+        setSearchFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [])
+
+  const productName = (p) => {
+    if (!p) return ''
+    if (typeof p.name === 'object' && p.name !== null) {
+      return (lang === 'kh' ? p.name.kh || p.name.en : p.name.en || p.name.kh) || `#${p.id}`
+    }
+    if (lang === 'kh' && p.nameKh) return p.nameKh
+    return p.name || p.nameKh || p.description || `#${p.id}`
+  }
   // show the unit the way it was created — description first (e.g. "Kilogram (kg)")
   const uomLabel = (u) => u?.description || u?.code || ''
   const uomValue = (u) => u?.code || u?.description || String(u?.id ?? '')
 
   /* ---------- product search & add ---------- */
+  const allProductsList = liveProducts.length > 0 ? liveProducts : (Array.isArray(products) ? products : [])
   const matches = (() => {
     const q = productQuery.trim().toLowerCase()
-    if (!q) return []
-    return products.filter((p) =>
-      [p.code, p.barCode, productName(p)].some((v) => String(v || '').toLowerCase().includes(q))
-    ).slice(0, 6)
+    if (!q) {
+      return allProductsList.slice(0, 40)
+    }
+    return allProductsList.filter((p) => {
+      const codeStr = String(p.code || '').toLowerCase()
+      const barCodeStr = String(p.barCode || p.barcode || '').toLowerCase()
+      const nameEnStr = String(typeof p.name === 'object' ? p.name?.en : p.name || '').toLowerCase()
+      const nameKhStr = String(p.nameKh || (typeof p.name === 'object' ? p.name?.kh : '') || '').toLowerCase()
+      const descStr = String(p.description || '').toLowerCase()
+      return codeStr.includes(q) || barCodeStr.includes(q) || nameEnStr.includes(q) || nameKhStr.includes(q) || descStr.includes(q)
+    }).slice(0, 40)
   })()
 
   const addProduct = (p) => {
@@ -78,12 +113,12 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
     setLines([...lines, {
       productId: p.id,
       code: p.code || '',
-      barCode: p.barCode || '',
+      barCode: p.barCode || p.barcode || '',
       name: productName(p),
       imageUrl: p.imageUrl || '',
       onHand: Number(p.onHand) || 0,
       qty: '',
-      cost: '0.00',
+      cost: String(p.standardCost != null ? p.standardCost : (p.averageCost != null ? p.averageCost : '0.00')),
       uom: p.uom || '',
       averageCost: p.averageCost,
       availableStock: p.availableStock,
@@ -91,6 +126,7 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
       serials: [],
     }])
     setProductQuery('')
+    setSearchFocused(false)
   }
 
   const patchLine = (i, patch) =>
@@ -141,7 +177,7 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
           serials: (l.serials || []).join(', '),
         })),
       }
-      await adminStockDocAPI.create(docPayload)
+      await adminReceiveDocAPI.create(docPayload)
     } catch (err) {
       console.warn('Backend stock document create failed, fallback to direct product update', err)
       for (const l of lines) {
@@ -266,39 +302,73 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
 
       {/* ---------- product side ---------- */}
       <section className="overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/80 shadow-xl shadow-black/20">
-        <h2 className="border-b border-slate-700/60 px-5 py-4 text-sm font-extrabold uppercase tracking-wide text-white">
-          {t('Product', 'ផលិតផល')}
-        </h2>
+        <div className="flex items-center justify-between border-b border-slate-700/60 px-5 py-4">
+          <h2 className="text-sm font-extrabold uppercase tracking-wide text-white">
+            {t('Product', 'ផលិតផល')}
+          </h2>
+          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 border border-slate-700/60">
+            {t('Store Catalog', 'កាតាឡុក')}: <span className="text-green-300 font-mono font-bold">{allProductsList.length}</span> {t('products available', 'ផលិតផល')}
+          </span>
+        </div>
 
         {/* product search — only products not yet added appear */}
-        <div className="relative border-b border-slate-700/60 p-4">
+        <div ref={searchBoxRef} className="relative border-b border-slate-700/60 p-4">
           <div className="relative">
             <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"><SearchIcon /></span>
             <input
               type="text"
               value={productQuery}
-              onChange={(e) => setProductQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onChange={(e) => {
+                setProductQuery(e.target.value)
+                setSearchFocused(true)
+              }}
               onKeyDown={(e) => { if (e.key === 'Enter' && matches.length) addProduct(matches[0]) }}
               placeholder={t('Search product by code / barcode / description…', 'ស្វែងរកផលិតផលតាមកូដ / បាកូដ / ពណ៌នា…')}
               className="w-full rounded-lg border border-slate-700/70 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10"
             />
           </div>
-          {matches.length > 0 && (
-            <ul className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50">
-              {matches.map((p) => (
-                <li key={p.id}>
-                  <button
-                    type="button"
-                    onClick={() => addProduct(p)}
-                    className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-slate-200 transition hover:bg-slate-800"
-                  >
-                    <span className="font-mono text-xs text-green-300">{p.code || `#${p.id}`}</span>
-                    <span className="truncate">{productName(p)}</span>
-                    <span className="ml-auto text-xs text-slate-500">{t('on hand', 'នៅលើដៃ')}: {Number(p.onHand) || 0}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          {(searchFocused || productQuery.trim()) && matches.length > 0 && (
+            <div className="absolute left-4 right-4 z-30 mt-1 max-h-72 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/80 flex flex-col">
+              <div className="flex items-center justify-between px-4 py-2 text-[11px] font-semibold text-slate-400 bg-slate-950 border-b border-slate-800">
+                <span>{productQuery.trim() ? t(`Search Results (${matches.length})`, `លទ្ធផលស្វែងរក (${matches.length})`) : t(`All Catalog Products (${allProductsList.length})`, `ផលិតផលទាំងអស់ក្នុងប្រព័ន្ធ (${allProductsList.length})`)}</span>
+                <span className="text-slate-500">{t('Click item to add', 'ចុចដើម្បីបន្ថែម')}</span>
+              </div>
+              <ul className="overflow-y-auto divide-y divide-slate-800/60 max-h-60">
+                {matches.map((p) => (
+                  <li key={p.id}>
+                    <button
+                      type="button"
+                      onClick={() => addProduct(p)}
+                      className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-sm text-slate-200 transition hover:bg-slate-800"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {p.imageUrl && !p.imageUrl.startsWith('blob:') && (
+                          <img src={p.imageUrl} alt="" className="h-7 w-7 rounded object-cover border border-slate-700/60 shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-white truncate">{productName(p)}</span>
+                            {p.nameKh && typeof p.name !== 'object' && lang !== 'kh' && (
+                              <span className="text-xs text-slate-400 truncate">({p.nameKh})</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400 mt-0.5">
+                            {p.code && <span className="bg-slate-800 px-1.5 py-0.2 rounded text-slate-300">Code: {p.code}</span>}
+                            {(p.barCode || p.barcode) && <span className="bg-slate-800 px-1.5 py-0.2 rounded text-slate-300">Barcode: {p.barCode || p.barcode}</span>}
+                            {p.uom && <span className="text-slate-500">· {p.uom}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-semibold text-emerald-400 block">{t('on hand', 'ស្តុក')}: {Number(p.onHand) || 0}</span>
+                        {p.basePrice != null && <span className="text-[11px] text-slate-400 font-mono">${Number(p.basePrice).toFixed(2)}</span>}
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
           {error && (
             <p className="mt-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300">{error}</p>
@@ -327,7 +397,8 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
                 <tr>
                   <td colSpan={10} className="px-4 py-14 text-center">
                     <span className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800"><SearchIcon /></span>
-                    <p className="text-sm text-slate-400">{t('No products added yet — search above to add.', 'មិនទាន់បានបន្ថែមផលិតផល — ស្វែងរកខាងលើដើម្បីបន្ថែម។')}</p>
+                    <p className="text-sm font-semibold text-slate-300">{t('No products added yet — search above to add.', 'មិនទាន់បានបន្ថែមផលិតផល — ស្វែងរកខាងលើដើម្បីបន្ថែម។')}</p>
+                    <p className="mt-1 text-xs text-slate-500">{t(`You have ${allProductsList.length} product(s) available in your store catalog.`, `អ្នកមាន ${allProductsList.length} ផលិតផលនៅក្នុងកាតាឡុកហាងរបស់អ្នក។`)}</p>
                   </td>
                 </tr>
               ) : (
@@ -408,8 +479,15 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
         </div>
 
         {/* footer actions */}
-        <div className="flex items-center justify-between gap-3 border-t border-slate-700/60 px-5 py-4">
-          <GhostButton onClick={onClose}>{t('Cancel', 'បោះបង់')}</GhostButton>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-700/60 px-5 py-4 bg-slate-900/60">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <GhostButton onClick={onClose}>{t('Cancel', 'បោះបង់')}</GhostButton>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span>{t('Total Products:', 'ផលិតផលសរុប:')} <strong className="text-white font-mono">{allProductsList.length}</strong></span>
+              <span>•</span>
+              <span>{t('Added:', 'បានបន្ថែម:')} <strong className="text-green-300 font-mono">{lines.length}</strong> {t('items', 'មុខទំនិញ')} ({lines.reduce((sum, l) => sum + (Number(l.qty) || 0), 0)} {t('units', 'ចំនួន')})</span>
+            </div>
+          </div>
           <PrimaryButton onClick={save} disabled={saving || !lines.length}>
             {saving ? t('Saving…', 'កំពុងរក្សាទុក…') : t('Save', 'រក្សាទុក')}
           </PrimaryButton>

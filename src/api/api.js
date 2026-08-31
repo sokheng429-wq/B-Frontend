@@ -412,14 +412,46 @@ export const dashboardAPI = {
   getStats: () => request('/dashboard/stats'),
 }
 
-// ===== ADMIN STOCK DOCUMENTS (Stocks → Receive / Issue / Adjust) =====
+// ===== ADMIN RECEIVE DOCUMENTS (Stocks → Receive Products) =====
+export const adminReceiveDocAPI = {
+  getAll: () => request('/admin/receive-documents'),
+  getById: (id) => request(`/admin/receive-documents/${id}`),
+  create: (data) => request('/admin/receive-documents', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/receive-documents/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN ISSUE DOCUMENTS (Stocks → Issue Products) =====
+export const adminIssueDocAPI = {
+  getAll: () => request('/admin/issue-documents'),
+  getById: (id) => request(`/admin/issue-documents/${id}`),
+  create: (data) => request('/admin/issue-documents', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/issue-documents/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN ADJUSTMENT DOCUMENTS (Stocks → Adjustment Products) =====
+export const adminAdjustmentDocAPI = {
+  getAll: () => request('/admin/adjustment-documents'),
+  getById: (id) => request(`/admin/adjustment-documents/${id}`),
+  create: (data) => request('/admin/adjustment-documents', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/adjustment-documents/${id}`, { method: 'DELETE' }),
+}
+
+// ===== ADMIN STOCK DOCUMENTS (Unified / Fallback) =====
 export const adminStockDocAPI = {
   getAll: (docType) => {
+    if (docType === 'RECEIVE') return adminReceiveDocAPI.getAll()
+    if (docType === 'ISSUE') return adminIssueDocAPI.getAll()
+    if (docType === 'ADJUST') return adminAdjustmentDocAPI.getAll()
     const qs = docType ? `?docType=${encodeURIComponent(docType)}` : ''
     return request(`/admin/stock-documents${qs}`)
   },
   getByProduct: (productId) => request(`/admin/stock-documents/by-product/${productId}`),
-  create: (data) => request('/admin/stock-documents', { method: 'POST', body: JSON.stringify(data) }),
+  create: (data) => {
+    if (data.docType === 'RECEIVE') return adminReceiveDocAPI.create(data)
+    if (data.docType === 'ISSUE') return adminIssueDocAPI.create(data)
+    if (data.docType === 'ADJUST') return adminAdjustmentDocAPI.create(data)
+    return request('/admin/stock-documents', { method: 'POST', body: JSON.stringify(data) })
+  },
   delete: (id) => request(`/admin/stock-documents/${id}`, { method: 'DELETE' }),
 }
 

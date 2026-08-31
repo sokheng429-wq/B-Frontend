@@ -175,6 +175,10 @@ export const TransactionSection = ({ sectionKey }) => {
   const [docVisibleCols, setDocVisibleCols] = useState(() => new Set(['products', 'date', 'totalCost', 'type', 'outlet', 'qty', 'diff', 'reference', 'issuedBy', 'note', 'status']))
   const [docColDraft, setDocColDraft] = useState(docVisibleCols)
 
+  // Date range filter
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+
   // ledgers — shared transfer workflow + per-op posting history
   const [requests, requestApi] = useCollection('tr-requests')
   const [localHistory, historyApi] = useCollection(`ledger-${sectionKey}`)
@@ -332,7 +336,10 @@ export const TransactionSection = ({ sectionKey }) => {
   }
 
   const dq = docQuery.trim().toLowerCase()
-  const filteredDocs = !dq ? docs : docs.filter((d) => {
+  const filteredDocs = docs.filter((d) => {
+    if (fromDate && d.date && d.date < fromDate) return false
+    if (toDate && d.date && d.date > toDate) return false
+    if (!dq) return true
     if (docSearchBy === 'code') return String(d.code || '').toLowerCase().includes(dq)
     if (docSearchBy === 'type') return String(d.type || '').toLowerCase().includes(dq)
     if (docSearchBy === 'outlet') return String(d.outlet || '').toLowerCase().includes(dq)
@@ -435,20 +442,23 @@ export const TransactionSection = ({ sectionKey }) => {
   if (op.kind === 'receive') {
     const q = receiveQuery.trim().toLowerCase()
     const match = (doc) => {
+      if (fromDate && doc.date && doc.date < fromDate) return false
+      if (toDate && doc.date && doc.date > toDate) return false
+      if (!q) return true
       switch (receiveSearchBy) {
         case 'code': return String(doc.code || doc.docNo || '').toLowerCase().includes(q)
         case 'supplier': return String(doc.supplier || '').toLowerCase().includes(q)
         case 'receiveType': return String(doc.receiveType || '').toLowerCase().includes(q)
         case 'receivedBy': return String(doc.receivedBy || '').toLowerCase().includes(q)
         default:
-          return !q || (
+          return (
             [doc.code, doc.docNo, doc.supplier, doc.receiveType, doc.reference, doc.receivedBy]
               .some((v) => String(v || '').toLowerCase().includes(q)) ||
             (doc.lines || []).some((l) => String(l.name || '').toLowerCase().includes(q))
           )
       }
     }
-    filteredReceiveDocs = q ? history.filter(match) : history
+    filteredReceiveDocs = history.filter(match)
   }
 
   const toggleReceiveCol = (key) => {
@@ -637,6 +647,40 @@ export const TransactionSection = ({ sectionKey }) => {
               />
             </div>
 
+            {/* Date range filter */}
+            <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                <span className="text-slate-400 font-medium">{t('From', 'ពី')}:</span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  aria-label={t('From Date', 'កាលបរិច្ឆេទចាប់ពី')}
+                  className="bg-transparent text-white outline-none cursor-pointer [color-scheme:dark] text-xs font-mono"
+                />
+              </div>
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                <span className="text-slate-400 font-medium">{t('To', 'ដល់')}:</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  aria-label={t('To Date', 'កាលបរិច្ឆេទដល់')}
+                  className="bg-transparent text-white outline-none cursor-pointer [color-scheme:dark] text-xs font-mono"
+                />
+              </div>
+              {(fromDate || toDate) && (
+                <button
+                  type="button"
+                  onClick={() => { setFromDate(''); setToDate('') }}
+                  className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-2 text-xs font-semibold text-rose-300 hover:bg-slate-700 hover:text-white transition shrink-0"
+                  title={t('Clear Date Filter', 'សម្អាតកាលបរិច្ឆេទ')}
+                >
+                  ✕ {t('Clear', 'សម្អាត')}
+                </button>
+              )}
+            </div>
+
             <button type="button" onClick={exportReceiveList} title={t('Export File Excel', 'នាំចេញ Excel')} className={`${ghostBtnCls}`}>
               <DownloadIcon /> <span className="hidden xl:inline">{t('Export File Excel', 'នាំចេញ Excel')}</span>
             </button>
@@ -733,6 +777,40 @@ export const TransactionSection = ({ sectionKey }) => {
                 placeholder={t('Type to search…', 'បញ្ចូលដើម្បីស្វែងរក…')}
                 className="w-full rounded-lg border border-slate-700/70 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10"
               />
+            </div>
+
+            {/* Date range filter */}
+            <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                <span className="text-slate-400 font-medium">{t('From', 'ពី')}:</span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  aria-label={t('From Date', 'កាលបរិច្ឆេទចាប់ពី')}
+                  className="bg-transparent text-white outline-none cursor-pointer [color-scheme:dark] text-xs font-mono"
+                />
+              </div>
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 px-2.5 py-2 text-xs text-slate-300">
+                <span className="text-slate-400 font-medium">{t('To', 'ដល់')}:</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  aria-label={t('To Date', 'កាលបរិច្ឆេទដល់')}
+                  className="bg-transparent text-white outline-none cursor-pointer [color-scheme:dark] text-xs font-mono"
+                />
+              </div>
+              {(fromDate || toDate) && (
+                <button
+                  type="button"
+                  onClick={() => { setFromDate(''); setToDate('') }}
+                  className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-2 text-xs font-semibold text-rose-300 hover:bg-slate-700 hover:text-white transition shrink-0"
+                  title={t('Clear Date Filter', 'សម្អាតកាលបរិច្ឆេទ')}
+                >
+                  ✕ {t('Clear', 'សម្អាត')}
+                </button>
+              )}
             </div>
 
             <button type="button" onClick={exportDocs} title={t('Export File Excel', 'នាំចេញ Excel')} className={`${ghostBtnCls}`}>

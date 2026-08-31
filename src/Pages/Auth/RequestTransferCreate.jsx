@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
-import { adminUnitAPI, adminTransferAPI } from '../../api/api'
+import { adminUnitAPI, adminTransferAPI, adminProductAPI } from '../../api/api'
 import { Field, TextInput, SelectInput, PrimaryButton, GhostButton, Pill } from './stockUI'
 import './ReceiveProductsCreate.css'
 
@@ -65,6 +65,7 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
   const [userName, setUserName] = useState(() => user?.fullName || user?.username || 'Sokheng Thoeun')
 
   /* ---------- Product Lines State ---------- */
+  const [liveProducts, setLiveProducts] = useState(Array.isArray(products) ? products : [])
   const [units, setUnits] = useState([])
   const [lines, setLines] = useState([])
   const [productQuery, setProductQuery] = useState('')
@@ -76,20 +77,37 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
     adminUnitAPI.getAll()
       .then((res) => setUnits(Array.isArray(res?.data) ? res.data : []))
       .catch(() => {})
+    adminProductAPI.getAll()
+      .then((res) => {
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          setLiveProducts(res.data)
+        }
+      })
+      .catch(() => {})
   }, [])
 
-  const productName = (p) => (typeof p.name === 'object' ? p.name?.en : p.name) || `#${p.id}`
+  const productName = (p) => {
+    if (!p) return ''
+    if (typeof p.name === 'object' && p.name !== null) {
+      return (lang === 'kh' ? p.name.kh || p.name.en : p.name.en || p.name.kh) || `#${p.id}`
+    }
+    if (lang === 'kh' && p.nameKh) return p.nameKh
+    return p.name || p.nameKh || p.description || `#${p.id}`
+  }
 
   /* ---------- Product Search (Code | Barcode | Description) ---------- */
+  const allProductsList = liveProducts.length > 0 ? liveProducts : (Array.isArray(products) ? products : [])
   const matches = (() => {
     const q = productQuery.trim().toLowerCase()
     if (!q) return []
-    return products.filter((p) => {
+    return allProductsList.filter((p) => {
       const codeStr = String(p.code || '').toLowerCase()
       const barCodeStr = String(p.barCode || p.barcode || '').toLowerCase()
-      const descStr = String(productName(p) || '').toLowerCase()
-      return codeStr.includes(q) || barCodeStr.includes(q) || descStr.includes(q)
-    }).slice(0, 8)
+      const nameEnStr = String(typeof p.name === 'object' ? p.name?.en : p.name || '').toLowerCase()
+      const nameKhStr = String(p.nameKh || (typeof p.name === 'object' ? p.name?.kh : '') || '').toLowerCase()
+      const descStr = String(p.description || '').toLowerCase()
+      return codeStr.includes(q) || barCodeStr.includes(q) || nameEnStr.includes(q) || nameKhStr.includes(q) || descStr.includes(q)
+    }).slice(0, 10)
   })()
 
   const addProduct = (p) => {
@@ -681,7 +699,10 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-700/60 bg-slate-950/60 px-6 py-4">
           <div className="flex items-center gap-6 text-sm">
             <span className="text-slate-400">
-              {t('Total Items:', 'ចំនួនមុខទំនិញសរុប:')} <strong className="text-white">{lines.length}</strong>
+              {t('Total in Store:', 'ផលិតផលក្នុងហាង:')} <strong className="text-white font-mono">{allProductsList.length}</strong>
+            </span>
+            <span className="text-slate-400">
+              {t('Total Items Added:', 'មុខទំនិញបានបន្ថែម:')} <strong className="text-green-300 font-mono">{lines.length}</strong>
             </span>
             <span className="text-slate-400">
               {t('Total Requested Qty:', 'បរិមាណស្នើសុំសរុប:')} <strong className="text-green-300 font-mono">{totalQty}</strong>

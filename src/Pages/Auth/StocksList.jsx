@@ -211,10 +211,8 @@ export const StocksList = () => {
     barCode: item.barCode ?? '',
     nameKh: typeof item.nameKh === 'string' ? item.nameKh : '',
     description: typeof item.description === 'string' ? item.description : '',
-    productGroup: item.productGroup ?? '',
-    // demo catalog has no real quantities — derive a stable pseudo stock per
-    // id so KPI/status filters stay meaningful there
-    onHand: item.onHand ?? item.stock ?? ((Number(item.id) || 0) % 14) - 2,
+    // onHand defaults to 0 for newly created products until stock is added
+    onHand: Number(item.onHand ?? item.stock ?? 0) || 0,
     uom: item.uom ?? '',
     basePrice: Number(item.basePrice ?? item.price) || 0,
     averageCost: item.averageCost ?? '',
