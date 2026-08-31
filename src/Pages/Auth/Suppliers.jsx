@@ -7,6 +7,7 @@ import { useNotifications } from '../../context/NotificationContext'
 import { adminSupplierAPI, adminSupplierGroupAPI } from '../../api/api'
 import { COUNTRIES } from '../../data/countries'
 import { CountryFlag } from '../../components/CountryFlag'
+import { exportStyledExcel } from '../../utils/excelExport'
 import './Suppliers.css'
 
 // Theme constants — B'Groceries dark admin palette.
@@ -369,21 +370,40 @@ export const Suppliers = () => {
   const exportTemplate = () => {
     const header = ['Contact Name', 'Supplier Name', 'Phone', 'Email', 'Current Balance', 'Debit/ Deposit Payment Term', 'Purchase Person', 'Address', 'Active']
     const example = ['Sok Dara', 'Siem Reap Farms', '+855 12 345 678', 'dara@farm.kh', 1500.0, 'NET-30', 'Sok Dara', 'St 5, Siem Reap, Cambodia', true]
-    downloadExcel('b-groceries-supplier-template.xlsx', 'Suppliers', header, [example])
+    exportStyledExcel({
+      filename: 'b-groceries-supplier-template.xlsx',
+      sheetName: 'Suppliers Template',
+      title: 'SUPPLIER BULK IMPORT TEMPLATE',
+      subtitle: 'Use this template to import new vendor suppliers',
+      headers: header,
+      data: [example],
+    })
   }
 
   const exportCurrent = () => {
     const cols = COLUMN_DEFS.filter((c) => visibleCols.has(c.key))
     const header = cols.map((c) => c.label.en)
-    const rows = (advancedActive ? furtherFiltered : filtered).map((s) =>
+    const dataset = advancedActive ? furtherFiltered : filtered
+    const rows = dataset.map((s) =>
       cols.map((c) => {
         const sourceKey = c.derivedKey || c.key
         if (c.key === 'address') return [s.addressLine1, s.addressCity, s.addressState, s.addressCountry].filter(Boolean).join(', ')
         if (c.key === 'contactName') return [s.contactFirstName, s.contactLastName].filter(Boolean).join(' ') || s.name
-        return c.bool ? (s[sourceKey] ? 'true' : 'false') : (s[sourceKey] ?? '')
+        return c.bool ? (s[sourceKey] ? 'Active' : 'Inactive') : (s[sourceKey] ?? '')
       })
     )
-    downloadExcel('b-groceries-suppliers.xlsx', 'Suppliers', header, rows)
+    exportStyledExcel({
+      filename: 'b-groceries-suppliers.xlsx',
+      sheetName: 'Suppliers',
+      title: 'SUPPLIER DIRECTORY & BALANCES REPORT',
+      subtitle: `Supplier Group: ${supplierGroup} · Status: ${status}`,
+      headers: header,
+      data: rows,
+      summary: {
+        'Total Suppliers': rows.length,
+        'Active': dataset.filter((s) => s.active !== false).length,
+      },
+    })
   }
 
   const handleImportFile = async (e) => {

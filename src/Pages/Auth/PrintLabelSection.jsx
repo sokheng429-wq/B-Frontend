@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI, adminProductGroupAPI, adminBrandAPI } from '../../api/api'
+import { adminProductAPI, adminProductGroupAPI, adminBrandAPI, adminCategoryAPI, adminUnitAPI } from '../../api/api'
 import copyIcon from '../../assets/icon/3dicons-copy-dynamic-color.png'
 import { GhostButton, Modal, ConfirmModal } from './stockUI'
 
@@ -12,10 +12,12 @@ export const PrintLabelSection = () => {
   const { lang } = useLanguage()
   const t = (en, kh) => (lang === 'en' ? en : kh)
 
-  // Master Data
+  // Master Data (Live from Backend)
   const [catalogProducts, setCatalogProducts] = useState([])
   const [groups, setGroups] = useState([])
   const [brands, setBrands] = useState([])
+  const [categories, setCategories] = useState([])
+  const [units, setUnits] = useState([])
 
   // Configuration Panel States
   const [layout, setLayout] = useState('1col') // '1col' | '2col' | 'a4'
@@ -34,30 +36,71 @@ export const PrintLabelSection = () => {
   // Add Product Modal State
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [searchModalQuery, setSearchModalQuery] = useState('')
+  const [modalGroupFilter, setModalGroupFilter] = useState('')
+  const [modalBrandFilter, setModalBrandFilter] = useState('')
 
   // Layout View Mode (table vs card grid)
   const [viewMode, setViewMode] = useState('table') // 'table' | 'grid'
   const [toast, setToast] = useState(null)
   const [confirmAction, setConfirmAction] = useState(null)
 
+  const getGroupLabel = (g) => (lang === 'kh' && g?.nameKh) ? g.nameKh : (g?.description || g?.name || g?.code || '')
+  const getGroupVal = (g) => g?.description || g?.name || g?.code || String(g?.id || '')
+  const getBrandLabel = (b) => (lang === 'kh' && b?.nameKh) ? b.nameKh : (b?.description || b?.name || b?.code || '')
+  const getBrandVal = (b) => b?.description || b?.name || b?.code || String(b?.id || '')
+
   useEffect(() => {
     Promise.all([
       adminProductAPI.getAll().catch(() => ({ data: [] })),
       adminProductGroupAPI.getAll().catch(() => ({ data: [] })),
       adminBrandAPI.getAll().catch(() => ({ data: [] })),
-    ]).then(([prodRes, grpRes, brRes]) => {
+      adminCategoryAPI.getAll().catch(() => ({ data: [] })),
+      adminUnitAPI.getAll().catch(() => ({ data: [] })),
+    ]).then(([prodRes, grpRes, brRes, catRes, unitRes]) => {
       const prods = Array.isArray(prodRes?.data) ? prodRes.data : []
       setCatalogProducts(prods)
       setGroups(Array.isArray(grpRes?.data) ? grpRes.data : [])
       setBrands(Array.isArray(brRes?.data) ? brRes.data : [])
+      setCategories(Array.isArray(catRes?.data) ? catRes.data : [])
+      setUnits(Array.isArray(unitRes?.data) ? unitRes.data : [])
 
       // Seed initial 3 items for demonstration
       if (prods.length > 0) {
-        setPrintQueue(prods.slice(0, 3).map((p) => ({
+        const seeded = prods.slice(0, 3).map((p) => ({
           ...p,
           copies: 1,
           country: p.country || p.origin || 'Cambodia',
-        })))
+        }))
+        setPrintQueue(seeded)
+        
+        // Auto-select initial product's group and brand
+        const first = seeded[0]
+        if (first) {
+          const rawG = first.productGroup || first.group || ''
+          const grpList = Array.isArray(grpRes?.data) ? grpRes.data : []
+          if (rawG) {
+            const foundG = grpList.find((g) =>
+              String(g.id) === rawG ||
+              String(g.code || '').toLowerCase() === rawG.toLowerCase() ||
+              String(g.description || '').toLowerCase() === rawG.toLowerCase() ||
+              String(g.name || '').toLowerCase() === rawG.toLowerCase() ||
+              String(g.nameKh || '').toLowerCase() === rawG.toLowerCase()
+            )
+            setSelectedGroup(foundG ? (foundG.description || foundG.code || foundG.id) : rawG)
+          }
+          const rawB = first.brand || ''
+          const brList = Array.isArray(brRes?.data) ? brRes.data : []
+          if (rawB) {
+            const foundB = brList.find((b) =>
+              String(b.id) === rawB ||
+              String(b.code || '').toLowerCase() === rawB.toLowerCase() ||
+              String(b.description || '').toLowerCase() === rawB.toLowerCase() ||
+              String(b.name || '').toLowerCase() === rawB.toLowerCase() ||
+              String(b.nameKh || '').toLowerCase() === rawB.toLowerCase()
+            )
+            setSelectedBrand(foundB ? (foundB.description || foundB.code || foundB.id) : rawB)
+          }
+        }
       }
     })
   }, [])
@@ -274,29 +317,124 @@ export const PrintLabelSection = () => {
     win.document.close()
   }
 
+  const selectQueueItem = (idx, customList = null) => {
+    const list = customList || printQueue
+    setPreviewProductIdx(idx)
+    const item = list[idx]
+    if (!item) return
+
+    // Sync Product Group
+    const rawGrp = item.productGroup || item.group || ''
+    if (rawGrp) {
+      const pGrp = String(rawGrp).toLowerCase().trim()
+      const foundG = groups.find((g) =>
+        String(g.id) === pGrp ||
+        String(g.code || '').toLowerCase().trim() === pGrp ||
+        String(g.description || '').toLowerCase().trim() === pGrp ||
+        String(g.name || '').toLowerCase().trim() === pGrp ||
+        String(g.nameKh || '').toLowerCase().trim() === pGrp
+      )
+      setSelectedGroup(foundG ? getGroupVal(foundG) : rawGrp)
+    } else {
+      setSelectedGroup('')
+    }
+
+    // Sync Brand
+    const rawBrand = item.brand || ''
+    if (rawBrand) {
+      const pBr = String(rawBrand).toLowerCase().trim()
+      const foundB = brands.find((b) =>
+        String(b.id) === pBr ||
+        String(b.code || '').toLowerCase().trim() === pBr ||
+        String(b.description || '').toLowerCase().trim() === pBr ||
+        String(b.name || '').toLowerCase().trim() === pBr ||
+        String(b.nameKh || '').toLowerCase().trim() === pBr
+      )
+      setSelectedBrand(foundB ? getBrandVal(foundB) : rawBrand)
+    } else {
+      setSelectedBrand('')
+    }
+  }
+
   const patchQueueItem = (idx, patch) => {
     setPrintQueue(printQueue.map((it, i) => (i === idx ? { ...it, ...patch } : it)))
   }
 
   const removeQueueItem = (idx) => {
-    setPrintQueue(printQueue.filter((_, i) => i !== idx))
+    const next = printQueue.filter((_, i) => i !== idx)
+    setPrintQueue(next)
+    if (next.length > 0) {
+      const nextIdx = Math.min(previewProductIdx, next.length - 1)
+      selectQueueItem(nextIdx, next)
+    } else {
+      setSelectedGroup('')
+      setSelectedBrand('')
+    }
   }
 
   const addProductToQueue = (p) => {
-    if (printQueue.some((it) => String(it.id) === String(p.id))) {
-      // increase copy
-      setPrintQueue(printQueue.map((it) => (String(it.id) === String(p.id) ? { ...it, copies: (Number(it.copies) || 1) + 1 } : it)))
+    const existingIdx = printQueue.findIndex((it) => String(it.id) === String(p.id))
+    let nextQueue
+    let targetIdx
+    if (existingIdx >= 0) {
+      nextQueue = printQueue.map((it, i) => (i === existingIdx ? { ...it, copies: (Number(it.copies) || 1) + 1 } : it))
+      targetIdx = existingIdx
     } else {
-      setPrintQueue([
-        ...printQueue,
-        {
+      const newItem = {
+        ...p,
+        copies: 1,
+        country: p.country || p.origin || 'Cambodia',
+      }
+      nextQueue = [...printQueue, newItem]
+      targetIdx = nextQueue.length - 1
+    }
+    setPrintQueue(nextQueue)
+    selectQueueItem(targetIdx, nextQueue)
+    setToast({ tone: 'green', message: t(`✓ Added ${pName(p)} to print queue`, `✓ បានបន្ថែម ${pName(p)} ទៅក្នុងបញ្ជីបោះពុម្ព`) })
+  }
+
+  const matchGroup = (p, gVal) => {
+    if (!gVal) return true
+    const gLower = gVal.toLowerCase()
+    const pGroup = String(p.productGroup || p.group || '').toLowerCase()
+    return pGroup === gLower || pGroup.includes(gLower)
+  }
+
+  const matchBrand = (p, bVal) => {
+    if (!bVal) return true
+    const bLower = bVal.toLowerCase()
+    const pBrand = String(p.brand || '').toLowerCase()
+    return pBrand === bLower || pBrand.includes(bLower)
+  }
+
+  const matchingGroupBrandProducts = useMemo(() => {
+    if (!selectedGroup && !selectedBrand) return []
+    return catalogProducts.filter((p) => matchGroup(p, selectedGroup) && matchBrand(p, selectedBrand))
+  }, [catalogProducts, selectedGroup, selectedBrand])
+
+  const addAllMatchingToQueue = () => {
+    if (matchingGroupBrandProducts.length === 0) return
+    const nextQueue = [...printQueue]
+    matchingGroupBrandProducts.forEach((p) => {
+      const existing = nextQueue.find((it) => String(it.id) === String(p.id))
+      if (existing) {
+        existing.copies = (Number(existing.copies) || 1) + 1
+      } else {
+        nextQueue.push({
           ...p,
           copies: 1,
           country: p.country || p.origin || 'Cambodia',
-        },
-      ])
-    }
-    setToast({ tone: 'green', message: t(`✓ Added ${pName(p)} to print queue`, `✓ បានបន្ថែម ${pName(p)} ទៅក្នុងបញ្ជីបោះពុម្ព`) })
+        })
+      }
+    })
+    setPrintQueue(nextQueue)
+    setToast({
+      tone: 'green',
+      message: t(
+        `✓ Added ${matchingGroupBrandProducts.length} matching products to print queue.`,
+        `✓ បានបន្ថែម ${matchingGroupBrandProducts.length} ផលិតផលត្រូវគ្នាក្នុងបញ្ជីបោះពុម្ព។`
+      ),
+    })
   }
 
   // Summary Metrics
@@ -307,16 +445,18 @@ export const PrintLabelSection = () => {
   // Filtered Catalog for Add Modal
   const modalFilteredProducts = useMemo(() => {
     const q = searchModalQuery.trim().toLowerCase()
-    if (!q) return catalogProducts
     return catalogProducts.filter((p) => {
-      return (
+      const matchesQ = !q || (
         String(p.code || '').toLowerCase().includes(q) ||
         String(p.barCode || p.barcode || '').toLowerCase().includes(q) ||
         String(pName(p)).toLowerCase().includes(q) ||
         String(pNameKh(p)).toLowerCase().includes(q)
       )
+      const matchesG = matchGroup(p, modalGroupFilter)
+      const matchesB = matchBrand(p, modalBrandFilter)
+      return matchesQ && matchesG && matchesB
     })
-  }, [catalogProducts, searchModalQuery])
+  }, [catalogProducts, searchModalQuery, modalGroupFilter, modalBrandFilter])
 
   return (
     <div className="space-y-6">
@@ -326,12 +466,8 @@ export const PrintLabelSection = () => {
          ========================================================================= */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-slate-800 pb-5">
         <div>
-          {/* Breadcrumb with Home Icon */}
+          {/* Breadcrumb */}
           <nav className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-            <Link to="/" className="inline-flex items-center gap-1.5 text-slate-400 transition hover:text-green-400">
-              <span>🏠</span> {t('Home', 'ទំព័រដើម')}
-            </Link>
-            <span className="text-slate-600">/</span>
             <Link to="/admin/products" className="text-slate-400 transition hover:text-green-400">
               {t('Stocks', 'ស្តុក')}
             </Link>
@@ -610,8 +746,9 @@ export const PrintLabelSection = () => {
 
                 {/* Product Group */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    {t('Product Group', 'ក្រុមផលិតផល')}
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                    <span>{t('Product Group', 'ក្រុមផលិតផល')}</span>
+                    {groups.length > 0 && <span className="text-[10px] text-purple-400 font-mono">({groups.length} live)</span>}
                   </label>
                   <select
                     value={selectedGroup}
@@ -619,18 +756,23 @@ export const PrintLabelSection = () => {
                     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-white outline-none focus:border-purple-400"
                   >
                     <option value="">{t('All Groups', 'គ្រប់ក្រុមផលិតផល')}</option>
-                    {groups.map((g) => (
-                      <option key={g.id || g.code} value={g.id || g.name}>
-                        {g.name}
-                      </option>
-                    ))}
+                    {groups.map((g) => {
+                      const label = getGroupLabel(g)
+                      const val = getGroupVal(g)
+                      return (
+                        <option key={g.id || g.code || val} value={val}>
+                          {label}
+                        </option>
+                      )
+                    })}
                   </select>
                 </div>
 
                 {/* Brand */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    {t('Brand', 'ម៉ាកយីហោ')}
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+                    <span>{t('Brand', 'ម៉ាកយីហោ')}</span>
+                    {brands.length > 0 && <span className="text-[10px] text-purple-400 font-mono">({brands.length} live)</span>}
                   </label>
                   <select
                     value={selectedBrand}
@@ -638,13 +780,38 @@ export const PrintLabelSection = () => {
                     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-bold text-white outline-none focus:border-purple-400"
                   >
                     <option value="">{t('All Brands', 'គ្រប់ម៉ាក')}</option>
-                    {brands.map((b) => (
-                      <option key={b.id || b.name} value={b.id || b.name}>
-                        {b.name}
-                      </option>
-                    ))}
+                    {brands.map((b) => {
+                      const label = getBrandLabel(b)
+                      const val = getBrandVal(b)
+                      return (
+                        <option key={b.id || b.code || val} value={val}>
+                          {label}
+                        </option>
+                      )
+                    })}
                   </select>
                 </div>
+
+                {/* Quick Matching Products Banner when Group or Brand is chosen */}
+                {(selectedGroup || selectedBrand) && (
+                  <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-purple-500/40 bg-purple-500/10 p-3.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🏷️</span>
+                      <span className="text-xs font-bold text-purple-200">
+                        {t('Found', 'បានរកឃើញ')} <strong className="text-white font-mono text-sm">{matchingGroupBrandProducts.length}</strong> {t('product(s) in catalog matching selected filter.', 'ផលិតផលក្នុងបញ្ជីត្រូវនឹងលក្ខខណ្ឌ។')}
+                      </span>
+                    </div>
+                    {matchingGroupBrandProducts.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={addAllMatchingToQueue}
+                        className="rounded-xl bg-purple-600 px-3.5 py-1.5 text-xs font-extrabold text-white shadow-md shadow-purple-600/30 transition hover:bg-purple-500 hover:scale-105 active:scale-95"
+                      >
+                        + {t('Add All to Print Queue', 'បន្ថែមទាំងអស់ទៅក្នុងបញ្ជី')}
+                      </button>
+                    )}
+                  </div>
+                )}
 
               </div>
 
@@ -766,7 +933,7 @@ export const PrintLabelSection = () => {
                     return (
                       <tr
                         key={item.id || idx}
-                        onClick={() => setPreviewProductIdx(idx)}
+                        onClick={() => selectQueueItem(idx)}
                         className={`border-b border-slate-800/60 transition cursor-pointer ${
                           isSelected ? 'bg-purple-500/10' : 'hover:bg-slate-800/40'
                         }`}
@@ -846,7 +1013,7 @@ export const PrintLabelSection = () => {
             {printQueue.map((item, idx) => (
               <div
                 key={item.id || idx}
-                onClick={() => setPreviewProductIdx(idx)}
+                onClick={() => selectQueueItem(idx)}
                 className={`rounded-2xl border p-4 transition cursor-pointer flex flex-col justify-between ${
                   previewProductIdx === idx
                     ? 'border-purple-500/80 bg-slate-950 ring-2 ring-purple-500/30'
@@ -932,15 +1099,48 @@ export const PrintLabelSection = () => {
         wide
       >
         <div className="space-y-4">
-          <div className="relative">
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
-            <input
-              type="text"
-              value={searchModalQuery}
-              onChange={(e) => setSearchModalQuery(e.target.value)}
-              placeholder={t('Search catalog by code, barcode, or description...', 'ស្វែងរកតាមកូដ បារកូដ ឬឈ្មោះ...')}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none focus:border-purple-400"
-            />
+          {/* 3-Part Filter Toolbar: Search Query + Live Group Filter + Live Brand Filter */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div className="relative sm:col-span-6">
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">🔍</span>
+              <input
+                type="text"
+                value={searchModalQuery}
+                onChange={(e) => setSearchModalQuery(e.target.value)}
+                placeholder={t('Search catalog by code, barcode, or description...', 'ស្វែងរកតាមកូដ បារកូដ ឬឈ្មោះ...')}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 py-2 pl-10 pr-4 text-xs font-medium text-white placeholder-slate-500 outline-none focus:border-purple-400"
+              />
+            </div>
+
+            <div className="sm:col-span-3">
+              <select
+                value={modalGroupFilter}
+                onChange={(e) => setModalGroupFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 py-2 px-3 text-xs font-semibold text-white outline-none focus:border-purple-400"
+              >
+                <option value="">{t('All Groups', 'គ្រប់ក្រុម')}</option>
+                {groups.map((g) => (
+                  <option key={g.id || g.code} value={getGroupVal(g)}>
+                    {getGroupLabel(g)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-3">
+              <select
+                value={modalBrandFilter}
+                onChange={(e) => setModalBrandFilter(e.target.value)}
+                className="w-full rounded-xl border border-slate-700 bg-slate-950/80 py-2 px-3 text-xs font-semibold text-white outline-none focus:border-purple-400"
+              >
+                <option value="">{t('All Brands', 'គ្រប់ម៉ាក')}</option>
+                {brands.map((b) => (
+                  <option key={b.id || b.code} value={getBrandVal(b)}>
+                    {getBrandLabel(b)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="max-h-96 overflow-y-auto rounded-xl border border-slate-800 divide-y divide-slate-800">
@@ -951,6 +1151,8 @@ export const PrintLabelSection = () => {
             ) : (
               modalFilteredProducts.map((p) => {
                 const inQueue = printQueue.some((it) => String(it.id) === String(p.id))
+                const pGroup = p.productGroup || p.group
+                const pBrand = p.brand
                 return (
                   <div key={p.id} className="flex items-center justify-between p-3.5 hover:bg-slate-800/40 transition">
                     <div className="flex items-center gap-3 min-w-0">
@@ -960,9 +1162,13 @@ export const PrintLabelSection = () => {
                         <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-sm shrink-0">🥫</span>
                       )}
                       <div className="min-w-0">
-                        <h4 className="font-bold text-white text-sm truncate">{pName(p)}</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-white text-sm truncate">{pName(p)}</h4>
+                          {pGroup && <span className="rounded bg-purple-500/20 px-1.5 py-0.5 text-[10px] font-bold text-purple-300 shrink-0">{pGroup}</span>}
+                          {pBrand && <span className="rounded bg-sky-500/20 px-1.5 py-0.5 text-[10px] font-bold text-sky-300 shrink-0">{pBrand}</span>}
+                        </div>
                         <p className="font-mono text-xs text-slate-400">
-                          Code: <span className="text-purple-300">{p.code || '—'}</span> · Barcode: <span className="text-slate-300">{p.barCode || p.barcode || '—'}</span>
+                          Code: <span className="text-purple-300">{p.code || '—'}</span> · Barcode: <span className="text-slate-300">{p.barCode || p.barcode || '—'}</span> · UOM: <span className="text-slate-300">{p.uom || 'Unit'}</span>
                         </p>
                       </div>
                     </div>

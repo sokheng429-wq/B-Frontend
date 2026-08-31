@@ -1,5 +1,7 @@
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { adminProductAPI, adminSupplierAPI } from '../../api/api'
 import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
 import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
 import bookmarkIcon from '../../assets/icon/3dicons-bookmark-fav-dynamic-color.png'
@@ -24,8 +26,7 @@ import hashIcon from '../../assets/icon/3dicons-hash-dynamic-color.png'
 import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
 import './ProductsHub.css'
 
-// The eight catalog sub-sections reachable from this hub. Keys are used as this Will Show when click on Stocks
-// URL segments: /admin/products/<key>.
+// The catalog sub-sections (Master Data)
 export const PRODUCT_SECTIONS = [
   {
     key: 'manage',
@@ -36,6 +37,8 @@ export const PRODUCT_SECTIONS = [
     descKh: 'បង្កើត កែប្រែ និងលុបផលិតផលក្នុងកាតាឡុកហាង។',
     color: '#22c55e',
     bg: 'rgba(34, 197, 94, 0.12)',
+    category: 'master',
+    tag: 'Core',
   },
   {
     key: 'groups',
@@ -46,6 +49,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'បង្កុំប្រជុំផលិតផលដែលទាក់ទងគ្នា សម្រាប់តម្លៃ និងការច្រោក។',
     color: '#14b8a6',
     bg: 'rgba(20, 184, 166, 0.12)',
+    category: 'master',
   },
   {
     key: 'categories',
@@ -56,6 +60,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'គ្រប់គ្រងប្រភេទផលិតផលដែលបង្ហាញក្នុងហាងទាំងមូល។',
     color: '#f59e0b',
     bg: 'rgba(245, 158, 11, 0.12)',
+    category: 'master',
   },
   {
     key: 'brands',
@@ -66,6 +71,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'ចុះឈ្មោះម៉ាកទំនិញដែល B\'Groceries លក់។',
     color: '#8b5cf6',
     bg: 'rgba(139, 92, 246, 0.12)',
+    category: 'master',
   },
   {
     key: 'units',
@@ -76,6 +82,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'កំណត់ឯកតាដូចជា គីឡូ ក្រាម លីត្រ មីលីលីត្រ និងដុំ។',
     color: '#06b6d4',
     bg: 'rgba(6, 182, 212, 0.12)',
+    category: 'master',
   },
   {
     key: 'attributes',
@@ -86,6 +93,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'ព័ត៌មានបន្ថែមដូចជា ប្រភព ស្លាកសញ្ញា ឬសីតុណ្ហភាពរក្សាទុក។',
     color: '#ec4899',
     bg: 'rgba(236, 72, 153, 0.12)',
+    category: 'master',
   },
   {
     key: 'suppliers',
@@ -96,6 +104,7 @@ export const PRODUCT_SECTIONS = [
     descKh: 'ព័ត៌មានទំនាក់ទំនងរបស់កសិដ្ឋាន អ្នកផលិត និងពាណិជ្ជករធំៗ។',
     color: '#f97316',
     bg: 'rgba(249, 115, 22, 0.12)',
+    category: 'master',
   },
   {
     key: 'supplier-groups',
@@ -106,21 +115,23 @@ export const PRODUCT_SECTIONS = [
     descKh: 'រៀបចំអ្នកផ្គត់ផ្គង់ជាក្រុមតាមតំបន់ ឬប្រភេទ។',
     color: '#3b82f6',
     bg: 'rgba(59, 130, 246, 0.12)',
+    category: 'master',
   },
 ]
 
-// Stock Operations — inventory workflows that live under the Stocks menu,
-// shown BELOW Suppliers Group (after a divider).
+// Stock Operations & Tools
 export const STOCK_OPERATIONS = [
   {
     key: 'receive-products',
     icon: fileNewIcon,
     en: 'Receive Products',
-    kh: 'ទទួលផលិតផល',
+    kh: 'ទទួលផលិតផល (GRN)',
     descEn: 'Record incoming stock deliveries from suppliers.',
     descKh: 'កត់ត្រាការដឹកជញ្ជូនទំនិញចូលពីអ្នកផ្គត់ផ្គង់។',
     color: '#22c55e',
     bg: 'rgba(34, 197, 94, 0.12)',
+    category: 'ops',
+    tag: 'Popular',
   },
   {
     key: 'issue-products',
@@ -131,6 +142,7 @@ export const STOCK_OPERATIONS = [
     descKh: 'បញ្ចេញទំនិញចេញពីឃ្លាំងសម្រាប់ការបញ្ជាទិញ ឬការប្រើប្រាស់។',
     color: '#f97316',
     bg: 'rgba(249, 115, 22, 0.12)',
+    category: 'ops',
   },
   {
     key: 'adjustment-products',
@@ -141,6 +153,7 @@ export const STOCK_OPERATIONS = [
     descKh: 'កែសម្រួលចំនួនស្តុកបន្ទាប់ពីត្រួតពិនិត្យ ឬបាតបង់។',
     color: '#eab308',
     bg: 'rgba(234, 179, 8, 0.12)',
+    category: 'ops',
   },
   {
     key: 'request-transfer',
@@ -151,16 +164,18 @@ export const STOCK_OPERATIONS = [
     descKh: 'ស្នើសុំសាខា ឬឃ្លាំងផ្សេងទៀតឱ្យបញ្ជូនទំនិញ។',
     color: '#06b6d4',
     bg: 'rgba(6, 182, 212, 0.12)',
+    category: 'ops',
   },
   {
     key: 'ship-request-transfer',
     icon: rocketIcon,
-    en: 'Ship & Request Transfer Products',
-    kh: 'ដឹកជញ្ជូន និងសំណើបញ្ជូនផលិតផល',
+    en: 'Ship & Request Transfer',
+    kh: 'ដឹកជញ្ជូន និងសំណើបញ្ជូន',
     descEn: 'Ship requested transfers and track them in transit.',
     descKh: 'ដឹកជញ្ជូនសំណើបញ្ជូន ហើយតាមដានវាពេលកំពុងផ្ញើ។',
     color: '#8b5cf6',
     bg: 'rgba(139, 92, 246, 0.12)',
+    category: 'ops',
   },
   {
     key: 'transfer-products',
@@ -171,6 +186,7 @@ export const STOCK_OPERATIONS = [
     descKh: 'ផ្លាស់ទីផលិតផលរវាងឃ្លាំង និងហាង។',
     color: '#14b8a6',
     bg: 'rgba(20, 184, 166, 0.12)',
+    category: 'ops',
   },
   {
     key: 'products-quantities',
@@ -181,6 +197,7 @@ export const STOCK_OPERATIONS = [
     descKh: 'មើល និងកំណត់ចំនួនស្តុកតាមទីតាំងនីមួយៗ។',
     color: '#3b82f6',
     bg: 'rgba(59, 130, 246, 0.12)',
+    category: 'ops',
   },
   {
     key: 'products-prices',
@@ -191,6 +208,7 @@ export const STOCK_OPERATIONS = [
     descKh: 'គ្រប់គ្រងតម្លៃចំណាយ និងតម្លៃលក់តាមផលិតផលនីមួយៗ។',
     color: '#f59e0b',
     bg: 'rgba(245, 158, 11, 0.12)',
+    category: 'ops',
   },
   {
     key: 'print-label',
@@ -201,16 +219,19 @@ export const STOCK_OPERATIONS = [
     descKh: 'បោះពុម្ពស្លាកបារកូដ និងតម្លៃសម្រាប់ទំនិញលើធ្នើ។',
     color: '#64748b',
     bg: 'rgba(100, 116, 139, 0.15)',
+    category: 'ops',
   },
   {
     key: 'products-scale',
     icon: calculatorIcon,
     en: 'Products Scale',
-    kh: 'ទំនឹងផលិតផល',
+    kh: 'ទំនឹងផលិតផល (PLU)',
     descEn: 'Configure scale-linked weighed goods.',
     descKh: 'កំណត់ទំនិញដែលជាប់តាមទំនឹង។',
     color: '#84cc16',
     bg: 'rgba(132, 204, 22, 0.12)',
+    category: 'ops',
+    tag: 'Scale',
   },
   {
     key: 'change-attribute',
@@ -221,166 +242,386 @@ export const STOCK_OPERATIONS = [
     descKh: 'កែតម្លៃលក្ខណៈសម្បត្តិផលិតផលជាក្រុម។',
     color: '#ec4899',
     bg: 'rgba(236, 72, 153, 0.12)',
+    category: 'ops',
   },
   {
     key: 'cost-change',
     icon: walletIcon,
     en: 'Cost Change',
-    kh: 'ផ្លាស់ប្តូរចំណាយ',
-    descEn: 'Review and apply supplier cost changes.',
+    kh: 'ផ្លាស់ប្តូរចំណាយ (Cost Change)',
+    descEn: 'Review and apply supplier cost changes with printable note.',
     descKh: 'ពិនិត្យ និងអនុវត្តការផ្លាស់ប្តូរតម្លៃចំណាយពីអ្នកផ្គត់ផ្គង់។',
     color: '#ef4444',
     bg: 'rgba(239, 68, 68, 0.12)',
+    category: 'ops',
+    tag: 'Printable',
   },
   {
     key: 'serial-information',
     icon: hashIcon,
     en: 'Serial Information',
-    kh: 'ព័ត៌មានស៊េរី',
-    descEn: 'Track serialized items by serial number.',
+    kh: 'ព័ត៌មានស៊េរី (Serial)',
+    descEn: 'Track serialized items by serial number and batch.',
     descKh: 'តាមដានទំនិញលេខស៊េរីតាមលេខស៊េរីនីមួយៗ។',
     color: '#a855f7',
     bg: 'rgba(168, 85, 247, 0.12)',
+    category: 'ops',
   },
   {
     key: 'products-supplier',
     icon: linkIcon,
     en: 'Products Supplier',
     kh: 'អ្នកផ្គត់ផ្គង់ផលិតផល',
-    descEn: 'Link products to the suppliers who provide them.',
+    descEn: 'Link products to the suppliers with part numbers & active toggles.',
     descKh: 'ភ្ជាប់ផលិតផលទៅអ្នកផ្គត់ផ្គង់ដែលផ្ដល់វា។',
     color: '#0ea5e9',
     bg: 'rgba(14, 165, 233, 0.12)',
+    category: 'ops',
+    tag: 'New',
   },
 ]
 
-// Every catalog section — master data first, then stock operations.
 export const ALL_CATALOG_SECTIONS = [...PRODUCT_SECTIONS, ...STOCK_OPERATIONS]
-
-const TEXTS = {
-  back: { en: 'Dashboard', kh: 'ផ្ទាំងគ្រប់គ្រង' },
-  eyebrow: { en: 'B\'Groceries catalog manager', kh: 'អ្នកគ្រប់គ្រងកាតាឡុក' },
-  heroTitle: { en: 'Products', kh: 'ផលិតផល' },
-  heroSub: {
-    en: 'Choose a section below to manage every part of the product catalog — from items and groupings to brands, units and suppliers.',
-    kh: 'ជ្រើសរើសផ្នែកខាងក្រោម ដើម្បីគ្រប់គ្រងគ្រប់ផ្នែកនៃកាតាឡុកផលិតផល — ចាប់ពីទំនិញ ក្រុម ម៉ាក ឯកតា និងអ្នកផ្គត់ផ្គង់។',
-  },
-  sectionsTitle: { en: 'Catalog sections', kh: 'ផ្នែកនៃកាតាឡុក' },
-  sectionsSub: { en: 'Click a section to open it', kh: 'ចុចលើផ្នែកដើម្បីបើកវា' },
-  opsTitle: { en: 'Stock operations', kh: 'ប្រតិបត្តិការស្តុក' },
-  opsSub: { en: 'Day-to-day inventory workflows', kh: 'ការងារគ្រប់គ្រងស្តុកប្រចាំថ្ងៃ' },
-}
-
-// One grid of section cards. Used for both groups on the hub.
-const SectionGrid = ({ items, lang }) => (
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-    {items.map((section) => {
-      const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
-      return (
-        <Link
-          key={section.key}
-          to={`/admin/products/${section.key}`}
-          className="group flex flex-col rounded-2xl border border-slate-700/60 bg-slate-950/50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-slate-500 hover:bg-slate-950 hover:shadow-xl"
-        >
-          <span
-            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl p-2 ring-1 ring-white/10 shadow-lg shadow-black/20"
-            style={{ background: section.bg }}
-          >
-            {isImg ? (
-              <img src={section.icon} alt="" className="h-9 w-9 object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-110" />
-            ) : (
-              <span className="text-2xl">{section.icon}</span>
-            )}
-          </span>
-          <h3 className="text-base font-black text-white">{lang === 'kh' ? section.kh : section.en}</h3>
-          <p className="mt-1.5 flex-1 text-xs leading-5 text-slate-400">
-            {lang === 'kh' ? section.descKh : section.descEn}
-          </p>
-          <span
-            className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold transition-transform group-hover:translate-x-1"
-            style={{ color: section.color }}
-          >
-            {lang === 'en' ? 'Open' : 'បើក'} <ChevronIcon />
-          </span>
-        </Link>
-      )
-    })}
-  </div>
-)
 
 export const ProductsHub = () => {
   const { lang } = useLanguage()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeCategory, setActiveCategory] = useState('all') // 'all' | 'master' | 'ops'
+  const [stats, setStats] = useState({ totalProducts: 0, totalSuppliers: 0, loading: true })
+
+  // Load live counts for dynamic KPI
+  useEffect(() => {
+    Promise.all([
+      adminProductAPI.getAll().catch(() => ({ data: [] })),
+      adminSupplierAPI.getAll().catch(() => ({ data: [] })),
+    ]).then(([pRes, sRes]) => {
+      const pCount = Array.isArray(pRes?.data) ? pRes.data.length : 0
+      const sCount = Array.isArray(sRes?.data) ? sRes.data.length : 0
+      setStats({ totalProducts: pCount, totalSuppliers: sCount, loading: false })
+    })
+  }, [])
+
+  // Filter modules based on search and active tab
+  const filteredSections = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    let list = ALL_CATALOG_SECTIONS
+
+    if (activeCategory === 'master') {
+      list = PRODUCT_SECTIONS
+    } else if (activeCategory === 'ops') {
+      list = STOCK_OPERATIONS
+    }
+
+    if (!q) return list
+
+    return list.filter((s) => {
+      const en = (s.en || '').toLowerCase()
+      const kh = (s.kh || '').toLowerCase()
+      const descEn = (s.descEn || '').toLowerCase()
+      const descKh = (s.descKh || '').toLowerCase()
+      const key = (s.key || '').toLowerCase()
+      return en.includes(q) || kh.includes(q) || descEn.includes(q) || descKh.includes(q) || key.includes(q)
+    })
+  }, [searchQuery, activeCategory])
+
+  const masterFiltered = useMemo(
+    () => filteredSections.filter((s) => s.category === 'master'),
+    [filteredSections]
+  )
+
+  const opsFiltered = useMemo(
+    () => filteredSections.filter((s) => s.category === 'ops'),
+    [filteredSections]
+  )
 
   return (
-    <div className="space-y-6">
-      {/* Hero */}
-      <section className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-green-500/10">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-green-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute bottom-0 left-1/3 h-px w-2/3 bg-gradient-to-r from-transparent via-green-400/50 to-transparent" />
-        <div className="relative">
-          <Link to="/admin" className="mb-5 inline-flex items-center gap-2 rounded-full border border-slate-700/70 bg-slate-950/50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition hover:border-green-400 hover:text-green-200">
-            <ChevronLeftIcon /> {TEXTS.back[lang]}
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-500/15 p-2 ring-1 ring-green-400/30 shadow-lg shadow-green-500/20">
-              <img src={bagIcon} alt="" className="h-9 w-9 object-contain drop-shadow-md" />
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-green-300">{TEXTS.eyebrow[lang]}</p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-white md:text-4xl">{TEXTS.heroTitle[lang]}</h1>
+    <div className="space-y-6 text-slate-100">
+      {/* 1. HERO BANNER WITH DYNAMIC GLOW & LIVE KPIS */}
+      <section className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] p-5 sm:p-7 shadow-2xl shadow-green-500/10">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#7EB631]/15 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-1/4 h-px w-2/3 bg-gradient-to-r from-transparent via-[#7EB631]/40 to-transparent" />
+
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-4">
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-950/60 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition hover:border-[#7EB631] hover:text-white active:scale-95"
+            >
+              <ChevronLeftIcon /> {lang === 'en' ? 'Dashboard' : 'ផ្ទាំងគ្រប់គ្រង'}
+            </Link>
+
+            <div className="flex items-center gap-3.5">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#7EB631]/15 p-2 ring-1 ring-[#7EB631]/30 shadow-lg shadow-green-500/20">
+                <img src={bagIcon} alt="" className="h-9 w-9 object-contain drop-shadow-md" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#7EB631]">
+                  {lang === 'en' ? "B'Groceries Stocks Hub" : 'មជ្ឈមណ្ឌលគ្រប់គ្រងស្តុក'}
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-['Montserrat']">
+                  {lang === 'en' ? 'Inventory & Operations' : 'ផលិតផល និងប្រតិបត្តិការស្តុក'}
+                </h1>
+              </div>
             </div>
-          </div>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300">{TEXTS.heroSub[lang]}</p>
-        </div>
-      </section>
 
-      {/* Master data cards */}
-      <section className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-6 shadow-xl shadow-black/20">
-        <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="text-lg font-bold text-white">{TEXTS.sectionsTitle[lang]}</h2>
-          <span className="text-xs text-slate-400">{TEXTS.sectionsSub[lang]}</span>
-        </div>
-
-        {/* All Products — overview card above the sections */}
-        <Link
-          to="/admin/products/all"
-          className="group mb-5 flex flex-col gap-3 rounded-2xl border border-green-500/30 bg-gradient-to-r from-green-500/10 via-emerald-500/5 to-transparent p-5 transition-all duration-300 hover:-translate-y-1 hover:border-green-400/60 hover:shadow-xl sm:flex-row sm:items-center"
-        >
-          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-500/15 text-2xl ring-1 ring-green-400/30">📋</span>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-base font-black text-white">{lang === 'en' ? 'All Products' : 'ផលិតផលទាំងអស់'}</h3>
-            <p className="mt-0.5 text-xs leading-5 text-slate-400">
+            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-300 font-['Montserrat']">
               {lang === 'en'
-                ? 'See every product in one list — search, filter by category and check stock at a glance.'
-                : 'មើលផលិតផលទាំងអស់ក្នុងបញ្ជីតែមួយ — ស្វែងរក ត្រងតាមប្រភេទ និងពិនិត្យស្តុកមើលម្តងចប់។'}
+                ? 'Central command for your supermarket inventory — master catalog, suppliers, barcode scales, transfers, goods receipt, and cost modifications.'
+                : 'មជ្ឈមណ្ឌលបញ្ជាកណ្តាលសម្រាប់ស្តុកទំនិញផ្សារទំនើប — កាតាឡុកមេ អ្នកផ្គត់ផ្គង់ ជញ្ជីងបារកូដ ការផ្ទេរទំនិញ ការទទួលទំនិញ និងការកែប្រែចំណាយ។'}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-green-300 transition-transform group-hover:translate-x-1">
-            {lang === 'en' ? 'Open' : 'បើក'} <ChevronIcon />
-          </span>
-        </Link>
 
-        <SectionGrid items={PRODUCT_SECTIONS} lang={lang} />
+          {/* Quick Stats Widget */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:flex lg:flex-col shrink-0 min-w-[220px]">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span>{lang === 'en' ? 'Live SKUs' : 'មុខទំនិញសកម្ម'}</span>
+                <span className="text-emerald-400">● Live</span>
+              </div>
+              <p className="mt-1 font-mono text-2xl font-black text-white">
+                {stats.loading ? '…' : stats.totalProducts}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span>{lang === 'en' ? 'Suppliers' : 'អ្នកផ្គត់ផ្គង់'}</span>
+                <span className="text-blue-400">● Master</span>
+              </div>
+              <p className="mt-1 font-mono text-2xl font-black text-white">
+                {stats.loading ? '…' : stats.totalSuppliers}
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Divider line */}
-      <div className="relative py-1">
-        <div className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 px-4 text-[11px] font-black uppercase tracking-[0.25em] text-slate-500">
-          {TEXTS.opsTitle[lang]}
-        </span>
-      </div>
-
-      {/* Stock operations cards */}
-      <section className="rounded-3xl border border-slate-700/60 bg-slate-900/80 p-6 shadow-xl shadow-black/20">
-        <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="text-lg font-bold text-white">{TEXTS.opsTitle[lang]}</h2>
-          <span className="text-xs text-slate-400">{TEXTS.opsSub[lang]}</span>
+      {/* 2. DYNAMIC SEARCH & CATEGORY FILTER BAR */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-800/80 bg-[#1e293b]/70 backdrop-blur-md p-3.5 shadow-lg">
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-md">
+          <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">
+            🔍
+          </span>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={
+              lang === 'en'
+                ? 'Quick search any module (e.g. Scale, Cost Change, Supplier, Receive…)'
+                : 'ស្វែងរកម៉ូឌុលរហ័ស (ឧ. ជញ្ជីង, ចំណាយ, អ្នកផ្គត់ផ្គង់…)'
+            }
+            className="w-full rounded-xl border border-slate-700/80 bg-slate-950/90 py-2 pl-9 pr-8 text-xs font-semibold text-white placeholder-slate-500 outline-none transition focus:border-[#7EB631] focus:ring-2 focus:ring-[#7EB631]/20"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
-        <SectionGrid items={STOCK_OPERATIONS} lang={lang} />
-      </section>
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+          {[
+            { key: 'all', en: 'All Modules', kh: 'ទាំងអស់', count: ALL_CATALOG_SECTIONS.length },
+            { key: 'master', en: 'Master Data', kh: 'ទិន្នន័យគោល', count: PRODUCT_SECTIONS.length },
+            { key: 'ops', en: 'Stock Operations', kh: 'ប្រតិបត្តិការ', count: STOCK_OPERATIONS.length },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveCategory(tab.key)}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${
+                activeCategory === tab.key
+                  ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20'
+                  : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+              }`}
+            >
+              <span>{lang === 'kh' ? tab.kh : tab.en}</span>
+              <span
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
+                  activeCategory === tab.key ? 'bg-slate-950 text-green-300' : 'bg-slate-800 text-slate-400'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. FEATURED OVERVIEW: ALL PRODUCTS HERO CARD */}
+      {(!searchQuery || 'all products'.includes(searchQuery.toLowerCase())) && (
+        <Link
+          to="/admin/products/all"
+          className="group relative overflow-hidden flex flex-col gap-3 rounded-2xl border border-green-500/40 bg-gradient-to-r from-green-500/15 via-emerald-500/10 to-slate-900/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-green-400 hover:shadow-xl hover:shadow-green-500/10 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-center gap-3.5">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/20 text-2xl ring-1 ring-green-400/40 shadow-md">
+              📋
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-black text-white font-['Montserrat']">
+                  {lang === 'en' ? 'All Products Master List' : 'បញ្ជីផលិតផលទាំងអស់'}
+                </h3>
+                <span className="rounded-full bg-[#7EB631] px-2 py-0.5 text-[10px] font-black text-slate-950 uppercase tracking-wider">
+                  Full Catalog
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
+                {lang === 'en'
+                  ? 'Complete table of every SKU with category filters, bulk pricing, Excel import/export, and instant search.'
+                  : 'តារាងពេញលេញនៃគ្រប់មុខទំនិញ ជាមួយការត្រងប្រភេទ តម្លៃដុំ ការនាំចេញ/នាំចូល Excel និងការស្វែងរកភ្លាមៗ។'}
+              </p>
+            </div>
+          </div>
+
+          <span className="inline-flex items-center gap-1.5 self-start sm:self-center text-xs font-bold text-green-300 transition-transform group-hover:translate-x-1 shrink-0">
+            <span>{lang === 'en' ? 'Open Catalog' : 'បើកកាតាឡុក'}</span>
+            <ChevronIcon />
+          </span>
+        </Link>
+      )}
+
+      {/* 4. MASTER DATA SECTION */}
+      {masterFiltered.length > 0 && (
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-1.5 rounded-full bg-[#7EB631]" />
+              <div>
+                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                  {lang === 'en' ? 'Catalog Master Data' : 'ទិន្នន័យគោលកាតាឡុក'}
+                </h2>
+                <p className="text-[11px] text-slate-400">
+                  {lang === 'en' ? 'Manage products, groups, categories, units & suppliers' : 'គ្រប់គ្រងផលិតផល ក្រុម ប្រភេទ ខ្នាត និងអ្នកផ្គត់ផ្គង់'}
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-mono text-slate-400">{masterFiltered.length} items</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {masterFiltered.map((section) => (
+              <ModuleCard key={section.key} section={section} lang={lang} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 5. STOCK OPERATIONS SECTION */}
+      {opsFiltered.length > 0 && (
+        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-1.5 rounded-full bg-[#E69D32]" />
+              <div>
+                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                  {lang === 'en' ? 'Stock Operations & Tools' : 'ប្រតិបត្តិការស្តុក និងឧបករណ៍'}
+                </h2>
+                <p className="text-[11px] text-slate-400">
+                  {lang === 'en'
+                    ? 'Day-to-day warehouse movements, receiving, transfers, scale barcodes, and cost changes'
+                    : 'ចលនាស្តុកប្រចាំថ្ងៃ ការទទួល ការផ្ទេរ ជញ្ជីងបារកូដ និងការផ្លាស់ប្តូរចំណាយ'}
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-mono text-slate-400">{opsFiltered.length} items</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {opsFiltered.map((section) => (
+              <ModuleCard key={section.key} section={section} lang={lang} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Empty Search State */}
+      {filteredSections.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-12 text-center space-y-3">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-3xl">
+            🔍
+          </div>
+          <h3 className="text-base font-bold text-white">
+            {lang === 'en' ? 'No stock module found' : 'រកមិនឃើញម៉ូឌុលស្តុកទេ'}
+          </h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            {lang === 'en'
+              ? `No module matching "${searchQuery}". Try searching for Products, Scale, Cost, Suppliers or Transfers.`
+              : `គ្មានម៉ូឌុលត្រូវនឹង "${searchQuery}" ទេ។`}
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="rounded-xl bg-[#7EB631] px-4 py-2 text-xs font-bold text-slate-950 hover:brightness-110"
+          >
+            {lang === 'en' ? 'Clear Search' : 'សម្អាតការស្វែងរក'}
+          </button>
+        </div>
+      )}
     </div>
+  )
+}
+
+// Interactive Module Card Component
+const ModuleCard = ({ section, lang }) => {
+  const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
+
+  return (
+    <Link
+      to={`/admin/products/${section.key}`}
+      className="group relative flex flex-col justify-between rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-slate-500 hover:bg-slate-950 hover:shadow-xl hover:shadow-black/40 active:scale-[0.98]"
+    >
+      <div>
+        <div className="flex items-center justify-between mb-3.5">
+          <span
+            className="flex h-12 w-12 items-center justify-center rounded-xl p-2 ring-1 ring-white/10 shadow-md shadow-black/30 transition-transform duration-300 group-hover:scale-110"
+            style={{ background: section.bg }}
+          >
+            {isImg ? (
+              <img src={section.icon} alt="" className="h-8 w-8 object-contain drop-shadow-md" />
+            ) : (
+              <span className="text-xl">{section.icon}</span>
+            )}
+          </span>
+
+          {section.tag && (
+            <span
+              className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm"
+              style={{ background: `${section.color}25`, color: section.color }}
+            >
+              {section.tag}
+            </span>
+          )}
+        </div>
+
+        <h3 className="text-sm sm:text-base font-bold text-white font-['Montserrat'] group-hover:text-green-300 transition-colors">
+          {lang === 'kh' ? section.kh : section.en}
+        </h3>
+
+        <p className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2">
+          {lang === 'kh' ? section.descKh : section.descEn}
+        </p>
+      </div>
+
+      <div className="mt-4 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+        <span
+          className="inline-flex items-center gap-1.5 text-xs font-bold transition-transform group-hover:translate-x-1"
+          style={{ color: section.color }}
+        >
+          <span>{lang === 'en' ? 'Open' : 'បើក'}</span>
+          <ChevronIcon />
+        </span>
+        <span className="text-[10px] font-mono text-slate-500">→</span>
+      </div>
+    </Link>
   )
 }
 

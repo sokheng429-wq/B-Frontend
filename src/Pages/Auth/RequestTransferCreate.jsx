@@ -69,6 +69,8 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
   const [units, setUnits] = useState([])
   const [lines, setLines] = useState([])
   const [productQuery, setProductQuery] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
+  const searchBoxRef = useRef(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [postedDoc, setPostedDoc] = useState(null)
@@ -86,6 +88,16 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target)) {
+        setSearchFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [])
+
   const productName = (p) => {
     if (!p) return ''
     if (typeof p.name === 'object' && p.name !== null) {
@@ -99,7 +111,7 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
   const allProductsList = liveProducts.length > 0 ? liveProducts : (Array.isArray(products) ? products : [])
   const matches = (() => {
     const q = productQuery.trim().toLowerCase()
-    if (!q) return []
+    if (!q) return allProductsList.slice(0, 40)
     return allProductsList.filter((p) => {
       const codeStr = String(p.code || '').toLowerCase()
       const barCodeStr = String(p.barCode || p.barcode || '').toLowerCase()
@@ -107,7 +119,7 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
       const nameKhStr = String(p.nameKh || (typeof p.name === 'object' ? p.name?.kh : '') || '').toLowerCase()
       const descStr = String(p.description || '').toLowerCase()
       return codeStr.includes(q) || barCodeStr.includes(q) || nameEnStr.includes(q) || nameKhStr.includes(q) || descStr.includes(q)
-    }).slice(0, 10)
+    }).slice(0, 40)
   })()
 
   const addProduct = (p) => {
@@ -128,6 +140,7 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
       raw: p,
     }])
     setProductQuery('')
+    setSearchFocused(false)
   }
 
   const patchLine = (i, patch) =>
@@ -307,12 +320,20 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
       const created = res?.data || newDoc
       setSaving(false)
       onCreated(created)
-      setPostedDoc(created)
+      if (typeof onClose === 'function') {
+        onClose()
+      } else {
+        setPostedDoc(created)
+      }
     } catch (err) {
       console.warn('Backend transfer create error, fallback to local', err)
       setSaving(false)
       onCreated(newDoc)
-      setPostedDoc(newDoc)
+      if (typeof onClose === 'function') {
+        onClose()
+      } else {
+        setPostedDoc(newDoc)
+      }
     }
   }
 
@@ -477,9 +498,16 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
         
         {/* Product Section Header & Excel Action Buttons */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-700/60 px-6 py-4">
-          <h3 className="text-sm font-extrabold uppercase tracking-wide text-white">
-            {t('Product List', 'បញ្ជីផលិតផល')} ({lines.length})
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-sm font-extrabold uppercase tracking-wide text-white">
+              {t('Product List', 'បញ្ជីផលិតផល')} ({lines.length})
+            </h3>
+            {allProductsList.length > 0 && (
+              <span className="rounded-full bg-green-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-green-300 ring-1 ring-green-500/20">
+                {t(`Store Catalog: ${allProductsList.length} products available`, `កាតាឡុកហាង: ${allProductsList.length} មុខទំនិញ`)}
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Hidden Excel File Input */}
@@ -512,7 +540,7 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
         </div>
 
         {/* Product Search Textbox (Code | Barcode | Description) */}
-        <div className="relative border-b border-slate-700/60 bg-slate-950/40 p-4">
+        <div ref={searchBoxRef} className="relative border-b border-slate-700/60 bg-slate-950/40 p-4">
           <div className="relative">
             <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
               🔍
@@ -520,7 +548,11 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
             <input
               type="text"
               value={productQuery}
-              onChange={(e) => setProductQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onChange={(e) => {
+                setProductQuery(e.target.value)
+                setSearchFocused(true)
+              }}
               placeholder={t('Search Product by Code, Barcode, or Description...', 'ស្វែងរកផលិតផលតាមកូដ បារកូដ ឬការពិពណ៌នា...')}
               className="w-full rounded-xl border border-slate-700/70 bg-slate-900/90 py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none transition focus:border-green-400 focus:ring-4 focus:ring-green-500/10"
             />
@@ -536,8 +568,13 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
           </div>
 
           {/* Autocomplete Dropdown List */}
-          {matches.length > 0 && (
-            <ul className="absolute left-4 right-4 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50">
+          {(searchFocused || productQuery.trim()) && matches.length > 0 && (
+            <div className="absolute left-4 right-4 top-full z-30 mt-1 max-h-72 overflow-y-auto rounded-xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/80">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 py-2 text-[11px] font-bold text-slate-400">
+                <span>{productQuery.trim() ? t(`Search Results (${matches.length})`, `លទ្ធផលស្វែងរក (${matches.length})`) : t(`All Catalog Products (${matches.length})`, `ផលិតផលទាំងអស់ក្នុងស្តុក (${matches.length})`)}</span>
+                <span className="text-[10px] text-green-400">{t('Click to add to request', 'ចុចដើម្បីបន្ថែម')}</span>
+              </div>
+              <ul>
               {matches.map((p) => {
                 const desc = productName(p)
                 const isAdded = lines.some((l) => String(l.productId) === String(p.id))
@@ -576,7 +613,8 @@ export const RequestTransferCreate = ({ products, onCreated, onClose }) => {
                   </li>
                 )
               })}
-            </ul>
+              </ul>
+            </div>
           )}
         </div>
 

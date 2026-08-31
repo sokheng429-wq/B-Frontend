@@ -5,6 +5,7 @@ import { adminProductAPI, adminTransferAPI } from '../../api/api'
 import { useCollection } from './stockStore'
 import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill, ConfirmModal } from './stockUI'
+import { exportStyledExcel } from '../../utils/excelExport'
 
 // Identity column (Always shown)
 const CODE_COL = { key: 'code', label: { en: 'Code', kh: 'កូដ' } }
@@ -22,15 +23,6 @@ const OPTIONAL_COLS = [
   { key: 'userName', label: { en: 'User Name', kh: 'ឈ្មោះអ្នកស្នើសុំ' } },
   { key: 'status', label: { en: 'Status', kh: 'ស្ថានភាព' } },
 ]
-
-// Download Excel helper
-const downloadExcel = (filename, sheetName, headerRow, dataRows) => {
-  const ws = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows])
-  ws['!cols'] = headerRow.map((h) => ({ wch: Math.max(12, Math.min(30, String(h).length + 6)) }))
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, sheetName)
-  XLSX.writeFile(wb, filename)
-}
 
 // Product thumbnail chips
 const ProductChips = ({ lines, products }) => (
@@ -193,12 +185,14 @@ export const ShipRequestTransferSection = () => {
       })
     )
 
-    downloadExcel(
-      `ship-request-transfer-list.xlsx`,
-      'Ship Transfer Requests',
-      headerLabels,
-      dataRows
-    )
+    exportStyledExcel({
+      filename: 'ship-request-transfer-list.xlsx',
+      sheetName: 'Ship Requests',
+      title: 'SHIP REQUEST TRANSFER DOCUMENTS REPORT',
+      subtitle: `Total Documents: ${dataRows.length}`,
+      headers: headerLabels,
+      data: dataRows,
+    })
   }
 
   /* ---------- Shipping & Status Actions ---------- */
@@ -209,54 +203,43 @@ export const ShipRequestTransferSection = () => {
     setDispatchNote('')
   }
 
-  const confirmShipment = () => {
+  const confirmShipment = async () => {
     if (!selectedDoc) return
-    setConfirmAction({
-      title: { en: 'Confirm Dispatch Shipment', kh: 'បញ្ជាក់ការបញ្ជូនទំនិញ' },
-      message: {
-        en: `Are you sure you want to dispatch Request "${selectedDoc.code || selectedDoc.docNo}" via ${carrier} (Tracking: ${trackingNumber})?`,
-        kh: `តើអ្នកពិតជាចង់បញ្ជូនសំណើ "${selectedDoc.code || selectedDoc.docNo}" តាមរយៈ ${carrier} (លេខតាមដាន: ${trackingNumber}) មែនទេ?`,
-      },
-      confirmText: { en: 'Confirm & Dispatch', kh: 'យល់ព្រមបញ្ជូន' },
-      cancelText: { en: 'Cancel', kh: 'បោះបង់' },
-      type: 'save',
-      onConfirm: async () => {
-        if (selectedDoc.id) {
-          try {
-            await adminTransferAPI.updateStatus(selectedDoc.id, {
-              status: 'IN-TRANSIT',
-              carrier,
-              trackingNumber,
-              dispatchNote,
-            })
-          } catch (e) {
-            console.warn('Backend transfer status update failed, fallback to local', e)
-          }
-        }
-        requestApi.update(selectedDoc.id, {
+    const docToShip = selectedDoc
+    if (docToShip.id) {
+      try {
+        await adminTransferAPI.updateStatus(docToShip.id, {
           status: 'IN-TRANSIT',
-          shippedAt: new Date().toISOString(),
           carrier,
           trackingNumber,
           dispatchNote,
         })
-        setLiveRequests((prev) =>
-          prev.map((it) =>
-            it.id === selectedDoc.id || it.code === selectedDoc.code
-              ? { ...it, status: 'IN-TRANSIT', carrier, trackingNumber, dispatchNote }
-              : it
-          )
-        )
-        setFeedback({
-          tone: 'blue',
-          text: t(
-            `✓ Request ${selectedDoc.code || selectedDoc.docNo} shipped via ${carrier} (Tracking: ${trackingNumber})`,
-            `✓ បានដឹកជញ្ជូនសំណើ ${selectedDoc.code || selectedDoc.docNo} តាមរយៈ ${carrier} (លេខតាមដាន: ${trackingNumber})`
-          ),
-        })
-        setSelectedDoc(null)
-      },
+      } catch (e) {
+        console.warn('Backend transfer status update failed, fallback to local', e)
+      }
+    }
+    requestApi.update(docToShip.id, {
+      status: 'IN-TRANSIT',
+      shippedAt: new Date().toISOString(),
+      carrier,
+      trackingNumber,
+      dispatchNote,
     })
+    setLiveRequests((prev) =>
+      prev.map((it) =>
+        it.id === docToShip.id || it.code === docToShip.code
+          ? { ...it, status: 'IN-TRANSIT', carrier, trackingNumber, dispatchNote }
+          : it
+      )
+    )
+    setFeedback({
+      tone: 'blue',
+      text: t(
+        `✓ Request ${docToShip.code || docToShip.docNo} shipped via ${carrier} (Tracking: ${trackingNumber})`,
+        `✓ បានដឹកជញ្ជូនសំណើ ${docToShip.code || docToShip.docNo} តាមរយៈ ${carrier} (លេខតាមដាន: ${trackingNumber})`
+      ),
+    })
+    setSelectedDoc(null)
   }
 
   const markReceived = (doc) => {
@@ -270,6 +253,7 @@ export const ShipRequestTransferSection = () => {
       cancelText: { en: 'Cancel', kh: 'បោះបង់' },
       type: 'save',
       onConfirm: async () => {
+        setConfirmAction(null)
         if (doc.id) {
           try {
             await adminTransferAPI.updateStatus(doc.id, { status: 'RECEIVED' })
@@ -889,6 +873,20 @@ export const ShipRequestTransferSection = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ---------- Confirm Action Modal Dialog ---------- */}
+      {confirmAction && (
+        <ConfirmModal
+          {...confirmAction}
+          open={!!confirmAction}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={async () => {
+            const fn = confirmAction.onConfirm
+            setConfirmAction(null)
+            if (fn) await fn()
+          }}
+        />
       )}
 
     </SectionShell>

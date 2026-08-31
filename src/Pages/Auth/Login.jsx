@@ -75,7 +75,12 @@ export const Login = () => {
     try {
       const res = await authAPI.login(form.identifier, form.password)
       login(res.data)
-      navigate('/')
+      const uRole = (res.data?.user?.role || res.data?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
+      if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
+        navigate('/admin')
+      } else {
+        navigate('/')
+      }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')
     } finally {

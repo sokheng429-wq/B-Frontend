@@ -117,11 +117,23 @@ export const AuthProvider = ({ children }) => {
     if (data?.token) {
       localStorage.setItem('token', data.token)
     }
-    if (data?.user) {
-      setUser({ ...data.user, name: data.user.fullName })
-    } else {
-      setUser(data || { name: 'User' })
+
+    let rawUser = data?.user || (typeof data === 'object' ? data : { name: 'Admin' })
+    let rawRole = rawUser?.role || data?.role || 'ADMIN'
+    if (Array.isArray(rawUser?.roles) && rawUser.roles.length > 0) {
+      const f = rawUser.roles[0]
+      rawRole = typeof f === 'string' ? f : f.name || f.role || 'ADMIN'
     }
+    const cleanRole = String(rawRole).replace(/^ROLE_/, '').toUpperCase()
+
+    const preparedUser = {
+      ...rawUser,
+      role: cleanRole,
+      name: rawUser.fullName || rawUser.name || rawUser.username || 'Administrator',
+    }
+
+    setUser(preparedUser)
+    localStorage.setItem('user', JSON.stringify(preparedUser))
     setIsLoggedIn(true)
   }
 

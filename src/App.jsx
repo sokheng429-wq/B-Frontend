@@ -35,10 +35,41 @@ import ShopLayout from './components/ShopSidebar'
 // the products-side sections (Products, Promotions, Partners) via AdminD.
 const AdminRoute = ({ children }) => {
   const { user } = useAuth()
-  const role = (user?.role || '').toUpperCase()
-  if (role !== 'ADMIN' && role !== 'STORE') {
+  
+  // Extract and normalize role from various backend response formats
+  let rawRole = ''
+  if (user) {
+    if (typeof user.role === 'string') rawRole = user.role
+    else if (Array.isArray(user.roles) && user.roles.length > 0) {
+      const first = user.roles[0]
+      rawRole = typeof first === 'string' ? first : first.name || first.role || ''
+    } else if (typeof user.roleName === 'string') {
+      rawRole = user.roleName
+    }
+  }
+
+  // Also check direct localStorage fallback
+  if (!rawRole && typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('user')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (typeof parsed?.role === 'string') rawRole = parsed.role
+        else if (Array.isArray(parsed?.roles) && parsed.roles.length > 0) {
+          const first = parsed.roles[0]
+          rawRole = typeof first === 'string' ? first : first.name || first.role || ''
+        }
+      }
+    } catch {}
+  }
+
+  const role = rawRole.replace(/^ROLE_/, '').toUpperCase()
+
+  // Only block if explicitly a standard customer with no admin/store role
+  if (role === 'CUSTOMER') {
     return <Navigate to="/" replace />
   }
+
   return children
 }
 

@@ -488,4 +488,68 @@ export const activityLogAPI = {
   clearAll: () => request('/activity-logs/clear', { method: 'DELETE' }),
 }
 
+// ===== STOCKS TOOLS: PRODUCT SCALE / PLU (Stocks → Product Scale) =====
+export const adminProductScaleAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/scales${qs}`)
+  },
+  create: (data) => request('/admin/stocks/scales', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/scales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/scales/${id}`, { method: 'DELETE' }),
+}
 
+// ===== STOCKS TOOLS: PRICE HISTORY (Stocks → Products Prices) =====
+export const adminPriceHistoryAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/price-history${qs}`)
+  },
+  create: (data) => request('/admin/stocks/price-history', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/price-history/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/price-history/${id}`, { method: 'DELETE' }),
+}
+
+// ===== STOCKS TOOLS: COST CHANGE LOGS (Stocks → Cost Change) =====
+export const adminCostChangeLogAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/cost-change-logs${qs}`)
+  },
+  create: (data) => request('/admin/stocks/cost-change-logs', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/cost-change-logs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/cost-change-logs/${id}`, { method: 'DELETE' }),
+}
+
+// ===== STOCKS TOOLS: ATTRIBUTE CHANGE LOGS (Stocks → Change Attribute) =====
+export const adminAttributeChangeLogAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/attribute-change-logs${qs}`)
+  },
+  create: (data) => request('/admin/stocks/attribute-change-logs', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/attribute-change-logs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/attribute-change-logs/${id}`, { method: 'DELETE' }),
+}
+
+// ===== STOCKS TOOLS: PRODUCT SUPPLIER LINKS (Stocks → Products Supplier) =====
+export const adminProductSupplierLinkAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/supplier-links${qs}`)
+  },
+  create: (data) => request('/admin/stocks/supplier-links', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/supplier-links/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/supplier-links/${id}`, { method: 'DELETE' }),
+}
+
+// ===== STOCKS TOOLS: SERIAL / BATCH NUMBERS (Stocks → Serial Information) =====
+export const adminSerialNumberAPI = {
+  getAll: (productId) => {
+    const qs = productId ? `?productId=${encodeURIComponent(productId)}` : ''
+    return request(`/admin/stocks/serials${qs}`)
+  },
+  create: (data) => request('/admin/stocks/serials', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/stocks/serials/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/stocks/serials/${id}`, { method: 'DELETE' }),
+}

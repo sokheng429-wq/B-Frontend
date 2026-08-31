@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI } from '../../api/api'
+import { adminProductAPI, adminPriceHistoryAPI } from '../../api/api'
 import { useCollection, eanCheckDigit } from './stockStore'
 import { PageLoader } from '../../components/PageLoader'
 import dollarIcon from '../../assets/icon/3dicons-dollar-dynamic-color.png'
@@ -12,19 +12,16 @@ import hashIcon from '../../assets/icon/3dicons-hash-dynamic-color.png'
 import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
 import copyIcon from '../../assets/icon/3dicons-copy-dynamic-color.png'
 import { SectionShell, Field, TextInput, SelectInput, PrimaryButton, GhostButton, Modal, Pill, ConfirmModal } from './stockUI'
+import ProductScaleSection from './ProductScaleSection'
+import ChangeAttributeSection from './ChangeAttributeSection'
+import CostChangeSection from './CostChangeSection'
+import SerialInformationSection from './SerialInformationSection'
+import ProductsSupplierSection from './ProductsSupplierSection'
+import { exportStyledExcel, downloadExcel } from '../../utils/excelExport'
 import './ToolsSection.css'
 
 const pName = (p) => (typeof p?.name === 'object' ? p.name?.en : p?.name) || `#${p?.id}`
 const pNameKh = (p) => (typeof p?.name === 'object' ? p.name?.kh : p?.nameKh || p?.name_kh || p?.secondLanguage || '—')
-
-// Helper for exporting arrays of objects/rows to XLSX
-const downloadExcel = (filename, sheetName, headers, dataRows) => {
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...dataRows])
-  ws['!cols'] = headers.map((h) => ({ wch: Math.max(12, Math.min(32, String(h).length + 6)) }))
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, sheetName)
-  XLSX.writeFile(wb, filename)
-}
 
 const COST_CHANGE_COLS = [
   { key: 'barcode', label: { en: 'Barcode', kh: 'បារកូដ' } },
@@ -50,6 +47,7 @@ export const ToolsSection = ({ sectionKey }) => {
 
   // Sub-module specific states
   const [priceEdits, setPriceEdits] = useState({})
+  const [activeMarkup, setActiveMarkup] = useState(null)
   const [costPct, setCostPct] = useState('')
   const [costFixed, setCostFixed] = useState('')
   const [costReason, setCostReason] = useState('Supplier Price Adjustment')
@@ -97,6 +95,26 @@ export const ToolsSection = ({ sectionKey }) => {
 
   if (pageLoading) return <PageLoader loading={true} message={t('Loading products…', 'កំពុងផ្ទុកផលិតផល…')} />
 
+  if (sectionKey === 'products-scale') {
+    return <ProductScaleSection />
+  }
+
+  if (sectionKey === 'change-attribute') {
+    return <ChangeAttributeSection key="change-attribute" />
+  }
+
+  if (sectionKey === 'cost-change') {
+    return <CostChangeSection key="cost-change" />
+  }
+
+  if (sectionKey === 'serial-information') {
+    return <SerialInformationSection key="serial-information" />
+  }
+
+  if (sectionKey === 'products-supplier') {
+    return <ProductsSupplierSection key="products-supplier" />
+  }
+
   /* =========================================================================
      1. PRODUCTS PRICES (💲)
      ========================================================================= */
@@ -111,15 +129,28 @@ export const ToolsSection = ({ sectionKey }) => {
           const p = products.find((x) => String(x.id) === String(id))
           const numPrice = Number(price)
           if (!Number.isNaN(numPrice)) {
+            // Persist price history to PostgreSQL price_histories table
+            adminPriceHistoryAPI.create({
+              productId: p?.id || Number(id),
+              productName: p ? pName(p) : `Product #${id}`,
+              oldPrice: Number(p?.basePrice ?? 0),
+              newPrice: numPrice,
+              changeType: 'SELLING_PRICE',
+              markupPercent: activeMarkup || 0,
+              reason: 'Selling price adjustment via Products Prices',
+              changedBy: 'Admin',
+            }).catch(() => {})
+
             await adminProductAPI.update(id, { ...p, basePrice: numPrice })
             ok += 1
           }
         } catch { /* skip failed */ }
       }
       setPriceEdits({})
+      setActiveMarkup(null)
       setFeedback({
         tone: 'green',
-        text: t(`✓ Successfully updated ${ok} product price(s)`, `✓ បានធ្វើបច្ចុប្បន្នភាពតម្លៃផលិតផលចំនួន ${ok}`),
+        text: t(`✓ Successfully updated ${ok} product price(s) and recorded in database`, `✓ បានធ្វើបច្ចុប្បន្នភាពតម្លៃផលិតផលចំនួន ${ok} និងកត់ត្រាក្នុងមូលដ្ឋានទិន្នន័យ`),
       })
       setSaving(false)
       // refresh products list
@@ -143,19 +174,41 @@ export const ToolsSection = ({ sectionKey }) => {
     const applyBulkMarkup = (markupPercent) => {
       const pct = Number(markupPercent)
       if (Number.isNaN(pct)) return
+      setActiveMarkup(pct)
       const next = { ...priceEdits }
       filtered.forEach((p) => {
         const cost = Number(p.averageCost ?? p.cost ?? p.standardCost ?? 0)
-        if (cost > 0) {
-          const newPrice = Math.round(cost * (1 + pct / 100) * 100) / 100
+        const currentPrice = Number(priceEdits[p.id] ?? p.basePrice ?? cost ?? 0)
+        const base = pct < 0 ? (currentPrice > 0 ? currentPrice : cost) : (cost > 0 ? cost : currentPrice)
+        if (base > 0) {
+          const newPrice = Math.max(0.01, Math.round(base * (1 + pct / 100) * 100) / 100)
           next[p.id] = newPrice.toFixed(2)
         }
       })
       setPriceEdits(next)
+      const sign = pct > 0 ? `+${pct}%` : `${pct}%`
       setFeedback({
-        tone: 'blue',
-        text: t(`Calculated +${pct}% markup on ${filtered.length} product(s). Click "Save Changes" to apply.`, `បានគណនាតម្លៃបន្ថែម +${pct}% លើ ${filtered.length} ផលិតផល។ ចុច "រក្សាទុក" ដើម្បីអនុវត្ត។`),
+        tone: pct >= 0 ? 'blue' : 'orange',
+        text: t(
+          `Calculated ${sign} adjustment on ${filtered.length} product(s). Click "Save Changes" to apply.`,
+          `បានគណនាតម្លៃ ${sign} លើ ${filtered.length} ផលិតផល។ ចុច "រក្សាទុក" ដើម្បីអនុវត្ត។`
+        ),
       })
+    }
+
+    const resetAllPriceEdits = () => {
+      setPriceEdits({})
+      setActiveMarkup(null)
+      setFeedback({
+        tone: 'orange',
+        text: t('Draft price changes cleared.', 'បានលុបចោលការកែប្រែតម្លៃបណ្តោះអាសន្ន។'),
+      })
+    }
+
+    const cancelProductEdit = (productId) => {
+      const next = { ...priceEdits }
+      delete next[productId]
+      setPriceEdits(next)
     }
 
     const exportPriceList = () => {
@@ -196,6 +249,11 @@ export const ToolsSection = ({ sectionKey }) => {
             >
               📊 {t('Export Excel', 'នាំចេញ Excel')}
             </button>
+            {dirtyCount > 0 && (
+              <GhostButton onClick={resetAllPriceEdits}>
+                ✕ {t('Cancel Changes', 'បោះបង់ការផ្លាស់ប្តូរ')}
+              </GhostButton>
+            )}
             <PrimaryButton onClick={promptSaveAllPrices} disabled={dirtyCount === 0 || saving}>
               {saving ? t('Saving…', 'កំពុងរក្សាទុក…') : `✓ ${t('Save Changes', 'រក្សាទុកការផ្លាស់ប្តូរ')} (${dirtyCount})`}
             </PrimaryButton>
@@ -208,35 +266,84 @@ export const ToolsSection = ({ sectionKey }) => {
             {...confirmAction}
             open={!!confirmAction}
             onClose={() => setConfirmAction(null)}
-            onConfirm={() => {
+            onConfirm={async () => {
               const fn = confirmAction.onConfirm
               setConfirmAction(null)
-              fn?.()
+              if (fn) await fn()
             }}
           />
         )}
 
-        {/* Quick Batch Markup Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-700/60 bg-slate-900/80 p-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
-              ⚡ {t('Quick Markup:', 'គណនាតម្លៃរហ័ស:')}
-            </span>
-            {[10, 15, 20, 25, 30, 40].map((pct) => (
-              <button
-                key={pct}
-                type="button"
-                onClick={() => applyBulkMarkup(pct)}
-                className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-bold text-green-300 transition hover:bg-green-500/20 hover:border-green-500/40"
-              >
-                +{pct}%
-              </button>
-            ))}
+        {/* Quick Batch Markup (+) and Markdown (-) Bar */}
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-700/60 bg-slate-900/80 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            {/* Positive Markup Presets */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wide text-green-400">
+                📈 {t('Markup (+):', 'ឡើងថ្លៃ (+):')}
+              </span>
+              {[5, 10, 15, 20, 25, 30, 40, 50].map((pct) => {
+                const isSelected = activeMarkup === pct
+                return (
+                  <button
+                    key={`plus-${pct}`}
+                    type="button"
+                    onClick={() => applyBulkMarkup(pct)}
+                    className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition hover:scale-105 active:scale-95 ${
+                      isSelected
+                        ? 'border-green-400 bg-green-500 text-slate-950 shadow-md shadow-green-500/30 ring-2 ring-green-400/50'
+                        : 'border-green-500/30 bg-green-500/10 text-green-300 hover:bg-green-500/30 hover:border-green-400'
+                    }`}
+                    title={t(`Apply +${pct}% markup from cost`, `គណនាបន្ថែម +${pct}% ពីតម្លៃដើម`)}
+                  >
+                    +{pct}%
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {(activeMarkup !== null || dirtyCount > 0) && (
+                <button
+                  type="button"
+                  onClick={resetAllPriceEdits}
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-500/40 bg-rose-500/20 px-2.5 py-1 text-xs font-bold text-rose-300 transition hover:bg-rose-500/30"
+                  title={t('Cancel current markup selection', 'បោះបង់ការជ្រើសរើស')}
+                >
+                  ✕ {t('Cancel Selection', 'បោះបង់ការជ្រើសរើស')}
+                </button>
+              )}
+              <span className="text-xs text-slate-400">
+                {t('Total SKUs:', 'មុខទំនិញសរុប:')} <strong className="text-white">{filtered.length}</strong>
+                {dirtyCount > 0 && <span className="ml-2 font-mono text-green-300">({dirtyCount} edited)</span>}
+              </span>
+            </div>
           </div>
 
-          <span className="text-xs text-slate-400">
-            {t('Total SKUs:', 'មុខទំនិញសរុប:')} <strong className="text-white">{filtered.length}</strong>
-          </span>
+          {/* Negative Markdown / Discount Presets */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wide text-rose-400">
+              📉 {t('Discount (-):', 'បញ្ចុះតម្លៃ (-):')}
+            </span>
+            {[5, 10, 15, 20, 25, 30, 40, 50].map((pct) => {
+              const isSelected = activeMarkup === -pct
+              return (
+                <button
+                  key={`minus-${pct}`}
+                  type="button"
+                  onClick={() => applyBulkMarkup(-pct)}
+                  className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition hover:scale-105 active:scale-95 ${
+                    isSelected
+                      ? 'border-rose-400 bg-rose-500 text-white shadow-md shadow-rose-500/30 ring-2 ring-rose-400/50'
+                      : 'border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/30 hover:border-rose-400'
+                  }`}
+                  title={t(`Apply -${pct}% discount on current price`, `គណនាបញ្ចុះតម្លៃ -${pct}% ពីតម្លៃបច្ចុប្បន្ន`)}
+                >
+                  -{pct}%
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <SearchBox query={query} setQuery={setQuery} searchBy={searchBy} setSearchBy={setSearchBy} t={t} />
@@ -252,7 +359,7 @@ export const ToolsSection = ({ sectionKey }) => {
                 <th className="px-4 py-3.5">{t('Second Language', 'ភាសាខ្មែរ')}</th>
                 <th className="px-4 py-3.5 text-right">{t('Cost', 'តម្លៃដើម')}</th>
                 <th className="px-4 py-3.5 text-right">{t('Current Price', 'តម្លៃបច្ចុប្បន្ន')}</th>
-                <th className="px-4 py-3.5 text-center w-36">{t('New Price ($)', 'តម្លៃថ្មី ($)')}</th>
+                <th className="px-4 py-3.5 text-center w-44">{t('New Price ($)', 'តម្លៃថ្មី ($)')}</th>
                 <th className="px-4 py-3.5 text-right">{t('Gross Margin', 'អត្រាចំណេញ')}</th>
               </tr>
             </thead>
@@ -283,16 +390,28 @@ export const ToolsSection = ({ sectionKey }) => {
                     <td className="px-4 py-3 text-right font-mono text-amber-300">${cost.toFixed(2)}</td>
                     <td className="px-4 py-3 text-right font-mono text-slate-400">${curPrice.toFixed(2)}</td>
                     <td className="px-4 py-3 text-center">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={priceEdits[p.id] ?? curPrice.toFixed(2)}
-                        onChange={(e) => setPriceEdits({ ...priceEdits, [p.id]: e.target.value })}
-                        className={`w-28 rounded-lg border px-3 py-1.5 text-center font-mono text-sm font-black outline-none transition ${
-                          isDirty ? 'border-green-400 bg-slate-950 text-green-300 ring-2 ring-green-500/20' : 'border-slate-700 bg-slate-950/70 text-white focus:border-green-400'
-                        }`}
-                      />
+                      <div className="flex items-center justify-center gap-1.5">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={priceEdits[p.id] ?? curPrice.toFixed(2)}
+                          onChange={(e) => setPriceEdits({ ...priceEdits, [p.id]: e.target.value })}
+                          className={`w-24 rounded-lg border px-2 py-1.5 text-center font-mono text-sm font-black outline-none transition ${
+                            isDirty ? 'border-green-400 bg-slate-950 text-green-300 ring-2 ring-green-500/20' : 'border-slate-700 bg-slate-950/70 text-white focus:border-green-400'
+                          }`}
+                        />
+                        {isDirty && (
+                          <button
+                            type="button"
+                            onClick={() => cancelProductEdit(p.id)}
+                            title={t('Cancel / Revert to original price', 'បោះបង់ / ត្រឡប់ទៅតម្លៃដើម')}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-xs font-bold text-rose-300 hover:bg-rose-500/20 hover:border-rose-400 transition"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${
@@ -478,86 +597,7 @@ export const ToolsSection = ({ sectionKey }) => {
      3. PRODUCTS SCALE (🧮)
      ========================================================================= */
   if (sectionKey === 'products-scale') {
-    const scaleRows = filtered.map((p) => {
-      const numCode = Number(p.code) || Number(p.id) || 10001
-      const code5 = String(Math.abs(Math.trunc(numCode)) % 100000).padStart(5, '0')
-      const scaleBarcode = `20${code5}00000${eanCheckDigit(`20${code5}00000`)}`
-      return {
-        ...p,
-        pluCode: code5,
-        scaleBarcode,
-      }
-    })
-
-    const exportScaleCsv = () => {
-      const headers = ['PLU_Code', 'Item_Name', 'Khmer_Name', 'Scale_Barcode_Format', 'Unit_Price', 'UOM']
-      const rows = scaleRows.map((p) => [
-        p.pluCode,
-        pName(p),
-        pNameKh(p),
-        p.scaleBarcode,
-        Number(p.basePrice ?? 0).toFixed(2),
-        p.uom || 'Kg',
-      ])
-      downloadExcel('electronic-scale-products.xlsx', 'Scale PLU', headers, rows)
-    }
-
-    return (
-      <SectionShell
-        icon={calculatorIcon}
-        color="#14b8a6"
-        title={{ en: 'Products Scale', kh: 'ទំនិញថ្លឹង/ជាត់' }}
-        subtitle={{
-          en: 'Configure electronic weigh scale PLUs and EAN-13 embedded-weight barcodes for produce, meat & deli counters.',
-          kh: 'កំណត់កូដ PLU ជញ្ជីងថ្លឹង និងបារកូដ EAN-13 បង្កប់ទម្ងន់ សម្រាប់បន្លែ ផ្លែឈើ និងសាច់។',
-        }}
-        actions={
-          <button
-            type="button"
-            onClick={exportScaleCsv}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-teal-600/30 transition hover:bg-teal-500"
-          >
-            ⚖️ {t('Export Scale File (Excel/CSV)', 'នាំចេញឯកសារជញ្ជីង')}
-          </button>
-        }
-      >
-        <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-4">
-          <p className="text-xs text-slate-300">
-            <strong>{t('Scale EAN-13 Protocol:', 'ទម្រង់បារកូដជញ្ជីង EAN-13:')}</strong>{' '}
-            <code className="font-mono text-teal-300">20 + [5-digit PLU] + [5-digit Grams/Weight] + [Check Digit]</code>
-          </p>
-        </div>
-
-        <SearchBox query={query} setQuery={setQuery} searchBy={searchBy} setSearchBy={setSearchBy} t={t} />
-
-        <div className="overflow-x-auto rounded-2xl border border-slate-700/60 bg-slate-900/80 shadow-xl">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-700/60 bg-slate-800/50 text-xs font-bold uppercase tracking-wide text-slate-400">
-                <th className="px-4 py-3.5">{t('PLU Code', 'កូដ PLU')}</th>
-                <th className="px-4 py-3.5">{t('Scale Barcode', 'បារកូដជញ្ជីង')}</th>
-                <th className="px-4 py-3.5">{t('Item Description', 'ឈ្មោះទំនិញ')}</th>
-                <th className="px-4 py-3.5">{t('Second Language', 'ភាសាខ្មែរ')}</th>
-                <th className="px-4 py-3.5">{t('UOM', 'ខ្នាត')}</th>
-                <th className="px-4 py-3.5 text-right">{t('Price / Unit ($)', 'តម្លៃលក់ ($)')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scaleRows.map((p) => (
-                <tr key={p.id} className="border-b border-slate-800/60 transition hover:bg-slate-800/30">
-                  <td className="px-4 py-3 font-mono text-sm font-black text-teal-300">{p.pluCode}</td>
-                  <td className="px-4 py-3 font-mono text-xs font-bold text-amber-300 tracking-wider">{p.scaleBarcode}</td>
-                  <td className="px-4 py-3 font-semibold text-white">{pName(p)}</td>
-                  <td className="px-4 py-3 font-medium text-slate-300 font-khmer">{pNameKh(p)}</td>
-                  <td className="px-4 py-3"><span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">{p.uom || 'Kg'}</span></td>
-                  <td className="px-4 py-3 text-right font-mono font-bold text-green-300">${Number(p.basePrice ?? 0).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SectionShell>
-    )
+    return <ProductScaleSection />
   }
 
   /* =========================================================================

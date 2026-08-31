@@ -6,6 +6,8 @@ import { useNotifications } from '../../context/NotificationContext'
 import { adminAttributeAPI, adminBrandAPI, adminCategoryAPI, adminProductAPI, adminProductGroupAPI, adminSupplierAPI, adminUnitAPI } from '../../api/api'
 import { COUNTRIES } from '../../data/countries'
 import { CountryFlag } from '../../components/CountryFlag'
+import { RichTextEditor } from '../../components/RichTextEditor'
+import { enrichProductWithMeta, enrichProductList, saveProductExtendedMeta } from '../../utils/productMeta'
 
 // Categories / units shown in the dropdowns. Values are stored as plain
 // strings on the Product entity (master-data pages can upgrade these to
@@ -69,6 +71,15 @@ const EMPTY_FORM = {
   allowDiscount: true,
   scale: false,
   tax: '',
+  // Scale Information
+  plu: '',
+  packDate: '',
+  expireDays: '',
+  scaleUom: '',
+  noneWeight: false,
+  // Expired Before
+  expiredNumber: '30',
+  expiredType: 'Day',
 }
 
 // number-or-null helper: '' → null, otherwise Number()
@@ -85,7 +96,23 @@ const TEXTS = {
   serialize: { en: 'Serialize', kh: 'លេខសៀរៀល' },
   expired: { en: 'Expired', kh: 'មានថ្ងៃផុតកំណត់' },
   allowDiscount: { en: 'Allow Discount', kh: 'អនុញ្ញាតបញ្ចុះតម្លៃ' },
-  scale: { en: 'Scale (Weighing)', kh: 'ជញ្ជីងថ្លឹង' },
+  scale: { en: 'Scale', kh: 'ជញ្ជីងថ្លឹង' },
+  scaleInfo: { en: 'Scale Information', kh: 'ព័ត៌មានជញ្ជីងថ្លឹង' },
+  scaleInfoSubtitle: { en: 'Option of scale configuration and PLU parameters', kh: 'ជម្រើសកំណត់ជញ្ជីងថ្លឹង និងប៉ារ៉ាម៉ែត្រ PLU' },
+  pluLabel: { en: 'PLU', kh: 'លេខ PLU' },
+  pluPlaceholder: { en: 'e.g. 10024', kh: 'ឧ. 10024' },
+  packDateLabel: { en: 'Pack Date', kh: 'ថ្ងៃវេចខ្ចប់' },
+  packDatePlaceholder: { en: 'e.g. 2026-08-31', kh: 'ឧ. 2026-08-31' },
+  expireDaysLabel: { en: 'Expire Date (Day)', kh: 'ថ្ងៃផុតកំណត់ (ថ្ងៃ)' },
+  expireDaysPlaceholder: { en: 'e.g. 7', kh: 'ឧ. 7' },
+  scaleUomLabel: { en: 'UOM', kh: 'ខ្នាតជញ្ជីង' },
+  noneWeightLabel: { en: 'None Weight', kh: 'មិនថ្លឹង (ទំនិញដុំ/កញ្ចប់)' },
+  expiredBefore: { en: 'Expired Before', kh: 'ផុតកំណត់មុន' },
+  expiredNumberLabel: { en: 'Expired Number', kh: 'ចំនួន' },
+  expiredTypeLabel: { en: 'Expired Type', kh: 'ប្រភេទ' },
+  day: { en: 'Day', kh: 'ថ្ងៃ' },
+  week: { en: 'Week', kh: 'សប្តាហ៍' },
+  month: { en: 'Month', kh: 'ខែ' },
   taxLabel: { en: 'Tax', kh: 'ពន្ធ' },
   taxPlaceholder: { en: 'Select tax', kh: 'ជ្រើសរើសពន្ធ' },
   uomInfo: { en: 'Unit of measure information', kh: 'ព័ត៌មានឯកតាវាស់' },
@@ -328,8 +355,42 @@ export const AddProducts = () => {
   }, [])
 
   // DTO → form state for editing (deep link ?id=<n> from All Products).
-  const startEdit = (p) => {
+  const startEdit = (rawP) => {
+    const p = enrichProductWithMeta(rawP)
     setEditingId(p.id)
+
+    // Restore Product Type
+    const targetType = p.productType || (p.type ? p.type : 'Stock')
+    setProductType(targetType)
+
+    // Restore Order Point & Max Po
+    setReorderPoint(str(p.reorderPoint ?? p.reOrderPoint ?? ''))
+    setMaxOverPo(str(p.maxOverPo ?? ''))
+    setOrderQty(str(p.orderQty ?? ''))
+    setTags(str(p.tags ?? p.tag ?? ''))
+    setRequiredQty(str(p.requiredQty ?? '1'))
+
+    // Restore UOM Rows
+    if (Array.isArray(p.uomRows) && p.uomRows.length > 0) {
+      setUomRows(p.uomRows)
+    } else {
+      setUomRows([{ ...EMPTY_UOM_ROW(), uom: str(p.uom), barcode: str(p.barCode), isDefault: true }])
+    }
+
+    // Restore Variant & Package Rows
+    if (Array.isArray(p.variantRows) && p.variantRows.length > 0) {
+      setVariantRows(p.variantRows)
+    }
+    if (Array.isArray(p.attributes) && p.attributes.length > 0) {
+      setAttributes(p.attributes)
+    }
+    if (Array.isArray(p.fixedPkgRows) && p.fixedPkgRows.length > 0) {
+      setFixedPkgRows(p.fixedPkgRows)
+    }
+    if (Array.isArray(p.flexiblePkgRows) && p.flexiblePkgRows.length > 0) {
+      setFlexiblePkgRows(p.flexiblePkgRows)
+    }
+
     setForm({
       ...EMPTY_FORM,
       code: str(p.code),
@@ -350,13 +411,20 @@ export const AddProducts = () => {
       outOfStock: !!p.outOfStock,
       favorite: !!p.favorite,
       imageUrl: str(p.imageUrl),
-      serialize: !!p.serial,
-      expired: !!p.expiryDate,
+      serialize: Boolean(p.serialize || p.serial),
+      expired: Boolean(p.expired || p.expiryDate),
       allowDiscount: p.allowDiscount !== false,
+      scale: Boolean(p.scale || p.isScale || p.hasScale),
       tax: str(p.tax ?? ''),
+      plu: str(p.plu || p.pluCode || ''),
+      packDate: str(p.packDate ?? ''),
+      expireDays: str(p.expireDays || p.expireDate || ''),
+      scaleUom: str(p.scaleUom || p.uom || ''),
+      noneWeight: Boolean(p.noneWeight),
+      expiredNumber: str(p.expiredNumber || p.expireBeforeNumber || '30'),
+      expiredType: str(p.expiredType || p.expireBeforeType || 'Day'),
     })
     setUpc(str(p.barCode))
-    setUomRows([{ ...EMPTY_UOM_ROW(), uom: str(p.uom), barcode: str(p.barCode), isDefault: true }])
     setImageFile(null)
     setImagePreview(p.imageUrl || null)
     setErrors({})
@@ -369,7 +437,8 @@ export const AddProducts = () => {
     adminProductAPI
       .getAll()
       .then((res) => {
-        const codes = (Array.isArray(res?.data) ? res.data : [])
+        const prods = enrichProductList(Array.isArray(res?.data) ? res.data : [])
+        const codes = prods
           .map((p) => str(p.code).trim())
           .filter(Boolean)
         let max = 0
@@ -399,9 +468,10 @@ export const AddProducts = () => {
       .getAll()
       .then((res) => {
         if (cancelled || !Array.isArray(res?.data)) return
-        const editId = Number(searchParams.get('id'))
-        if (editId) {
-          const target = res.data.find((p) => p.id === editId)
+        const enriched = enrichProductList(res.data)
+        const editParam = searchParams.get('id')
+        if (editParam) {
+          const target = enriched.find((p) => String(p.id) === String(editParam) || String(p.code) === String(editParam))
           if (target) startEdit(target)
           setSearchParams({}, { replace: true })
         }
@@ -731,6 +801,11 @@ export const AddProducts = () => {
 
     const payload = {
       ...form,
+      productType,
+      reorderPoint: num(reorderPoint),
+      maxOverPo: num(maxOverPo),
+      orderQty: num(orderQty),
+      tags: tags || null,
       code: finalCode || form.code || null,
       barCode: upc || ean || defaultRow?.barcode || form.barCode || null,
       uom: defaultRow?.uom || form.uom || null,
@@ -743,6 +818,22 @@ export const AddProducts = () => {
       onHand: editingId ? (form.onHand != null ? Number(form.onHand) : 0) : 0,
       stock: editingId ? (form.stock != null ? Number(form.stock) : 0) : 0,
       expiryDate: null,
+      scale: !!form.scale,
+      isScale: !!form.scale,
+      hasScale: !!form.scale,
+      plu: form.plu?.trim() || null,
+      packDate: form.packDate?.trim() || null,
+      expireDays: form.expireDays ? Number(form.expireDays) : null,
+      scaleUom: form.scaleUom || form.uom || null,
+      noneWeight: !!form.noneWeight,
+      expiredNumber: form.expiredNumber || '30',
+      expiredType: form.expiredType || 'Day',
+      uomRows,
+      attributes,
+      variantRows,
+      fixedPkgRows,
+      flexiblePkgRows,
+      requiredQty: Number(requiredQty) || 1,
     }
 
     try {
@@ -750,6 +841,13 @@ export const AddProducts = () => {
       let saved
       if (editingId) {
         saved = await adminProductAPI.update(editingId, payload)
+        const savedProd = saved?.data || saved || {}
+        const targetKey = savedProd.id || editingId
+        saveProductExtendedMeta(targetKey, {
+          ...payload,
+          id: targetKey,
+          code: finalCode || payload.code,
+        })
         addNotification({
           type: 'product',
           action: 'edit',
@@ -758,6 +856,13 @@ export const AddProducts = () => {
         })
       } else {
         saved = await adminProductAPI.create(payload)
+        const savedProd = saved?.data || saved || {}
+        const targetKey = savedProd.id || finalCode
+        saveProductExtendedMeta(targetKey, {
+          ...payload,
+          id: savedProd.id || targetKey,
+          code: finalCode || payload.code,
+        })
         addNotification({
           type: 'product',
           action: 'add',
@@ -900,39 +1005,28 @@ export const AddProducts = () => {
                     <input id="name" name="name" type="text" placeholder={TEXTS.descriptionPlaceholder[lang]} value={form.name} onChange={handleChange} className={`${inputBase} ${errors.name ? errorInput : ''}`} />
                   </Field>
 
-                  {/* Long Description */}
+                  {/* Long Description (Rich Text Editor) */}
                   <Field label={TEXTS.longDescription[lang]}>
-                    <div className="overflow-hidden rounded-xl border border-slate-700/80 bg-slate-950/70 transition focus-within:border-emerald-500 focus-within:bg-slate-950 focus-within:ring-2 focus-within:ring-emerald-500/20">
-                      <div className="flex items-center gap-1 border-b border-slate-800 bg-slate-900/80 px-2.5 py-1.5">
-                        <ToolbarButton title="Bold"><BoldIcon /></ToolbarButton>
-                        <ToolbarButton title="Italic"><ItalicIcon /></ToolbarButton>
-                        <ToolbarButton title="Underline"><UnderlineIcon /></ToolbarButton>
-                        <span className="mx-1.5 h-4 w-px bg-slate-800" />
-                        <ToolbarButton title="Bullet list"><ListIcon /></ToolbarButton>
-                      </div>
-                      <textarea
-                        id="description"
-                        name="description"
-                        rows="3"
-                        placeholder={TEXTS.longDescriptionPlaceholder[lang]}
-                        value={form.description}
-                        onChange={handleChange}
-                        className="block w-full resize-y border-0 bg-transparent px-3.5 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-500"
-                      />
-                    </div>
+                    <RichTextEditor
+                      value={form.description}
+                      onChange={(html) => setForm((prev) => ({ ...prev, description: html }))}
+                      placeholder={TEXTS.longDescriptionPlaceholder[lang]}
+                      minHeight="140px"
+                    />
                   </Field>
                 </div>
               </Card>
 
               {/* --- Sale Option Card --- */}
               <Card title={TEXTS.saleOption[lang]}>
-                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-                  {/* Stock: Serialize, Expired, Allow Discount, Tax */}
+                <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
+                  {/* Stock: Serialize, Expired, Allow Discount, Scale, Tax */}
                   {productType === 'Stock' && (
                     <>
                       <CheckTile label={TEXTS.serialize[lang]} checked={form.serialize} onChange={() => handleToggle('serialize')} />
                       <CheckTile label={TEXTS.expired[lang]} checked={form.expired} onChange={() => handleToggle('expired')} />
                       <CheckTile label={TEXTS.allowDiscount[lang]} checked={form.allowDiscount} onChange={() => handleToggle('allowDiscount')} />
+                      <CheckTile label={TEXTS.scale[lang]} checked={form.scale} onChange={() => handleToggle('scale')} />
                       <Field label={TEXTS.taxLabel[lang]}>
                         <select name="tax" value={form.tax} onChange={handleChange} className={inputBase}>
                           <option value="">{TEXTS.taxPlaceholder[lang]}</option>
@@ -944,7 +1038,7 @@ export const AddProducts = () => {
                     </>
                   )}
 
-                  {/* Non-Stock: only Allow Discount, Tax, Scale */}
+                  {/* Non-Stock: Allow Discount, Scale, Tax */}
                   {productType === 'Non-Stock' && (
                     <>
                       <CheckTile label={TEXTS.allowDiscount[lang]} checked={form.allowDiscount} onChange={() => handleToggle('allowDiscount')} />
@@ -976,6 +1070,78 @@ export const AddProducts = () => {
                   )}
                 </div>
               </Card>
+
+              {/* --- Scale Information Card (Option of Scale) --- */}
+              {(productType === 'Stock' || productType === 'Non-Stock') && form.scale && (
+                <Card title={TEXTS.scaleInfo[lang]} subtitle={TEXTS.scaleInfoSubtitle[lang]}>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* PLU - textbox * */}
+                    <Field label={`${TEXTS.pluLabel[lang]} *`} error={errors.plu}>
+                      <input
+                        type="text"
+                        name="plu"
+                        value={form.plu}
+                        onChange={handleChange}
+                        placeholder={TEXTS.pluPlaceholder[lang]}
+                        className={inputBase}
+                      />
+                    </Field>
+
+                    {/* Pack Date Textbox */}
+                    <Field label={TEXTS.packDateLabel[lang]}>
+                      <input
+                        type="text"
+                        name="packDate"
+                        value={form.packDate}
+                        onChange={handleChange}
+                        placeholder={TEXTS.packDatePlaceholder[lang]}
+                        className={inputBase}
+                      />
+                    </Field>
+
+                    {/* Expire Date (Day) Textbox */}
+                    <Field label={TEXTS.expireDaysLabel[lang]}>
+                      <input
+                        type="number"
+                        min="0"
+                        name="expireDays"
+                        value={form.expireDays}
+                        onChange={handleChange}
+                        placeholder={TEXTS.expireDaysPlaceholder[lang]}
+                        className={inputBase}
+                      />
+                    </Field>
+
+                    {/* UOM * dropdown */}
+                    <Field label={`${TEXTS.scaleUomLabel[lang]} *`}>
+                      <select
+                        name="scaleUom"
+                        value={form.scaleUom || form.uom || 'Kg'}
+                        onChange={handleChange}
+                        className={inputBase}
+                      >
+                        <option value="Kg">Kg (Kilogram)</option>
+                        <option value="g">g (Gram)</option>
+                        <option value="Pack">Pack</option>
+                        <option value="Pcs">Pcs (Pieces)</option>
+                        <option value="Box">Box</option>
+                        <option value="Bag">Bag</option>
+                      </select>
+                    </Field>
+                  </div>
+
+                  {/* None Weight tickbox */}
+                  <div className="mt-4 pt-4 border-t border-slate-800">
+                    <div className="max-w-md">
+                      <CheckTile
+                        label={TEXTS.noneWeightLabel[lang]}
+                        checked={form.noneWeight}
+                        onChange={() => handleToggle('noneWeight')}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              )}
 
               {/* ===================== VARIANT SPECIFIC: ATTRIBUTES & MATRIX ===================== */}
               {productType === 'Variant' && (
@@ -1731,22 +1897,69 @@ export const AddProducts = () => {
 
               {/* ===================== BELOW PRODUCT OPTION SECTIONS ===================== */}
 
-              {/* Stock: Sell on out of stock & Favorite Product */}
+              {/* Stock: Default Supplier, Favorite Product, Sell on out of stock (if not expired) or Expired Before (if expired) */}
               {productType === 'Stock' && (
                 <>
-                  <Card title={TEXTS.sellOOS[lang]}>
-                    <label className="flex cursor-pointer select-none items-center gap-3 text-sm font-semibold text-slate-200">
-                      <input type="checkbox" checked={form.outOfStock} onChange={() => handleToggle('outOfStock')} className="h-4 w-4 cursor-pointer accent-emerald-500 rounded" />
-                      {TEXTS.enableOOS[lang]}
-                    </label>
+                  {/* Default Supplier Card */}
+                  <Card title={TEXTS.defaultSupplier[lang]}>
+                    <select name="supplier" value={form.supplier} onChange={handleChange} className={inputBase}>
+                      <option value="">{TEXTS.supplierPlaceholder[lang]}</option>
+                      {suppliers.filter((s) => s.active !== false).map((s) => (
+                        <option key={s.id} value={s.name}>
+                          {s.name} {s.nameKh ? `(${s.nameKh})` : ''} {s.code ? `· ${s.code}` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </Card>
 
+                  {/* Favorite Product Card */}
                   <Card title={TEXTS.favoriteCard[lang]}>
                     <label className="flex cursor-pointer select-none items-center gap-3 text-sm font-semibold text-slate-200">
                       <input type="checkbox" checked={form.favorite} onChange={() => handleToggle('favorite')} className="h-4 w-4 cursor-pointer accent-emerald-500 rounded" />
                       {TEXTS.favoriteLabel[lang]}
                     </label>
                   </Card>
+
+                  {/* Sell on out of stock (Hidden when expired is ticked) */}
+                  {!form.expired && (
+                    <Card title={TEXTS.sellOOS[lang]}>
+                      <label className="flex cursor-pointer select-none items-center gap-3 text-sm font-semibold text-slate-200">
+                        <input type="checkbox" checked={form.outOfStock} onChange={() => handleToggle('outOfStock')} className="h-4 w-4 cursor-pointer accent-emerald-500 rounded" />
+                        {TEXTS.enableOOS[lang]}
+                      </label>
+                    </Card>
+                  )}
+
+                  {/* Expired Before Card (Shown when expired is ticked) */}
+                  {form.expired && (
+                    <Card title={TEXTS.expiredBefore[lang]}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Field label={TEXTS.expiredNumberLabel[lang]}>
+                          <input
+                            type="number"
+                            min="1"
+                            name="expiredNumber"
+                            value={form.expiredNumber}
+                            onChange={handleChange}
+                            placeholder="30"
+                            className={inputBase}
+                          />
+                        </Field>
+                        <Field label={TEXTS.expiredTypeLabel[lang]}>
+                          <select
+                            name="expiredType"
+                            value={form.expiredType || 'Day'}
+                            onChange={handleChange}
+                            className={inputBase}
+                          >
+                            <option value="Day">{TEXTS.day[lang]}</option>
+                            <option value="Week">{TEXTS.week[lang]}</option>
+                            <option value="Month">{TEXTS.month[lang]}</option>
+                          </select>
+                        </Field>
+                      </div>
+                    </Card>
+                  )}
                 </>
               )}
 

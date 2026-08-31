@@ -15,6 +15,7 @@ import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
 import giftIcon from '../../assets/icon/3dicons-gift-box-dynamic-color.png'
 import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
+import toolsIcon from '../../assets/icon/3dicons-tools-dynamic-color.png'
 import canIcon from '../../assets/icon/3dicons-can-dynamic-color.png'
 import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
 import cupIcon from '../../assets/icon/3dicons-cup-dynamic-color.png'
@@ -28,6 +29,7 @@ import AddPartner from './AddPartner'
 import AddDriver from './AddDriver'
 import ProductsHub, { PRODUCT_SECTIONS, STOCK_OPERATIONS } from './ProductsHub'
 import InformationHub from './InformationHub'
+import SettingsHub from './SettingsHub'
 import { StocksList } from './StocksList'
 import CatalogSection from './CatalogSection'
 import MasterDataSection from './MasterDataSection'
@@ -44,7 +46,12 @@ import ShipRequestTransferSection from './ShipRequestTransferSection'
 import TransferProductsSection from './TransferProductsSection'
 import ProductsQuantitiesSection from './ProductsQuantitiesSection'
 import PrintLabelSection from './PrintLabelSection'
-import ToolsSection, { SerialInformation } from './ToolsSection'
+import ProductScaleSection from './ProductScaleSection'
+import ChangeAttributeSection from './ChangeAttributeSection'
+import CostChangeSection from './CostChangeSection'
+import SerialInformationSection from './SerialInformationSection'
+import ProductsSupplierSection from './ProductsSupplierSection'
+import ToolsSection from './ToolsSection'
 import MemberList from './MemberList'
 import MemberForm from './MemberForm'
 import MemberDetailPage from './MemberDetailPage'
@@ -171,12 +178,52 @@ function AdminD() {
   const { lang } = useLanguage()
   const location = useLocation()
   const { user } = useAuth()
+  
+  // Extract and normalize role from all common schemas
+  const userRole = (() => {
+    let r = user?.role || ''
+    if (!r && Array.isArray(user?.roles) && user.roles.length > 0) {
+      const first = user.roles[0]
+      r = typeof first === 'string' ? first : first.name || first.role || ''
+    }
+    if (!r && typeof user?.roleName === 'string') r = user.roleName
+    if (!r && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('user')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          r = parsed.role || (Array.isArray(parsed.roles) ? parsed.roles[0] : '') || ''
+        }
+      } catch {}
+    }
+    const clean = (r || 'ADMIN').replace(/^ROLE_/, '').toUpperCase()
+    return clean || 'ADMIN'
+  })()
+
   // STORE ("Online Store") sees the products side only; ADMIN sees everything.
-  const role = (user?.role || 'USER').toUpperCase()
-  const isAdmin = role === 'ADMIN'
-  const canStore = role === 'ADMIN' || role === 'STORE'
+  const isAdmin = userRole === 'ADMIN' || userRole === 'SUPERADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'MANAGER'
+  const canStore = isAdmin || userRole === 'STORE'
   const { notifications, unreadCount, markAsRead, markAllRead, clearAll } = useNotifications()
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 1024 : true))
+
+  // Auto-close mobile drawer on route navigation
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setSidebarOpen(false)
+    }
+  }, [location.pathname])
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const [openDropdowns, setOpenDropdowns] = useState({
     products: false,
     jobs: false,
@@ -195,7 +242,7 @@ function AdminD() {
   const isOverview = location.pathname === '/admin'
 
   useEffect(() => {
-    if (!isOverview || !isAdmin) return undefined
+    if (!isOverview) return undefined
 
     let cancelled = false
     const loadDashboard = async () => {
@@ -438,7 +485,7 @@ function AdminD() {
       if (sub === 'units') return <Units />
       if (sub === 'supplier-groups') return <SupplierGroups />
       if (sub === 'suppliers') return <Suppliers />
-      if (sub === 'serial-information') return <SerialInformation />
+      if (sub === 'serial-information') return <SerialInformationSection key="serial-information" />
       if (sub === 'request-transfer') return <RequestTransferSection key="request-transfer" />
       if (sub === 'ship-request-transfer') return <ShipRequestTransferSection key="ship-request-transfer" />
       if (sub === 'transfer-products') return <TransferProductsSection key="transfer-products" />
@@ -450,9 +497,11 @@ function AdminD() {
       if (['receive-products', 'issue-products', 'adjustment-products'].includes(sub)) {
         return <TransactionSection sectionKey={sub} key={sub} />
       }
-      if (['products-prices', 'products-scale', 'change-attribute', 'cost-change', 'products-supplier'].includes(sub)) {
-        return <ToolsSection sectionKey={sub} key={sub} />
-      }
+      if (sub === 'products-scale') return <ProductScaleSection key="products-scale" />
+      if (sub === 'change-attribute') return <ChangeAttributeSection key="change-attribute" />
+      if (sub === 'cost-change') return <CostChangeSection key="cost-change" />
+      if (sub === 'products-supplier') return <ProductsSupplierSection key="products-supplier" />
+      if (sub === 'products-prices') return <ToolsSection sectionKey={sub} key={sub} />
       return <CatalogSection />
     }
     if (path === '/add-jobs' || path.startsWith('/admin/jobs')) {
@@ -485,6 +534,9 @@ function AdminD() {
     if (path === '/admin/notifications' || path.startsWith('/admin/notifications') || path.startsWith('/admin/history')) {
       return <ActivityHistory />
     }
+    if (path === '/admin/settings' || path.startsWith('/admin/settings') || path.startsWith('/settings')) {
+      return <SettingsHub />
+    }
 
     return (
       <DashboardOverview
@@ -509,22 +561,46 @@ function AdminD() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`sticky left-0 top-0 h-screen bg-gradient-to-b from-slate-900 to-slate-950 border-r border-slate-700/50 flex flex-col z-50 transition-all duration-300 overflow-y-auto ${!sidebarOpen ? 'w-0 border-0' : 'w-72'}`}>
+      <aside
+        className={`fixed lg:relative inset-y-0 left-0 h-full max-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-700/50 flex flex-col flex-shrink-0 z-50 transition-all duration-300 overflow-hidden ${
+          sidebarOpen
+            ? 'w-72 min-w-[18rem] max-w-[18rem] translate-x-0 shadow-2xl lg:shadow-none'
+            : 'w-0 min-w-0 max-w-0 -translate-x-full lg:w-0 lg:min-w-0 lg:max-w-0 border-0 opacity-0 pointer-events-none'
+        }`}
+      >
         {/* Brand Header - Fixed */}
-        <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-700/50 flex-shrink-0">
-          <span className="w-11 h-11 min-w-[44px] rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-green-500/30">
-            B
-          </span>
-          <div>
-            <h3 className="text-white font-bold text-base leading-tight">B'Groceries</h3>
-            <p className="text-slate-400 text-xs mt-0.5">{lang === 'en' ? 'Admin Panel' : 'ផ្ទាំងគ្រប់គ្រង'}</p>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-slate-700/50 flex-shrink-0 bg-slate-900/90 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 min-w-[40px] rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-green-500/30">
+              B
+            </span>
+            <div>
+              <h3 className="text-white font-bold text-base leading-tight">B'Groceries</h3>
+              <p className="text-slate-400 text-xs mt-0.5">{lang === 'en' ? 'Admin Panel' : 'ផ្ទាំងគ្រប់គ្រង'}</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            aria-label="Close Sidebar"
+          >
+            ✕
+          </button>
         </div>
 
         {/* Scrollable Navigation */}
-        <nav className="flex-1 px-4 py-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900 hover:scrollbar-thumb-slate-600">{/* ... rest of nav content ... */}
+        <nav className="flex-1 min-h-0 px-4 py-5 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900/60 hover:scrollbar-thumb-slate-500 sidebar-scroll-container">{/* ... rest of nav content ... */}
           {/* Main Group */}
           <div className="mb-6">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Main' : 'មេ'}</span>
@@ -664,6 +740,17 @@ function AdminD() {
                   <span className="truncate">{TEXTS.auditHistory[lang]}</span>
                 </Link>
               </div>
+
+              {/* 4. Inventory Settings Hub */}
+              <div className="mb-2">
+                <Link
+                  to="/admin/settings"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname.startsWith('/admin/settings') || location.pathname.startsWith('/settings') ? 'bg-gradient-to-r from-emerald-500/20 to-teal-600/10 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
+                >
+                  <img src={toolsIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                  <span className="truncate">{lang === 'en' ? 'Settings' : 'ការកំណត់'}</span>
+                </Link>
+              </div>
             </div>
           )}
 
@@ -799,7 +886,7 @@ function AdminD() {
         </nav>
 
         {/* Footer - Fixed at bottom */}
-        <div className="px-4 py-4 border-t border-slate-700/50 flex-shrink-0">
+        <div className="px-4 py-4 border-t border-slate-700/50 flex-shrink-0 bg-slate-950/90 backdrop-blur-sm">
           <Link to="/" className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold text-slate-400 hover:text-white border border-slate-700 hover:border-green-500/50 rounded-lg hover:bg-slate-800 transition-all">
             <ArrowLeftIcon />
             <span>{TEXTS.backToSite[lang]}</span>
@@ -808,43 +895,43 @@ function AdminD() {
       </aside>
 
       {/* Main content */}
-      <main className={`flex-1 flex flex-col transition-all duration-300`}>
+      <main className="flex-1 min-w-0 h-full max-h-screen flex flex-col transition-all duration-300 overflow-hidden">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-5 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
-          <div className="flex items-center gap-4">
+        <header className="flex-shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
             <button
-              className="flex items-center justify-center w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 transition-all shadow-lg hover:shadow-green-500/30"
+              className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-800 border border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 transition-all shadow-lg hover:shadow-green-500/30 shrink-0"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle Sidebar"
               title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             >
               <MenuToggleIcon />
             </button>
-            <div>
-              <h1 className="text-white font-bold text-2xl">{TEXTS.overviewTitle[lang]}</h1>
+            <div className="min-w-0">
+              <h1 className="text-white font-bold text-base sm:text-xl lg:text-2xl truncate">{TEXTS.overviewTitle[lang]}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* ENG / KH language toggle */}
             <LanguageSwitcher />
 
             {/* Notification Bell with Dropdown */}
             <div className="relative" ref={notificationRef}>
               <button
-                className="relative w-11 h-11 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 transition-all"
+                className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 transition-all"
                 onClick={() => setShowNotifications(!showNotifications)}
                 aria-label="Notifications"
               >
-                <span className="text-lg">🔔</span>
+                <span className="text-base sm:text-lg">🔔</span>
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-5 h-5 min-w-[20px] bg-cyan-500 rounded-full text-white text-[10px] font-bold flex items-center justify-center animate-pulse">
+                  <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-4 h-4 sm:w-5 sm:h-5 min-w-[16px] bg-cyan-500 rounded-full text-white text-[9px] sm:text-[10px] font-bold flex items-center justify-center animate-pulse">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 top-full mt-2 w-80 md:w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200">
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200">
                   {/* Header */}
                   <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
                     <h3 className="text-white font-bold text-sm">{lang === 'en' ? 'Notifications' : 'ការជូនដំណឹង'}</h3>
@@ -924,13 +1011,13 @@ function AdminD() {
               )}
             </div>
 
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-base flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg shadow-green-500/30">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-sm sm:text-base flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg shadow-green-500/30 shrink-0">
               A
             </div>
           </div>
         </header>
 
-        <div className="flex-1 p-8 overflow-y-auto">{renderContent()}</div>
+        <div className="flex-1 min-h-0 p-3 sm:p-5 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden max-w-full min-w-0 scrollbar-thin">{renderContent()}</div>
       </main>
     </div>
   )

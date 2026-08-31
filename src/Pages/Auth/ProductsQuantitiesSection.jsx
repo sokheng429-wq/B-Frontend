@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import * as XLSX from 'xlsx'
 import { useLanguage } from '../../context/LanguageContext'
-import { adminProductAPI } from '../../api/api'
+import { adminProductAPI, adminUnitAPI } from '../../api/api'
 import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill } from './stockUI'
 import { PageLoader } from '../../components/PageLoader'
+import { exportStyledExcel } from '../../utils/excelExport'
 
 // Primary identity column (Always shown)
 const BARCODE_COL = { key: 'barcode', label: { en: 'Barcode', kh: 'បារកូដ' } }
@@ -21,20 +22,12 @@ const OPTIONAL_COLS = [
   { key: 'totalValue', label: { en: 'Stock Value', kh: 'តម្លៃស្តុកសរុប' } },
 ]
 
-// Download Excel helper
-const downloadExcel = (filename, sheetName, headerRow, dataRows) => {
-  const ws = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows])
-  ws['!cols'] = headerRow.map((h) => ({ wch: Math.max(12, Math.min(32, String(h).length + 6)) }))
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, sheetName)
-  XLSX.writeFile(wb, filename)
-}
-
 export const ProductsQuantitiesSection = () => {
   const { lang } = useLanguage()
   const t = (en, kh) => (lang === 'en' ? en : kh)
 
   const [products, setProducts] = useState([])
+  const [units, setUnits] = useState([])
   const [loading, setLoading] = useState(true)
 
   // Search state
@@ -47,9 +40,17 @@ export const ProductsQuantitiesSection = () => {
   const [colDraft, setColDraft] = useState(visibleCols)
 
   useEffect(() => {
-    adminProductAPI.getAll()
-      .then((res) => {
-        setProducts(Array.isArray(res?.data) ? res.data : [])
+    Promise.allSettled([
+      adminProductAPI.getAll(),
+      adminUnitAPI.getAll(),
+    ])
+      .then(([pRes, uRes]) => {
+        if (pRes.status === 'fulfilled' && Array.isArray(pRes.value?.data)) {
+          setProducts(pRes.value.data)
+        }
+        if (uRes.status === 'fulfilled' && Array.isArray(uRes.value?.data)) {
+          setUnits(uRes.value.data)
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -83,7 +84,39 @@ export const ProductsQuantitiesSection = () => {
   }
 
   const getUOM = (p) => {
-    return p.uom || p.unit || 'Kg'
+    if (!p) return '—'
+    const raw = String(p.uom || p.unit || p.unitOfMeasure || '').trim()
+    if (!raw) return '—'
+
+    const found = units.find((u) =>
+      String(u.id) === raw ||
+      String(u.code || '').toLowerCase() === raw.toLowerCase() ||
+      String(u.description || '').toLowerCase() === raw.toLowerCase() ||
+      String(u.nameKh || '').toLowerCase() === raw.toLowerCase()
+    )
+
+    if (found) {
+      if (lang === 'kh' && found.nameKh) return found.nameKh
+      return found.description || found.code || raw
+    }
+
+    return raw
+  }
+
+  const updateProductUOM = async (productId, newUom) => {
+    try {
+      const product = products.find((p) => p.id === productId)
+      if (!product) return
+      await adminProductAPI.update(productId, {
+        ...product,
+        uom: newUom,
+      })
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, uom: newUom } : p))
+      )
+    } catch (e) {
+      console.warn('Failed to update product UOM', e)
+    }
   }
 
   /* ---------- Filtering ---------- */
@@ -162,12 +195,14 @@ export const ProductsQuantitiesSection = () => {
       })
     )
 
-    downloadExcel(
-      `products-quantities-inventory.xlsx`,
-      'Products Quantities',
-      headerLabels,
-      dataRows
-    )
+    exportStyledExcel({
+      filename: 'products-quantities-inventory.xlsx',
+      sheetName: 'Inventory Quantities',
+      title: 'PRODUCTS QUANTITIES & INVENTORY REPORT',
+      subtitle: `Total Products: ${dataRows.length}`,
+      headers: headerLabels,
+      data: dataRows,
+    })
   }
 
   const activeColumns = [BARCODE_COL, ...OPTIONAL_COLS.filter((c) => visibleCols.has(c.key))]
@@ -369,10 +404,30 @@ export const ProductsQuantitiesSection = () => {
 
                       {/* UOM */}
                       {visibleCols.has('uom') && (
-                        <td className="px-4 py-3 text-slate-400 font-semibold">
-                          <span className="inline-block rounded-md bg-slate-800/80 px-2 py-0.5 text-xs text-slate-300">
-                            {uom}
-                          </span>
+                        <td className="px-4 py-3">
+                          {units.length > 0 ? (
+                            <select
+                              value={p.uom || p.unit || ''}
+                              onChange={(e) => updateProductUOM(p.id, e.target.value)}
+                              className="rounded-lg border border-slate-700/80 bg-slate-950 px-2.5 py-1 text-xs font-semibold text-slate-200 outline-none focus:border-green-400 cursor-pointer hover:border-slate-500 transition"
+                              title={t('Live Unit of Measure (Click to change)', 'ខ្នាតវាស់ជាក់ស្តែង (ចុចដើម្បីប្តូរ)')}
+                            >
+                              <option value="">{uom !== '—' ? uom : `— ${t('Select UOM', 'ជ្រើសរើសខ្នាត')} —`}</option>
+                              {units.map((u) => {
+                                const label = (lang === 'kh' && u.nameKh) ? u.nameKh : (u.description || u.code)
+                                const val = u.description || u.code
+                                return (
+                                  <option key={u.id} value={val}>
+                                    {label}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          ) : (
+                            <span className="inline-block rounded-md bg-slate-800/80 px-2.5 py-1 text-xs text-slate-300 font-semibold">
+                              {uom}
+                            </span>
+                          )}
                         </td>
                       )}
 

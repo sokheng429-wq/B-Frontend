@@ -622,8 +622,8 @@ export const TransactionDocCreate = ({ sectionKey, products, onCreated, onClose 
 
       {/* ---------- save confirmation — print-preview style ---------- */}
       {postedDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div role="dialog" aria-modal="true" className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/40" onClick={(e) => e.stopPropagation()}>
             {/* fake print-preview sheet */}
             <div className="mx-auto mt-6 w-[85%] rotate-[-1deg] rounded-lg bg-white p-4 font-mono text-[11px] leading-relaxed text-slate-800 shadow-xl">
               <p className="mb-1 text-center text-xs font-black tracking-widest">B&#39;GROCERIES</p>

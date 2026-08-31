@@ -7,6 +7,7 @@ import { PageLoader } from '../../components/PageLoader'
 import TransferProductsCreate from './TransferProductsCreate'
 import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import { SectionShell, PrimaryButton, GhostButton, Modal, Pill, ConfirmModal } from './stockUI'
+import { exportStyledExcel } from '../../utils/excelExport'
 
 // Identity column (Always shown)
 const CODE_COL = { key: 'code', label: { en: 'Code', kh: 'កូដ' } }
@@ -25,15 +26,6 @@ const OPTIONAL_COLS = [
   { key: 'userName', label: { en: 'User Name', kh: 'ឈ្មោះអ្នកស្នើសុំ' } },
   { key: 'status', label: { en: 'Status', kh: 'ស្ថានភាព' } },
 ]
-
-// Download Excel helper
-const downloadExcel = (filename, sheetName, headerRow, dataRows) => {
-  const ws = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows])
-  ws['!cols'] = headerRow.map((h) => ({ wch: Math.max(12, Math.min(30, String(h).length + 6)) }))
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, sheetName)
-  XLSX.writeFile(wb, filename)
-}
 
 // Product thumbnail chips
 const ProductChips = ({ lines, products }) => (
@@ -183,12 +175,14 @@ export const TransferProductsSection = () => {
       })
     )
 
-    downloadExcel(
-      `transfer-products-list.xlsx`,
-      'Transfer Products',
-      headerLabels,
-      dataRows
-    )
+    exportStyledExcel({
+      filename: 'transfer-products-list.xlsx',
+      sheetName: 'Transfer Products',
+      title: 'TRANSFER PRODUCTS DOCUMENT REPORT',
+      subtitle: `Total Transfers: ${dataRows.length}`,
+      headers: headerLabels,
+      data: dataRows,
+    })
   }
 
   /* ---------- Save Callback from Create Page ---------- */
@@ -280,14 +274,14 @@ export const TransferProductsSection = () => {
     >
       {confirmAction && (
         <ConfirmModal
+          {...confirmAction}
           open={!!confirmAction}
           onClose={() => setConfirmAction(null)}
-          onConfirm={() => {
+          onConfirm={async () => {
             const fn = confirmAction.onConfirm
             setConfirmAction(null)
-            fn?.()
+            if (fn) await fn()
           }}
-          {...confirmAction}
         />
       )}
 

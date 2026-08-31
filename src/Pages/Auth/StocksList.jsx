@@ -6,6 +6,7 @@ import { useNotifications } from '../../context/NotificationContext'
 import { adminProductAPI } from '../../api/api'
 import { ConfirmModal } from './stockUI'
 import { PageLoader } from '../../components/PageLoader'
+import { exportStyledExcel } from '../../utils/excelExport'
 import './StocksList.css'
 import { PRODUCTS as DEMO_PRODUCTS, CATEGORIES, formatPrice } from '../../data/products'
 
@@ -388,16 +389,34 @@ export const StocksList = () => {
   const exportTemplate = () => {
     const header = COLUMN_DEFS.map((c) => c.dto)
     const example = ['PRD-001', '888645900001', 'ផលិតផលគំរូ', 'Sample Product', 'Grocery', 'Other', 10, 'piece', 2.5, 1.8, 2.0, '2026-01-01', 'Cambodia', '', 'PN-0001', 'Generic', 0, 0, 10, true, '', '2026-12-31', true, 0, false, false]
-    downloadExcel('b-groceries-product-template.xlsx', 'Products', header, [example])
+    exportStyledExcel({
+      filename: 'b-groceries-product-template.xlsx',
+      sheetName: 'Products Template',
+      title: 'PRODUCT IMPORT TEMPLATE',
+      subtitle: 'Use this template to import new products or update stock attributes',
+      headers: header,
+      data: [example],
+    })
   }
 
   const exportCurrent = () => {
     const cols = COLUMN_DEFS.filter((c) => visibleCols.has(c.key))
-    const header = cols.map((c) => c.dto)
+    const header = cols.map((c) => (typeof c.label === 'object' ? c.label.en : c.label || c.dto))
     const rows = filtered.map((p) =>
-      cols.map((c) => (c.bool ? (p[c.key] ? 'true' : 'false') : p[c.key] ?? ''))
+      cols.map((c) => (c.bool ? (p[c.key] ? 'Active' : 'Inactive') : p[c.key] ?? ''))
     )
-    downloadExcel('b-groceries-products.xlsx', 'Products', header, rows)
+    exportStyledExcel({
+      filename: 'b-groceries-products-inventory.xlsx',
+      sheetName: 'Products',
+      title: 'PRODUCTS & INVENTORY CATALOG REPORT',
+      subtitle: `Category: ${category} · Brand: ${brand} · Supplier: ${supplier} · Status: ${status}`,
+      headers: header,
+      data: rows,
+      summary: {
+        'Total Products': rows.length,
+        'Active': filtered.filter((p) => p.status === 'active' || p.active !== false).length,
+      },
+    })
   }
 
   const handleImportFile = async (e) => {
@@ -924,14 +943,14 @@ export const StocksList = () => {
       {/* Choose Column modal */}
       {showColModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-3 sm:p-4"
           onClick={() => setShowColModal(false)}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-label={TEXTS.chooseColumn[lang]}
-            className="max-h-[85vh] w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/40"
+            className="max-h-[85vh] w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 shadow-2xl shadow-black/60 modal-panel"
             onClick={(e) => e.stopPropagation()}
           >
             {/* header */}

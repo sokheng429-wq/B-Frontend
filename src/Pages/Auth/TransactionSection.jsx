@@ -13,6 +13,7 @@ import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
 import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
 import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import { SectionShell, PrimaryButton, Modal, DataTable, Pill } from './stockUI'
+import { exportStyledExcel } from '../../utils/excelExport'
 import './TransactionSection.css'
 
 const ORANGE = '#FF9900'
@@ -359,23 +360,27 @@ export const TransactionSection = ({ sectionKey }) => {
       ? docOptionalCols.filter((c) => docVisibleCols.has(c.key))
       : op.cols
     const cols = [DOC_CODE_COL, ...optional]
-    downloadExcel(
-      `b-groceries-${sectionKey}-list.xlsx`,
-      op.sheet,
-      cols.map((c) => c.label.en),
-      filteredDocs.map((d) =>
-        cols.map((c) => {
-          if (c.key === 'products') return (d.lines || []).map((l) => `${l.name} ×${l.counted ?? l.qty}`).join(', ')
-          if (c.key === 'qty') return (d.lines || []).reduce((sum, l) => sum + (Number(l.qty) || 0), 0)
-          if (c.key === 'diff') return (d.lines || []).reduce((sum, l) => sum + (Number(l.diff) || 0), 0)
-          if (c.key === 'route') return `${locLabel(d.fromLoc)} → ${locLabel(d.toLoc)}`
-          if (c.key === 'outlet') return locLabel(d.outlet)
-          if (c.key === 'status') return d.status || ''
-          const v = d[c.key]
-          return typeof v === 'number' ? v : (v ?? '')
-        })
-      )
+    const headers = cols.map((c) => (typeof c.label === 'object' ? c.label.en : c.label))
+    const rows = filteredDocs.map((d) =>
+      cols.map((c) => {
+        if (c.key === 'products') return (d.lines || []).map((l) => `${l.name} ×${l.counted ?? l.qty}`).join(', ')
+        if (c.key === 'qty') return (d.lines || []).reduce((sum, l) => sum + (Number(l.qty) || 0), 0)
+        if (c.key === 'diff') return (d.lines || []).reduce((sum, l) => sum + (Number(l.diff) || 0), 0)
+        if (c.key === 'route') return `${locLabel(d.fromLoc)} → ${locLabel(d.toLoc)}`
+        if (c.key === 'outlet') return locLabel(d.outlet)
+        if (c.key === 'status') return d.status || ''
+        const v = d[c.key]
+        return typeof v === 'number' ? v : (v ?? '')
+      })
     )
+    exportStyledExcel({
+      filename: `b-groceries-${sectionKey}-list.xlsx`,
+      sheetName: op.sheet || 'Documents',
+      title: `${(op.title?.en || sectionKey).toUpperCase()} DOCUMENT REPORT`,
+      subtitle: `Total Documents: ${rows.length}`,
+      headers,
+      data: rows,
+    })
   }
 
   /* ---------- save callback from the full-page create form ---------- */
@@ -479,19 +484,23 @@ export const TransactionSection = ({ sectionKey }) => {
 
   const exportReceiveList = () => {
     const cols = [RECEIVE_CODE_COL, ...RECEIVE_OPTIONAL_COLS.filter((c) => receiveVisibleCols.has(c.key))]
-    downloadExcel(
-      'b-groceries-receive-list.xlsx',
-      'Receive List',
-      cols.map((c) => c.label.en),
-      filteredReceiveDocs.map((d) =>
-        cols.map((c) => {
-          if (c.key === 'qty') return (d.lines || []).reduce((sum, l) => sum + (Number(l.qty) || 0), 0)
-          if (c.key === 'products') return (d.lines || []).map((l) => `${l.name} ×${l.qty}`).join(', ')
-          const v = d[c.key]
-          return typeof v === 'number' ? v : (v ?? '')
-        })
-      )
+    const headers = cols.map((c) => (typeof c.label === 'object' ? c.label.en : c.label))
+    const rows = filteredReceiveDocs.map((d) =>
+      cols.map((c) => {
+        if (c.key === 'qty') return (d.lines || []).reduce((sum, l) => sum + (Number(l.qty) || 0), 0)
+        if (c.key === 'products') return (d.lines || []).map((l) => `${l.name} ×${l.qty}`).join(', ')
+        const v = d[c.key]
+        return typeof v === 'number' ? v : (v ?? '')
+      })
     )
+    exportStyledExcel({
+      filename: 'b-groceries-receive-list.xlsx',
+      sheetName: 'Receive Products',
+      title: 'GOODS RECEIVE (GRN) DOCUMENTS REPORT',
+      subtitle: `Total Receive Documents: ${rows.length}`,
+      headers,
+      data: rows,
+    })
   }
 
   /* ---------- cell renderer for the issue/adjust/transfer-request list ---------- */

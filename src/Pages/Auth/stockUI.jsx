@@ -78,20 +78,20 @@ export const GhostButton = ({ children, ...props }) => (
 // Modal wrapper — click outside closes; Escape handled by caller if needed.
 export const Modal = ({ open, onClose, title, children, wide }) => (
   open && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-3 sm:p-4" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
-        className={`max-h-[88vh] w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} overflow-y-auto rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl shadow-black/40`}
+        className={`max-h-[90vh] w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} overflow-y-auto rounded-2xl border border-slate-700/80 bg-slate-900 p-4 sm:p-6 shadow-2xl shadow-black/60 modal-panel scrollbar-thin`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-extrabold text-white">{title}</h3>
+        <div className="mb-4 flex items-center justify-between pb-2 border-b border-slate-800">
+          <h3 className="text-sm sm:text-base font-extrabold text-white">{title}</h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-800 hover:text-white"
           >
             <XIcon />
           </button>
@@ -178,11 +178,11 @@ export const ConfirmModal = ({
   const isSave = type === 'save' || type === 'primary'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay p-3 sm:p-4" onClick={onClose}>
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-900 p-6 shadow-2xl shadow-black/80"
+        className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-700/80 bg-slate-900 p-5 sm:p-6 shadow-2xl shadow-black/80 modal-panel"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4">
