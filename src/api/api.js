@@ -290,6 +290,35 @@ export const adminSupplierAPI = {
     request(`/admin/suppliers/${id}`, { method: 'DELETE' }),
 }
 
+// ===== ADMIN CUSTOMERS (Sale Dashboard → Customers) =====
+// Full customer CRUD against /api/admin/customers (ROLE_ADMIN).
+// CustomerDto is the API contract: { id, code, customerName, secondLanguage,
+//   customerGroup, saleEmployee, taxNo, paymentTerm, termsAndCondition,
+//   priceBook, quoteTemplate, soTemplate, invoiceTemplate, doTemplate,
+//   allowCredit, creditLimit, currentBalance, creditDeposit, balance,
+//   contactFirstName, contactLastName, contactGender, contactDob,
+//   contactPhone, contactMobile, contactEmail, contactWebsite,
+//   addressDescription, addressSecondLanguage, addressLine1, addressLine2,
+//   addressCity, addressState, addressCountry, addressPhone, addressPhoneExt,
+//   addressFax, addressFaxExt, addressEmail, addressWebsite,
+//   active, createdAt, updatedAt }.
+// `code` may be sent blank/undefined on create — the backend auto-generates
+// CU-0001, CU-0002… Do not rename fields.
+export const adminCustomerAPI = {
+  getAll: () => request('/admin/customers'),
+
+  getById: (id) => request(`/admin/customers/${id}`),
+
+  create: (data) =>
+    request('/admin/customers', { method: 'POST', body: JSON.stringify(data) }),
+
+  update: (id, data) =>
+    request(`/admin/customers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  delete: (id) =>
+    request(`/admin/customers/${id}`, { method: 'DELETE' }),
+}
+
 // ===== JOBS =====
 // Admin job CRUD (ROLE_ADMIN; request() auto-attaches the Bearer token).
 // JobDto: { id, title, department, location, type, salary, description,
@@ -553,3 +582,16 @@ export const adminSerialNumberAPI = {
   update: (id, data) => request(`/admin/stocks/serials/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/admin/stocks/serials/${id}`, { method: 'DELETE' }),
 }
+
+// ===== ADMIN CUSTOMER GROUPS (Sale Dashboard → Customer Groups) =====
+export const adminCustomerGroupAPI = {
+  getAll: (search) => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : ''
+    return request(`/admin/customer-groups${qs}`)
+  },
+  getById: (id) => request(`/admin/customer-groups/${id}`),
+  create: (data) => request('/admin/customer-groups', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/customer-groups/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/customer-groups/${id}`, { method: 'DELETE' }),
+}
+

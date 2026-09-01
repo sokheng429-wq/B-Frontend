@@ -118,8 +118,9 @@ function App() {
           <Route path="/apply-now" element={<ApplyNow />} />
 
           {/* Admin Backoffice Management (ADMIN only) */}
-          <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
-          <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
+          {/* Specific routes MUST come before wildcard routes */}
+          <Route path="/admin/customers" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/admin/customers/*" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-member" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-jobs" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-products" element={<AdminRoute><AdminD /></AdminRoute>} />
@@ -127,6 +128,9 @@ function App() {
           <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-partner" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-driver" element={<AdminRoute><AdminD /></AdminRoute>} />
+          {/* Wildcard routes last */}
+          <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
+          <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
 
           <Route path="/profile" element={<Profile />} />
 

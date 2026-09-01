@@ -14,14 +14,15 @@ It connects to a Spring Boot backend (`B-backend` repo) running on `http://local
 
 **Theme colors:** Primary Orange `#FF9900`, Primary Green `#77BC1F`, Dark Background `#0B0F14`, Secondary Dark `#232F3F`
 
-## Development Commands
+## Quick Start
 
 ```bash
-npm run dev       # Vite dev server on port 5173 (strictPort — fails rather than switching)
-npm run build     # Production build
-npm run preview   # Preview production build
-npm run lint      # ESLint
-npm run tunnel    # ngrok tunnel for the dev server (needed to test Telegram login)
+npm install              # Install dependencies
+npm run dev              # Start Vite dev server (http://localhost:5173)
+npm run build            # Production build to dist/
+npm run preview          # Preview production build locally
+npm run lint             # Run ESLint
+npm run tunnel           # ngrok tunnel for OAuth testing
 ```
 
 No test framework is configured; verify changes manually via the dev server.
@@ -64,7 +65,19 @@ Key endpoint conventions:
 
 - `useGoogleLogin.js` — loads Google Identity Services, renders Google's own button into a returned `googleButtonRef` container (invisible overlay so user clicks land on Google's trusted iframe), and calls `onToken(idToken)`. Client ID comes from `VITE_GOOGLE_CLIENT_ID` or a fallback constant that must stay in sync with the backend's `application.yml`
 - `useFacebookLogin.js`, `useTelegramLogin.js` — analogous provider hooks
-- Server-side OAuth2 redirect alternative: backend redirects through `/oauth2/authorization/<provider>` and lands on `/oauth2/redirect?token=<jwt>`, handled by `src/Pages/Auth/OAuth2Redirect.jsx`. See `OAUTH2_SETUP.md` and `FACEBOOK_SETUP.md`
+
+### OAuth Login Flows
+
+**Client-side (recommended for development):**
+- Uses `useGoogleLogin`, `useFacebookLogin`, `useTelegramLogin` hooks
+- Provider returns token directly to frontend
+- Frontend calls `authAPI.socialLogin(provider, token)` to exchange for JWT
+- Requires `VITE_GOOGLE_CLIENT_ID` env var (or fallback constant for demo)
+
+**Server-side redirect (production alternative):**
+- Backend redirects through `/oauth2/authorization/<provider>`
+- Lands on `/oauth2/redirect?token=<jwt>`, handled by `src/Pages/Auth/OAuth2Redirect.jsx`
+- See `OAUTH2_SETUP.md` and `FACEBOOK_SETUP.md` for setup details
 
 ### Route Structure (App.jsx)
 
@@ -82,6 +95,26 @@ All user-facing text is `{ en: 'English', kh: 'ខ្មែរ' }` objects index
 const { lang } = useLanguage()
 <p>{text[lang]}</p>
 ```
+
+## Environment Variables
+
+- `VITE_GOOGLE_CLIENT_ID` — Google OAuth client ID (has a fallback constant in code for demo)
+- Backend base URL hardcoded to `http://localhost:8081/api` in `src/api/api.js`
+
+## Testing & Verification
+
+No automated test framework is configured. Verify changes manually:
+- Start dev server: `npm run dev`
+- Test flows end-to-end via the browser (OAuth, cart, checkout, admin pages)
+- Check browser console for errors
+- Use Redux DevTools (if installed) to inspect state changes
+
+## Troubleshooting
+
+- **Dev server won't start on port 5173:** `strictPort: true` in `vite.config.js` prevents port fallback. Kill any process on port 5173 or change the config.
+- **OAuth redirects to wrong URL:** Verify the redirect URI matches what's registered with the provider (should be `http://localhost:5173/oauth2/redirect`).
+- **Backend requests fail with 401:** Check that `token` is in localStorage and hasn't expired. AuthContext auto-logs out at 5 min inactivity.
+- **Images not loading:** Product images use Unsplash helpers in `src/data/products.js` — confirm Unsplash API is accessible.
 
 ## Backend Contract
 

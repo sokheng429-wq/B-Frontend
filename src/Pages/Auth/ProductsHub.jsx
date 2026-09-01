@@ -359,7 +359,7 @@ export const ProductsHub = () => {
                   {lang === 'en' ? "B'Groceries Stocks Hub" : 'មជ្ឈមណ្ឌលគ្រប់គ្រងស្តុក'}
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-['Montserrat']">
-                  {lang === 'en' ? 'Inventory & Operations' : 'ផលិតផល និងប្រតិបត្តិការស្តុក'}
+                  {lang === 'en' ? 'Stocks & Inventory Hub' : 'មជ្ឈមណ្ឌលស្តុក និងទំនិញ'}
                 </h1>
               </div>
             </div>
