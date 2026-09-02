@@ -35,11 +35,16 @@ import SaleDashboard from './SaleDashboard'
 import CustomerList from './CustomerList'
 import CustomerForm from './CustomerForm'
 import CustomerGroupList from './CustomerGroupList'
-import CustomerGroupForm from './CustomerGroupForm'
 import OrderManagement from './OrderManagement'
 import ConsignmentManagement from './ConsignmentManagement'
 import SalePayment from './SalePayment'
 import PurchaseManagement from './PurchaseManagement'
+import { SaleInvoiceList } from './SaleInvoiceList'
+import { SaleInvoiceCreate } from './SaleInvoiceCreate'
+import { PendingInvoiceList } from './PendingInvoiceList'
+import { ReturnInvoiceList } from './ReturnInvoiceList'
+import { PromotionList } from './PromotionList'
+import { PromotionForm } from './PromotionForm'
 import FreightManagement from './FreightManagement'
 import PayableManagement from './PayableManagement'
 import CashBook from './CashBook'
@@ -595,6 +600,30 @@ function AdminD() {
       return <CustomerGroupList />
     }
 
+    if (path === '/admin/sale-invoice' || path.startsWith('/admin/sale-invoice/')) {
+      const subPath = path.split('/')[3]
+      if (subPath === 'create' || subPath === 'edit') {
+        return <SaleInvoiceCreate />
+      }
+      return <SaleInvoiceList />
+    }
+
+    if (path === '/admin/pending-invoice' || path.startsWith('/admin/pending-invoice/')) {
+      return <PendingInvoiceList />
+    }
+
+    if (path === '/admin/return-invoice' || path.startsWith('/admin/return-invoice/')) {
+      return <ReturnInvoiceList />
+    }
+
+    if (path === '/admin/promotions' || path.startsWith('/admin/promotions/')) {
+      const subPath = path.split('/')[3]
+      if (subPath === 'create' || subPath === 'edit') {
+        return <PromotionForm />
+      }
+      return <PromotionList />
+    }
+
     if (path === '/admin/sale-dashboard' || path === '/admin/sale-dashboard/') {
       return <SaleDashboard />
     }
@@ -618,20 +647,24 @@ function AdminD() {
         return <CustomerGroupList />
       }
       if (module === 'sale-invoice') {
-        // TODO: Create Sale Invoice component
-        return <div className="p-6 text-white">Sale Invoice - Coming Soon</div>
+        const subPath = path.split('/')[4]
+        if (subPath === 'create' || subPath === 'edit') {
+          return <SaleInvoiceCreate />
+        }
+        return <SaleInvoiceList />
       }
       if (module === 'pending-invoice') {
-        // TODO: Create Pending Invoice component
-        return <div className="p-6 text-white">Pending Invoice - Coming Soon</div>
+        return <PendingInvoiceList />
       }
       if (module === 'return-invoice') {
-        // TODO: Create Return Invoice component
-        return <div className="p-6 text-white">Return Invoice - Coming Soon</div>
+        return <ReturnInvoiceList />
       }
       if (module === 'promotions') {
-        // TODO: Create Promotions component
-        return <div className="p-6 text-white">Promotions - Coming Soon</div>
+        const subPath = path.split('/')[4]
+        if (subPath === 'create' || subPath === 'edit') {
+          return <PromotionForm />
+        }
+        return <PromotionList />
       }
       // Fallback to dashboard if module not recognized
       return <SaleDashboard />

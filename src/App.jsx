@@ -35,7 +35,7 @@ import ShopLayout from './components/ShopSidebar'
 // the products-side sections (Products, Promotions, Partners) via AdminD.
 const AdminRoute = ({ children }) => {
   const { user } = useAuth()
-  
+
   // Extract and normalize role from various backend response formats
   let rawRole = ''
   if (user) {
@@ -60,7 +60,7 @@ const AdminRoute = ({ children }) => {
           rawRole = typeof first === 'string' ? first : first.name || first.role || ''
         }
       }
-    } catch {}
+    } catch { }
   }
 
   const role = rawRole.replace(/^ROLE_/, '').toUpperCase()
@@ -117,7 +117,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/apply-now" element={<ApplyNow />} />
 
-          {/* Admin Backoffice Management (ADMIN only) */}
+          {/* Admin Back office Management (ADMIN only) */}
           {/* Specific routes MUST come before wildcard routes */}
           <Route path="/admin/customers" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/admin/customers/*" element={<AdminRoute><AdminD /></AdminRoute>} />

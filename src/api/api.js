@@ -595,3 +595,67 @@ export const adminCustomerGroupAPI = {
   delete: (id) => request(`/admin/customer-groups/${id}`, { method: 'DELETE' }),
 }
 
+// ===== ADMIN SALE INVOICES (Sale Dashboard → Sale Invoice) =====
+export const adminSaleInvoiceAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'all' && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'all') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/sale-invoices?${qStr}` : '/admin/sale-invoices')
+  },
+  getById: (id) => request(`/admin/sale-invoices/${id}`),
+  getByCode: (code) => request(`/admin/sale-invoices/by-code/${encodeURIComponent(code)}`),
+  create: (data) => request('/admin/sale-invoices', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/sale-invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/sale-invoices/${id}`, { method: 'DELETE' }),
+  recordPayment: (id, paymentData) => request(`/admin/sale-invoices/${id}/payments`, { method: 'POST', body: JSON.stringify(paymentData) }),
+  getNextCode: () => request('/admin/sale-invoices/next-code'),
+  getStats: () => request('/admin/sale-invoices/stats'),
+}
+
+// Return Invoices Management API
+export const adminReturnInvoiceAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.outlet && params.outlet !== 'all') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/return-invoices?${qStr}` : '/admin/return-invoices')
+  },
+  getById: (id) => request(`/admin/return-invoices/${id}`),
+  getByCode: (code) => request(`/admin/return-invoices/by-code/${encodeURIComponent(code)}`),
+  create: (data) => request('/admin/return-invoices', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/return-invoices/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/return-invoices/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/return-invoices/next-code'),
+}
+
+// Sale Promotions Management API
+export const adminSalePromotionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.activeOnly !== undefined) qs.set('activeOnly', params.activeOnly)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/promotions?${qStr}` : '/admin/promotions')
+  },
+  getById: (id) => request(`/admin/promotions/${id}`),
+  getByCode: (code) => request(`/admin/promotions/by-code/${encodeURIComponent(code)}`),
+  create: (data) => request('/admin/promotions', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/promotions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  toggleActive: (id) => request(`/admin/promotions/${id}/toggle-active`, { method: 'PATCH' }),
+  delete: (id) => request(`/admin/promotions/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/promotions/next-code'),
+}
+
+
+
