@@ -11,7 +11,7 @@ import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
 import './ProductsHub.css'
 
 // Sale Dashboard Modules
-export const CUSTOMER_MODULES = [
+const CUSTOMER_MODULES = [
   {
     key: 'customers',
     icon: boyIcon,
@@ -37,7 +37,7 @@ export const CUSTOMER_MODULES = [
   },
 ]
 
-export const INVOICE_MODULES = [
+const INVOICE_MODULES = [
   {
     key: 'sale-invoice',
     icon: mailIcon,
@@ -74,7 +74,7 @@ export const INVOICE_MODULES = [
   },
 ]
 
-export const PROMOTION_MODULES = [
+const PROMOTION_MODULES = [
   {
     key: 'promotions',
     icon: giftIcon,
@@ -89,7 +89,7 @@ export const PROMOTION_MODULES = [
   },
 ]
 
-export const ALL_SALE_MODULES = [...CUSTOMER_MODULES, ...INVOICE_MODULES, ...PROMOTION_MODULES]
+const ALL_SALE_MODULES = [...CUSTOMER_MODULES, ...INVOICE_MODULES, ...PROMOTION_MODULES]
 
 /**
  * Helper to safely extract YYYY-MM-DD from any date representation (string, ISO, timestamp)

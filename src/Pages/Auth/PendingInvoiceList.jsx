@@ -267,16 +267,6 @@ export const PendingInvoiceList = () => {
             </svg>
             {lang === 'en' ? 'Export Excel' : 'ទាញយក Excel'}
           </button>
-
-          <Link
-            to="/admin/sale-dashboard/sale-invoice/create"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#77BC1F] to-[#5ea113] hover:from-[#65a317] hover:to-[#4e880e] text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg shadow-green-500/20 transition active:scale-95"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-            </svg>
-            {lang === 'en' ? 'New Invoice' : 'បង្កើតវិក័យប័ត្រ'}
-          </Link>
         </div>
       </div>
 

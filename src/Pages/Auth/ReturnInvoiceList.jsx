@@ -243,16 +243,6 @@ export const ReturnInvoiceList = () => {
             </svg>
             {lang === 'en' ? 'Export Excel' : 'ទាញយក Excel'}
           </button>
-
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-500/20 transition active:scale-95"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-            </svg>
-            {lang === 'en' ? 'Create Return' : 'បង្កើតវិក័យប័ត្រត្រឡប់'}
-          </button>
         </div>
       </div>
 
