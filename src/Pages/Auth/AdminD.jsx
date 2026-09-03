@@ -36,8 +36,16 @@ import CustomerList from './CustomerList'
 import CustomerForm from './CustomerForm'
 import CustomerGroupList from './CustomerGroupList'
 import OrderManagement from './OrderManagement'
+import QuotationList from './QuotationList'
+import SaleOrderList from './SaleOrderList'
+import WebOrderList from './WebOrderList'
+import ShipmentList from './ShipmentList'
+import ReturnShipmentList from './ReturnShipmentList'
 import ConsignmentManagement from './ConsignmentManagement'
+import ConsignmentList from './ConsignmentList'
 import SalePayment from './SalePayment'
+import CustomerDepositList from './CustomerDepositList'
+import ARCollectionList from './ARCollectionList'
 import PurchaseManagement from './PurchaseManagement'
 import { SaleInvoiceList } from './SaleInvoiceList'
 import { SaleInvoiceCreate } from './SaleInvoiceCreate'
@@ -670,12 +678,48 @@ function AdminD() {
       return <SaleDashboard />
     }
 
+    if (path.startsWith('/admin/quotation')) {
+      return <QuotationList />
+    }
+
+    if (path.startsWith('/admin/sale-order')) {
+      return <SaleOrderList />
+    }
+
+    if (path.startsWith('/admin/web-order')) {
+      return <WebOrderList />
+    }
+
+    if (path.startsWith('/admin/shipment')) {
+      return <ShipmentList />
+    }
+
+    if (path.startsWith('/admin/return-shipment')) {
+      return <ReturnShipmentList />
+    }
+
     if (path === '/admin/order-management') {
       return <OrderManagement />
     }
 
+    if (path.startsWith('/admin/consignments') || path.startsWith('/admin/consignment-order') || path.startsWith('/admin/consignment-shipment')) {
+      return <ConsignmentList />
+    }
+
+    if (path.startsWith('/admin/consignment-settlement')) {
+      return <Report />
+    }
+
     if (path === '/admin/consignment') {
       return <ConsignmentManagement />
+    }
+
+    if (path.startsWith('/admin/sale-payment/customer-deposit') || path.startsWith('/admin/cash-book/customer-deposit')) {
+      return <CustomerDepositList />
+    }
+
+    if (path.startsWith('/admin/sale-payment/ar-collection')) {
+      return <ARCollectionList />
     }
 
     if (path === '/admin/sale-payment') {
@@ -959,7 +1003,7 @@ function AdminD() {
                 <div className="flex items-stretch">
                   <Link
                     to="/admin/consignment"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/consignment' || location.pathname.startsWith('/admin/consignment-shipment') || location.pathname.startsWith('/admin/return-shipment-consignment') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 rounded-l-xl border-y border-l border-purple-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/consignment' || location.pathname.startsWith('/admin/consignments') || location.pathname.startsWith('/admin/consignment-shipment') || location.pathname.startsWith('/admin/return-shipment-consignment') || location.pathname.startsWith('/admin/consignment-settlement') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 rounded-l-xl border-y border-l border-purple-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
                     <span className="text-lg">📦</span>
                     <span className="truncate">{lang === 'en' ? 'Consignment' : 'ការដឹកជញ្ជូនបង្ហាញ'}</span>
@@ -968,7 +1012,7 @@ function AdminD() {
                     type="button"
                     aria-label={lang === 'en' ? 'Toggle consignment menu' : 'បើកម៉ឺនុយការដឹកជញ្ជូនបង្ហាញ'}
                     aria-expanded={openDropdowns.consignment}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/consignment' || location.pathname.startsWith('/admin/consignment-shipment') || location.pathname.startsWith('/admin/return-shipment-consignment') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 rounded-r-xl border-y border-r border-purple-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/consignment' || location.pathname.startsWith('/admin/consignments') || location.pathname.startsWith('/admin/consignment-shipment') || location.pathname.startsWith('/admin/return-shipment-consignment') || location.pathname.startsWith('/admin/consignment-settlement') ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 rounded-r-xl border-y border-r border-purple-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                     onClick={() => toggleDropdown('consignment')}
                   >
                     <span className={`transition-transform duration-200 ${openDropdowns.consignment ? 'rotate-180' : ''}`}>
@@ -978,11 +1022,14 @@ function AdminD() {
                 </div>
                 {openDropdowns.consignment && (
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-purple-500/30 space-y-1 py-1">
-                    <Link to="/admin/consignment-shipment" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📦</span> {lang === 'en' ? 'Consignment Shipment' : 'ការដឹកជញ្ជូនបង្ហាញ'}
+                    <Link to="/admin/consignments" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">📦</span> {lang === 'en' ? 'Consignment' : 'ការដឹកជញ្ជូនបញ្ញើ'}
                     </Link>
                     <Link to="/admin/return-shipment-consignment" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">↩️</span> {lang === 'en' ? 'Return Shipment' : 'ការបញ្ជូនត្រឡប់'}
+                    </Link>
+                    <Link to="/admin/consignment-settlement" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                      <span className="text-sm">💵</span> {lang === 'en' ? 'Consignment Settlement' : 'ការទូទាត់លក់បញ្ញើ'}
                     </Link>
                   </div>
                 )}

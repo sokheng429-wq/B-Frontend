@@ -657,5 +657,169 @@ export const adminSalePromotionAPI = {
   getNextCode: () => request('/admin/promotions/next-code'),
 }
 
+// Quotation Management API
+export const adminQuotationAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'all' && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'all') qs.set('outlet', params.outlet)
+    if (params.customer) qs.set('customer', params.customer)
+    if (params.salesperson) qs.set('salesperson', params.salesperson)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/quotations?${qStr}` : '/admin/quotations')
+  },
+  getById: (id) => request(`/admin/quotations/${id}`),
+  getByCode: (code) => request(`/admin/quotations/by-code/${encodeURIComponent(code)}`),
+  create: (data) => request('/admin/quotations', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/quotations/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/quotations/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/quotations/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/quotations/next-code'),
+}
 
+// Admin Sale Orders API
+export const adminSaleOrderAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/sale-orders?${qStr}` : '/admin/sale-orders')
+  },
+  getById: (id) => request(`/admin/sale-orders/${id}`),
+  create: (data) => request('/admin/sale-orders', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/sale-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/sale-orders/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/sale-orders/next-code'),
+}
 
+// Admin Web Orders API
+export const adminWebOrderAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/web-orders?${qStr}` : '/admin/web-orders')
+  },
+  getById: (id) => request(`/admin/web-orders/${id}`),
+  create: (data) => request('/admin/web-orders', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/web-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/web-orders/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/web-orders/next-code'),
+}
+
+// Admin Shipments API
+export const adminShipmentAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/shipments?${qStr}` : '/admin/shipments')
+  },
+  getById: (id) => request(`/admin/shipments/${id}`),
+  create: (data) => request('/admin/shipments', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/shipments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/shipments/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/shipments/next-code'),
+}
+
+// Admin Return Shipments API
+export const adminReturnShipmentAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/return-shipments?${qStr}` : '/admin/return-shipments')
+  },
+  getById: (id) => request(`/admin/return-shipments/${id}`),
+  create: (data) => request('/admin/return-shipments', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/return-shipments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/return-shipments/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/return-shipments/next-code'),
+}
+// Admin Consignments API
+export const adminConsignmentAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.customer && params.customer !== 'ALL') qs.set('customer', params.customer)
+    if (params.salesperson && params.salesperson !== 'ALL') qs.set('salesperson', params.salesperson)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/consignments?${qStr}` : '/admin/consignments')
+  },
+  getById: (id) => request(`/admin/consignments/${id}`),
+  getByCode: (code) => request(`/admin/consignments/by-code/${code}`),
+  create: (data) => request('/admin/consignments', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/consignments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/consignments/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/consignments/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/consignments/next-code'),
+}
+
+// Admin Customer Deposits API
+export const adminCustomerDepositAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/customer-deposits?${qStr}` : '/admin/customer-deposits')
+  },
+  getById: (id) => request(`/admin/customer-deposits/${id}`),
+  create: (data) => request('/admin/customer-deposits', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/customer-deposits/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/customer-deposits/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/customer-deposits/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/customer-deposits/next-code'),
+}
+
+// Admin AR Collections API
+export const adminArCollectionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/ar-collections?${qStr}` : '/admin/ar-collections')
+  },
+  getById: (id) => request(`/admin/ar-collections/${id}`),
+  create: (data) => request('/admin/ar-collections', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/ar-collections/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/ar-collections/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/ar-collections/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/ar-collections/next-code'),
+}
