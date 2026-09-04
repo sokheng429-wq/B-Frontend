@@ -46,7 +46,15 @@ import ConsignmentList from './ConsignmentList'
 import SalePayment from './SalePayment'
 import CustomerDepositList from './CustomerDepositList'
 import ARCollectionList from './ARCollectionList'
+import CustomerRefundList from './CustomerRefundList'
+import PaymentTermList from './PaymentTermList'
+import AgingInvoiceList from './AgingInvoiceList'
 import PurchaseManagement from './PurchaseManagement'
+import InventoryOrderList from './InventoryOrderList'
+import RequisitionList from './RequisitionList'
+import PurchaseOrderList from './PurchaseOrderList'
+import ReceiptPOList from './ReceiptPOList'
+import ReturnReceiptPOList from './ReturnReceiptPOList'
 import { SaleInvoiceList } from './SaleInvoiceList'
 import { SaleInvoiceCreate } from './SaleInvoiceCreate'
 import { PendingInvoiceList } from './PendingInvoiceList'
@@ -722,8 +730,52 @@ function AdminD() {
       return <ARCollectionList />
     }
 
+    if (path.startsWith('/admin/sale-payment/customer-refund')) {
+      return <CustomerRefundList />
+    }
+
+    if (path.startsWith('/admin/sale-payment/payment-term')) {
+      return <PaymentTermList />
+    }
+
+    if (path.startsWith('/admin/sale-payment/aging-invoice')) {
+      return <AgingInvoiceList />
+    }
+
     if (path === '/admin/sale-payment') {
       return <SalePayment />
+    }
+
+    if (path.startsWith('/admin/purchase-management/inventory-to-order') || path === '/admin/inventory-to-order') {
+      return <InventoryOrderList />
+    }
+
+    if (path.startsWith('/admin/purchase-management/requisition') || path === '/admin/requisition') {
+      return <RequisitionList />
+    }
+
+    if (path.startsWith('/admin/purchase-management/purchase-order') || path === '/admin/purchase-order') {
+      return <PurchaseOrderList />
+    }
+
+    if (path.startsWith('/admin/purchase-management/receipt-po') || path === '/admin/receipt-po') {
+      return <ReceiptPOList />
+    }
+
+    if (path.startsWith('/admin/purchase-management/return-receipt-po') || path === '/admin/return-receipt-po') {
+      return <ReturnReceiptPOList />
+    }
+
+    if (path.startsWith('/admin/purchase-management/suppliers')) {
+      return <Suppliers />
+    }
+
+    if (path.startsWith('/admin/purchase-management/supplier-groups')) {
+      return <SupplierGroups />
+    }
+
+    if (path.startsWith('/admin/purchase-management/product-supplier')) {
+      return <ProductsSupplierSection key="products-supplier" />
     }
 
     if (path === '/admin/purchase-management') {

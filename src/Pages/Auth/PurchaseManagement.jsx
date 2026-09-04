@@ -62,7 +62,7 @@ export const VENDOR_MASTER_MODULES = [
     bg: 'rgba(255, 153, 0, 0.12)',
     category: 'master',
     tag: 'Smart',
-    route: '/admin/purchase-management',
+    route: '/admin/purchase-management/inventory-to-order',
   },
 ]
 
@@ -70,7 +70,7 @@ export const PURCHASE_OPS_MODULES = [
   {
     key: 'requisition',
     icon: fileNewIcon,
-    en: 'Purchase Requisition',
+    en: 'Requisition',
     kh: 'លិខិតស្នើសុំបញ្ជាទិញ',
     descEn: 'Internal stock purchase requests created by branch and floor managers.',
     descKh: 'លិខិតស្នើសុំទិញស្តុកផ្ទៃក្នុងដែលបង្កើតឡើងដោយអ្នកគ្រប់គ្រងសាខា។',
@@ -78,25 +78,25 @@ export const PURCHASE_OPS_MODULES = [
     bg: 'rgba(139, 92, 246, 0.12)',
     category: 'procurement',
     tag: 'Workflow',
-    route: '/admin/purchase-management',
+    route: '/admin/purchase-management/requisition',
   },
   {
     key: 'purchase-order',
     icon: bagIcon,
-    en: 'Purchase Orders (PO)',
-    kh: 'ការបញ្ជាទិញទំនិញ (PO)',
+    en: 'Purchase Orders',
+    kh: 'ការបញ្ជាទិញទំនិញ',
     descEn: 'Official purchase orders sent to vendors with quantities, pricing and ETAs.',
     descKh: 'លិខិតបញ្ជាទិញផ្លូវការផ្ញើជូនអ្នកផ្គត់ផ្គង់ ជាមួយតម្លៃ និងកាលបរិច្ឆេទដឹក។',
     color: '#06b6d4',
     bg: 'rgba(6, 182, 212, 0.12)',
     category: 'procurement',
     tag: 'Core',
-    route: '/admin/purchase-management',
+    route: '/admin/purchase-management/purchase-order',
   },
   {
     key: 'receipt-po',
     icon: mailIcon,
-    en: 'Goods Receipt PO',
+    en: 'Receipt PO',
     kh: 'ការទទួលទំនិញតាម PO',
     descEn: 'Inspect physical shipments, record received batches, and verify delivery notes.',
     descKh: 'ពិនិត្យទំនិញជាក់ស្តែង កត់ត្រាចំនួនទទួល និងផ្ទៀងផ្ទាត់ប័ណ្ណដឹក។',
@@ -104,19 +104,20 @@ export const PURCHASE_OPS_MODULES = [
     bg: 'rgba(16, 185, 129, 0.12)',
     category: 'procurement',
     tag: 'Receiving',
-    route: '/admin/products/receive',
+    route: '/admin/purchase-management/receipt-po',
   },
   {
     key: 'return-receipt-po',
     icon: copyIcon,
-    en: 'Return to Vendor (RTV)',
+    en: 'Return Receipt PO',
     kh: 'ការប្រគល់ទំនិញត្រឡប់ជូនអ្នកផ្គត់ផ្គង់',
     descEn: 'Return rejected or damaged items back to suppliers with debit notes.',
     descKh: 'ប្រគល់ទំនិញខូច ឬមិនត្រូវតាមស្តង់ដារត្រឡប់ជូនអ្នកផ្គត់ផ្គង់វិញ។',
     color: '#ef4444',
     bg: 'rgba(239, 68, 68, 0.12)',
     category: 'procurement',
-    route: '/admin/purchase-management',
+    tag: 'Returns',
+    route: '/admin/purchase-management/return-receipt-po',
   },
 ]
 
@@ -333,17 +334,15 @@ export default function PurchaseManagement() {
               key={tab.key}
               type="button"
               onClick={() => setActiveCategory(tab.key)}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${
-                activeCategory === tab.key
-                  ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20 font-black'
-                  : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${activeCategory === tab.key
+                ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20 font-black'
+                : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+                }`}
             >
               <span>{lang === 'kh' ? tab.kh : tab.en}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                  activeCategory === tab.key ? 'bg-slate-950 text-green-300' : 'bg-slate-800 text-slate-400'
-                }`}
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${activeCategory === tab.key ? 'bg-slate-950 text-green-300' : 'bg-slate-800 text-slate-400'
+                  }`}
               >
                 {tab.count}
               </span>

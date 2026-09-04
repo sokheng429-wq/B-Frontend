@@ -823,3 +823,79 @@ export const adminArCollectionAPI = {
   delete: (id) => request(`/admin/ar-collections/${id}`, { method: 'DELETE' }),
   getNextCode: () => request('/admin/ar-collections/next-code'),
 }
+
+// Admin Customer Refunds API
+export const adminCustomerRefundAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.startDate) qs.set('startDate', params.startDate)
+    if (params.endDate) qs.set('endDate', params.endDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/customer-refunds?${qStr}` : '/admin/customer-refunds')
+  },
+  getById: (id) => request(`/admin/customer-refunds/${id}`),
+  create: (data) => request('/admin/customer-refunds', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/customer-refunds/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/customer-refunds/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/customer-refunds/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/customer-refunds/next-code'),
+}
+
+// Admin Payment Terms API
+export const adminPaymentTermAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy) qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/payment-terms?${qStr}` : '/admin/payment-terms')
+  },
+  getById: (id) => request(`/admin/payment-terms/${id}`),
+  create: (data) => request('/admin/payment-terms', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/payment-terms/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, active) => request(`/admin/payment-terms/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+  delete: (id) => request(`/admin/payment-terms/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/payment-terms/next-code'),
+}
+
+// Admin Aging Invoices API
+export const adminAgingInvoiceAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.agingType && params.agingType !== 'ALL') qs.set('agingType', params.agingType)
+    if (params.salesperson && params.salesperson !== 'all') qs.set('salesperson', params.salesperson)
+    if (params.customer && params.customer !== 'all') qs.set('customer', params.customer)
+    if (params.customerGroup && params.customerGroup !== 'all') qs.set('customerGroup', params.customerGroup)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/aging-invoices?${qStr}` : '/admin/aging-invoices')
+  },
+  getById: (id) => request(`/admin/aging-invoices/${id}`),
+  getSummary: () => request('/admin/aging-invoices/summary'),
+}
+
+// Admin Requisition API (Purchase Management Hub)
+export const adminRequisitionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/requisitions?${qStr}` : '/admin/requisitions')
+  },
+  getById: (id) => request(`/admin/requisitions/${id}`),
+  create: (data) => request('/admin/requisitions', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/requisitions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/requisitions/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/requisitions/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/requisitions/next-code'),
+}
+

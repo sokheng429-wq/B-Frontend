@@ -128,6 +128,14 @@ function App() {
           <Route path="/manage-users" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-partner" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/add-driver" element={<AdminRoute><AdminD /></AdminRoute>} />
+
+          {/* Direct Purchase Management shortcuts */}
+          <Route path="/requisition" element={<Navigate to="/admin/purchase-management/requisition" replace />} />
+          <Route path="/inventory-to-order" element={<Navigate to="/admin/purchase-management/inventory-to-order" replace />} />
+          <Route path="/purchase-order" element={<Navigate to="/admin/purchase-management/purchase-order" replace />} />
+          <Route path="/receipt-po" element={<Navigate to="/admin/purchase-management/receipt-po" replace />} />
+          <Route path="/return-receipt-po" element={<Navigate to="/admin/purchase-management/return-receipt-po" replace />} />
+
           {/* Wildcard routes last */}
           <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
