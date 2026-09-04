@@ -54,7 +54,7 @@ export const CASH_BANK_MODULES = [
   {
     key: 'bank-transfer',
     icon: toggleIcon,
-    en: 'Internal Fund Transfer',
+    en: 'Bank Transfer',
     kh: 'ផ្ទេរប្រាក់ផ្ទៃក្នុង',
     descEn: 'Move funds between store till registers, vaults, petty cash boxes and company bank accounts.',
     descKh: 'ផ្ទេរប្រាក់រវាងកុងទ័រលក់ ទូដែក និងគណនីធនាគារក្រុមហ៊ុន។',
@@ -69,7 +69,7 @@ export const SETTLEMENT_MODULES = [
   {
     key: 'customer-deposit',
     icon: walletIcon,
-    en: 'Customer Deposit Intake',
+    en: 'Customer Deposit',
     kh: 'ទទួលប្រាក់កក់អតិថិជន',
     descEn: 'Receive customer advance funds directly into cash book ledger.',
     descKh: 'ទទួលប្រាក់កក់មុនពីអតិថិជនចូលទៅក្នុងសៀវភៅលុយ។',
@@ -82,7 +82,7 @@ export const SETTLEMENT_MODULES = [
   {
     key: 'ar-collection',
     icon: dollarIcon,
-    en: 'AR Cash Collection',
+    en: 'AR Collection',
     kh: 'ការប្រមូលប្រាក់ទារបំណុល',
     descEn: 'Settle outstanding sales invoices and log cash receipts.',
     descKh: 'ទូទាត់វិក័យប័ត្រជំពាក់ និងកត់ត្រាប្រាក់ចំណូលចូលសៀវភៅ។',
@@ -95,7 +95,7 @@ export const SETTLEMENT_MODULES = [
   {
     key: 'supplier-deposit',
     icon: crownIcon,
-    en: 'Supplier Downpayment',
+    en: 'Supplier Deposit',
     kh: 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់',
     descEn: 'Disburse advance deposits for purchase orders to farms and vendors.',
     descKh: 'ទូទាត់ប្រាក់កក់មុនសម្រាប់បញ្ជាទិញទៅកសិដ្ឋាន និងអ្នកផ្គត់ផ្គង់។',
@@ -107,7 +107,7 @@ export const SETTLEMENT_MODULES = [
   {
     key: 'bill-payment',
     icon: chartIcon,
-    en: 'Vendor Bill Settlements',
+    en: 'Bill Payment',
     kh: 'ការទូទាត់ប៊ីលអ្នកផ្គត់ផ្គង់',
     descEn: 'Clear vendor accounts payable via cash vouchers or bank payments.',
     descKh: 'ទូទាត់ប៊ីលជំពាក់អ្នកផ្គត់ផ្គង់តាមប័ណ្ណទូទាត់ ឬផ្ទេរប្រាក់។',
@@ -332,17 +332,15 @@ export default function CashBook() {
               key={tab.key}
               type="button"
               onClick={() => setActiveCategory(tab.key)}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${
-                activeCategory === tab.key
-                  ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/20 font-black'
-                  : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${activeCategory === tab.key
+                ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/20 font-black'
+                : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+                }`}
             >
               <span>{lang === 'kh' ? tab.kh : tab.en}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                  activeCategory === tab.key ? 'bg-slate-950 text-yellow-300' : 'bg-slate-800 text-slate-400'
-                }`}
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${activeCategory === tab.key ? 'bg-slate-950 text-yellow-300' : 'bg-slate-800 text-slate-400'
+                  }`}
               >
                 {tab.count}
               </span>

@@ -136,6 +136,21 @@ function App() {
           <Route path="/receipt-po" element={<Navigate to="/admin/purchase-management/receipt-po" replace />} />
           <Route path="/return-receipt-po" element={<Navigate to="/admin/purchase-management/return-receipt-po" replace />} />
 
+          {/* Direct Freight Management shortcuts */}
+          <Route path="/shipment-tariff" element={<Navigate to="/admin/freight-management/shipment-tariff" replace />} />
+          <Route path="/shipment-method" element={<Navigate to="/admin/freight-management/shipment-method" replace />} />
+          <Route path="/pending-receipt-po" element={<Navigate to="/admin/freight-management/pending-receipt-po" replace />} />
+
+          {/* Direct Payable Management shortcuts */}
+          <Route path="/enter-bill" element={<Navigate to="/admin/payable-management/enter-bill" replace />} />
+          <Route path="/bill-payment" element={<Navigate to="/admin/payable-management/bill-payment" replace />} />
+          <Route path="/enter-freight" element={<Navigate to="/admin/payable-management/enter-freight" replace />} />
+          <Route path="/supplier-deposit" element={<Navigate to="/admin/payable-management/supplier-deposit" replace />} />
+          <Route path="/supplier-refund" element={<Navigate to="/admin/payable-management/supplier-refund" replace />} />
+
+          {/* Direct Cash Book shortcuts */}
+          <Route path="/cash-in-out" element={<Navigate to="/admin/cash-book/cash-in-out" replace />} />
+
           {/* Wildcard routes last */}
           <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />

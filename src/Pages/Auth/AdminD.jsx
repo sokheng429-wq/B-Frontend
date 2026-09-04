@@ -62,8 +62,12 @@ import { ReturnInvoiceList } from './ReturnInvoiceList'
 import { PromotionList } from './PromotionList'
 import { PromotionForm } from './PromotionForm'
 import FreightManagement from './FreightManagement'
+import ShipmentTariffList from './ShipmentTariffList'
+import ShipmentMethodList from './ShipmentMethodList'
+import PendingReceiptPOList from './PendingReceiptPOList'
 import PayableManagement from './PayableManagement'
 import CashBook from './CashBook'
+import CashInOutList from './CashInOutList'
 import Employee from './Employee'
 import Report from './Report'
 import Integration from './Integration'
@@ -782,12 +786,28 @@ function AdminD() {
       return <PurchaseManagement />
     }
 
+    if (path.startsWith('/admin/freight-management/shipment-tariff') || path === '/admin/shipment-tariff') {
+      return <ShipmentTariffList />
+    }
+
+    if (path.startsWith('/admin/freight-management/shipment-method') || path === '/admin/shipment-method') {
+      return <ShipmentMethodList />
+    }
+
+    if (path.startsWith('/admin/freight-management/pending-receipt-po') || path === '/admin/pending-receipt-po') {
+      return <PendingReceiptPOList />
+    }
+
     if (path === '/admin/freight-management') {
       return <FreightManagement />
     }
 
-    if (path === '/admin/payable-management') {
+    if (path.startsWith('/admin/payable-management') || path === '/admin/payable-management') {
       return <PayableManagement />
+    }
+
+    if (path.startsWith('/admin/cash-book/cash-in-out') || path === '/admin/cash-in-out') {
+      return <CashInOutList />
     }
 
     if (path === '/admin/cash-book') {
@@ -1195,12 +1215,11 @@ function AdminD() {
                 </div>
                 {openDropdowns.payableManagement && (
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-red-500/30 space-y-1 py-1">
-                    <Link to="/admin/payable-management/enter-bill" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📄</span> {lang === 'en' ? 'Enter Bill' : 'ឯកសារលម្អិត'}</Link>
-                    <Link to="/admin/payable-management/bill" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💳</span> {lang === 'en' ? 'Bill' : 'ប៊ីល'}</Link>
-                    <Link to="/admin/payable-management/bill-payment" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💰</span> {lang === 'en' ? 'Bill Payment' : 'ការបង់ប៊ីល'}</Link>
-                    <Link to="/admin/payable-management/enter-freight" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🚚</span> {lang === 'en' ? 'Enter Freight' : 'ចូលសរុបលើក'}</Link>
+                    <Link to="/admin/payable-management/enter-bill" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📄</span> {lang === 'en' ? 'Enter Bill' : 'បញ្ចូលប៊ីល'}</Link>
+                    <Link to="/admin/payable-management/bill-payment" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💳</span> {lang === 'en' ? 'Bill Payment' : 'ការបង់ប្រាក់ប៊ីល'}</Link>
+                    <Link to="/admin/payable-management/enter-freight" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🚚</span> {lang === 'en' ? 'Enter Freight' : 'វិក័យប័ត្រដឹកជញ្ជូន'}</Link>
                     <Link to="/admin/payable-management/supplier-deposit" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💎</span> {lang === 'en' ? 'Supplier Deposit' : 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់'}</Link>
-                    <Link to="/admin/payable-management/supplier-refund" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">↩️</span> {lang === 'en' ? 'Supplier Refund' : 'សងប្រាក់វិញ'}</Link>
+                    <Link to="/admin/payable-management/supplier-refund" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">↩️</span> {lang === 'en' ? 'Supplier Refund' : 'ប្រាក់សងត្រឡប់'}</Link>
                   </div>
                 )}
               </div>

@@ -899,3 +899,122 @@ export const adminRequisitionAPI = {
   getNextCode: () => request('/admin/requisitions/next-code'),
 }
 
+// Admin Purchase Order API (Purchase Management Hub)
+export const adminPurchaseOrderAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any') qs.set('outlet', params.outlet)
+    if (params.purchasePerson && params.purchasePerson !== 'all' && params.purchasePerson !== 'any') qs.set('purchasePerson', params.purchasePerson)
+    if (params.status && params.status !== 'ALL' && params.status !== 'any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/purchase-orders?${qStr}` : '/admin/purchase-orders')
+  },
+  getById: (id) => request(`/admin/purchase-orders/${id}`),
+  create: (data) => request('/admin/purchase-orders', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/purchase-orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/purchase-orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/purchase-orders/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/purchase-orders/next-code'),
+}
+
+// Admin Receipt PO API (Purchase Management Hub)
+export const adminReceiptPOAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'ALL' && params.status !== 'any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/receipt-pos?${qStr}` : '/admin/receipt-pos')
+  },
+  getById: (id) => request(`/admin/receipt-pos/${id}`),
+  create: (data) => request('/admin/receipt-pos', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/receipt-pos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/receipt-pos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/receipt-pos/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/receipt-pos/next-code'),
+}
+export const adminPendingReceiptPOAPI = adminReceiptPOAPI
+
+// Admin Return Receipt PO API (Purchase Management Hub)
+export const adminReturnReceiptPOAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'ALL' && params.status !== 'any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/return-receipt-pos?${qStr}` : '/admin/return-receipt-pos')
+  },
+  getById: (id) => request(`/admin/return-receipt-pos/${id}`),
+  create: (data) => request('/admin/return-receipt-pos', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/return-receipt-pos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, status) => request(`/admin/return-receipt-pos/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  delete: (id) => request(`/admin/return-receipt-pos/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/return-receipt-pos/next-code'),
+}
+
+// Admin Shipment Tariff API (Freight Management Hub)
+export const adminShipmentTariffAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL' && params.status !== 'all') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/shipment-tariffs?${qStr}` : '/admin/shipment-tariffs')
+  },
+  getById: (id) => request(`/admin/shipment-tariffs/${id}`),
+  create: (data) => request('/admin/shipment-tariffs', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/shipment-tariffs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, active) => request(`/admin/shipment-tariffs/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+  delete: (id) => request(`/admin/shipment-tariffs/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/shipment-tariffs/next-code'),
+}
+
+// Admin Shipment Method API (Freight Management Hub)
+export const adminShipmentMethodAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL' && params.status !== 'all') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/shipment-methods?${qStr}` : '/admin/shipment-methods')
+  },
+  getById: (id) => request(`/admin/shipment-methods/${id}`),
+  create: (data) => request('/admin/shipment-methods', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/shipment-methods/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  updateStatus: (id, active) => request(`/admin/shipment-methods/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+  delete: (id) => request(`/admin/shipment-methods/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/shipment-methods/next-code'),
+}
+
+// Admin Cash Operation / Cash In & Out API (Cash Book)
+export const adminCashOperationAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'any' && params.searchBy !== 'Any') qs.set('searchBy', params.searchBy)
+    if (params.type && params.type !== 'any' && params.type !== 'Any') qs.set('type', params.type)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'all' && params.status !== 'any') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/cash-operations?${qStr}` : '/admin/cash-operations')
+  },
+  getById: (id) => request(`/admin/cash-operations/${id}`),
+  void: (id) => request(`/admin/cash-operations/${id}/void`, { method: 'POST' }),
+}
+
