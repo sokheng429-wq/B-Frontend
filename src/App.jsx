@@ -149,7 +149,22 @@ function App() {
           <Route path="/supplier-refund" element={<Navigate to="/admin/payable-management/supplier-refund" replace />} />
 
           {/* Direct Cash Book shortcuts */}
+          <Route path="/cash-book" element={<Navigate to="/admin/cash-book" replace />} />
           <Route path="/cash-in-out" element={<Navigate to="/admin/cash-book/cash-in-out" replace />} />
+          <Route path="/cash-in-out/create" element={<Navigate to="/admin/cash-book/cash-in-out/create" replace />} />
+          <Route path="/cash-category" element={<Navigate to="/admin/cash-book/cash-category" replace />} />
+          <Route path="/bank-in-out" element={<Navigate to="/admin/cash-book/bank-in-out" replace />} />
+          <Route path="/bank-in-out/create" element={<Navigate to="/admin/cash-book/bank-in-out/create" replace />} />
+          <Route path="/bank-transfer" element={<Navigate to="/admin/cash-book/bank-transfer" replace />} />
+          <Route path="/bank-transfer/create" element={<Navigate to="/admin/cash-book/bank-transfer/create" replace />} />
+
+          {/* Direct Employee shortcuts */}
+          <Route path="/employee" element={<Navigate to="/admin/employee" replace />} />
+          <Route path="/employee-list" element={<Navigate to="/admin/employee/list" replace />} />
+          <Route path="/office" element={<Navigate to="/admin/employee/office" replace />} />
+          <Route path="/department" element={<Navigate to="/admin/employee/department" replace />} />
+          <Route path="/section" element={<Navigate to="/admin/employee/section" replace />} />
+          <Route path="/position" element={<Navigate to="/admin/employee/position" replace />} />
 
           {/* Wildcard routes last */}
           <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />

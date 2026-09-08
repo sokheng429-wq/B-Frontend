@@ -66,9 +66,26 @@ import ShipmentTariffList from './ShipmentTariffList'
 import ShipmentMethodList from './ShipmentMethodList'
 import PendingReceiptPOList from './PendingReceiptPOList'
 import PayableManagement from './PayableManagement'
+import EnterBillList from './EnterBillList'
+import EnterBillCreate from './EnterBillCreate'
+import BillPaymentList from './BillPaymentList'
+import EnterFreightList from './EnterFreightList'
+import SupplierDepositList from './SupplierDepositList'
+import SupplierRefundList from './SupplierRefundList'
 import CashBook from './CashBook'
 import CashInOutList from './CashInOutList'
+import CashInOutCreate from './CashInOutCreate'
+import CashCategoryList from './CashCategoryList'
+import BankInOutList from './BankInOutList'
+import BankInOutCreate from './BankInOutCreate'
+import BankTransferList from './BankTransferList'
+import BankTransferCreate from './BankTransferCreate'
 import Employee from './Employee'
+import EmployeeList from './EmployeeList'
+import OfficeList from './OfficeList'
+import DepartmentList from './DepartmentList'
+import SectionList from './SectionList'
+import PositionList from './PositionList'
 import Report from './Report'
 import Integration from './Integration'
 import { StocksList } from './StocksList'
@@ -730,7 +747,7 @@ function AdminD() {
       return <CustomerDepositList />
     }
 
-    if (path.startsWith('/admin/sale-payment/ar-collection')) {
+    if (path.startsWith('/admin/sale-payment/ar-collection') || path.startsWith('/admin/cash-book/ar-collection')) {
       return <ARCollectionList />
     }
 
@@ -802,16 +819,84 @@ function AdminD() {
       return <FreightManagement />
     }
 
+    if (path.startsWith('/admin/payable-management/enter-bill/create') || path === '/admin/enter-bill/create') {
+      return <EnterBillCreate />
+    }
+
+    if (path.startsWith('/admin/payable-management/enter-bill') || path === '/admin/enter-bill' || path === '/enter-bill') {
+      return <EnterBillList />
+    }
+
+    if (path.startsWith('/admin/payable-management/bill-payment') || path.startsWith('/admin/cash-book/bill-payment') || path === '/admin/bill-payment' || path === '/bill-payment') {
+      return <BillPaymentList />
+    }
+
+    if (path.startsWith('/admin/payable-management/enter-freight') || path === '/admin/enter-freight' || path === '/enter-freight') {
+      return <EnterFreightList />
+    }
+
+    if (path.startsWith('/admin/payable-management/supplier-deposit') || path.startsWith('/admin/cash-book/supplier-deposit') || path === '/admin/supplier-deposit' || path === '/supplier-deposit') {
+      return <SupplierDepositList />
+    }
+
+    if (path.startsWith('/admin/payable-management/supplier-refund') || path === '/admin/supplier-refund' || path === '/supplier-refund') {
+      return <SupplierRefundList />
+    }
+
     if (path.startsWith('/admin/payable-management') || path === '/admin/payable-management') {
       return <PayableManagement />
+    }
+
+    if (path.startsWith('/admin/cash-book/cash-category') || path === '/admin/cash-category') {
+      return <CashCategoryList />
+    }
+
+    if (path.startsWith('/admin/cash-book/cash-in-out/create') || path === '/admin/cash-in-out/create') {
+      return <CashInOutCreate />
     }
 
     if (path.startsWith('/admin/cash-book/cash-in-out') || path === '/admin/cash-in-out') {
       return <CashInOutList />
     }
 
+    if (path.startsWith('/admin/cash-book/bank-in-out/create') || path === '/admin/bank-in-out/create') {
+      return <BankInOutCreate />
+    }
+
+    if (path.startsWith('/admin/cash-book/bank-in-out') || path === '/admin/bank-in-out') {
+      return <BankInOutList />
+    }
+
+    if (path.startsWith('/admin/cash-book/bank-transfer/create') || path === '/admin/bank-transfer/create') {
+      return <BankTransferCreate />
+    }
+
+    if (path.startsWith('/admin/cash-book/bank-transfer') || path === '/admin/bank-transfer') {
+      return <BankTransferList />
+    }
+
     if (path === '/admin/cash-book') {
       return <CashBook />
+    }
+
+    if (path.startsWith('/admin/employee/list') || path === '/admin/employee-list') {
+      return <EmployeeList />
+    }
+
+    if (path.startsWith('/admin/employee/office') || path === '/admin/office') {
+      return <OfficeList />
+    }
+
+    if (path.startsWith('/admin/employee/department') || path === '/admin/department') {
+      return <DepartmentList />
+    }
+
+    if (path.startsWith('/admin/employee/section') || path === '/admin/section') {
+      return <SectionList />
+    }
+
+    if (path.startsWith('/admin/employee/position') || path === '/admin/position') {
+      return <PositionList />
     }
 
     if (path === '/admin/employee') {
@@ -1200,7 +1285,7 @@ function AdminD() {
                 <div className="flex items-stretch">
                   <Link
                     to="/admin/payable-management"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/payable-management' ? 'bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-400 rounded-l-xl border-y border-l border-red-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/payable-management' || location.pathname.startsWith('/admin/payable-management') ? 'bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-400 rounded-l-xl border-y border-l border-red-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
                     <span className="text-lg">💳</span>
                     <span className="truncate">{lang === 'en' ? 'Payable Management' : 'ការគ្រប់គ្រងថ្លៃដែលបង់'}</span>
@@ -1208,17 +1293,53 @@ function AdminD() {
                   <button
                     type="button"
                     onClick={() => toggleDropdown('payableManagement')}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/payable-management' ? 'bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-400 rounded-r-xl border-y border-r border-red-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/payable-management' || location.pathname.startsWith('/admin/payable-management') ? 'bg-gradient-to-r from-red-500/20 to-red-600/10 text-red-400 rounded-r-xl border-y border-r border-red-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                   >
                     <span className={`transition-transform duration-200 ${openDropdowns.payableManagement ? 'rotate-180' : ''}`}><ChevronDownIcon /></span>
                   </button>
                 </div>
                 {openDropdowns.payableManagement && (
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-red-500/30 space-y-1 py-1">
-                    <Link to="/admin/payable-management/enter-bill" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📄</span> {lang === 'en' ? 'Enter Bill' : 'បញ្ចូលប៊ីល'}</Link>
-                    <Link to="/admin/payable-management/bill-payment" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💳</span> {lang === 'en' ? 'Bill Payment' : 'ការបង់ប្រាក់ប៊ីល'}</Link>
-                    <Link to="/admin/payable-management/enter-freight" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🚚</span> {lang === 'en' ? 'Enter Freight' : 'វិក័យប័ត្រដឹកជញ្ជូន'}</Link>
-                    <Link to="/admin/payable-management/supplier-deposit" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💎</span> {lang === 'en' ? 'Supplier Deposit' : 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់'}</Link>
+                    <Link
+                      to="/admin/payable-management/enter-bill"
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/admin/payable-management/enter-bill')
+                          ? 'bg-red-500/20 text-red-300 font-bold'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-sm">📄</span> {lang === 'en' ? 'Enter Bill' : 'បញ្ចូលប៊ីល'}
+                    </Link>
+                    <Link
+                      to="/admin/payable-management/bill-payment"
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/admin/payable-management/bill-payment')
+                          ? 'bg-red-500/20 text-red-300 font-bold'
+                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-sm">💳</span> {lang === 'en' ? 'Bill Payment' : 'ការបង់ប្រាក់ប៊ីល'}
+                    </Link>
+                    <Link
+                      to="/admin/payable-management/enter-freight"
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/admin/payable-management/enter-freight')
+                          ? 'bg-amber-500/20 text-amber-300 font-bold'
+                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-sm">🚚</span> {lang === 'en' ? 'Enter Freight' : 'វិក័យប័ត្រដឹកជញ្ជូន'}
+                    </Link>
+                    <Link
+                      to="/admin/payable-management/supplier-deposit"
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        location.pathname.startsWith('/admin/payable-management/supplier-deposit')
+                          ? 'bg-purple-500/20 text-purple-300 font-bold'
+                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-sm">💎</span> {lang === 'en' ? 'Supplier Deposit' : 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់'}
+                    </Link>
                     <Link to="/admin/payable-management/supplier-refund" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">↩️</span> {lang === 'en' ? 'Supplier Refund' : 'ប្រាក់សងត្រឡប់'}</Link>
                   </div>
                 )}
@@ -1261,7 +1382,7 @@ function AdminD() {
                 <div className="flex items-stretch">
                   <Link
                     to="/admin/employee"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/employee' ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400 rounded-l-xl border-y border-l border-indigo-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/employee') ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400 rounded-l-xl border-y border-l border-indigo-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
                     <span className="text-lg">👥</span>
                     <span className="truncate">{lang === 'en' ? 'Employee' : 'និយោជក'}</span>
@@ -1269,18 +1390,18 @@ function AdminD() {
                   <button
                     type="button"
                     onClick={() => toggleDropdown('employee')}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/employee' ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400 rounded-r-xl border-y border-r border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/employee') ? 'bg-gradient-to-r from-indigo-500/20 to-indigo-600/10 text-indigo-400 rounded-r-xl border-y border-r border-indigo-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                   >
                     <span className={`transition-transform duration-200 ${openDropdowns.employee ? 'rotate-180' : ''}`}><ChevronDownIcon /></span>
                   </button>
                 </div>
                 {openDropdowns.employee && (
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-indigo-500/30 space-y-1 py-1">
-                    <Link to="/admin/employee/list" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">👤</span> {lang === 'en' ? 'Employee' : 'និយោជក'}</Link>
-                    <Link to="/admin/employee/office" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🏢</span> {lang === 'en' ? 'Office' : 'ការិយាល័យ'}</Link>
-                    <Link to="/admin/employee/department" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📋</span> {lang === 'en' ? 'Department' : 'ដេប៉ាតឺម៉ង់'}</Link>
-                    <Link to="/admin/employee/section" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🔖</span> {lang === 'en' ? 'Section' : 'ផ្នែក'}</Link>
-                    <Link to="/admin/employee/position" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">⭐</span> {lang === 'en' ? 'Position' : 'មុខតំណែង'}</Link>
+                    <Link to="/admin/employee/list" className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname === '/admin/employee/list' ? 'bg-blue-500/25 text-blue-300 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="text-sm">👤</span> {lang === 'en' ? 'Employee' : 'និយោជក'}</Link>
+                    <Link to="/admin/employee/office" className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname === '/admin/employee/office' ? 'bg-purple-500/25 text-purple-300 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="text-sm">🏢</span> {lang === 'en' ? 'Office' : 'ការិយាល័យ'}</Link>
+                    <Link to="/admin/employee/department" className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname === '/admin/employee/department' ? 'bg-cyan-500/25 text-cyan-300 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="text-sm">📋</span> {lang === 'en' ? 'Department' : 'ដេប៉ាតឺម៉ង់'}</Link>
+                    <Link to="/admin/employee/section" className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname === '/admin/employee/section' ? 'bg-emerald-500/25 text-emerald-300 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="text-sm">🔖</span> {lang === 'en' ? 'Section' : 'ផ្នែក'}</Link>
+                    <Link to="/admin/employee/position" className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname === '/admin/employee/position' ? 'bg-pink-500/25 text-pink-300 font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="text-sm">⭐</span> {lang === 'en' ? 'Position' : 'មុខតំណែង'}</Link>
                   </div>
                 )}
               </div>

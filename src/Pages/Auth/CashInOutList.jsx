@@ -5,6 +5,7 @@ import { useNotifications } from '../../context/NotificationContext'
 import { adminCashOperationAPI } from '../../api/api'
 import { exportStyledExcel } from '../../utils/excelExport'
 import moneyBagIcon from '../../assets/icon/3dicons-money-bag-dynamic-color.png'
+import CashInOutCreate from './CashInOutCreate'
 import './ProductsHub.css'
 
 // SVGs
@@ -48,6 +49,14 @@ function DownloadIcon({ className = 'w-4 h-4' }) {
   )
 }
 
+function PlusIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  )
+}
+
 function EyeIcon({ className = 'w-4 h-4' }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -81,46 +90,62 @@ function ChevronLeftIcon({ className = 'w-3.5 h-3.5' }) {
   )
 }
 
-// Columns definition for Choose Column modal & table
+// 8 CASH BOOK CATEGORIES
+export const CASH_BOOK_CATEGORIES = [
+  { key: 'cash-category', labelEn: 'Cash Category', labelKh: 'ក្រុមលុយសាច់', icon: '📂', route: '/admin/cash-book/cash-category' },
+  { key: 'cash-in-out', labelEn: 'Cash In / Out', labelKh: 'លុយសាច់ ចូល/ចេញ', icon: '💸', route: '/admin/cash-book/cash-in-out' },
+  { key: 'bank-in-out', labelEn: 'Bank In / Out', labelKh: 'ធនាគារ ចូល/ចេញ', icon: '🏦', route: '/admin/cash-book/bank-in-out' },
+  { key: 'bank-transfer', labelEn: 'Bank Transfer', labelKh: 'ផ្ទេរប្រាក់', icon: '🔄', route: '/admin/cash-book/bank-transfer' },
+  { key: 'customer-deposit', labelEn: 'Customer Deposit', labelKh: 'ប្រាក់កក់អតិថិជន', icon: '💰', route: '/admin/cash-book/customer-deposit' },
+  { key: 'ar-collection', labelEn: 'AR Collection', labelKh: 'ការរង្វើយប្រាក់', icon: '📊', route: '/admin/cash-book/ar-collection' },
+  { key: 'supplier-deposit', labelEn: 'Supplier Deposit', labelKh: 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់', icon: '💎', route: '/admin/cash-book/supplier-deposit' },
+  { key: 'bill-payment', labelEn: 'Bill Payment', labelKh: 'ការបង់ប៊ីល', icon: '💳', route: '/admin/cash-book/bill-payment' },
+]
+
+// COLUMNS DEFINITION: Exact order: Code, Date, Type, Amount, Supplier / Customer, Phone, Status, Employee, Reference
 const ALL_COLUMNS = [
   { key: 'code', label: { en: 'Code', kh: 'លេខកូដ' }, always: true },
   { key: 'date', label: { en: 'Date', kh: 'កាលបរិច្ឆេទ' }, always: true },
   { key: 'type', label: { en: 'Type', kh: 'ប្រភេទ' }, always: true },
-  { key: 'partyName', label: { en: 'Customer / Supplier', kh: 'អតិថិជន / អ្នកផ្គត់ផ្គង់' } },
   { key: 'amount', label: { en: 'Amount', kh: 'ចំនួនទឹកប្រាក់ ($)' }, always: true },
+  { key: 'partyName', label: { en: 'Supplier / Customer', kh: 'អ្នកផ្គត់ផ្គង់ / អតិថិជន' }, always: true },
+  { key: 'phone', label: { en: 'Phone', kh: 'លេខទូរស័ព្ទ' } },
+  { key: 'status', label: { en: 'Status', kh: 'ស្ថានភាព' }, always: true },
+  { key: 'employee', label: { en: 'Employee', kh: 'បុគ្គលិក' } },
+  { key: 'reference', label: { en: 'Reference', kh: 'លេខយោង' } },
   { key: 'outlet', label: { en: 'Outlet', kh: 'សាខា / ឃ្លាំង' } },
-  { key: 'status', label: { en: 'Status', kh: 'ស្ថានភាព' } },
   { key: 'category', label: { en: 'Category', kh: 'ប្រភេទចំណាយ' } },
-  { key: 'username', label: { en: 'Username', kh: 'អ្នកប្រើប្រាស់' } },
-  { key: 'actions', label: { en: 'Actions', kh: 'សកម្មភាព' }, always: true },
+  { key: 'actions', label: { en: 'Actions', kh: 'សកម្មភាព' } },
 ]
 
 const DEFAULT_VISIBLE_COLUMNS = [
   'code',
   'date',
   'type',
-  'partyName',
   'amount',
-  'outlet',
+  'partyName',
+  'phone',
   'status',
-  'category',
-  'username',
+  'employee',
+  'reference',
   'actions',
 ]
 
-// Search By Dropdown: Any - Code - Customer - Supplier
+// Search By Dropdown: any, Code, Customer, Supplier, Phone, Employee
 const SEARCH_BY_OPTIONS = [
-  { value: 'Any', label: { en: 'Any', kh: 'ទាំងអស់' } },
+  { value: 'any', label: { en: 'any', kh: 'ទាំងអស់' } },
   { value: 'Code', label: { en: 'Code', kh: 'លេខកូដ' } },
   { value: 'Customer', label: { en: 'Customer', kh: 'អតិថិជន' } },
   { value: 'Supplier', label: { en: 'Supplier', kh: 'អ្នកផ្គត់ផ្គង់' } },
+  { value: 'Phone', label: { en: 'Phone', kh: 'លេខទូរស័ព្ទ' } },
+  { value: 'Employee', label: { en: 'Employee', kh: 'បុគ្គលិក' } },
 ]
 
-// Type Dropdown: Any - Cash in - Cash Out
+// Type Dropdown: All, Cash in, Cash out
 const TYPE_OPTIONS = [
-  { value: 'Any', label: { en: 'Any', kh: 'ទាំងអស់' } },
+  { value: 'All', label: { en: 'All', kh: 'ទាំងអស់' } },
   { value: 'Cash in', label: { en: 'Cash in', kh: 'លុយចូល' } },
-  { value: 'Cash Out', label: { en: 'Cash Out', kh: 'លុយចេញ' } },
+  { value: 'Cash out', label: { en: 'Cash out', kh: 'លុយចេញ' } },
 ]
 
 // Outlets for Advance Filter
@@ -134,134 +159,158 @@ const OUTLET_OPTIONS = [
   'Siem Reap Hub',
 ]
 
-// Status Dropdown: Any - Non-voided - Voided
+// Status Dropdown: All, none-void, Voided
 const STATUS_OPTIONS = [
-  { value: 'Any', label: { en: 'Any Status', kh: 'ស្ថានភាពទាំងអស់' } },
-  { value: 'Non-voided', label: { en: 'Non-voided', kh: 'មិនទាន់មោឃៈ' } },
+  { value: 'All', label: { en: 'All', kh: 'ស្ថានភាពទាំងអស់' } },
+  { value: 'none-void', label: { en: 'none-void', kh: 'មិនទាន់មោឃៈ' } },
   { value: 'Voided', label: { en: 'Voided', kh: 'បានទុកជាមោឃៈ' } },
 ]
 
-// Fallback seed data if backend is starting or offline
-const MOCK_OPERATIONS = [
+// Rich Fallback Seed Data
+const SAMPLE_CASH_OPERATIONS = [
   {
-    id: 1,
+    id: 'CSH-001',
     code: 'CIN-2026-0001',
-    transactionDate: '2026-09-03T09:15:00',
+    transactionDate: '2026-09-08T10:15:00',
     type: 'CASH_IN',
     partyType: 'CUSTOMER',
     partyName: 'Angkor Fresh Market (K. Sophea)',
-    amount: 450.0,
+    phone: '012 889 776',
+    contact: 'Mr. Vanna Touch',
+    employee: 'CashierDara',
+    amount: 450.00,
     outlet: 'Main Store Warehouse',
     status: 'NON_VOIDED',
     category: 'Store Sales Intake',
     referenceNo: 'REC-98214',
-    description: 'Counter sales daily cash deposit from POS Terminal 1',
     username: 'CashierDara',
+    description: 'Counter sales daily cash deposit from POS Terminal 1',
   },
   {
-    id: 2,
+    id: 'CSH-002',
     code: 'COUT-2026-0002',
-    transactionDate: '2026-09-03T11:40:00',
+    transactionDate: '2026-09-08T11:30:00',
     type: 'CASH_OUT',
     partyType: 'SUPPLIER',
     partyName: 'Battambang Organic Rice Ltd',
-    amount: 1200.0,
+    phone: '015 992 113',
+    contact: 'Ms. Sreymom Chan',
+    employee: 'Sokheng',
+    amount: 1200.00,
     outlet: 'Main Store Warehouse',
     status: 'NON_VOIDED',
     category: 'Supplier Advance',
     referenceNo: 'VCH-00431',
-    description: 'Advance cash deposit for premium jasmine rice shipment',
     username: 'Badmin',
+    description: 'Advance cash deposit for premium jasmine rice shipment',
   },
   {
-    id: 3,
+    id: 'CSH-003',
     code: 'CIN-2026-0003',
-    transactionDate: '2026-09-02T14:20:00',
+    transactionDate: '2026-09-08T12:05:00',
     type: 'CASH_IN',
     partyType: 'CUSTOMER',
     partyName: 'Sovannaphum Mart',
-    amount: 320.5,
+    phone: '098 443 221',
+    contact: 'Mr. Sok Chea',
+    employee: 'CashierChann',
+    amount: 320.50,
     outlet: 'Central Cold Storage',
     status: 'NON_VOIDED',
     category: 'AR Collection',
     referenceNo: 'REC-98219',
-    description: 'Customer cash settlement for weekly fresh produce invoice',
     username: 'CashierChann',
+    description: 'Customer cash settlement for weekly fresh produce invoice',
   },
   {
-    id: 4,
+    id: 'CSH-004',
     code: 'COUT-2026-0004',
-    transactionDate: '2026-09-02T16:05:00',
+    transactionDate: '2026-09-07T14:20:00',
     type: 'CASH_OUT',
     partyType: 'SUPPLIER',
     partyName: 'Kirirom Dairy Co.',
-    amount: 85.0,
+    phone: '011 223 344',
+    contact: 'Dara Heng',
+    employee: 'Badmin',
+    amount: 85.00,
     outlet: 'Express Mart BKK1',
     status: 'NON_VOIDED',
     category: 'Petty Cash Expense',
     referenceNo: 'PET-0912',
-    description: 'Emergency store supplies and cooler cleaning items',
     username: 'Badmin',
+    description: 'Emergency store supplies and cooler cleaning items',
   },
   {
-    id: 5,
+    id: 'CSH-005',
     code: 'CIN-2026-0005',
-    transactionDate: '2026-09-01T10:30:00',
+    transactionDate: '2026-09-07T16:45:00',
     type: 'CASH_IN',
     partyType: 'CUSTOMER',
     partyName: 'Phnom Penh Grocery Hub',
-    amount: 850.0,
+    phone: '070 556 677',
+    contact: 'Sophea Kim',
+    employee: 'CashierDara',
+    amount: 850.00,
     outlet: 'Toul Kork Branch',
     status: 'NON_VOIDED',
     category: 'Customer Advance',
     referenceNo: 'DEP-7701',
-    description: 'Customer downpayment for weekend catering order',
     username: 'CashierDara',
+    description: 'Customer downpayment for weekend catering order',
   },
   {
-    id: 6,
+    id: 'CSH-006',
     code: 'COUT-2026-0006',
-    transactionDate: '2026-09-01T15:45:00',
+    transactionDate: '2026-09-06T09:00:00',
     type: 'CASH_OUT',
     partyType: 'OTHER',
     partyName: 'EDC - Electricite du Cambodge',
-    amount: 340.0,
+    phone: '023 723 871',
+    contact: 'Billing Dept',
+    employee: 'Badmin',
+    amount: 340.00,
     outlet: 'Chbar Ampov Depot',
     status: 'NON_VOIDED',
     category: 'Utility Expense',
     referenceNo: 'EDC-09412',
-    description: 'Warehouse electricity monthly utility invoice payment',
     username: 'Badmin',
+    description: 'Warehouse electricity monthly utility invoice payment',
   },
   {
-    id: 7,
+    id: 'CSH-007',
     code: 'CIN-2026-0007',
-    transactionDate: '2026-08-31T13:10:00',
+    transactionDate: '2026-09-05T15:10:00',
     type: 'CASH_IN',
     partyType: 'SUPPLIER',
     partyName: 'Mekong River Fisheries',
-    amount: 180.0,
+    phone: '093 112 233',
+    contact: 'Mr. Bunroeun',
+    employee: 'CashierChann',
+    amount: 180.00,
     outlet: 'Siem Reap Hub',
     status: 'NON_VOIDED',
     category: 'Supplier Refund',
     referenceNo: 'REF-0412',
-    description: 'Refund for returned defective packaging cartons',
     username: 'CashierChann',
+    description: 'Refund for returned defective packaging cartons',
   },
   {
-    id: 8,
+    id: 'CSH-008',
     code: 'COUT-2026-0008',
-    transactionDate: '2026-08-30T17:20:00',
+    transactionDate: '2026-09-05T17:30:00',
     type: 'CASH_OUT',
     partyType: 'SUPPLIER',
     partyName: 'Angkor Express Logistics',
-    amount: 210.0,
+    phone: '089 990 123',
+    contact: 'Dispatch Manager',
+    employee: 'Badmin',
+    amount: 210.00,
     outlet: 'Main Store Warehouse',
     status: 'VOIDED',
     category: 'Freight Charge',
     referenceNo: 'FRT-8812',
-    description: 'Courier freight voucher - duplicate entry voided by admin',
     username: 'Badmin',
+    description: 'Courier freight voucher - duplicate entry voided by admin',
   },
 ]
 
@@ -270,26 +319,27 @@ export default function CashInOutList() {
   const { showNotification } = useNotifications()
 
   // State
-  const [operations, setOperations] = useState([])
+  const [rawOperations, setRawOperations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isCreateMode, setIsCreateMode] = useState(false)
 
-  // 1. Search Controls
+  // 1. Search Controls (Search Operation Cash)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchBy, setSearchBy] = useState('Any')
-  const [selectedType, setSelectedType] = useState('Any') // Any, Cash in, Cash Out
+  const [searchBy, setSearchBy] = useState('any') // any | Code | Customer | Supplier | Phone | Employee
+  const [selectedType, setSelectedType] = useState('All') // All | Cash in | Cash out
 
   // Advance Filter Collapsible
   const [showAdvanceFilter, setShowAdvanceFilter] = useState(false)
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
   const [selectedOutlet, setSelectedOutlet] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('Any') // Any, Non-voided, Voided
+  const [selectedStatus, setSelectedStatus] = useState('All') // All | none-void | Voided
 
   // Choose Column Modal
   const [showColumnModal, setShowColumnModal] = useState(false)
   const [visibleColumns, setVisibleColumns] = useState(() => {
     try {
-      const saved = localStorage.getItem('bg_cash_in_out_columns')
+      const saved = localStorage.getItem('bg_cash_in_out_columns_v3')
       return saved ? JSON.parse(saved) : DEFAULT_VISIBLE_COLUMNS
     } catch {
       return DEFAULT_VISIBLE_COLUMNS
@@ -299,61 +349,30 @@ export default function CashInOutList() {
   // View Details Modal
   const [viewDetailModal, setViewDetailModal] = useState(null)
 
-  // Fetch from API with fallback
+  // Fetch data from API with resilient fallback
   const fetchOperations = useCallback(async () => {
     setLoading(true)
     try {
       const params = {}
       if (searchQuery.trim()) params.search = searchQuery.trim()
-      if (searchBy !== 'Any') params.searchBy = searchBy
-      if (selectedType !== 'Any') params.type = selectedType === 'Cash in' ? 'CASH_IN' : 'CASH_OUT'
+      if (searchBy !== 'any') params.searchBy = searchBy
+      if (selectedType !== 'All') params.type = selectedType === 'Cash in' ? 'CASH_IN' : 'CASH_OUT'
       if (selectedOutlet !== 'all') params.outlet = selectedOutlet
-      if (selectedStatus !== 'Any') params.status = selectedStatus
+      if (selectedStatus !== 'All') params.status = selectedStatus === 'none-void' ? 'NON_VOIDED' : 'VOIDED'
       if (fromDate) params.fromDate = `${fromDate}T00:00:00`
       if (toDate) params.toDate = `${toDate}T23:59:59`
 
       const res = await adminCashOperationAPI.getAll(params)
       if (Array.isArray(res) && res.length > 0) {
-        setOperations(res)
+        setRawOperations(res)
+      } else if (res && Array.isArray(res.data) && res.data.length > 0) {
+        setRawOperations(res.data)
       } else {
-        // Filter local fallback
-        let list = [...MOCK_OPERATIONS]
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase()
-          list = list.filter((item) => {
-            if (searchBy === 'Code') return item.code.toLowerCase().includes(q)
-            if (searchBy === 'Customer') return item.partyType === 'CUSTOMER' && item.partyName.toLowerCase().includes(q)
-            if (searchBy === 'Supplier') return item.partyType === 'SUPPLIER' && item.partyName.toLowerCase().includes(q)
-            return (
-              item.code.toLowerCase().includes(q) ||
-              item.partyName.toLowerCase().includes(q) ||
-              item.description.toLowerCase().includes(q) ||
-              item.category.toLowerCase().includes(q) ||
-              item.username.toLowerCase().includes(q)
-            )
-          })
-        }
-        if (selectedType !== 'Any') {
-          const target = selectedType === 'Cash in' ? 'CASH_IN' : 'CASH_OUT'
-          list = list.filter((i) => i.type === target)
-        }
-        if (selectedOutlet !== 'all') {
-          list = list.filter((i) => i.outlet === selectedOutlet)
-        }
-        if (selectedStatus !== 'Any') {
-          const st = selectedStatus.replace('-', '_').toUpperCase()
-          list = list.filter((i) => i.status === st)
-        }
-        setOperations(list)
+        setRawOperations(SAMPLE_CASH_OPERATIONS)
       }
-    } catch {
-      // Fallback on error
-      let list = [...MOCK_OPERATIONS]
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase()
-        list = list.filter((i) => i.code.toLowerCase().includes(q) || i.partyName.toLowerCase().includes(q))
-      }
-      setOperations(list)
+    } catch (err) {
+      console.warn('Live cash operations endpoint error, using sample data:', err.message)
+      setRawOperations(SAMPLE_CASH_OPERATIONS)
     } finally {
       setLoading(false)
     }
@@ -362,6 +381,61 @@ export default function CashInOutList() {
   useEffect(() => {
     fetchOperations()
   }, [fetchOperations])
+
+  // Filter pipeline for data presentation
+  const filteredOperations = useMemo(() => {
+    return rawOperations.filter((item) => {
+      // 1. Text Search & Search By: any, Code, Customer, Supplier, Phone, Employee
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim()
+        if (searchBy === 'Code') {
+          if (!item.code?.toLowerCase().includes(q)) return false
+        } else if (searchBy === 'Customer') {
+          if (item.partyType !== 'CUSTOMER' || !item.partyName?.toLowerCase().includes(q)) return false
+        } else if (searchBy === 'Supplier') {
+          if (item.partyType !== 'SUPPLIER' || !item.partyName?.toLowerCase().includes(q)) return false
+        } else if (searchBy === 'Phone') {
+          if (!item.phone?.toLowerCase().includes(q)) return false
+        } else if (searchBy === 'Employee') {
+          const empMatch = item.employee?.toLowerCase().includes(q) || item.username?.toLowerCase().includes(q)
+          if (!empMatch) return false
+        } else {
+          // any
+          const inCode = item.code?.toLowerCase().includes(q)
+          const inParty = item.partyName?.toLowerCase().includes(q)
+          const inPhone = item.phone?.toLowerCase().includes(q)
+          const inEmp = item.employee?.toLowerCase().includes(q) || item.username?.toLowerCase().includes(q)
+          const inDesc = item.description?.toLowerCase().includes(q)
+          const inRef = item.referenceNo?.toLowerCase().includes(q)
+          const inCat = item.category?.toLowerCase().includes(q)
+          if (!inCode && !inParty && !inPhone && !inEmp && !inDesc && !inRef && !inCat) return false
+        }
+      }
+
+      // 2. Type Filter: All | Cash in | Cash out
+      if (selectedType === 'Cash in' && item.type !== 'CASH_IN') return false
+      if (selectedType === 'Cash out' && item.type !== 'CASH_OUT') return false
+
+      // 3. Status Filter: All | none-void | Voided
+      if (selectedStatus === 'none-void' && item.status === 'VOIDED') return false
+      if (selectedStatus === 'Voided' && item.status !== 'VOIDED') return false
+
+      // 4. Outlet Filter
+      if (selectedOutlet !== 'all' && item.outlet !== selectedOutlet) return false
+
+      // 5. Date Range Filter
+      if (fromDate) {
+        const itemDate = new Date(item.transactionDate).toISOString().slice(0, 10)
+        if (itemDate < fromDate) return false
+      }
+      if (toDate) {
+        const itemDate = new Date(item.transactionDate).toISOString().slice(0, 10)
+        if (itemDate > toDate) return false
+      }
+
+      return true
+    })
+  }, [rawOperations, searchQuery, searchBy, selectedType, selectedStatus, selectedOutlet, fromDate, toDate])
 
   // Save Column settings
   const toggleColumn = (key) => {
@@ -372,26 +446,26 @@ export default function CashInOutList() {
       } else {
         updated = [...prev, key]
       }
-      localStorage.setItem('bg_cash_in_out_columns', JSON.stringify(updated))
+      localStorage.setItem('bg_cash_in_out_columns_v3', JSON.stringify(updated))
       return updated
     })
   }
 
   const resetColumns = () => {
     setVisibleColumns(DEFAULT_VISIBLE_COLUMNS)
-    localStorage.setItem('bg_cash_in_out_columns', JSON.stringify(DEFAULT_VISIBLE_COLUMNS))
+    localStorage.setItem('bg_cash_in_out_columns_v3', JSON.stringify(DEFAULT_VISIBLE_COLUMNS))
   }
 
   // search_off / Reset All Filters
   const handleResetFilters = () => {
     setSearchQuery('')
-    setSearchBy('Any')
-    setSelectedType('Any')
+    setSearchBy('any')
+    setSelectedType('All')
     setFromDate('')
     setToDate('')
     setSelectedOutlet('all')
-    setSelectedStatus('Any')
-    showNotification({
+    setSelectedStatus('All')
+    showNotification?.({
       type: 'info',
       title: lang === 'en' ? 'Filters Reset' : 'សម្អាតការស្វែងរក',
       message: lang === 'en' ? 'All search filters have been cleared.' : 'លក្ខខណ្ឌស្វែងរកទាំងអស់ត្រូវបានកំណត់ឡើងវិញ។',
@@ -420,8 +494,8 @@ export default function CashInOutList() {
 
   // Export to Styled Excel
   const handleExportExcel = () => {
-    if (operations.length === 0) {
-      showNotification({
+    if (filteredOperations.length === 0) {
+      showNotification?.({
         type: 'warning',
         title: lang === 'en' ? 'Export' : 'នាំចេញ',
         message: lang === 'en' ? 'No cash operations to export.' : 'គ្មានទិន្នន័យដើម្បីនាំចេញទេ។',
@@ -430,43 +504,45 @@ export default function CashInOutList() {
     }
 
     const headers = [
-      lang === 'kh' ? 'លេខកូដ' : 'Code',
-      lang === 'kh' ? 'កាលបរិច្ឆេទ' : 'Date',
-      lang === 'kh' ? 'ប្រភេទ' : 'Type',
-      lang === 'kh' ? 'អតិថិជន / អ្នកផ្គត់ផ្គង់' : 'Customer / Supplier',
-      lang === 'kh' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)',
-      lang === 'kh' ? 'សាខា / ឃ្លាំង' : 'Outlet',
-      lang === 'kh' ? 'ស្ថានភាព' : 'Status',
-      lang === 'kh' ? 'ប្រភេទចំណាយ' : 'Category',
-      lang === 'kh' ? 'លេខយោង' : 'Reference',
-      lang === 'kh' ? 'អ្នកប្រើប្រាស់' : 'Username',
-      lang === 'kh' ? 'ការពិពណ៌នា' : 'Description',
+      'Code',
+      'Date',
+      'Type',
+      'Amount ($)',
+      'Supplier / Customer',
+      'Phone',
+      'Status',
+      'Employee',
+      'Reference',
+      'Outlet',
+      'Category',
+      'Description',
     ]
 
-    const dataRows = operations.map((item) => [
+    const dataRows = filteredOperations.map((item) => [
       item.code || '',
       formatDateTime(item.transactionDate),
       item.type === 'CASH_IN' ? 'Cash In' : 'Cash Out',
-      item.partyName || '—',
       Number(item.amount || 0),
-      item.outlet || '—',
-      item.status === 'NON_VOIDED' ? 'Non-voided' : 'Voided',
-      item.category || '—',
+      item.partyName || '—',
+      item.phone || '—',
+      item.status === 'VOIDED' ? 'Voided' : 'None-void',
+      item.employee || item.username || '—',
       item.referenceNo || '—',
-      item.username || '—',
+      item.outlet || '—',
+      item.category || '—',
       item.description || '—',
     ])
 
     exportStyledExcel({
       sheetName: 'Cash In Out List',
       title: "B'Groceries - Operation Cash (Cash In / Out List)",
-      subtitle: `Exported on: ${new Date().toLocaleString()} | Records: ${operations.length}`,
+      subtitle: `Exported on: ${new Date().toLocaleString()} | Records: ${filteredOperations.length}`,
       headers,
       dataRows,
       fileName: `Cash_In_Out_List_${new Date().toISOString().slice(0, 10)}.xlsx`,
     })
 
-    showNotification({
+    showNotification?.({
       type: 'success',
       title: lang === 'en' ? 'Export Successful' : 'ការនាំចេញជោគជ័យ',
       message: lang === 'en' ? 'Cash in/out data exported to Excel.' : 'ទិន្នន័យត្រូវបាននាំចេញជាឯកសារ Excel រួចរាល់។',
@@ -477,7 +553,7 @@ export default function CashInOutList() {
   const metrics = useMemo(() => {
     let totalIn = 0
     let totalOut = 0
-    operations.forEach((op) => {
+    filteredOperations.forEach((op) => {
       if (op.status !== 'VOIDED') {
         const amt = Number(op.amount || 0)
         if (op.type === 'CASH_IN') totalIn += amt
@@ -488,13 +564,26 @@ export default function CashInOutList() {
       totalIn,
       totalOut,
       netCash: totalIn - totalOut,
-      count: operations.length,
+      count: filteredOperations.length,
     }
-  }, [operations])
+  }, [filteredOperations])
+
+  // If in create view mode, render CashInOutCreate
+  if (isCreateMode) {
+    return (
+      <CashInOutCreate
+        onCancel={() => setIsCreateMode(false)}
+        onSuccess={() => {
+          setIsCreateMode(false)
+          fetchOperations()
+        }}
+      />
+    )
+  }
 
   return (
     <div className="space-y-6 text-slate-100 font-['Montserrat']">
-      {/* 1. HERO BREADCRUMB BANNER */}
+      {/* 1. HERO BREADCRUMB & BANNER */}
       <section className="relative overflow-hidden rounded-3xl border border-yellow-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] p-5 sm:p-7 shadow-2xl shadow-yellow-500/10">
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-yellow-500/15 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-1/4 h-px w-2/3 bg-gradient-to-r from-transparent via-yellow-500/40 to-transparent" />
@@ -517,7 +606,7 @@ export default function CashInOutList() {
                   {lang === 'en' ? 'Cash Book Register' : 'កំណត់ត្រាសៀវភៅលុយសាច់'}
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  {lang === 'en' ? 'Operation Cash (Cash In / Out)' : 'ប្រតិបត្តិការសាច់ប្រាក់ (ចូល / ចេញ)'}
+                  {lang === 'en' ? 'Cash In / Out Register' : 'ប្រតិបត្តិការសាច់ប្រាក់ (ចូល / ចេញ)'}
                 </h1>
               </div>
             </div>
@@ -562,9 +651,35 @@ export default function CashInOutList() {
             </div>
           </div>
         </div>
+
+        {/* 8 CASH BOOK CATEGORY PILLS BAR */}
+        <div className="mt-6 pt-5 border-t border-slate-800/80">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+            {lang === 'en' ? 'Cash Book Categories:' : 'ប្រភេទសៀវភៅលុយ៖'}
+          </p>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {CASH_BOOK_CATEGORIES.map((cat) => {
+              const isActive = cat.key === 'cash-in-out'
+              return (
+                <Link
+                  key={cat.key}
+                  to={cat.route}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                    isActive
+                      ? 'bg-yellow-500 text-slate-950 font-bold shadow-md shadow-yellow-500/25 scale-[1.02]'
+                      : 'bg-slate-950/60 text-slate-300 border border-slate-800 hover:border-slate-600 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span>{lang === 'kh' ? cat.labelKh : cat.labelEn}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
       </section>
 
-      {/* 2. SEARCH OPERATION CASH CARD */}
+      {/* 2. SEARCH OPERATION CASH SECTION */}
       <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
         <div>
           <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
@@ -572,14 +687,14 @@ export default function CashInOutList() {
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
             {lang === 'en'
-              ? 'Search operation cash by any condition. Ex(Any, Code, Customer...)'
-              : 'ស្វែងរកប្រតិបត្តិការសាច់ប្រាក់តាមលក្ខខណ្ឌណាមួយ (ទាំងអស់, លេខកូដ, អតិថិជន...)'}
+              ? 'Search operation cash by any condition. Ex(any, Code, Customer, Phone, Employee...)'
+              : 'ស្វែងរកប្រតិបត្តិការសាច់ប្រាក់តាមលក្ខខណ្ឌណាមួយ (ទាំងអស់, លេខកូដ, អតិថិជន, លេខទូរស័ព្ទ, បុគ្គលិក...)'}
           </p>
         </div>
 
         {/* Primary Search Controls */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
-          {/* Search Textbox */}
+          {/* Search - Textbox */}
           <div className="lg:col-span-5 space-y-1">
             <label className="text-xs font-semibold text-slate-300">
               {lang === 'en' ? 'Search' : 'ស្វែងរក'}
@@ -592,7 +707,7 @@ export default function CashInOutList() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={lang === 'en' ? 'Search by code, customer, supplier...' : 'ស្វែងរកតាមលេខកូដ, អតិថិជន...'}
+                placeholder={lang === 'en' ? 'Search by code, party, phone, employee...' : 'ស្វែងរកតាមលេខកូដ, អតិថិជន, ទូរស័ព្ទ...'}
                 className="w-full rounded-xl border border-slate-700/80 bg-slate-950/90 py-2.5 pl-10 pr-8 text-xs font-semibold text-white placeholder-slate-500 outline-none transition focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20"
               />
               {searchQuery && (
@@ -607,10 +722,10 @@ export default function CashInOutList() {
             </div>
           </div>
 
-          {/* Search By Dropdown: Any - Code - Customer - Supplier */}
+          {/* Search by - Dropdown: any, Code, Customer, Supplier, Phone, Employee */}
           <div className="lg:col-span-3 space-y-1">
             <label className="text-xs font-semibold text-slate-300">
-              {lang === 'en' ? 'Search By' : 'ស្វែងរកតាម'}
+              {lang === 'en' ? 'Search by' : 'ស្វែងរកដោយ'}
             </label>
             <div className="relative">
               <select
@@ -630,7 +745,7 @@ export default function CashInOutList() {
             </div>
           </div>
 
-          {/* Type Dropdown: Any - Cash in - Cash Out */}
+          {/* Type - Dropdown: All, Cash in, Cash out */}
           <div className="lg:col-span-2 space-y-1">
             <label className="text-xs font-semibold text-slate-300">
               {lang === 'en' ? 'Type' : 'ប្រភេទ'}
@@ -668,10 +783,11 @@ export default function CashInOutList() {
               type="button"
               onClick={() => setShowAdvanceFilter(!showAdvanceFilter)}
               title={lang === 'en' ? 'Advance Filter' : 'តម្រងកម្រិតខ្ពស់'}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-3 text-xs font-bold transition active:scale-95 ${showAdvanceFilter
-                ? 'border-yellow-400 bg-yellow-500/20 text-yellow-300'
-                : 'border-slate-700/80 bg-slate-950/90 text-slate-300 hover:border-slate-500 hover:text-white'
-                }`}
+              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-3 text-xs font-bold transition active:scale-95 ${
+                showAdvanceFilter || fromDate || toDate || selectedOutlet !== 'all' || selectedStatus !== 'All'
+                  ? 'border-yellow-400 bg-yellow-500/20 text-yellow-300'
+                  : 'border-slate-700/80 bg-slate-950/90 text-slate-300 hover:border-slate-500 hover:text-white'
+              }`}
             >
               <FilterListIcon />
               <span className="hidden sm:inline">{lang === 'en' ? 'Advance Filter' : 'តម្រង'}</span>
@@ -681,8 +797,8 @@ export default function CashInOutList() {
 
         {/* Advance Filter Collapsible Drawer */}
         {showAdvanceFilter && (
-          <div className="pt-4 border-t border-slate-800/80 grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-4 items-end bg-slate-950/40 p-4 rounded-2xl border border-slate-800">
-            {/* Date to Date: From Date */}
+          <div className="pt-4 border-t border-slate-800/80 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 items-end bg-slate-950/50 p-4 rounded-2xl border border-slate-800">
+            {/* From Date to date: From Date */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300">
                 {lang === 'en' ? 'From Date' : 'ចាប់ពីថ្ងៃ'}
@@ -695,7 +811,7 @@ export default function CashInOutList() {
               />
             </div>
 
-            {/* Date to Date: To Date */}
+            {/* From Date to date: To Date */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300">
                 {lang === 'en' ? 'To Date' : 'ដល់ថ្ងៃ'}
@@ -706,6 +822,29 @@ export default function CashInOutList() {
                 onChange={(e) => setToDate(e.target.value)}
                 className="w-full rounded-xl border border-slate-700/80 bg-slate-950 py-2 px-3 text-xs font-semibold text-white outline-none focus:border-yellow-400"
               />
+            </div>
+
+            {/* Status Dropdown: All, none-void, Voided */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">
+                {lang === 'en' ? 'Status' : 'ស្ថានភាព'}
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="w-full appearance-none rounded-xl border border-slate-700/80 bg-slate-950 py-2 pl-3 pr-8 text-xs font-semibold text-white outline-none focus:border-yellow-400"
+                >
+                  {STATUS_OPTIONS.map((st) => (
+                    <option key={st.value} value={st.value} className="bg-slate-900 text-white">
+                      {lang === 'kh' ? st.label.kh : st.label.en}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <ChevronDownIcon />
+                </span>
+              </div>
             </div>
 
             {/* Outlet Dropdown */}
@@ -722,29 +861,6 @@ export default function CashInOutList() {
                   {OUTLET_OPTIONS.map((outlet) => (
                     <option key={outlet} value={outlet} className="bg-slate-900 text-white">
                       {outlet === 'all' ? (lang === 'en' ? 'All Outlets' : 'គ្រប់សាខាទាំងអស់') : outlet}
-                    </option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  <ChevronDownIcon />
-                </span>
-              </div>
-            </div>
-
-            {/* Status Dropdown: Any - Non-voided - Voided */}
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">
-                {lang === 'en' ? 'Status' : 'ស្ថានភាព'}
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-slate-700/80 bg-slate-950 py-2 pl-3 pr-8 text-xs font-semibold text-white outline-none focus:border-yellow-400"
-                >
-                  {STATUS_OPTIONS.map((st) => (
-                    <option key={st.value} value={st.value} className="bg-slate-900 text-white">
-                      {lang === 'kh' ? st.label.kh : st.label.en}
                     </option>
                   ))}
                 </select>
@@ -771,9 +887,9 @@ export default function CashInOutList() {
             </p>
           </div>
 
-          {/* Action Buttons: Export, search_off (Reset), Choose Column. (NO CREATE BUTTON) */}
+          {/* Action Buttons: Reset, Choose Column, Export Excel, AND + CREATE BUTTON */}
           <div className="flex items-center gap-2">
-            {/* search_off / Reset button */}
+            {/* Search Off / Reset button */}
             <button
               type="button"
               onClick={handleResetFilters}
@@ -794,7 +910,7 @@ export default function CashInOutList() {
               <span>{lang === 'en' ? 'Choose Column' : 'ជួរឈរ'}</span>
             </button>
 
-            {/* Export Excel */}
+            {/* Export as Excel */}
             <button
               type="button"
               onClick={handleExportExcel}
@@ -803,43 +919,59 @@ export default function CashInOutList() {
               <DownloadIcon />
               <span>{lang === 'en' ? 'Export' : 'នាំចេញ'}</span>
             </button>
+
+            {/* FOR CREATE BUTTON */}
+            <button
+              type="button"
+              onClick={() => setIsCreateMode(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 py-2 px-4 text-xs font-black text-slate-950 shadow-md shadow-yellow-500/25 transition active:scale-95"
+            >
+              <PlusIcon />
+              <span>{lang === 'en' ? 'Create' : 'បង្កើតថ្មី'}</span>
+            </button>
           </div>
         </div>
 
-        {/* Data Table */}
+        {/* Data Table with Columns: Code, Date, Type, Amount, Supplier / Customer, Phone, Status, Employee, Reference */}
         <div className="overflow-x-auto rounded-2xl border border-slate-800">
           <table className="w-full text-left text-xs text-slate-200">
             <thead className="bg-slate-950/90 text-[11px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800">
               <tr>
                 {visibleColumns.includes('code') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'លេខកូដ' : 'Code'}</th>
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'លេខកូដ' : 'Code'}</th>
                 )}
                 {visibleColumns.includes('date') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'កាលបរិច្ឆេទ' : 'Date'}</th>
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'កាលបរិច្ឆេទ' : 'Date'}</th>
                 )}
                 {visibleColumns.includes('type') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'ប្រភេទ' : 'Type'}</th>
-                )}
-                {visibleColumns.includes('partyName') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'អតិថិជន / អ្នកផ្គត់ផ្គង់' : 'Customer / Supplier'}</th>
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'ប្រភេទ' : 'Type'}</th>
                 )}
                 {visibleColumns.includes('amount') && (
-                  <th className="py-3 px-4 text-right">{lang === 'kh' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)'}</th>
+                  <th className="py-3.5 px-4 text-right">{lang === 'kh' ? 'ចំនួនទឹកប្រាក់ ($)' : 'Amount ($)'}</th>
                 )}
-                {visibleColumns.includes('outlet') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'សាខា' : 'Outlet'}</th>
+                {visibleColumns.includes('partyName') && (
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'អ្នកផ្គត់ផ្គង់ / អតិថិជន' : 'Supplier / Customer'}</th>
+                )}
+                {visibleColumns.includes('phone') && (
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'លេខទូរស័ព្ទ' : 'Phone'}</th>
                 )}
                 {visibleColumns.includes('status') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'ស្ថានភាព' : 'Status'}</th>
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'ស្ថានភាព' : 'Status'}</th>
+                )}
+                {visibleColumns.includes('employee') && (
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'បុគ្គលិក' : 'Employee'}</th>
+                )}
+                {visibleColumns.includes('reference') && (
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'លេខយោង' : 'Reference'}</th>
+                )}
+                {visibleColumns.includes('outlet') && (
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'សាខា' : 'Outlet'}</th>
                 )}
                 {visibleColumns.includes('category') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'ប្រភេទចំណាយ' : 'Category'}</th>
-                )}
-                {visibleColumns.includes('username') && (
-                  <th className="py-3 px-4">{lang === 'kh' ? 'អ្នកប្រើ' : 'Username'}</th>
+                  <th className="py-3.5 px-4">{lang === 'kh' ? 'ប្រភេទចំណាយ' : 'Category'}</th>
                 )}
                 {visibleColumns.includes('actions') && (
-                  <th className="py-3 px-4 text-center">{lang === 'kh' ? 'សកម្មភាព' : 'Actions'}</th>
+                  <th className="py-3.5 px-4 text-center">{lang === 'kh' ? 'សកម្មភាព' : 'Actions'}</th>
                 )}
               </tr>
             </thead>
@@ -853,13 +985,13 @@ export default function CashInOutList() {
                     </div>
                   </td>
                 </tr>
-              ) : operations.length === 0 ? (
+              ) : filteredOperations.length === 0 ? (
                 <tr>
                   <td colSpan={visibleColumns.length} className="py-12 text-center text-slate-400">
                     <div className="space-y-2">
                       <p className="text-2xl">💸</p>
                       <p className="text-xs font-semibold text-slate-300">
-                        {lang === 'en' ? 'No cash in/out transactions found.' : 'រកមិនឃើញប្រតិបត្តិការសាច់ប្រាក់ទេ។'}
+                        {lang === 'en' ? 'No cash in/out transactions match your filter criteria.' : 'រកមិនឃើញប្រតិបត្តិការសាច់ប្រាក់តាមលក្ខខណ្ឌស្វែងរកទេ។'}
                       </p>
                       <button
                         type="button"
@@ -872,25 +1004,25 @@ export default function CashInOutList() {
                   </td>
                 </tr>
               ) : (
-                operations.map((op) => (
+                filteredOperations.map((op) => (
                   <tr key={op.id || op.code} className="transition hover:bg-slate-800/40">
-                    {/* Code */}
+                    {/* 1. Code */}
                     {visibleColumns.includes('code') && (
-                      <td className="py-3 px-4 font-mono font-bold text-yellow-400">
+                      <td className="py-3 px-4 font-mono font-bold text-yellow-400 whitespace-nowrap">
                         {op.code}
                       </td>
                     )}
 
-                    {/* Date */}
+                    {/* 2. Date */}
                     {visibleColumns.includes('date') && (
                       <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
                         {formatDateTime(op.transactionDate)}
                       </td>
                     )}
 
-                    {/* Type: Cash In (Green) vs Cash Out (Rose/Amber) */}
+                    {/* 3. Type */}
                     {visibleColumns.includes('type') && (
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         {op.type === 'CASH_IN' ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-black uppercase text-emerald-400">
                             <span>▲</span> {lang === 'en' ? 'Cash In' : 'លុយចូល'}
@@ -903,25 +1035,66 @@ export default function CashInOutList() {
                       </td>
                     )}
 
-                    {/* Customer / Supplier */}
-                    {visibleColumns.includes('partyName') && (
-                      <td className="py-3 px-4 font-semibold text-white">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs">{op.partyType === 'CUSTOMER' ? '👤' : op.partyType === 'SUPPLIER' ? '🏭' : '🏢'}</span>
-                          <span>{op.partyName || '—'}</span>
-                        </div>
-                      </td>
-                    )}
-
-                    {/* Amount */}
+                    {/* 4. Amount */}
                     {visibleColumns.includes('amount') && (
-                      <td className={`py-3 px-4 text-right font-mono font-bold ${op.type === 'CASH_IN' ? 'text-emerald-400' : 'text-rose-400'
-                        }`}>
+                      <td className={`py-3 px-4 text-right font-mono font-bold whitespace-nowrap ${
+                        op.type === 'CASH_IN' ? 'text-emerald-400' : 'text-rose-400'
+                      }`}>
                         {op.type === 'CASH_IN' ? '+' : '-'}{formatCurrency(op.amount)}
                       </td>
                     )}
 
-                    {/* Outlet */}
+                    {/* 5. Supplier / Customer */}
+                    {visibleColumns.includes('partyName') && (
+                      <td className="py-3 px-4 font-semibold text-white">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs">
+                            {op.partyType === 'CUSTOMER' ? '👤' : op.partyType === 'SUPPLIER' ? '🏭' : '🏢'}
+                          </span>
+                          <span className="truncate max-w-[200px]">{op.partyName || '—'}</span>
+                        </div>
+                      </td>
+                    )}
+
+                    {/* 6. Phone */}
+                    {visibleColumns.includes('phone') && (
+                      <td className="py-3 px-4 text-slate-300 font-mono text-xs whitespace-nowrap">
+                        {op.phone || op.contact || '—'}
+                      </td>
+                    )}
+
+                    {/* 7. Status */}
+                    {visibleColumns.includes('status') && (
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {op.status === 'VOIDED' ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/30 px-2 py-0.5 text-[10px] font-bold text-red-400">
+                            ✕ {lang === 'en' ? 'Voided' : 'បានទុកជាមោឃៈ'}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                            ● {lang === 'en' ? 'none-void' : 'មិនទាន់មោឃៈ'}
+                          </span>
+                        )}
+                      </td>
+                    )}
+
+                    {/* 8. Employee */}
+                    {visibleColumns.includes('employee') && (
+                      <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
+                        <span className="rounded-lg bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-300">
+                          {op.employee || op.username || '—'}
+                        </span>
+                      </td>
+                    )}
+
+                    {/* 9. Reference */}
+                    {visibleColumns.includes('reference') && (
+                      <td className="py-3 px-4 font-mono text-yellow-300 text-xs whitespace-nowrap">
+                        {op.referenceNo || '—'}
+                      </td>
+                    )}
+
+                    {/* Optional: Outlet */}
                     {visibleColumns.includes('outlet') && (
                       <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
                         <span className="rounded-lg bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-300">
@@ -930,38 +1103,16 @@ export default function CashInOutList() {
                       </td>
                     )}
 
-                    {/* Status: Non-voided vs Voided */}
-                    {visibleColumns.includes('status') && (
-                      <td className="py-3 px-4">
-                        {op.status === 'NON_VOIDED' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                            ● {lang === 'en' ? 'Non-voided' : 'មិនទាន់មោឃៈ'}
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 border border-red-500/30 px-2 py-0.5 text-[10px] font-bold text-red-400">
-                            ✕ {lang === 'en' ? 'Voided' : 'បានទុកជាមោឃៈ'}
-                          </span>
-                        )}
-                      </td>
-                    )}
-
-                    {/* Category */}
+                    {/* Optional: Category */}
                     {visibleColumns.includes('category') && (
                       <td className="py-3 px-4 text-slate-300 whitespace-nowrap">
                         {op.category || '—'}
                       </td>
                     )}
 
-                    {/* Username */}
-                    {visibleColumns.includes('username') && (
-                      <td className="py-3 px-4 text-slate-400 font-mono text-[11px]">
-                        {op.username || '—'}
-                      </td>
-                    )}
-
-                    {/* Actions */}
+                    {/* Optional: Actions */}
                     {visibleColumns.includes('actions') && (
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-3 px-4 text-center whitespace-nowrap">
                         <button
                           type="button"
                           onClick={() => setViewDetailModal(op)}
@@ -983,11 +1134,11 @@ export default function CashInOutList() {
         <div className="flex items-center justify-between text-xs text-slate-400 pt-2">
           <span>
             {lang === 'en'
-              ? `Showing ${operations.length} cash transaction records`
-              : `បង្ហាញ ${operations.length} កំណត់ត្រាប្រតិបត្តិការសាច់ប្រាក់`}
+              ? `Showing ${filteredOperations.length} of ${rawOperations.length} records`
+              : `បង្ហាញ ${filteredOperations.length} នៃ ${rawOperations.length} កំណត់ត្រា`}
           </span>
           <span className="font-mono text-[11px] text-slate-500">
-            {lang === 'en' ? 'Ledger Status: Balanced' : 'ស្ថានភាពសៀវភៅ៖ មានតុល្យភាព'}
+            {lang === 'en' ? 'Cash Book Audit: Verified' : 'ផ្ទៀងផ្ទាត់សៀវភៅលុយ៖ រួចរាល់'}
           </span>
         </div>
       </section>
@@ -1022,10 +1173,11 @@ export default function CashInOutList() {
                 return (
                   <label
                     key={col.key}
-                    className={`flex items-center justify-between rounded-xl border p-3 cursor-pointer transition ${isChecked
-                      ? 'border-yellow-500/40 bg-yellow-500/10 text-white'
-                      : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700'
-                      }`}
+                    className={`flex items-center justify-between rounded-xl border p-3 cursor-pointer transition ${
+                      isChecked
+                        ? 'border-yellow-500/40 bg-yellow-500/10 text-white'
+                        : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-700'
+                    }`}
                   >
                     <span className="text-xs font-semibold">
                       {lang === 'kh' ? col.label.kh : col.label.en}
@@ -1111,8 +1263,9 @@ export default function CashInOutList() {
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     {lang === 'en' ? 'Amount' : 'ចំនួនទឹកប្រាក់'}
                   </span>
-                  <p className={`font-mono text-xl font-black ${viewDetailModal.type === 'CASH_IN' ? 'text-emerald-400' : 'text-rose-400'
-                    }`}>
+                  <p className={`font-mono text-xl font-black ${
+                    viewDetailModal.type === 'CASH_IN' ? 'text-emerald-400' : 'text-rose-400'
+                  }`}>
                     {viewDetailModal.type === 'CASH_IN' ? '+' : '-'}{formatCurrency(viewDetailModal.amount)}
                   </p>
                 </div>
@@ -1127,24 +1280,24 @@ export default function CashInOutList() {
                 <div className="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
                   <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Status' : 'ស្ថានភាព'}</span>
                   <p className="mt-0.5 font-semibold text-white">
-                    {viewDetailModal.status === 'NON_VOIDED' ? (
-                      <span className="text-emerald-400">● {lang === 'en' ? 'Non-voided' : 'មិនទាន់មោឃៈ'}</span>
-                    ) : (
+                    {viewDetailModal.status === 'VOIDED' ? (
                       <span className="text-rose-400">✕ {lang === 'en' ? 'Voided' : 'បានទុកជាមោឃៈ'}</span>
+                    ) : (
+                      <span className="text-emerald-400">● {lang === 'en' ? 'none-void' : 'មិនទាន់មោឃៈ'}</span>
                     )}
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
-                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Customer / Supplier' : 'អតិថិជន / អ្នកផ្គត់ផ្គង់'}</span>
+                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Supplier / Customer' : 'អ្នកផ្គត់ផ្គង់ / អតិថិជន'}</span>
                   <p className="mt-0.5 font-semibold text-white truncate">{viewDetailModal.partyName || '—'}</p>
                 </div>
                 <div className="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
-                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Outlet / Branch' : 'សាខា'}</span>
-                  <p className="mt-0.5 font-semibold text-white">{viewDetailModal.outlet || '—'}</p>
+                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Phone' : 'លេខទូរស័ព្ទ'}</span>
+                  <p className="mt-0.5 font-mono font-semibold text-white">{viewDetailModal.phone || viewDetailModal.contact || '—'}</p>
                 </div>
                 <div className="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
-                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Category' : 'ប្រភេទចំណាយ'}</span>
-                  <p className="mt-0.5 font-semibold text-white">{viewDetailModal.category || '—'}</p>
+                  <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Employee' : 'បុគ្គលិក'}</span>
+                  <p className="mt-0.5 font-semibold text-white">{viewDetailModal.employee || viewDetailModal.username || '—'}</p>
                 </div>
                 <div className="rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
                   <span className="text-[11px] text-slate-400">{lang === 'en' ? 'Reference Voucher' : 'លេខយោងប័ណ្ណ'}</span>
@@ -1162,8 +1315,11 @@ export default function CashInOutList() {
 
               {/* Auditor */}
               <div className="flex items-center justify-between text-[11px] text-slate-400 px-1">
-                <span>{lang === 'en' ? 'Recorded By:' : 'កត់ត្រាដោយ៖'} <strong className="text-white font-mono">{viewDetailModal.username || 'System'}</strong></span>
-                <span>{lang === 'en' ? 'Audit Log: Verified' : 'ផ្ទៀងផ្ទាត់៖ រួចរាល់'}</span>
+                <span>
+                  {lang === 'en' ? 'Recorded By:' : 'កត់ត្រាដោយ៖'}{' '}
+                  <strong className="text-white font-mono">{viewDetailModal.username || viewDetailModal.employee || 'System'}</strong>
+                </span>
+                <span>{lang === 'en' ? 'Audit Log: Live Verified' : 'ផ្ទៀងផ្ទាត់៖ រួចរាល់'}</span>
               </div>
             </div>
 

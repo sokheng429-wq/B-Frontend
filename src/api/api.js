@@ -1006,15 +1006,206 @@ export const adminCashOperationAPI = {
     const qs = new URLSearchParams()
     if (params.search) qs.set('search', params.search)
     if (params.searchBy && params.searchBy !== 'any' && params.searchBy !== 'Any') qs.set('searchBy', params.searchBy)
-    if (params.type && params.type !== 'any' && params.type !== 'Any') qs.set('type', params.type)
+    if (params.type && params.type !== 'any' && params.type !== 'Any' && params.type !== 'All' && params.type !== 'all') qs.set('type', params.type)
     if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any') qs.set('outlet', params.outlet)
-    if (params.status && params.status !== 'all' && params.status !== 'any') qs.set('status', params.status)
+    if (params.status && params.status !== 'all' && params.status !== 'any' && params.status !== 'All') qs.set('status', params.status)
     if (params.fromDate) qs.set('fromDate', params.fromDate)
     if (params.toDate) qs.set('toDate', params.toDate)
     const qStr = qs.toString()
     return request(qStr ? `/admin/cash-operations?${qStr}` : '/admin/cash-operations')
   },
   getById: (id) => request(`/admin/cash-operations/${id}`),
+  create: (data) => request('/admin/cash-operations', { method: 'POST', body: JSON.stringify(data) }),
   void: (id) => request(`/admin/cash-operations/${id}/void`, { method: 'POST' }),
+  getNextCode: (type) => request(`/admin/cash-operations/next-code${type ? `?type=${encodeURIComponent(type)}` : ''}`),
 }
 
+// ===== ADMIN ENTER BILL (Payable Management Hub → Enter Bill) =====
+// Full Enter Bill & Debit Memo CRUD against /api/admin/enter-bills (ROLE_ADMIN).
+// EnterBillDto: { id, code, supplier, supplierInvoiceCode, paymentTerm, note,
+//   balance, adjustAmount, amount, date, dueDate, contact, supplierInvoiceDate,
+//   templateName, outlet, billType, username, reference, status, receipts, otherExpenses }
+export const adminEnterBillAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any') qs.set('searchBy', params.searchBy)
+    if (params.billType && params.billType !== 'All') qs.set('billType', params.billType)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'ALL') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'ALL') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/enter-bills?${qStr}` : '/admin/enter-bills')
+  },
+
+  getById: (id) => request(`/admin/enter-bills/${id}`),
+
+  create: (data) =>
+    request('/admin/enter-bills', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/enter-bills/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, status) =>
+    request(`/admin/enter-bills/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/enter-bills/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: (billType = 'Enter Bill') =>
+    request(`/admin/enter-bills/next-code?billType=${encodeURIComponent(billType)}`),
+}
+
+// ===== ADMIN BILL PAYMENTS (Payable Management Hub → Bill Payment) =====
+export const adminBillPaymentAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.type && params.type !== 'Any' && params.type !== 'any' && params.type !== 'All') qs.set('type', params.type)
+    if (params.outlet && params.outlet !== 'all' && params.outlet !== 'any' && params.outlet !== 'All') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'ALL' && params.status !== 'Any' && params.status !== 'any') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/bill-payments?${qStr}` : '/admin/bill-payments')
+  },
+
+  getById: (id) => request(`/admin/bill-payments/${id}`),
+
+  create: (data) =>
+    request('/admin/bill-payments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  void: (id) =>
+    request(`/admin/bill-payments/${id}/void`, {
+      method: 'POST',
+    }),
+
+  getNextCode: () => request('/admin/bill-payments/next-code'),
+}
+
+// ===== ADMIN ENTER FREIGHTS (Payable Management Hub → Enter Freight) =====
+export const adminEnterFreightAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.billType && params.billType !== 'All' && params.billType !== 'Any') qs.set('billType', params.billType)
+    if (params.outlet && params.outlet !== 'All' && params.outlet !== 'all') qs.set('outlet', params.outlet)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/enter-freights?${qStr}` : '/admin/enter-freights')
+  },
+
+  getById: (id) => request(`/admin/enter-freights/${id}`),
+
+  create: (data) =>
+    request('/admin/enter-freights', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/enter-freights/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, status) =>
+    request(`/admin/enter-freights/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/enter-freights/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/enter-freights/next-code'),
+}
+
+// ===== ADMIN SUPPLIER DEPOSITS (Payable Management Hub → Supplier Deposit) =====
+export const adminSupplierDepositAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/supplier-deposits?${qStr}` : '/admin/supplier-deposits')
+  },
+
+  getById: (id) => request(`/admin/supplier-deposits/${id}`),
+
+  create: (data) =>
+    request('/admin/supplier-deposits', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  void: (id) =>
+    request(`/admin/supplier-deposits/${id}/void`, {
+      method: 'POST',
+    }),
+
+  delete: (id) =>
+    request(`/admin/supplier-deposits/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/supplier-deposits/next-code'),
+}
+
+// ===== ADMIN SUPPLIER REFUNDS (Payable Management Hub → Supplier Refund) =====
+export const adminSupplierRefundAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/supplier-refunds?${qStr}` : '/admin/supplier-refunds')
+  },
+
+  getById: (id) => request(`/admin/supplier-refunds/${id}`),
+
+  create: (data) =>
+    request('/admin/supplier-refunds', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  void: (id) =>
+    request(`/admin/supplier-refunds/${id}/void`, {
+      method: 'POST',
+    }),
+
+  delete: (id) =>
+    request(`/admin/supplier-refunds/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/supplier-refunds/next-code'),
+}
