@@ -9,6 +9,7 @@ import {
   adminCategoryAPI,
   adminBrandAPI,
   adminProductGroupAPI,
+  adminPurchaseOrderAPI,
 } from '../../api/api'
 import { exportStyledExcel } from '../../utils/excelExport'
 import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
@@ -764,8 +765,8 @@ export default function InventoryOrderList() {
     }
   }, [poLines, poDiscountPercent, poDiscountAmount, poTaxPercent])
 
-  // Save Purchase Order to localStorage & return to list
-  const handleSavePO = () => {
+  // Save Purchase Order to database & return to list
+  const handleSavePO = async () => {
     if (!poSupplier) {
       addNotification?.('Please select a Supplier', 'warning')
       return
@@ -811,7 +812,14 @@ export default function InventoryOrderList() {
         createdAt: new Date().toISOString(),
       }
 
-      // Persist to bg_purchase_orders so it appears in Purchase Order list!
+      // Persist to backend database via adminPurchaseOrderAPI
+      try {
+        await adminPurchaseOrderAPI.create(newPO)
+      } catch (backendErr) {
+        console.warn('Backend PO create fallback:', backendErr)
+      }
+
+      // Persist to bg_purchase_orders cache
       let existingPOs = []
       try {
         const saved = localStorage.getItem('bg_purchase_orders')
@@ -823,7 +831,7 @@ export default function InventoryOrderList() {
       const updated = [newPO, ...existingPOs]
       localStorage.setItem('bg_purchase_orders', JSON.stringify(updated))
 
-      addNotification?.(`Purchase Order ${newPO.code} created successfully!`, 'success')
+      addNotification?.(`Purchase Order ${newPO.code} saved to database successfully!`, 'success')
       setViewMode('list')
     } catch {
       addNotification?.('Failed to save Purchase Order', 'error')

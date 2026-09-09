@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { useTheme } from '../../context/ThemeContext'
 import { adminProductAPI, adminSupplierAPI } from '../../api/api'
 import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
 import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
@@ -284,6 +285,7 @@ export const STOCK_OPERATIONS = [
 export const ALL_CATALOG_SECTIONS = [...PRODUCT_SECTIONS, ...STOCK_OPERATIONS]
 
 export const ProductsHub = () => {
+  const { isDark } = useTheme()
   const { lang } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all') // 'all' | 'master' | 'ops'
@@ -335,9 +337,13 @@ export const ProductsHub = () => {
   )
 
   return (
-    <div className="space-y-6 text-slate-100">
+    <div className={`space-y-6 ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
       {/* 1. HERO BANNER WITH DYNAMIC GLOW & LIVE KPIS */}
-      <section className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] p-5 sm:p-7 shadow-2xl shadow-green-500/10">
+      <section className={`relative overflow-hidden rounded-3xl border p-5 sm:p-7 shadow-2xl ${
+        isDark
+          ? 'border-green-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] shadow-green-500/10'
+          : 'border-green-500/20 bg-gradient-to-br from-green-50/70 via-white to-slate-50 shadow-slate-200/50'
+      }`}>
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#7EB631]/15 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-1/4 h-px w-2/3 bg-gradient-to-r from-transparent via-[#7EB631]/40 to-transparent" />
 
@@ -345,7 +351,11 @@ export const ProductsHub = () => {
           <div className="space-y-4">
             <Link
               to="/admin"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-950/60 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition hover:border-[#7EB631] hover:text-white active:scale-95"
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition active:scale-95 ${
+                isDark
+                  ? 'border-slate-700/80 bg-slate-950/60 text-green-300 hover:border-[#7EB631] hover:text-white'
+                  : 'border-slate-200 bg-white text-green-700 hover:border-[#7EB631] hover:text-[#232F3F] shadow-xs'
+              }`}
             >
               <ChevronLeftIcon /> {lang === 'en' ? 'Dashboard' : 'ផ្ទាំងគ្រប់គ្រង'}
             </Link>
@@ -358,13 +368,13 @@ export const ProductsHub = () => {
                 <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#7EB631]">
                   {lang === 'en' ? "B'Groceries Stocks Hub" : 'មជ្ឈមណ្ឌលគ្រប់គ្រងស្តុក'}
                 </p>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-['Montserrat']">
+                <h1 className={`text-2xl sm:text-3xl font-black tracking-tight font-['Montserrat'] ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                   {lang === 'en' ? 'Stocks & Inventory Hub' : 'មជ្ឈមណ្ឌលស្តុក និងទំនិញ'}
                 </h1>
               </div>
             </div>
 
-            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-300 font-['Montserrat']">
+            <p className={`max-w-2xl text-xs sm:text-sm leading-relaxed font-['Montserrat'] ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
               {lang === 'en'
                 ? 'Central command for your supermarket inventory — master catalog, suppliers, barcode scales, transfers, goods receipt, and cost modifications.'
                 : 'មជ្ឈមណ្ឌលបញ្ជាកណ្តាលសម្រាប់ស្តុកទំនិញផ្សារទំនើប — កាតាឡុកមេ អ្នកផ្គត់ផ្គង់ ជញ្ជីងបារកូដ ការផ្ទេរទំនិញ ការទទួលទំនិញ និងការកែប្រែចំណាយ។'}
@@ -373,22 +383,22 @@ export const ProductsHub = () => {
 
           {/* Quick Stats Widget */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:flex lg:flex-col shrink-0 min-w-[220px]">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <div className={`rounded-2xl border p-3.5 shadow-md ${isDark ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-white shadow-xs'}`}>
+              <div className={`flex items-center justify-between text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 <span>{lang === 'en' ? 'Live SKUs' : 'មុខទំនិញសកម្ម'}</span>
-                <span className="text-emerald-400">● Live</span>
+                <span className="text-emerald-500 font-bold">● Live</span>
               </div>
-              <p className="mt-1 font-mono text-2xl font-black text-white">
+              <p className={`mt-1 font-mono text-2xl font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                 {stats.loading ? '…' : stats.totalProducts}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <div className={`rounded-2xl border p-3.5 shadow-md ${isDark ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-white shadow-xs'}`}>
+              <div className={`flex items-center justify-between text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 <span>{lang === 'en' ? 'Suppliers' : 'អ្នកផ្គត់ផ្គង់'}</span>
-                <span className="text-blue-400">● Master</span>
+                <span className="text-blue-500 font-bold">● Master</span>
               </div>
-              <p className="mt-1 font-mono text-2xl font-black text-white">
+              <p className={`mt-1 font-mono text-2xl font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                 {stats.loading ? '…' : stats.totalSuppliers}
               </p>
             </div>
@@ -397,7 +407,9 @@ export const ProductsHub = () => {
       </section>
 
       {/* 2. DYNAMIC SEARCH & CATEGORY FILTER BAR */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-800/80 bg-[#1e293b]/70 backdrop-blur-md p-3.5 shadow-lg">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border p-3.5 shadow-lg ${
+        isDark ? 'border-slate-800/80 bg-[#1e293b]/70 backdrop-blur-md' : 'border-slate-200 bg-white shadow-slate-200/50'
+      }`}>
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
           <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">
@@ -412,13 +424,15 @@ export const ProductsHub = () => {
                 ? 'Quick search any module (e.g. Scale, Cost Change, Supplier, Receive…)'
                 : 'ស្វែងរកម៉ូឌុលរហ័ស (ឧ. ជញ្ជីង, ចំណាយ, អ្នកផ្គត់ផ្គង់…)'
             }
-            className="w-full rounded-xl border border-slate-700/80 bg-slate-950/90 py-2 pl-9 pr-8 text-xs font-semibold text-white placeholder-slate-500 outline-none transition focus:border-[#7EB631] focus:ring-2 focus:ring-[#7EB631]/20"
+            className={`w-full rounded-xl border py-2 pl-9 pr-8 text-xs font-semibold outline-none transition focus:border-[#7EB631] focus:ring-2 focus:ring-[#7EB631]/20 ${
+              isDark ? 'border-slate-700/80 bg-slate-950/90 text-white placeholder-slate-500' : 'border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400'
+            }`}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-slate-900'}`}
             >
               ✕
             </button>
@@ -439,13 +453,19 @@ export const ProductsHub = () => {
               className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${
                 activeCategory === tab.key
                   ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20'
-                  : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+                  : isDark
+                    ? 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:text-slate-900 hover:border-slate-300'
               }`}
             >
               <span>{lang === 'kh' ? tab.kh : tab.en}</span>
               <span
                 className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                  activeCategory === tab.key ? 'bg-slate-950 text-green-300' : 'bg-slate-800 text-slate-400'
+                  activeCategory === tab.key
+                    ? 'bg-slate-950 text-green-300'
+                    : isDark
+                      ? 'bg-slate-800 text-slate-400'
+                      : 'bg-slate-200 text-slate-600'
                 }`}
               >
                 {tab.count}
@@ -459,22 +479,28 @@ export const ProductsHub = () => {
       {(!searchQuery || 'all products'.includes(searchQuery.toLowerCase())) && (
         <Link
           to="/admin/products/all"
-          className="group relative overflow-hidden flex flex-col gap-3 rounded-2xl border border-green-500/40 bg-gradient-to-r from-green-500/15 via-emerald-500/10 to-slate-900/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-green-400 hover:shadow-xl hover:shadow-green-500/10 sm:flex-row sm:items-center sm:justify-between"
+          className={`group relative overflow-hidden flex flex-col gap-3 rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:flex-row sm:items-center sm:justify-between ${
+            isDark
+              ? 'border-green-500/40 bg-gradient-to-r from-green-500/15 via-emerald-500/10 to-slate-900/60 hover:border-green-400 hover:shadow-green-500/10'
+              : 'border-green-500/30 bg-gradient-to-r from-green-50 via-emerald-50/50 to-white hover:border-green-400 hover:shadow-green-500/15 shadow-sm'
+          }`}
         >
           <div className="flex items-center gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/20 text-2xl ring-1 ring-green-400/40 shadow-md">
+            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ring-1 shadow-md ${
+              isDark ? 'bg-green-500/20 ring-green-400/40' : 'bg-green-100 ring-green-500/30'
+            }`}>
               📋
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-white font-['Montserrat']">
+                <h3 className={`text-base font-black font-['Montserrat'] ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                   {lang === 'en' ? 'All Products Master List' : 'បញ្ជីផលិតផលទាំងអស់'}
                 </h3>
                 <span className="rounded-full bg-[#7EB631] px-2 py-0.5 text-[10px] font-black text-slate-950 uppercase tracking-wider">
                   Full Catalog
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
+              <p className={`text-xs mt-0.5 max-w-xl ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                 {lang === 'en'
                   ? 'Complete table of every SKU with category filters, bulk pricing, Excel import/export, and instant search.'
                   : 'តារាងពេញលេញនៃគ្រប់មុខទំនិញ ជាមួយការត្រងប្រភេទ តម្លៃដុំ ការនាំចេញ/នាំចូល Excel និងការស្វែងរកភ្លាមៗ។'}
@@ -482,7 +508,9 @@ export const ProductsHub = () => {
             </div>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 self-start sm:self-center text-xs font-bold text-green-300 transition-transform group-hover:translate-x-1 shrink-0">
+          <span className={`inline-flex items-center gap-1.5 self-start sm:self-center text-xs font-bold transition-transform group-hover:translate-x-1 shrink-0 ${
+            isDark ? 'text-green-300' : 'text-green-700'
+          }`}>
             <span>{lang === 'en' ? 'Open Catalog' : 'បើកកាតាឡុក'}</span>
             <ChevronIcon />
           </span>
@@ -491,20 +519,22 @@ export const ProductsHub = () => {
 
       {/* 4. MASTER DATA SECTION */}
       {masterFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 ${
+          isDark ? 'border-slate-800 bg-slate-900/80 shadow-black/20' : 'border-slate-200 bg-white shadow-slate-200/50'
+        }`}>
+          <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
             <div className="flex items-center gap-3">
               <div className="h-5 w-1.5 rounded-full bg-[#7EB631]" />
               <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                <h2 className={`text-base font-bold font-['Montserrat'] ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                   {lang === 'en' ? 'Catalog Master Data' : 'ទិន្នន័យគោលកាតាឡុក'}
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {lang === 'en' ? 'Manage products, groups, categories, units & suppliers' : 'គ្រប់គ្រងផលិតផល ក្រុម ប្រភេទ ខ្នាត និងអ្នកផ្គត់ផ្គង់'}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-400">{masterFiltered.length} items</span>
+            <span className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{masterFiltered.length} items</span>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -517,22 +547,24 @@ export const ProductsHub = () => {
 
       {/* 5. STOCK OPERATIONS SECTION */}
       {opsFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 ${
+          isDark ? 'border-slate-800 bg-slate-900/80 shadow-black/20' : 'border-slate-200 bg-white shadow-slate-200/50'
+        }`}>
+          <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
             <div className="flex items-center gap-3">
               <div className="h-5 w-1.5 rounded-full bg-[#E69D32]" />
               <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                <h2 className={`text-base font-bold font-['Montserrat'] ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                   {lang === 'en' ? 'Stock Operations & Tools' : 'ប្រតិបត្តិការស្តុក និងឧបករណ៍'}
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {lang === 'en'
                     ? 'Day-to-day warehouse movements, receiving, transfers, scale barcodes, and cost changes'
                     : 'ចលនាស្តុកប្រចាំថ្ងៃ ការទទួល ការផ្ទេរ ជញ្ជីងបារកូដ និងការផ្លាស់ប្តូរចំណាយ'}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-400">{opsFiltered.length} items</span>
+            <span className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{opsFiltered.length} items</span>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -545,14 +577,18 @@ export const ProductsHub = () => {
 
       {/* Empty Search State */}
       {filteredSections.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-12 text-center space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-3xl">
+        <div className={`rounded-2xl border border-dashed p-12 text-center space-y-3 ${
+          isDark ? 'border-slate-700 bg-slate-950/60' : 'border-slate-300 bg-slate-50'
+        }`}>
+          <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-3xl ${
+            isDark ? 'bg-slate-900' : 'bg-slate-200'
+          }`}>
             🔍
           </div>
-          <h3 className="text-base font-bold text-white">
+          <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {lang === 'en' ? 'No stock module found' : 'រកមិនឃើញម៉ូឌុលស្តុកទេ'}
           </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <p className={`text-xs max-w-sm mx-auto ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             {lang === 'en'
               ? `No module matching "${searchQuery}". Try searching for Products, Scale, Cost, Suppliers or Transfers.`
               : `គ្មានម៉ូឌុលត្រូវនឹង "${searchQuery}" ទេ។`}
@@ -572,17 +608,24 @@ export const ProductsHub = () => {
 
 // Interactive Module Card Component
 const ModuleCard = ({ section, lang }) => {
+  const { isDark } = useTheme()
   const isImg = typeof section.icon === 'string' && (section.icon.includes('/') || section.icon.endsWith('.png'))
 
   return (
     <Link
       to={`/admin/products/${section.key}`}
-      className="group relative flex flex-col justify-between rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-slate-500 hover:bg-slate-950 hover:shadow-xl hover:shadow-black/40 active:scale-[0.98]"
+      className={`group relative flex flex-col justify-between rounded-2xl border p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98] ${
+        isDark
+          ? 'border-slate-700/60 bg-slate-950/60 hover:border-slate-500 hover:bg-slate-950 hover:shadow-black/40'
+          : 'border-slate-200 bg-slate-50/70 hover:border-slate-300 hover:bg-white hover:shadow-slate-200/60 shadow-xs'
+      }`}
     >
       <div>
         <div className="flex items-center justify-between mb-3.5">
           <span
-            className="flex h-12 w-12 items-center justify-center rounded-xl p-2 ring-1 ring-white/10 shadow-md shadow-black/30 transition-transform duration-300 group-hover:scale-110"
+            className={`flex h-12 w-12 items-center justify-center rounded-xl p-2 ring-1 shadow-md transition-transform duration-300 group-hover:scale-110 ${
+              isDark ? 'ring-white/10 shadow-black/30' : 'ring-black/5 shadow-slate-200/50'
+            }`}
             style={{ background: section.bg }}
           >
             {isImg ? (
@@ -602,16 +645,18 @@ const ModuleCard = ({ section, lang }) => {
           )}
         </div>
 
-        <h3 className="text-sm sm:text-base font-bold text-white font-['Montserrat'] group-hover:text-green-300 transition-colors">
+        <h3 className={`text-sm sm:text-base font-bold font-['Montserrat'] transition-colors ${
+          isDark ? 'text-white group-hover:text-green-300' : 'text-slate-800 group-hover:text-green-600'
+        }`}>
           {lang === 'kh' ? section.kh : section.en}
         </h3>
 
-        <p className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2">
+        <p className={`mt-1 text-xs leading-relaxed line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
           {lang === 'kh' ? section.descKh : section.descEn}
         </p>
       </div>
 
-      <div className="mt-4 pt-2.5 border-t border-slate-800/80 flex items-center justify-between">
+      <div className={`mt-4 pt-2.5 border-t flex items-center justify-between ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
         <span
           className="inline-flex items-center gap-1.5 text-xs font-bold transition-transform group-hover:translate-x-1"
           style={{ color: section.color }}
@@ -619,7 +664,7 @@ const ModuleCard = ({ section, lang }) => {
           <span>{lang === 'en' ? 'Open' : 'បើក'}</span>
           <ChevronIcon />
         </span>
-        <span className="text-[10px] font-mono text-slate-500">→</span>
+        <span className={`text-[10px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>→</span>
       </div>
     </Link>
   )

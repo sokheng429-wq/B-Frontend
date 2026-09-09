@@ -240,3 +240,85 @@
   font-weight: 700;
   color: var(--brand);
 }
+
+/* ============================================================
+   LIGHT MODE HEADER STYLES
+   ============================================================ */
+:root[data-theme="light"] .header,
+html.light-theme .header,
+[data-theme="light"] .header {
+  background: #ffffff;
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] .header .nav-link,
+html.light-theme .header .nav-link,
+[data-theme="light"] .header .nav-link {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .header .nav-link:hover,
+html.light-theme .header .nav-link:hover,
+[data-theme="light"] .header .nav-link:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}
+
+:root[data-theme="light"] .header .nav-link--active,
+html.light-theme .header .nav-link--active,
+[data-theme="light"] .header .nav-link--active {
+  color: var(--brand);
+}
+
+:root[data-theme="light"] .header .btn-brand,
+html.light-theme .header .btn-brand,
+[data-theme="light"] .header .btn-brand {
+  color: #ffffff;
+  background: var(--brand);
+}
+
+:root[data-theme="light"] .header .btn-brand:hover,
+html.light-theme .header .btn-brand:hover,
+[data-theme="light"] .header .btn-brand:hover {
+  background: var(--brand-dark);
+}
+
+:root[data-theme="light"] .header .mobile-toggle,
+html.light-theme .header .mobile-toggle,
+[data-theme="light"] .header .mobile-toggle {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .header .mobile-menu,
+html.light-theme .header .mobile-menu,
+[data-theme="light"] .header .mobile-menu {
+  background: #ffffff;
+  border-top: 1px solid var(--border-subtle);
+}
+
+:root[data-theme="light"] .header .nav-link-mobile,
+html.light-theme .header .nav-link-mobile,
+[data-theme="light"] .header .nav-link-mobile {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .header .nav-link-mobile:hover,
+html.light-theme .header .nav-link-mobile:hover,
+[data-theme="light"] .header .nav-link-mobile:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}
+
+:root[data-theme="light"] .header .nav-cart,
+html.light-theme .header .nav-cart,
+[data-theme="light"] .header .nav-cart {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .header .nav-cart:hover,
+html.light-theme .header .nav-cart:hover,
+[data-theme="light"] .header .nav-cart:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}

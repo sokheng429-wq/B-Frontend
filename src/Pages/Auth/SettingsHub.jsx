@@ -1,158 +1,237 @@
 import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+
+// 3D Icons for the 16 Settings Modules
 import settingIcon from '../../assets/icon/3dicons-setting-dynamic-color.png'
 import mapPinIcon from '../../assets/icon/3dicons-map-pin-dynamic-color.png'
+import locationIcon from '../../assets/icon/3dicons-location-dynamic-color.png'
 import boyIcon from '../../assets/icon/3dicons-boy-dynamic-color.png'
 import keyIcon from '../../assets/icon/3dicons-key-dynamic-color.png'
-import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
-import toggleIcon from '../../assets/icon/3dicons-toggle-dynamic-color.png'
-import paletteIcon from '../../assets/icon/3dicons-color-palette-dynamic-color.png'
-import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
 import calculatorIcon from '../../assets/icon/3dicons-calculator-dynamic-color.png'
-import folderFavIcon from '../../assets/icon/3dicons-folder-fav-dynamic-color.png'
+import dollarIcon from '../../assets/icon/3dicons-dollar-dynamic-color.png'
+import notebookIcon from '../../assets/icon/3dicons-notebook-dynamic-color.png'
+import tickIcon from '../../assets/icon/3dicons-tick-dynamic-color.png'
+import creditCardIcon from '../../assets/icon/3dicons-credit-card-dynamic-color.png'
+import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
+import fileTextIcon from '../../assets/icon/3dicons-file-text-dynamic-color.png'
+import lockIcon from '../../assets/icon/3dicons-lock-dynamic-color.png'
+import walletIcon from '../../assets/icon/3dicons-wallet-dynamic-color.png'
+import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
+import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
+
 import './ProductsHub.css'
 
-export const BUSINESS_SETUP_MODULES = [
+// EXACT 16 SETTINGS MODULES
+export const SETTINGS_MODULES = [
   {
     key: 'company',
     icon: settingIcon,
-    en: 'Company Profile',
-    kh: 'ព័ត៌មានក្រុមហ៊ុន',
-    descEn: 'Supermarket legal business name, tax identification (VATTIN), and corporate headquarters.',
-    descKh: 'ឈ្មោះពាណិជ្ជកម្មផ្លូវការ លេខសម្គាល់អ្នកជាប់ពន្ធ និងការិយាល័យកណ្តាល។',
+    en: 'Company',
+    kh: 'ក្រុមហ៊ុន',
+    descEn: 'View of company information',
+    descKh: 'មើលព័ត៌មានក្រុមហ៊ុន',
     color: '#3B82F6',
     bg: 'rgba(59, 130, 246, 0.12)',
     category: 'business',
-    tag: 'Core',
+    tag: 'Profile',
     route: '/admin/settings/company',
   },
   {
     key: 'outlet',
     icon: mapPinIcon,
-    en: 'Outlets & Branches',
-    kh: 'សាខា និងច្រកលក់',
-    descEn: 'Configure multiple store locations, operating hours, contact numbers, and retail counters.',
-    descKh: 'កំណត់ទីតាំងសាខាហាង ម៉ោងបើកបម្រើការងារ និងកុងទ័រលក់។',
-    color: '#10b981',
-    bg: 'rgba(16, 185, 129, 0.12)',
+    en: 'Outlet',
+    kh: 'ច្រកលក់',
+    descEn: 'View of outlet information',
+    descKh: 'មើលព័ត៌មានច្រកលក់',
+    color: '#10B981',
+    bg: 'rgba(168, 85, 247, 0.12)',
     category: 'business',
-    tag: 'Retail',
+    tag: 'Branches',
     route: '/admin/settings/outlet',
   },
   {
     key: 'location',
-    icon: folderFavIcon,
-    en: 'Warehouses & Zones',
-    kh: 'ឃ្លាំង និងតំបន់ស្តុក',
-    descEn: 'Manage physical storage racks, cold rooms, aisles, and staging bins for fast picking.',
-    descKh: 'គ្រប់គ្រងធ្នើរទុកទំនិញ បន្ទប់ត្រជាក់ និងទីតាំងរៀបចំទំនិញ។',
-    color: '#06b6d4',
+    icon: locationIcon,
+    en: 'Location',
+    kh: 'ទីតាំង',
+    descEn: 'View of location information',
+    descKh: 'មើលព័ត៌មានទីតាំង',
+    color: '#06B6D4',
     bg: 'rgba(6, 182, 212, 0.12)',
     category: 'business',
+    tag: 'Storage',
     route: '/admin/settings/location',
   },
-]
-
-export const USER_ACCESS_MODULES = [
   {
     key: 'users',
     icon: boyIcon,
-    en: 'Users Management',
-    kh: 'គណនីអ្នកប្រើប្រាស់',
-    descEn: 'Admin and cashier staff login credentials, security passwords, and account status.',
-    descKh: 'គណនីចូលប្រើប្រាស់របស់អ្នកគ្រប់គ្រង និងបុគ្គលិកគិតលុយ។',
+    en: 'User',
+    kh: 'អ្នកប្រើប្រាស់',
+    descEn: 'View of users information',
+    descKh: 'មើលព័ត៌មានអ្នកប្រើប្រាស់',
     color: '#77BC1F',
     bg: 'rgba(119, 188, 31, 0.12)',
     category: 'access',
-    tag: 'Security',
+    tag: 'Staff',
     route: '/admin/settings/users',
   },
   {
-    key: 'roles',
+    key: 'role',
     icon: keyIcon,
-    en: 'Roles & Permissions',
-    kh: 'តួនាទី និងសិទ្ធិប្រើប្រាស់',
-    descEn: 'Granular role-based access control: Cashier, Supervisor, Inventory Manager, and Admin.',
-    descKh: 'កំណត់សិទ្ធិប្រើប្រាស់តាមតួនាទី: អ្នកគិតលុយ ប្រធានផ្នែក និងរដ្ឋបាល។',
-    color: '#a855f7',
+    en: 'Role',
+    kh: 'តួនាទី',
+    descEn: 'View of role information',
+    descKh: 'មើលព័ត៌មានតួនាទី',
+    color: '#A855F7',
     bg: 'rgba(168, 85, 247, 0.12)',
     category: 'access',
     tag: 'RBAC',
-    route: '/admin/settings/roles',
-  },
-  {
-    key: 'security',
-    icon: shieldIcon,
-    en: 'Audit Log & Security',
-    kh: 'កំណត់ត្រាសុវត្ថិភាព និងសវនកម្ម',
-    descEn: 'Track admin actions, discount overrides, cash drawer manual open events, and IP logs.',
-    descKh: 'តាមដានសកម្មភាពរបស់អ្នកគ្រប់គ្រង ការបញ្ចុះតម្លៃពិសេស និងការបើកថតលុយ។',
-    color: '#ec4899',
-    bg: 'rgba(236, 72, 153, 0.12)',
-    category: 'access',
-    route: '/admin/settings/security',
-  },
-]
-
-export const SYSTEM_PREFS_MODULES = [
-  {
-    key: 'general',
-    icon: toggleIcon,
-    en: 'General Preferences',
-    kh: 'ការកំណត់ទូទៅ',
-    descEn: 'Barcode scanner auto-submit, receipt auto-print on checkout, and rounding rules.',
-    descKh: 'ការស្កេនបារកូដស្វ័យប្រវត្តិ ការបោះពុម្ពវិក័យប័ត្រ និងការបង្គត់តម្លៃ។',
-    color: '#FF9900',
-    bg: 'rgba(255, 153, 0, 0.12)',
-    category: 'system',
-    tag: 'System',
-    route: '/admin/settings/general',
-  },
-  {
-    key: 'locale',
-    icon: sunIcon,
-    en: 'Language & Currency',
-    kh: 'ភាសា និងរូបិយប័ណ្ណ',
-    descEn: 'Dual currency exchange rate (USD $ & KHR ៛), date formatting, and default language.',
-    descKh: 'អត្រាប្តូរប្រាក់ពីរ (ដុល្លារ $ និងរៀល ៛) ទម្រង់កាលបរិច្ឆេទ និងភាសាលំនាំដើម។',
-    color: '#f59e0b',
-    bg: 'rgba(245, 158, 11, 0.12)',
-    category: 'system',
-    tag: 'USD / KHR',
-    route: '/admin/settings/locale',
+    route: '/admin/settings/role',
   },
   {
     key: 'tax',
     icon: calculatorIcon,
-    en: 'Tax Rates & VAT',
-    kh: 'អត្រាពន្ធ និងអាករលើតម្លៃបន្ថែម (VAT)',
-    descEn: '10% standard VAT, zero-rated exports, and tax invoice registration options.',
-    descKh: 'អាករលើតម្លៃបន្ថែម VAT ១០% និងការកំណត់វិក័យប័ត្រពន្ធ។',
-    color: '#8b5cf6',
-    bg: 'rgba(139, 92, 246, 0.12)',
-    category: 'system',
+    en: 'Tax',
+    kh: 'ពន្ធ',
+    descEn: 'View of tax information',
+    descKh: 'មើលព័ត៌មានពន្ធ',
+    color: '#EF4444',
+    bg: 'rgba(239, 68, 68, 0.12)',
+    category: 'finance',
+    tag: 'VAT',
     route: '/admin/settings/tax',
   },
   {
-    key: 'backup',
-    icon: paletteIcon,
-    en: 'Database & Backup',
-    kh: 'បម្រុងទុកទិន្នន័យ',
-    descEn: 'Automated daily database snapshot backups, cloud synchronization, and restore utilities.',
-    descKh: 'ការបម្រុងទុកទិន្នន័យស្វ័យប្រវត្តិប្រចាំថ្ងៃ និងឧបករណ៍ស្តារទិន្នន័យ។',
-    color: '#0ea5e9',
-    bg: 'rgba(14, 165, 233, 0.12)',
-    category: 'system',
-    tag: 'Backup',
-    route: '/admin/settings/backup',
+    key: 'currency',
+    icon: dollarIcon,
+    en: 'Currency',
+    kh: 'រូបិយប័ណ្ណ',
+    descEn: 'View of currency information',
+    descKh: 'មើលព័ត៌មានរូបិយប័ណ្ណ',
+    color: '#F59E0B',
+    bg: 'rgba(245, 158, 11, 0.12)',
+    category: 'finance',
+    tag: 'USD/KHR',
+    route: '/admin/settings/currency',
   },
-]
-
-export const ALL_SETTINGS_MODULES = [
-  ...BUSINESS_SETUP_MODULES,
-  ...USER_ACCESS_MODULES,
-  ...SYSTEM_PREFS_MODULES,
+  {
+    key: 'price-book',
+    icon: notebookIcon,
+    en: 'Price Book',
+    kh: 'សៀវភៅតម្លៃ',
+    descEn: 'View of price book information',
+    descKh: 'មើលព័ត៌មានសៀវភៅតម្លៃ',
+    color: '#6366F1',
+    bg: 'rgba(99, 102, 241, 0.12)',
+    category: 'finance',
+    tag: 'Pricing',
+    route: '/admin/settings/price-book',
+  },
+  {
+    key: 'approval-type',
+    icon: tickIcon,
+    en: 'Approval Type',
+    kh: 'ប្រភេទការអនុម័ត',
+    descEn: 'View of approval type information',
+    descKh: 'មើលព័ត៌មានប្រភេទការអនុម័ត',
+    color: '#14B8A6',
+    bg: 'rgba(20, 184, 166, 0.12)',
+    category: 'operations',
+    tag: 'Workflow',
+    route: '/admin/settings/approval-type',
+  },
+  {
+    key: 'payment-type',
+    icon: creditCardIcon,
+    en: 'Payment Type',
+    kh: 'ប្រភេទទូទាត់',
+    descEn: 'View of payment type information',
+    descKh: 'មើលព័ត៌មានប្រភេទទូទាត់',
+    color: '#EC4899',
+    bg: 'rgba(236, 72, 153, 0.12)',
+    category: 'finance',
+    tag: 'Methods',
+    route: '/admin/settings/payment-type',
+  },
+  {
+    key: 'email',
+    icon: mailIcon,
+    en: 'Email',
+    kh: 'អ៊ីមែល',
+    descEn: 'View of email information',
+    descKh: 'មើលព័ត៌មានអ៊ីមែល',
+    color: '#3B82F6',
+    bg: 'rgba(59, 130, 246, 0.12)',
+    category: 'operations',
+    tag: 'SMTP',
+    route: '/admin/settings/email',
+  },
+  {
+    key: 'terms',
+    icon: fileTextIcon,
+    en: 'Terms and Condition',
+    kh: 'លក្ខខណ្ឌ',
+    descEn: 'View of terms and condition information',
+    descKh: 'មើលព័ត៌មានលក្ខខណ្ឌ',
+    color: '#8B5CF6',
+    bg: 'rgba(139, 92, 246, 0.12)',
+    category: 'operations',
+    tag: 'Legal',
+    route: '/admin/settings/terms',
+  },
+  {
+    key: 'system-key',
+    icon: lockIcon,
+    en: 'System key change',
+    kh: 'ផ្លាស់ប្តូរសោលប្រព័ន្ធ',
+    descEn: 'View of system key change',
+    descKh: 'មើលការផ្លាស់ប្តូរសោលប្រព័ន្ធ',
+    color: '#F97316',
+    bg: 'rgba(249, 115, 22, 0.12)',
+    category: 'access',
+    tag: 'Security',
+    route: '/admin/settings/system-key',
+  },
+  {
+    key: 'bank-account',
+    icon: walletIcon,
+    en: 'Bank Account',
+    kh: 'គណនីធនាគារ',
+    descEn: 'View of bank account card',
+    descKh: 'មើលកាតគណនីធនាគារ',
+    color: '#10B981',
+    bg: 'rgba(16, 185, 129, 0.12)',
+    category: 'finance',
+    tag: 'Accounts',
+    route: '/admin/settings/bank-account',
+  },
+  {
+    key: 'import-beginning',
+    icon: folderIcon,
+    en: 'Import Beginning',
+    kh: 'នាំចូលទិន្នន័យដំបូង',
+    descEn: 'View of import beginning',
+    descKh: 'មើលការនាំចូលទិន្នន័យដំបូង',
+    color: '#0EA5E9',
+    bg: 'rgba(14, 165, 233, 0.12)',
+    category: 'operations',
+    tag: 'Migration',
+    route: '/admin/settings/import-beginning',
+  },
+  {
+    key: 'preference',
+    icon: starIcon,
+    en: 'Preference',
+    kh: 'ចំណូលចិត្ត',
+    descEn: 'View of preference',
+    descKh: 'មើលការកំណត់ចំណូលចិត្ត',
+    color: '#EAB308',
+    bg: 'rgba(234, 179, 8, 0.12)',
+    category: 'business',
+    tag: 'System UI',
+    route: '/admin/settings/preference',
+  },
 ]
 
 function ChevronLeftIcon() {
@@ -174,28 +253,28 @@ function ChevronIcon() {
 function ModuleCard({ item, lang }) {
   return (
     <Link
-      to={item.route || '/admin/settings'}
-      className="hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border border-slate-800 bg-[#141922]/90 p-4 sm:p-5 text-left transition-all duration-300 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-xl hover:shadow-black/40"
+      to={item.route}
+      className="hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border border-slate-800 bg-[#141922]/90 p-4 sm:p-5 text-left transition-all duration-300 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1"
     >
       <div
-        className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-10 blur-2xl transition-opacity group-hover:opacity-25"
+        className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-10 blur-2xl transition-opacity group-hover:opacity-30"
         style={{ background: item.color }}
       />
 
       <div className="relative space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div
-            className="hub-icon flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-xl ring-1 transition-all duration-300 group-hover:scale-110"
+            className="hub-icon flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl ring-1 transition-all duration-300 group-hover:scale-110 shadow-lg"
             style={{
               background: item.bg,
-              borderColor: item.color + '40',
+              borderColor: `${item.color}40`,
             }}
           >
             <img src={item.icon} alt="" className="h-7 w-7 sm:h-8 sm:w-8 object-contain drop-shadow" />
           </div>
           {item.tag && (
             <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-sm"
+              className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider font-mono shadow-sm"
               style={{
                 background: item.bg,
                 color: item.color,
@@ -208,9 +287,11 @@ function ModuleCard({ item, lang }) {
         </div>
 
         <div>
-          <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors font-['Montserrat']">
-            {lang === 'kh' ? item.kh : item.en}
-          </h3>
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors font-['Montserrat']">
+              {lang === 'kh' ? item.kh : item.en}
+            </h3>
+          </div>
           <p className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2">
             {lang === 'kh' ? item.descKh : item.descEn}
           </p>
@@ -221,7 +302,7 @@ function ModuleCard({ item, lang }) {
         className="relative mt-4 flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs font-bold transition-all"
         style={{ color: item.color }}
       >
-        <span>{lang === 'kh' ? 'បើកការកំណត់' : 'Configure'}</span>
+        <span>{lang === 'kh' ? 'មើលការកំណត់' : 'Configure'}</span>
         <span className="transform transition-transform duration-200 group-hover:translate-x-1">
           <ChevronIcon />
         </span>
@@ -237,14 +318,10 @@ export default function SettingsHub() {
 
   const filteredModules = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    let list = ALL_SETTINGS_MODULES
+    let list = SETTINGS_MODULES
 
-    if (activeCategory === 'business') {
-      list = BUSINESS_SETUP_MODULES
-    } else if (activeCategory === 'access') {
-      list = USER_ACCESS_MODULES
-    } else if (activeCategory === 'system') {
-      list = SYSTEM_PREFS_MODULES
+    if (activeCategory !== 'all') {
+      list = list.filter((s) => s.category === activeCategory)
     }
 
     if (!q) return list
@@ -259,21 +336,19 @@ export default function SettingsHub() {
     })
   }, [searchQuery, activeCategory])
 
-  const businessFiltered = useMemo(
-    () => filteredModules.filter((s) => s.category === 'business'),
-    [filteredModules]
-  )
-  const accessFiltered = useMemo(
-    () => filteredModules.filter((s) => s.category === 'access'),
-    [filteredModules]
-  )
-  const systemFiltered = useMemo(
-    () => filteredModules.filter((s) => s.category === 'system'),
-    [filteredModules]
-  )
+  const categoryCounts = useMemo(() => {
+    const counts = {
+      all: SETTINGS_MODULES.length,
+      business: SETTINGS_MODULES.filter((m) => m.category === 'business').length,
+      access: SETTINGS_MODULES.filter((m) => m.category === 'access').length,
+      finance: SETTINGS_MODULES.filter((m) => m.category === 'finance').length,
+      operations: SETTINGS_MODULES.filter((m) => m.category === 'operations').length,
+    }
+    return counts
+  }, [])
 
   return (
-    <div className="space-y-6 text-slate-100" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+    <div className="space-y-6 text-slate-100 font-['Montserrat']">
       {/* 1. HERO BANNER */}
       <section className="relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] p-5 sm:p-7 shadow-2xl shadow-cyan-500/10">
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl" />
@@ -294,18 +369,18 @@ export default function SettingsHub() {
               </span>
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.25em] text-cyan-400">
-                  {lang === 'en' ? "B'Groceries Core System Configuration" : 'ការកំណត់ប្រព័ន្ធស្នូល'}
+                  {lang === 'en' ? "B'Groceries ERP System Configuration" : 'ការកំណត់ប្រព័ន្ធស្នូល'}
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                  {lang === 'en' ? 'System Settings Hub' : 'មជ្ឈមណ្ឌលការកំណត់ប្រព័ន្ធ'}
+                  {lang === 'en' ? 'Setting' : 'ការកំណត់'}
                 </h1>
               </div>
             </div>
 
             <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-300">
               {lang === 'en'
-                ? 'Comprehensive system administration — configure company profiles, branch outlets, user roles & permissions, exchange rates (USD/KHR), VAT tax brackets, and automated database backups.'
-                : 'ការគ្រប់គ្រងប្រព័ន្ធពេញលេញ — កំណត់ព័ត៌មានក្រុមហ៊ុន សាខាហាង សិទ្ធិអ្នកប្រើប្រាស់ អត្រាប្តូរប្រាក់ (USD/KHR) អាករ VAT និងការបម្រុងទុកទិន្នន័យ។'}
+                ? "Unified 16 enterprise settings modules: Company, Outlet, Location, Users, Roles, Taxes, Currencies, Price Books, Approvals, Payment Types, Email SMTP, Terms, Security Keys, Bank Accounts, Beginning Imports, and System Preferences."
+                : 'ម៉ូឌុលការកំណត់ទាំង ១៦ របស់ប្រព័ន្ធ៖ ក្រុមហ៊ុន សាខា ទីតាំង អ្នកប្រើប្រាស់ តួនាទី ពន្ធ រូបិយប័ណ្ណ សៀវភៅតម្លៃ ការអនុម័ត ប្រភេទទូទាត់ អ៊ីមែល លក្ខខណ្ឌ សោលប្រព័ន្ធ គណនីធនាគារ នាំចូលទិន្នន័យដំបូង និងចំណូលចិត្ត។'}
             </p>
           </div>
 
@@ -314,22 +389,40 @@ export default function SettingsHub() {
             <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
               <div className="flex items-center justify-between text-[11px] text-slate-400">
                 <span>{lang === 'en' ? 'Settings Modules' : 'ម៉ូឌុលការកំណត់'}</span>
-                <span className="text-cyan-400">● Active</span>
+                <span className="text-cyan-400 font-bold">16 Modules</span>
               </div>
-              <p className="mt-1 font-mono text-2xl font-black text-white">
-                {ALL_SETTINGS_MODULES.length}
-              </p>
+              <p className="mt-1 font-mono text-2xl font-black text-white">16</p>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
               <div className="flex items-center justify-between text-[11px] text-slate-400">
                 <span>{lang === 'en' ? 'System Health' : 'សុខភាពប្រព័ន្ធ'}</span>
-                <span className="text-emerald-400">● Optimal</span>
+                <span className="text-emerald-400 font-bold">● Active</span>
               </div>
               <p className="mt-1 font-mono text-xs font-semibold text-slate-300">
-                Protected & Secured
+                Protected & Verified
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Pill Jump Bar for all 16 modules */}
+        <div className="mt-6 pt-5 border-t border-slate-800/80">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+            {lang === 'en' ? 'Quick Jump (16 Settings):' : 'ផ្លូវកាត់ការកំណត់ទាំង ១៦៖'}
+          </p>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {SETTINGS_MODULES.map((m) => (
+              <Link
+                key={m.key}
+                to={m.route}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-950/60 text-slate-300 border border-slate-800 hover:border-cyan-400 hover:text-white hover:bg-slate-800/50 transition-all"
+                style={{ borderColor: `${m.color}30` }}
+              >
+                <img src={m.icon} alt="" className="h-4 w-4 object-contain" />
+                <span>{lang === 'kh' ? m.kh : m.en}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -346,8 +439,8 @@ export default function SettingsHub() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={
               lang === 'en'
-                ? 'Search company, outlets, users, roles, tax, backup...'
-                : 'ស្វែងរកក្រុមហ៊ុន សាខា អ្នកប្រើប្រាស់ តួនាទី ពន្ធ...'
+                ? 'Search 16 settings: company, outlet, user, tax, currency...'
+                : 'ស្វែងរកការកំណត់ទាំង ១៦៖ ក្រុមហ៊ុន ច្រកលក់ អ្នកប្រើប្រាស់ ពន្ធ រូបិយប័ណ្ណ...'
             }
             className="w-full rounded-xl border border-slate-700/80 bg-slate-950/90 py-2 pl-9 pr-8 text-xs font-semibold text-white placeholder-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
           />
@@ -364,10 +457,11 @@ export default function SettingsHub() {
 
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {[
-            { key: 'all', en: 'All Settings', kh: 'ទាំងអស់', count: ALL_SETTINGS_MODULES.length },
-            { key: 'business', en: 'Business Setup', kh: 'អាជីវកម្ម', count: BUSINESS_SETUP_MODULES.length },
-            { key: 'access', en: 'Users & Roles', kh: 'អ្នកប្រើ និងសិទ្ធិ', count: USER_ACCESS_MODULES.length },
-            { key: 'system', en: 'System & Tax', kh: 'ប្រព័ន្ធ និងពន្ធ', count: SYSTEM_PREFS_MODULES.length },
+            { key: 'all', en: 'All 16', kh: 'ទាំងអស់ ១៦', count: categoryCounts.all },
+            { key: 'business', en: 'Business & UI', kh: 'អាជីវកម្ម & UI', count: categoryCounts.business },
+            { key: 'access', en: 'Access & Security', kh: 'សិទ្ធិ & សុវត្ថិភាព', count: categoryCounts.access },
+            { key: 'finance', en: 'Finance & Tax', kh: 'ហិរញ្ញវត្ថុ & ពន្ធ', count: categoryCounts.finance },
+            { key: 'operations', en: 'Operations', kh: 'ប្រតិបត្តិការ', count: categoryCounts.operations },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -392,121 +486,14 @@ export default function SettingsHub() {
         </div>
       </div>
 
-      {/* 3. FEATURED ACTION CARD */}
-      {(!searchQuery || 'company profile'.includes(searchQuery.toLowerCase())) && (
-        <Link
-          to="/admin/settings/company"
-          className="group relative overflow-hidden flex flex-col gap-3 rounded-2xl border border-cyan-500/40 bg-gradient-to-r from-cyan-500/15 via-teal-500/10 to-slate-900/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-2xl ring-1 ring-cyan-400/40 shadow-md">
-              🏢
-            </span>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-white font-['Montserrat']">
-                  {lang === 'en' ? 'Supermarket Company Configuration' : 'ការកំណត់ព័ត៌មានក្រុមហ៊ុនផ្សារទំនើប'}
-                </h3>
-                <span className="rounded-full bg-cyan-500 px-2 py-0.5 text-[10px] font-black text-slate-950 uppercase tracking-wider">
-                  Master Config
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
-                {lang === 'en'
-                  ? 'Update business registration, tax IDs, brand logos, exchange rates, and branch communication channels.'
-                  : 'កែប្រែព័ត៌មានចុះបញ្ជីអាជីវកម្ម លេខពន្ធ ស្លាកសញ្ញាម៉ាក អត្រាប្តូរប្រាក់ និងទំនាក់ទំនងសាខា។'}
-              </p>
-            </div>
-          </div>
-
-          <span className="inline-flex items-center gap-1.5 self-start sm:self-center text-xs font-bold text-cyan-300 transition-transform group-hover:translate-x-1 shrink-0">
-            <span>{lang === 'en' ? 'Configure Company' : 'កំណត់ក្រុមហ៊ុន'}</span>
-            <ChevronIcon />
-          </span>
-        </Link>
-      )}
-
-      {/* 4. BUSINESS SETUP SECTION */}
-      {businessFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-1.5 rounded-full bg-cyan-500" />
-              <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
-                  {lang === 'en' ? 'Business Setup & Outlets' : 'ការកំណត់អាជីវកម្ម និងសាខា'}
-                </h2>
-                <p className="text-[11px] text-slate-400">
-                  {lang === 'en' ? 'Company legal details, retail branches, and warehouse storage locations' : 'ព័ត៌មានច្បាប់ក្រុមហ៊ុន សាខាលក់រាយ និងទីតាំងស្តុកឃ្លាំង'}
-                </p>
-              </div>
-            </div>
-            <span className="text-xs font-mono text-slate-400">{businessFiltered.length} items</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-            {businessFiltered.map((item) => (
-              <ModuleCard key={item.key} item={item} lang={lang} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 5. USER ACCESS SECTION */}
-      {accessFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-1.5 rounded-full bg-[#77BC1F]" />
-              <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
-                  {lang === 'en' ? 'User Accounts & Access Control' : 'អ្នកប្រើប្រាស់ និងការគ្រប់គ្រងសិទ្ធិ'}
-                </h2>
-                <p className="text-[11px] text-slate-400">
-                  {lang === 'en'
-                    ? 'Staff login accounts, RBAC permission matrices, and security audit logs'
-                    : 'គណនីបុគ្គលិក តារាងសិទ្ធិប្រើប្រាស់ និងកំណត់ត្រាសវនកម្មសុវត្ថិភាព'}
-                </p>
-              </div>
-            </div>
-            <span className="text-xs font-mono text-slate-400">{accessFiltered.length} items</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-            {accessFiltered.map((item) => (
-              <ModuleCard key={item.key} item={item} lang={lang} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 6. SYSTEM PREFS SECTION */}
-      {systemFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-1.5 rounded-full bg-[#FF9900]" />
-              <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
-                  {lang === 'en' ? 'System Preferences & Taxes' : 'ការកំណត់ប្រព័ន្ធ និងពន្ធដារ'}
-                </h2>
-                <p className="text-[11px] text-slate-400">
-                  {lang === 'en'
-                    ? 'General checkout rules, USD/KHR currencies, VAT tax rates, and database backup routines'
-                    : 'លក្ខខណ្ឌគិតលុយ រូបិយប័ណ្ណ ដុល្លារ/រៀល អត្រាពន្ធ VAT និងការបម្រុងទុកទិន្នន័យ'}
-                </p>
-              </div>
-            </div>
-            <span className="text-xs font-mono text-slate-400">{systemFiltered.length} items</span>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {systemFiltered.map((item) => (
-              <ModuleCard key={item.key} item={item} lang={lang} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* 3. 16 MODULES GRID */}
+      <section className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredModules.map((item) => (
+            <ModuleCard key={item.key} item={item} lang={lang} />
+          ))}
+        </div>
+      </section>
 
       {/* Empty Search State */}
       {filteredModules.length === 0 && (

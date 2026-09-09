@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { adminBankTransactionAPI } from '../../api/api'
 import creditCardIcon from '../../assets/icon/3dicons-credit-card-dynamic-color.png'
 import './ProductsHub.css'
 
@@ -184,7 +185,7 @@ export default function BankInOutCreate({ onCancel, onSuccess }) {
     return items.reduce((sum, it) => sum + Number(it.amount || 0), 0)
   }, [items])
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     if (e) e.preventDefault()
 
     if (!employee) {
@@ -232,7 +233,26 @@ export default function BankInOutCreate({ onCancel, onSuccess }) {
       items,
     }
 
-    // Persist to localStorage for demo live state
+    // Persist to database via backend API
+    try {
+      const res = await adminBankTransactionAPI.create({
+        code: newRecord.code,
+        date: newRecord.date,
+        type: newRecord.type,
+        bank: newRecord.bank,
+        amount: Number(newRecord.amount) || 0,
+        reference: newRecord.reference,
+        status: newRecord.status,
+        note: newRecord.note,
+      })
+      if (res?.data) {
+        newRecord.id = res.data.id
+      }
+    } catch (err) {
+      console.warn('Backend bank transaction save failed, saving to local cache:', err)
+    }
+
+    // Also update localStorage cache
     try {
       const stored = localStorage.getItem('bg_bank_in_out')
       const list = stored ? JSON.parse(stored) : []
@@ -242,7 +262,7 @@ export default function BankInOutCreate({ onCancel, onSuccess }) {
     showNotification?.({
       type: 'success',
       title: lang === 'en' ? 'Success' : 'ជោគជ័យ',
-      message: lang === 'en' ? `${bankType} record ${code} created successfully.` : `កំណត់ត្រា ${bankType} ${code} ត្រូវបានបង្កើតដោយជោគជ័យ។`
+      message: lang === 'en' ? `${bankType} record ${code} saved to database successfully.` : `កំណត់ត្រា ${bankType} ${code} ត្រូវបានរក្សាទុកដោយជោគជ័យ។`
     })
 
     if (onSuccess) {

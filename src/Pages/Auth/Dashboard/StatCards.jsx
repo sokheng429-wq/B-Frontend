@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTheme } from '../../../context/ThemeContext'
 import bagIcon from '../../../assets/icon/3dicons-bag-dynamic-color.png'
 import targetIcon from '../../../assets/icon/3dicons-target-dynamic-color.png'
 import trophyIcon from '../../../assets/icon/3dicons-trophy-dynamic-color.png'
@@ -6,6 +7,7 @@ import mailIcon from '../../../assets/icon/3dicons-mail-dynamic-color.png'
 import shieldIcon from '../../../assets/icon/3dicons-shield-dynamic-color.png'
 
 export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang, isAdmin }) {
+  const { isDark } = useTheme()
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -139,11 +141,17 @@ export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang
           <Link
             key={stat.id}
             to={stat.link}
-            className={`group relative overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-br ${stat.gradient} p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${stat.borderGlow}`}
+            className={`group relative overflow-hidden rounded-3xl border p-5 transition-all duration-300 hover:-translate-y-1 ${
+              isDark
+                ? `border-slate-700/60 bg-gradient-to-br ${stat.gradient} hover:shadow-2xl ${stat.borderGlow}`
+                : 'border-slate-200 bg-white shadow-sm hover:border-slate-300 hover:shadow-lg'
+            }`}
           >
             {/* Top decorative ambient circle */}
             <div
-              className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-40 blur-xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-70"
+              className={`pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full blur-xl transition-all duration-500 group-hover:scale-125 ${
+                isDark ? 'opacity-40 group-hover:opacity-70' : 'opacity-20 group-hover:opacity-40'
+              }`}
               style={{ background: stat.accentColor }}
             />
 
@@ -151,11 +159,13 @@ export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang
               {/* Header: Icon + Badge */}
               <div className="flex items-center justify-between">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:scale-110"
-                  style={{ backgroundColor: `${stat.accentColor}25` }}
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl border shadow-sm backdrop-blur-md transition-transform duration-300 group-hover:scale-110 ${
+                    isDark ? 'border-white/10' : 'border-slate-100'
+                  }`}
+                  style={{ backgroundColor: `${stat.accentColor}20` }}
                 >
                   {stat.icon ? (
-                    <img src={stat.icon} alt="" className="h-7 w-7 object-contain drop-shadow-md" />
+                    <img src={stat.icon} alt="" className="h-7 w-7 object-contain drop-shadow-sm" />
                   ) : (
                     <span className="text-2xl">{stat.iconEmoji}</span>
                   )}
@@ -163,15 +173,21 @@ export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang
 
                 <div className="flex items-center gap-1.5">
                   <span
-                    className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border shadow-sm ${
+                    className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border shadow-xs ${
                       stat.highlightBadge
-                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                        : 'bg-slate-800/80 text-slate-300 border-slate-700'
+                        ? 'bg-rose-500/20 text-rose-500 border-rose-500/40 animate-pulse'
+                        : isDark
+                          ? 'bg-slate-800/80 text-slate-300 border-slate-700'
+                          : 'bg-slate-100 text-slate-600 border-slate-200'
                     }`}
                   >
                     {stat.badge[lang]}
                   </span>
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800/80 text-xs text-slate-400 border border-slate-700 transition-colors group-hover:bg-white group-hover:text-slate-900">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs border transition-colors ${
+                    isDark
+                      ? 'bg-slate-800/80 text-slate-400 border-slate-700 group-hover:bg-white group-hover:text-slate-900'
+                      : 'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-slate-900 group-hover:text-white'
+                  }`}>
                     ↗
                   </span>
                 </div>
@@ -179,16 +195,20 @@ export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang
 
               {/* Main value & Labels */}
               <div>
-                <p className="text-3xl font-black tracking-tight text-white group-hover:text-emerald-300 transition-colors">
+                <p className={`text-3xl font-black tracking-tight transition-colors ${
+                  isDark ? 'text-white group-hover:text-emerald-300' : 'text-[#232F3F] group-hover:text-emerald-600'
+                }`}>
                   {stat.value}
                 </p>
-                <h4 className="mt-1 text-xs font-bold text-slate-300">{stat.title[lang]}</h4>
-                <p className="mt-0.5 text-[11px] text-slate-400 truncate">{stat.subtext[lang]}</p>
+                <h4 className={`mt-1 text-xs font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{stat.title[lang]}</h4>
+                <p className={`mt-0.5 text-[11px] truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.subtext[lang]}</p>
               </div>
 
               {/* Bottom trend & mini bar */}
-              <div className="pt-2 border-t border-slate-700/40 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-400">{stat.trend[lang]}</span>
+              <div className={`pt-2 border-t flex items-center justify-between ${
+                isDark ? 'border-slate-700/40' : 'border-slate-100'
+              }`}>
+                <span className={`text-[10px] font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{stat.trend[lang]}</span>
                 <span className="text-[10px] font-mono font-bold" style={{ color: stat.accentColor }}>
                   {lang === 'en' ? 'View Details' : 'មើលលម្អិត'} →
                 </span>
@@ -204,31 +224,37 @@ export default function StatCards({ dashboardData, stockKpis, appsByStatus, lang
           const Content = (
             <div
               key={item.id}
-              className={`relative overflow-hidden rounded-2xl border ${item.bg} p-4 transition-all duration-200 hover:border-slate-500/60 hover:bg-slate-800/60`}
+              className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ${
+                isDark
+                  ? `${item.bg} hover:border-slate-500/60 hover:bg-slate-800/60`
+                  : 'border-slate-200 bg-white shadow-xs hover:border-slate-300 hover:bg-slate-50/50'
+              }`}
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/80 text-lg border border-slate-700/60 shadow-inner">
+                  <span className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg border ${
+                    isDark ? 'bg-slate-900/80 border-slate-700/60 shadow-inner' : 'bg-slate-50 border-slate-200 shadow-xs'
+                  }`}>
                     {item.icon}
                   </span>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xl font-black text-white">{item.value}</span>
+                      <span className={`text-xl font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{item.value}</span>
                       <span className="text-[11px] font-bold" style={{ color: item.color }}>
                         {item.label[lang]}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">{item.subtext[lang]}</p>
+                    <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{item.subtext[lang]}</p>
                   </div>
                 </div>
 
-                <span className="text-xs font-mono font-bold text-slate-400">
+                <span className={`text-xs font-mono font-bold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {item.barPercent}%
                 </span>
               </div>
 
               {/* Progress bar */}
-              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+              <div className={`mt-3 h-1.5 w-full overflow-hidden rounded-full ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{

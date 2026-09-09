@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
 import { authAPI } from '../../api/api'
@@ -41,6 +41,7 @@ export const Login = () => {
   const { lang } = useLanguage()
   const { login, sessionExpired, clearSessionExpired } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Form state
   const [form, setForm] = useState({ identifier: '', password: '', remember: false })
@@ -77,9 +78,10 @@ export const Login = () => {
       login(res.data)
       const uRole = (res.data?.user?.role || res.data?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
       if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
-        navigate('/admin')
+        const destination = location.state?.from?.pathname || '/admin'
+        navigate(destination, { replace: true })
       } else {
-        navigate('/')
+        navigate('/', { replace: true })
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')
@@ -100,7 +102,13 @@ export const Login = () => {
           user: userData.user,
         }
         login(loginData)
-        navigate('/')
+        const uRole = (userData.user?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
+        if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
+          const destination = location.state?.from?.pathname || '/admin'
+          navigate(destination, { replace: true })
+        } else {
+          navigate('/', { replace: true })
+        }
       } catch (err) {
         setError(err.message)
         setSocialBusy('')

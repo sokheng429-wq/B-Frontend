@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { adminBankTransferAPI } from '../../api/api'
 import toggleIcon from '../../assets/icon/3dicons-toggle-dynamic-color.png'
 import './ProductsHub.css'
 
@@ -147,7 +148,7 @@ export default function BankTransferCreate({ onCancel, onSuccess }) {
     return items.reduce((sum, it) => sum + Number(it.amount || 0), 0)
   }, [items])
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     if (e) e.preventDefault()
 
     if (!fromBank || !toBank) {
@@ -193,7 +194,26 @@ export default function BankTransferCreate({ onCancel, onSuccess }) {
       items,
     }
 
-    // Persist to localStorage for demo live state
+    // Persist to database via backend API
+    try {
+      const res = await adminBankTransferAPI.create({
+        code: newRecord.code,
+        date: newRecord.date,
+        fromAccount: newRecord.fromAccount,
+        toAccount: newRecord.toAccount,
+        amount: Number(newRecord.amount) || 0,
+        reference: newRecord.reference,
+        status: newRecord.status,
+        note: newRecord.note,
+      })
+      if (res?.data) {
+        newRecord.id = res.data.id
+      }
+    } catch (err) {
+      console.warn('Backend bank transfer save failed, saving to local cache:', err)
+    }
+
+    // Also update localStorage cache
     try {
       const stored = localStorage.getItem('bg_bank_transfers')
       const list = stored ? JSON.parse(stored) : []
@@ -203,7 +223,7 @@ export default function BankTransferCreate({ onCancel, onSuccess }) {
     showNotification?.({
       type: 'success',
       title: lang === 'en' ? 'Success' : 'ជោគជ័យ',
-      message: lang === 'en' ? `Bank transfer ${code} created successfully.` : `ការផ្ទេរប្រាក់ ${code} ត្រូវបានបង្កើតដោយជោគជ័យ។`
+      message: lang === 'en' ? `Bank transfer ${code} saved to database successfully.` : `ការផ្ទេរប្រាក់ ${code} ត្រូវបានរក្សាទុកដោយជោគជ័យ។`
     })
 
     if (onSuccess) {

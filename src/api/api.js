@@ -1,7 +1,7 @@
 // ===== API CONFIG =====
 // Backend runs on port 8081 (see B-backend/src/main/resources/application.yml).
 // CORS is already open on the backend, so a full URL is fine.
-const API_BASE = 'http://localhost:8081/api'
+const API_BASE = '/api'
 
 async function request(path, options = {}) {
   const token = localStorage.getItem('token')
@@ -20,14 +20,18 @@ async function request(path, options = {}) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: res.statusText }))
 
-    // Handle inactivity session timeout from the backend
-    if (res.status === 401 && err.error === 'SESSION_TIMEOUT') {
+    // Handle unauthorized (401) or forbidden (403 on admin routes)
+    if (res.status === 401 || (res.status === 403 && typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       localStorage.setItem('isLoggedIn', 'false')
-      localStorage.setItem('sessionExpired', 'true')
-      window.location.href = '/login'
-      throw new Error('Your session expired due to inactivity. Please log in again.')
+      if (err?.error === 'SESSION_TIMEOUT') {
+        localStorage.setItem('sessionExpired', 'true')
+      }
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login'
+      }
+      throw new Error(err?.message || (res.status === 401 ? 'Session expired. Please log in again.' : 'Access denied.'))
     }
 
     const error = new Error(err.message || `Request failed with status ${res.status}`)
@@ -92,7 +96,7 @@ export const authAPI = {
     fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-    }).catch(() => {}),
+    }).catch(() => { }),
 }
 
 // ===== PRODUCTS =====
@@ -1209,3 +1213,331 @@ export const adminSupplierRefundAPI = {
 
   getNextCode: () => request('/admin/supplier-refunds/next-code'),
 }
+
+// ===== ADMIN EMPLOYEES (Employee Directory & Management) =====
+export const adminEmployeeAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.department && params.department !== 'All' && params.department !== 'ALL') qs.set('department', params.department)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/employees?${qStr}` : '/admin/employees')
+  },
+
+  getById: (id) => request(`/admin/employees/${id}`),
+
+  create: (data) =>
+    request('/admin/employees', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/employees/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/employees/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/employees/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/employees/next-code'),
+
+  verifyContact: (data) =>
+    request('/admin/employees/verify', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+}
+
+// ===== ADMIN OFFICES (Employee Hub → Office) =====
+export const adminOfficeAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/offices?${qStr}` : '/admin/offices')
+  },
+
+  getById: (id) => request(`/admin/offices/${id}`),
+
+  create: (data) =>
+    request('/admin/offices', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/offices/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/offices/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/offices/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/offices/next-code'),
+}
+
+// ===== ADMIN DEPARTMENTS (Employee Hub → Department) =====
+export const adminDepartmentAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/departments?${qStr}` : '/admin/departments')
+  },
+
+  getById: (id) => request(`/admin/departments/${id}`),
+
+  create: (data) =>
+    request('/admin/departments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/departments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/departments/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/departments/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/departments/next-code'),
+}
+
+// ===== ADMIN SECTIONS (Employee Hub → Section) =====
+export const adminSectionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/sections?${qStr}` : '/admin/sections')
+  },
+
+  getById: (id) => request(`/admin/sections/${id}`),
+
+  create: (data) =>
+    request('/admin/sections', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/sections/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/sections/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/sections/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/sections/next-code'),
+}
+
+// ===== ADMIN POSITIONS (Employee Hub → Position) =====
+export const adminPositionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.searchBy && params.searchBy !== 'Any' && params.searchBy !== 'any') qs.set('searchBy', params.searchBy)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.department && params.department !== 'All' && params.department !== 'ALL') qs.set('department', params.department)
+    if (params.level && params.level !== 'All' && params.level !== 'ALL') qs.set('level', params.level)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/positions?${qStr}` : '/admin/positions')
+  },
+
+  getById: (id) => request(`/admin/positions/${id}`),
+
+  create: (data) =>
+    request('/admin/positions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/positions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/positions/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/positions/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/positions/next-code'),
+}
+
+// ===== ADMIN CASH CATEGORIES (Cash Book → Cash Category) =====
+export const adminCashCategoryAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.type && params.type !== 'All' && params.type !== 'ALL') qs.set('type', params.type)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/cash-categories?${qStr}` : '/admin/cash-categories')
+  },
+
+  getById: (id) => request(`/admin/cash-categories/${id}`),
+
+  create: (data) =>
+    request('/admin/cash-categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/cash-categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  updateStatus: (id, active) =>
+    request(`/admin/cash-categories/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ active }),
+    }),
+
+  delete: (id) =>
+    request(`/admin/cash-categories/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/cash-categories/next-code'),
+}
+
+// ===== ADMIN BANK TRANSACTIONS (Cash Book → Bank In & Out) =====
+export const adminBankTransactionAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.type && params.type !== 'All' && params.type !== 'ALL') qs.set('type', params.type)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.bank && params.bank !== 'All' && params.bank !== 'ALL') qs.set('bank', params.bank)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/bank-transactions?${qStr}` : '/admin/bank-transactions')
+  },
+
+  getById: (id) => request(`/admin/bank-transactions/${id}`),
+
+  create: (data) =>
+    request('/admin/bank-transactions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/bank-transactions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  void: (id) =>
+    request(`/admin/bank-transactions/${id}/void`, {
+      method: 'POST',
+    }),
+
+  delete: (id) =>
+    request(`/admin/bank-transactions/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/bank-transactions/next-code'),
+}
+
+// ===== ADMIN BANK TRANSFERS (Cash Book → Bank Transfer) =====
+export const adminBankTransferAPI = {
+  getAll: (params = {}) => {
+    const qs = new URLSearchParams()
+    if (params.search) qs.set('search', params.search)
+    if (params.status && params.status !== 'All' && params.status !== 'ALL' && params.status !== 'Any') qs.set('status', params.status)
+    if (params.fromAccount && params.fromAccount !== 'All' && params.fromAccount !== 'ALL') qs.set('fromAccount', params.fromAccount)
+    if (params.toAccount && params.toAccount !== 'All' && params.toAccount !== 'ALL') qs.set('toAccount', params.toAccount)
+    if (params.fromDate) qs.set('fromDate', params.fromDate)
+    if (params.toDate) qs.set('toDate', params.toDate)
+    const qStr = qs.toString()
+    return request(qStr ? `/admin/bank-transfers?${qStr}` : '/admin/bank-transfers')
+  },
+
+  getById: (id) => request(`/admin/bank-transfers/${id}`),
+
+  create: (data) =>
+    request('/admin/bank-transfers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    request(`/admin/bank-transfers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  void: (id) =>
+    request(`/admin/bank-transfers/${id}/void`, {
+      method: 'POST',
+    }),
+
+  delete: (id) =>
+    request(`/admin/bank-transfers/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getNextCode: () => request('/admin/bank-transfers/next-code'),
+}
+
+
+

@@ -4,8 +4,11 @@ import { adminProductAPI, applicationAPI, jobAPI, memberAPI, userAPI } from '../
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import DashboardOverview from './Dashboard/DashboardOverview'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
+import ThemeToggle from '../../components/ThemeToggle'
+import './AdminD.css'
 import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
 import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
 import targetIcon from '../../assets/icon/3dicons-target-dynamic-color.png'
@@ -35,6 +38,7 @@ import SaleDashboard from './SaleDashboard'
 import CustomerList from './CustomerList'
 import CustomerForm from './CustomerForm'
 import CustomerGroupList from './CustomerGroupList'
+import CustomerGroupForm from './CustomerGroupForm'
 import OrderManagement from './OrderManagement'
 import QuotationList from './QuotationList'
 import SaleOrderList from './SaleOrderList'
@@ -236,6 +240,38 @@ function AdminD() {
   const { lang } = useLanguage()
   const location = useLocation()
   const { user } = useAuth()
+  const { isDark } = useTheme()
+  const [isFullscreen, setIsFullscreen] = useState(() => (typeof document !== 'undefined' ? Boolean(document.fullscreenElement) : false))
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onFsChange)
+    document.addEventListener('webkitfullscreenchange', onFsChange)
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange)
+      document.removeEventListener('webkitfullscreenchange', onFsChange)
+    }
+  }, [])
+
+  const toggleFullscreen = () => {
+    try {
+      if (!document.fullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen()
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen()
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen()
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen()
+        }
+      }
+    } catch (e) {
+      console.error('Fullscreen toggle error:', e)
+    }
+  }
   
   // Extract and normalize role from all common schemas
   const userRole = (() => {
@@ -903,11 +939,11 @@ function AdminD() {
       return <Employee />
     }
 
-    if (path === '/admin/report') {
+    if (path.startsWith('/admin/report')) {
       return <Report />
     }
 
-    if (path === '/admin/integration') {
+    if (path.startsWith('/admin/integration')) {
       return <Integration />
     }
 
@@ -938,7 +974,9 @@ function AdminD() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className={`admin-dashboard-root flex h-screen w-full overflow-hidden ${
+      isDark ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-slate-50'
+    }`}>
       {/* Mobile Backdrop Overlay */}
       {sidebarOpen && (
         <div
@@ -949,27 +987,35 @@ function AdminD() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:relative inset-y-0 left-0 h-full max-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-slate-700/50 flex flex-col flex-shrink-0 z-50 transition-all duration-300 overflow-hidden ${
+        className={`fixed lg:relative inset-y-0 left-0 h-full max-h-screen border-r flex flex-col flex-shrink-0 z-50 transition-all duration-300 overflow-hidden ${
+          isDark
+            ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-700/50'
+            : 'bg-white border-slate-200 shadow-sm'
+        } ${
           sidebarOpen
             ? 'w-72 min-w-[18rem] max-w-[18rem] translate-x-0 shadow-2xl lg:shadow-none'
             : 'w-0 min-w-0 max-w-0 -translate-x-full lg:w-0 lg:min-w-0 lg:max-w-0 border-0 opacity-0 pointer-events-none'
         }`}
       >
         {/* Brand Header - Fixed */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-slate-700/50 flex-shrink-0 bg-slate-900/90 backdrop-blur-sm">
+        <div className={`flex items-center justify-between px-5 py-5 border-b flex-shrink-0 backdrop-blur-sm ${
+          isDark ? 'border-slate-700/50 bg-slate-900/90' : 'border-slate-200 bg-white/95'
+        }`}>
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 min-w-[40px] rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-green-500/30">
               B
             </span>
             <div>
-              <h3 className="text-white font-bold text-base leading-tight">B'Groceries</h3>
-              <p className="text-slate-400 text-xs mt-0.5">{lang === 'en' ? 'Admin Panel' : 'ផ្ទាំងគ្រប់គ្រង'}</p>
+              <h3 className={`font-bold text-base leading-tight ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>B'Groceries</h3>
+              <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{lang === 'en' ? 'Admin Panel' : 'ផ្ទាំងគ្រប់គ្រង'}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className={`lg:hidden flex h-8 w-8 items-center justify-center rounded-lg transition ${
+              isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+            }`}
             aria-label="Close Sidebar"
           >
             ✕
@@ -1457,15 +1503,15 @@ function AdminD() {
                 </div>
                 {openDropdowns.integration && (
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-cyan-500/30 space-y-1 py-1">
-                    <Link to="/admin/integration/payment-gateway" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💳</span> {lang === 'en' ? 'Payment Gateway' : 'ច្នៃលម្អិត'}</Link>
+                    <Link to="/admin/integration/payment-gateway" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💳</span> {lang === 'en' ? 'Payment Gateway' : 'ច្រកទូទាត់ប្រាក់'}</Link>
                     <Link to="/admin/integration/app" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📱</span> {lang === 'en' ? 'App' : 'កម្មវិធី'}</Link>
                     <Link to="/admin/integration/template" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📄</span> {lang === 'en' ? 'Template' : 'ឯកសារគំរូ'}</Link>
-                    <Link to="/admin/integration/key" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🔑</span> {lang === 'en' ? 'Key' : 'សោះ'}</Link>
-                    <Link to="/admin/integration/station-info" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🏪</span> {lang === 'en' ? 'Station Info' : 'ព័ត៌មានស្ថានីយ'}</Link>
-                    <Link to="/admin/integration/sync-notification" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🔔</span> {lang === 'en' ? 'Sync Notification' : 'សម្ព័ន្ធភាព'}</Link>
-                    <Link to="/admin/integration/communication" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💬</span> {lang === 'en' ? 'Communication' : 'ការឆ្លាក់'}</Link>
+                    <Link to="/admin/integration/key" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🔑</span> {lang === 'en' ? 'Key' : 'សោលគន្លឹះ'}</Link>
+                    <Link to="/admin/integration/station-info" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🏪</span> {lang === 'en' ? 'Station info' : 'ព័ត៌មានស្ថានីយ'}</Link>
+                    <Link to="/admin/integration/sync-notification" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">🔔</span> {lang === 'en' ? 'Sync Notification' : 'ការជូនដំណឹងសមកាលកម្ម'}</Link>
+                    <Link to="/admin/integration/communication" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">💬</span> {lang === 'en' ? 'Communication' : 'ការទំនាក់ទំនង'}</Link>
                     <Link to="/admin/integration/setting" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">⚙️</span> {lang === 'en' ? 'Setting' : 'ការកំណត់'}</Link>
-                    <Link to="/admin/integration/dual-display" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📺</span> {lang === 'en' ? 'Dual Display' : 'បង្ហាញពីរ'}</Link>
+                    <Link to="/admin/integration/dual-display" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"><span className="text-sm">📺</span> {lang === 'en' ? 'Dual Display' : 'អេក្រង់បង្ហាញពីរ'}</Link>
                   </div>
                 )}
               </div>
@@ -1542,19 +1588,19 @@ function AdminD() {
                       <span className="text-sm">📧</span> {lang === 'en' ? 'Email' : 'សារអ៊ីមែល'}
                     </Link>
                     <Link to="/admin/settings/terms" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📝</span> {lang === 'en' ? 'Terms & Condition' : 'លក្ខខណ្ឌ'}
+                      <span className="text-sm">📝</span> {lang === 'en' ? 'Terms and Condition' : 'លក្ខខណ្ឌ'}
                     </Link>
                     <Link to="/admin/settings/system-key" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🔐</span> {lang === 'en' ? 'System Key' : 'សោលគន្លឹះ'}
+                      <span className="text-sm">🔐</span> {lang === 'en' ? 'System key change' : 'ផ្លាស់ប្តូរសោលប្រព័ន្ធ'}
                     </Link>
                     <Link to="/admin/settings/bank-account" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">🏦</span> {lang === 'en' ? 'Bank Account' : 'គណនីធនាគារ'}
                     </Link>
                     <Link to="/admin/settings/import-beginning" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">📥</span> {lang === 'en' ? 'Import Beginning' : 'ចាប់ផ្តើម'}
+                      <span className="text-sm">📥</span> {lang === 'en' ? 'Import Beginning' : 'នាំចូលទិន្នន័យដំបូង'}
                     </Link>
                     <Link to="/admin/settings/preference" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">⭐</span> {lang === 'en' ? 'Preference' : 'ចូលចិត្ត'}
+                      <span className="text-sm">⭐</span> {lang === 'en' ? 'Preference' : 'ការកំណត់ចូលចិត្ត'}
                     </Link>
                   </div>
                 )}
@@ -1694,8 +1740,14 @@ function AdminD() {
         </nav>
 
         {/* Footer - Fixed at bottom */}
-        <div className="px-4 py-4 border-t border-slate-700/50 flex-shrink-0 bg-slate-950/90 backdrop-blur-sm">
-          <Link to="/" className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold text-slate-400 hover:text-white border border-slate-700 hover:border-green-500/50 rounded-lg hover:bg-slate-800 transition-all">
+        <div className={`px-4 py-4 border-t flex-shrink-0 backdrop-blur-sm ${
+          isDark ? 'border-slate-700/50 bg-slate-950/90' : 'border-slate-200 bg-white/95'
+        }`}>
+          <Link to="/" className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold border rounded-lg transition-all ${
+            isDark
+              ? 'text-slate-400 hover:text-white border-slate-700 hover:border-green-500/50 hover:bg-slate-800'
+              : 'text-slate-600 hover:text-[#232F3F] border-slate-200 hover:border-green-500/50 hover:bg-slate-100'
+          }`}>
             <ArrowLeftIcon />
             <span>{TEXTS.backToSite[lang]}</span>
           </Link>
@@ -1703,30 +1755,60 @@ function AdminD() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 h-full max-h-screen flex flex-col transition-all duration-300 overflow-hidden">
+      <main className={`flex-1 min-w-0 h-full max-h-screen flex flex-col transition-all duration-300 overflow-hidden ${isDark ? 'bg-transparent' : 'bg-slate-50'}`}>
         {/* Top bar */}
-        <header className="flex-shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+        <header className={`flex-shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 backdrop-blur-xl border-b transition-colors ${
+          isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white/95 border-slate-200 shadow-xs'
+        }`}>
           <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-slate-800 border border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 transition-all shadow-lg hover:shadow-green-500/30 shrink-0"
+              className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border transition-all shrink-0 ${
+                isDark
+                  ? 'bg-slate-800 border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 shadow-lg hover:shadow-green-500/30'
+                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-green-500 hover:text-white hover:scale-105 shadow-xs'
+              }`}
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle Sidebar"
-              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              title={sidebarOpen ? (lang === 'en' ? 'Hide sidebar' : 'លាក់របារចំហៀង') : (lang === 'en' ? 'Show sidebar' : 'បង្ហាញរបារចំហៀង')}
             >
               <MenuToggleIcon />
             </button>
             <div className="min-w-0">
-              <h1 className="text-white font-bold text-base sm:text-xl lg:text-2xl truncate">{TEXTS.overviewTitle[lang]}</h1>
+              <h1 className={`font-bold text-base sm:text-xl lg:text-2xl truncate ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.overviewTitle[lang]}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* ENG / KH language toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Fullscreen Button */}
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all shrink-0 ${
+                isDark
+                  ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-600'
+                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:text-[#232F3F]'
+              }`}
+              title={
+                isFullscreen
+                  ? (lang === 'en' ? 'Exit Full Screen' : 'ចាកចេញពីពេញអេក្រង់')
+                  : (lang === 'en' ? 'Full Screen' : 'ពេញអេក្រង់')
+              }
+              aria-label="Toggle Full Screen"
+            >
+              <FullScreenIcon isFullscreen={isFullscreen} />
+            </button>
+
+            {/* Theme & Language toggles */}
+            <ThemeToggle />
             <LanguageSwitcher />
 
             {/* Notification Bell with Dropdown */}
             <div className="relative" ref={notificationRef}>
               <button
-                className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 transition-all"
+                className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all ${
+                  isDark
+                    ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:border-slate-600'
+                    : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:border-slate-300'
+                }`}
                 onClick={() => setShowNotifications(!showNotifications)}
                 aria-label="Notifications"
               >
@@ -1739,10 +1821,14 @@ function AdminD() {
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200">
+                <div className={`absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200 ${
+                  isDark ? 'bg-slate-900 border-slate-700 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-300/50'
+                }`}>
                   {/* Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-                    <h3 className="text-white font-bold text-sm">{lang === 'en' ? 'Notifications' : 'ការជូនដំណឹង'}</h3>
+                  <div className={`flex items-center justify-between px-4 py-3 border-b ${
+                    isDark ? 'border-slate-700' : 'border-slate-200'
+                  }`}>
+                    <h3 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{lang === 'en' ? 'Notifications' : 'ការជូនដំណឹង'}</h3>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (
                         <button
@@ -1825,6 +1911,27 @@ function AdminD() {
         <div className="flex-1 min-h-0 p-3 sm:p-5 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden max-w-full min-w-0 scrollbar-thin">{renderContent()}</div>
       </main>
     </div>
+  )
+}
+
+const FullScreenIcon = ({ isFullscreen }) => {
+  if (isFullscreen) {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+        <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+        <path d="M3 16h3a2 2 0 0 1 2 2v3" />
+        <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+      </svg>
+    )
+  }
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+      <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+      <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+      <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+    </svg>
   )
 }
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import './Header2.css'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ThemeToggle } from './ThemeToggle'
 import { Logo } from './Logo'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
@@ -70,6 +71,7 @@ export const Header2 = () => {
 
         {/* Right side controls */}
         <div className="h2-controls-desktop">
+          <ThemeToggle />
           <LanguageSwitcher />
 
           {/* Shopping Cart */}
@@ -140,6 +142,7 @@ export const Header2 = () => {
           </nav>
 
           <div className="h2-controls-mobile">
+            <ThemeToggle />
             <LanguageSwitcher />
             <Link
               to="/cart"

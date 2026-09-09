@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { adminCashCategoryAPI } from '../../api/api'
 import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
 import { CASH_BOOK_CATEGORIES } from './CashInOutList'
 import './ProductsHub.css'
@@ -39,43 +40,80 @@ function XMarkIcon({ className = 'w-4 h-4' }) {
 }
 
 const INITIAL_CATEGORIES = [
-  { id: 1, code: 'CC-001', nameEn: 'Operating Expense', nameKh: 'ចំណាយប្រតិបត្តិការ', type: 'CASH_OUT', active: true, descEn: 'Day-to-day operational store costs and recurring disbursements.' },
-  { id: 2, code: 'CC-002', nameEn: 'Petty Cash', nameKh: 'ប្រាក់ចំណាយរាយ', type: 'BOTH', active: true, descEn: 'Cash counter till disbursements for minor sundries and urgent supplies.' },
-  { id: 3, code: 'CC-003', nameEn: 'Owner Drawings', nameKh: 'ការដកប្រាក់ផ្ទាល់ខ្លួន', type: 'CASH_OUT', active: true, descEn: 'Direct proprietor disbursements and equity drawings.' },
-  { id: 4, code: 'CC-004', nameEn: 'POS Sales Receipt', nameKh: 'ចំណូលលក់ប្រចាំថ្ងៃ', type: 'CASH_IN', active: true, descEn: 'Cash collected directly from customer store till sales.' },
-  { id: 5, code: 'CC-005', nameEn: 'Supplier Cash Settlement', nameKh: 'ទូទាត់អ្នកផ្គត់ផ្គង់', type: 'CASH_OUT', active: true, descEn: 'Cash vouchers paid directly to local farm produce suppliers.' },
-  { id: 6, code: 'CC-006', nameEn: 'Customer Advance Deposit', nameKh: 'ប្រាក់កក់អតិថិជន', type: 'CASH_IN', active: true, descEn: 'Advance cash deposits for future wholesale and bulk groceries.' },
-  { id: 7, code: 'CC-007', nameEn: 'Utilities & Power', nameKh: 'ថ្លៃទឹក ភ្លើង និងអ៊ីនធឺណិត', type: 'CASH_OUT', active: true, descEn: 'Electricity, water, refrigeration cooling and telecommunications.' },
-  { id: 8, code: 'CC-008', nameEn: 'Transportation & Logistics', nameKh: 'ដឹកជញ្ជូន និងដឹកទំនិញ', type: 'CASH_OUT', active: true, descEn: 'Freight charges, truck diesel allowance and port discharge tips.' },
+  { code: 'CC-001', nameEn: 'Operating Expense', nameKh: 'ចំណាយប្រតិបត្តិការ', type: 'CASH_OUT', active: true, descEn: 'Day-to-day operational store costs and recurring disbursements.' },
+  { code: 'CC-002', nameEn: 'Petty Cash', nameKh: 'ប្រាក់ចំណាយរាយ', type: 'BOTH', active: true, descEn: 'Cash counter till disbursements for minor sundries and urgent supplies.' },
+  { code: 'CC-003', nameEn: 'Owner Drawings', nameKh: 'ការដកប្រាក់ផ្ទាល់ខ្លួន', type: 'CASH_OUT', active: true, descEn: 'Direct proprietor disbursements and equity drawings.' },
+  { code: 'CC-004', nameEn: 'POS Sales Receipt', nameKh: 'ចំណូលលក់ប្រចាំថ្ងៃ', type: 'CASH_IN', active: true, descEn: 'Cash collected directly from customer store till sales.' },
+  { code: 'CC-005', nameEn: 'Supplier Cash Settlement', nameKh: 'ទូទាត់អ្នកផ្គត់ផ្គង់', type: 'CASH_OUT', active: true, descEn: 'Cash vouchers paid directly to local farm produce suppliers.' },
+  { code: 'CC-006', nameEn: 'Customer Advance Deposit', nameKh: 'ប្រាក់កក់អតិថិជន', type: 'CASH_IN', active: true, descEn: 'Advance cash deposits for future wholesale and bulk groceries.' },
+  { code: 'CC-007', nameEn: 'Utilities & Power', nameKh: 'ថ្លៃទឹក ភ្លើង និងអ៊ីនធឺណិត', type: 'CASH_OUT', active: true, descEn: 'Electricity, water, refrigeration cooling and telecommunications.' },
+  { code: 'CC-008', nameEn: 'Transportation & Logistics', nameKh: 'ដឹកជញ្ជូន និងដឹកទំនិញ', type: 'CASH_OUT', active: true, descEn: 'Freight charges, truck diesel allowance and port discharge tips.' },
 ]
 
 export default function CashCategoryList() {
   const { lang } = useLanguage()
   const { showNotification } = useNotifications()
 
-  const [categories, setCategories] = useState(INITIAL_CATEGORIES)
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [modalForm, setModalForm] = useState({ id: null, code: '', nameEn: '', nameKh: '', type: 'BOTH', descEn: '', active: true })
+
+  // Load from backend API with initial seeding
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true)
+      try {
+        const res = await adminCashCategoryAPI.getAll()
+        if (res?.data && res.data.length > 0) {
+          setCategories(res.data)
+        } else {
+          // Seed initial categories to database
+          const seeded = []
+          for (const initCat of INITIAL_CATEGORIES) {
+            try {
+              const created = await adminCashCategoryAPI.create(initCat)
+              if (created?.data) seeded.push(created.data)
+            } catch {}
+          }
+          setCategories(seeded.length > 0 ? seeded : INITIAL_CATEGORIES)
+        }
+      } catch (err) {
+        console.warn('Failed to load cash categories from backend:', err)
+        setCategories(INITIAL_CATEGORIES)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   const filtered = useMemo(() => {
     return categories.filter((cat) => {
       if (typeFilter !== 'ALL' && cat.type !== typeFilter) return false
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
-        const inCode = cat.code.toLowerCase().includes(q)
-        const inEn = cat.nameEn.toLowerCase().includes(q)
-        const inKh = cat.nameKh.toLowerCase().includes(q)
+        const inCode = (cat.code || '').toLowerCase().includes(q)
+        const inEn = (cat.nameEn || '').toLowerCase().includes(q)
+        const inKh = (cat.nameKh || '').toLowerCase().includes(q)
         if (!inCode && !inEn && !inKh) return false
       }
       return true
     })
   }, [categories, searchQuery, typeFilter])
 
-  const handleOpenCreate = () => {
-    const nextNum = categories.length + 1
-    const nextCode = `CC-${String(nextNum).padStart(3, '0')}`
+  const handleOpenCreate = async () => {
+    let nextCode = 'CC-001'
+    try {
+      const res = await adminCashCategoryAPI.getNextCode()
+      if (res?.data) nextCode = res.data
+    } catch {
+      const nextNum = categories.length + 1
+      nextCode = `CC-${String(nextNum).padStart(3, '0')}`
+    }
     setModalForm({ id: null, code: nextCode, nameEn: '', nameKh: '', type: 'BOTH', descEn: '', active: true })
     setIsModalOpen(true)
   }
@@ -85,22 +123,36 @@ export default function CashCategoryList() {
     setIsModalOpen(true)
   }
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
     if (!modalForm.nameEn.trim()) {
       showNotification?.({ type: 'warning', title: 'Validation', message: 'English name is required.' })
       return
     }
 
-    if (modalForm.id) {
-      setCategories((prev) => prev.map((c) => (c.id === modalForm.id ? { ...modalForm } : c)))
-      showNotification?.({ type: 'success', title: 'Updated', message: 'Cash category updated successfully.' })
-    } else {
-      const newCat = { ...modalForm, id: Date.now() }
-      setCategories((prev) => [...prev, newCat])
-      showNotification?.({ type: 'success', title: 'Created', message: 'Cash category created successfully.' })
+    setSaving(true)
+    try {
+      if (modalForm.id) {
+        const res = await adminCashCategoryAPI.update(modalForm.id, modalForm)
+        const updated = res?.data || modalForm
+        setCategories((prev) => prev.map((c) => (c.id === modalForm.id ? updated : c)))
+        showNotification?.({ type: 'success', title: 'Updated', message: 'Cash category saved to database successfully.' })
+      } else {
+        const res = await adminCashCategoryAPI.create(modalForm)
+        const created = res?.data || { ...modalForm, id: Date.now() }
+        setCategories((prev) => [created, ...prev])
+        showNotification?.({ type: 'success', title: 'Created', message: 'Cash category created in database successfully.' })
+      }
+      setIsModalOpen(false)
+    } catch (err) {
+      showNotification?.({
+        type: 'error',
+        title: 'Save Failed',
+        message: err.message || 'Failed to save cash category to database.',
+      })
+    } finally {
+      setSaving(false)
     }
-    setIsModalOpen(false)
   }
 
   return (

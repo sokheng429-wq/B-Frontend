@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
+import { useTheme } from '../../../context/ThemeContext'
 
 export default function DonutPieChartWidget({ categoryData, stockKpis, appsByStatus, lang }) {
+  const { isDark } = useTheme()
   const [activeTab, setActiveTab] = useState('categories') // 'categories' | 'stock' | 'apps'
   const [hoveredIndex, setHoveredIndex] = useState(null)
 
@@ -90,10 +92,14 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
   const currentHovered = hoveredIndex !== null ? chartDataset.slices[hoveredIndex] : null
 
   return (
-    <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 shadow-xl">
+    <div className={`relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 transition-colors ${
+      isDark
+        ? 'border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 shadow-xl'
+        : 'border-slate-200 bg-white shadow-sm'
+    }`}>
       {/* Background radial glow */}
       <div
-        className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl opacity-30"
+        className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl opacity-20"
         style={{
           background: currentHovered ? currentHovered.color : '#10b981',
           transition: 'background 0.5s ease',
@@ -101,19 +107,25 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
       />
 
       {/* Header with Title & Tab Switchers */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4 ${
+        isDark ? 'border-slate-800' : 'border-slate-100'
+      }`}>
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 text-sm border border-emerald-500/20">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm border ${
+              isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+            }`}>
               🍩
             </span>
-            <h3 className="text-base font-black text-white">{chartDataset.title[lang]}</h3>
+            <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{chartDataset.title[lang]}</h3>
           </div>
-          <p className="mt-0.5 text-xs text-slate-400">{chartDataset.subtitle[lang]}</p>
+          <p className={`mt-0.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{chartDataset.subtitle[lang]}</p>
         </div>
 
         {/* Tab Switcher Pills */}
-        <div className="flex items-center gap-1 rounded-xl bg-slate-800/90 p-1 border border-slate-700/60">
+        <div className={`flex items-center gap-1 rounded-xl p-1 border transition-colors ${
+          isDark ? 'bg-slate-800/90 border-slate-700/60' : 'bg-slate-100 border-slate-200'
+        }`}>
           {[
             { id: 'categories', label: { en: 'Categories', kh: 'ប្រភេទ' } },
             { id: 'stock', label: { en: 'Health', kh: 'សុខភាពស្តុក' } },
@@ -128,8 +140,10 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
               }}
               className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all ${
                 activeTab === tab.id
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-black'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                  ? 'bg-emerald-500 text-slate-950 shadow-xs font-black'
+                  : isDark
+                    ? 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
               {tab.label[lang]}
@@ -146,7 +160,7 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
             {chartDataset.total === 0 ? (
               <div className="flex flex-col items-center text-center">
                 <span className="text-3xl">📊</span>
-                <p className="mt-2 text-xs font-bold text-slate-500">
+                <p className="mt-2 text-xs font-bold text-slate-400">
                   {lang === 'en' ? 'No data recorded' : 'មិនទាន់មានទិន្នន័យ'}
                 </p>
               </div>
@@ -159,7 +173,7 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
                     cy="80"
                     r={radius}
                     fill="transparent"
-                    stroke="#1e293b"
+                    stroke={isDark ? '#1e293b' : '#f1f5f9'}
                     strokeWidth={strokeWidth}
                   />
 
@@ -199,19 +213,19 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
                       >
                         {currentHovered.percentage}%
                       </span>
-                      <p className="max-w-[100px] truncate text-[11px] font-bold text-white">
+                      <p className={`max-w-[100px] truncate text-[11px] font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                         {currentHovered.label}
                       </p>
-                      <span className="text-[10px] font-mono text-slate-400">
+                      <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {currentHovered.value} {lang === 'en' ? 'items' : 'មុខ'}
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="text-3xl font-black tracking-tight text-white">
+                      <span className={`text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                         {chartDataset.total}
                       </span>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                      <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {chartDataset.centerLabel[lang]}
                       </p>
                     </>
@@ -225,7 +239,7 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
         {/* Legend List */}
         <div className="flex flex-col justify-center space-y-2 md:col-span-6 max-h-56 overflow-y-auto pr-1">
           {chartDataset.slices.length === 0 ? (
-            <p className="text-center text-xs text-slate-500">
+            <p className="text-center text-xs text-slate-400">
               {lang === 'en' ? 'No items available' : 'មិនមានទិន្នន័យ'}
             </p>
           ) : (
@@ -237,9 +251,13 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl p-2 transition-all ${
-                    isHovered
-                      ? 'bg-slate-800 shadow-md ring-1 ring-slate-600 scale-[1.02]'
-                      : 'hover:bg-slate-800/50'
+                    isDark
+                      ? isHovered
+                        ? 'bg-slate-800 shadow-md ring-1 ring-slate-600 scale-[1.02]'
+                        : 'hover:bg-slate-800/50'
+                      : isHovered
+                        ? 'bg-slate-100 shadow-xs ring-1 ring-slate-300 scale-[1.02]'
+                        : 'hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -247,13 +265,13 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
                       className="h-3 w-3 rounded-full flex-shrink-0 shadow-sm"
                       style={{ backgroundColor: slice.color }}
                     />
-                    <span className="truncate text-xs font-semibold text-slate-200">
+                    <span className={`truncate text-xs font-semibold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
                       {slice.label}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="font-mono text-xs font-bold text-white">{slice.value}</span>
+                    <span className={`font-mono text-xs font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{slice.value}</span>
                     <span
                       className="rounded-md px-1.5 py-0.5 text-[10px] font-black"
                       style={{
@@ -272,9 +290,11 @@ export default function DonutPieChartWidget({ categoryData, stockKpis, appsBySta
       </div>
 
       {/* Footer Insight Note */}
-      <div className="flex items-center justify-between border-t border-slate-800 pt-3 text-[11px] text-slate-400">
+      <div className={`flex items-center justify-between border-t pt-3 text-[11px] ${
+        isDark ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'
+      }`}>
         <span>{lang === 'en' ? 'Hover slices for interactive breakdown' : 'ដាក់ព្រួញកណ្ដុរដើម្បីមើលភាគរយ'}</span>
-        <span className="font-mono text-emerald-400">100% {lang === 'en' ? 'Live' : 'ផ្ទាល់'}</span>
+        <span className="font-mono text-emerald-500 font-bold">100% {lang === 'en' ? 'Live' : 'ផ្ទាល់'}</span>
       </div>
     </div>
   )

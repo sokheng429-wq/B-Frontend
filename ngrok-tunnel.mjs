@@ -13,7 +13,7 @@
  */
 import ngrok from '@ngrok/ngrok'
 
-const authtoken = process.env.NGROK_AUTHTOKEN
+const authtoken = process.env.NGROK_AUTHTOKEN || '3I7ZL64UcCSlM8SYGBUKQmjYKEv_7wD2kv8Ek4nB81gAgp3YX'
 if (!authtoken) {
   console.error('NGROK_AUTHTOKEN is not set. Get one from https://dashboard.ngrok.com/authtokens')
   process.exit(1)

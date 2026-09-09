@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../../../context/ThemeContext'
 
 export default function HorizontalBarChart({ categoryData, stockKpis, topLowStock, lang }) {
+  const { isDark } = useTheme()
   const [viewMode, setViewMode] = useState('categories') // 'categories' | 'lowstock'
 
   const maxVal = useMemo(() => {
@@ -12,21 +14,29 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
   }, [viewMode, categoryData, topLowStock])
 
   return (
-    <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 shadow-xl">
+    <div className={`relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 transition-colors ${
+      isDark
+        ? 'border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 shadow-xl'
+        : 'border-slate-200 bg-white shadow-sm'
+    }`}>
       {/* Top Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4 ${
+        isDark ? 'border-slate-800' : 'border-slate-100'
+      }`}>
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/10 text-sky-400 text-sm border border-sky-500/20">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm border ${
+              isDark ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' : 'bg-sky-50 text-sky-600 border-sky-200'
+            }`}>
               📊
             </span>
-            <h3 className="text-base font-black text-white">
+            <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
               {viewMode === 'categories'
                 ? (lang === 'en' ? 'Category Leaderboard' : 'ចំណាត់ថ្នាក់ប្រភេទផលិតផល')
                 : (lang === 'en' ? 'Low Stock Warnings' : 'ការជូនដំណឹងស្តុកទាប')}
             </h3>
           </div>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className={`mt-0.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             {viewMode === 'categories'
               ? (lang === 'en' ? 'Ranking by inventory volume & variety' : 'ចំណាត់ថ្នាក់តាមចំនួនបរិមាណនិងប្រភេទ')
               : (lang === 'en' ? 'Items needing immediate re-order' : 'ទំនិញត្រូវការកម្ម៉ង់បន្ថែមបន្ទាន់')}
@@ -34,14 +44,18 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
         </div>
 
         {/* Filter Toggle */}
-        <div className="flex items-center gap-1 rounded-xl bg-slate-800/90 p-1 border border-slate-700/60">
+        <div className={`flex items-center gap-1 rounded-xl p-1 border transition-colors ${
+          isDark ? 'bg-slate-800/90 border-slate-700/60' : 'bg-slate-100 border-slate-200'
+        }`}>
           <button
             type="button"
             onClick={() => setViewMode('categories')}
             className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all ${
               viewMode === 'categories'
-                ? 'bg-sky-500 text-slate-950 shadow-md shadow-sky-500/20 font-black'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-sky-500 text-slate-950 shadow-xs font-black'
+                : isDark
+                  ? 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {lang === 'en' ? 'By Category' : 'តាមប្រភេទ'}
@@ -51,8 +65,10 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
             onClick={() => setViewMode('lowstock')}
             className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all ${
               viewMode === 'lowstock'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-amber-500 text-slate-950 shadow-xs font-black'
+                : isDark
+                  ? 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {lang === 'en' ? 'Low Stock Alerts' : 'ស្តុកតិច'}
@@ -64,7 +80,7 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
       <div className="my-5 space-y-3.5 max-h-[300px] overflow-y-auto pr-1">
         {viewMode === 'categories' ? (
           categoryData.length === 0 ? (
-            <div className="py-12 text-center text-xs text-slate-500">
+            <div className="py-12 text-center text-xs text-slate-400">
               {lang === 'en' ? 'No product categories available' : 'មិនទាន់មានទិន្នន័យប្រភេទ'}
             </div>
           ) : (
@@ -74,35 +90,39 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
               const barWidthPercent = Math.min(100, Math.max(8, Math.round((count / maxVal) * 100)))
 
               const rankStyles = [
-                'bg-amber-500/20 text-amber-300 border-amber-500/40', // #1 Gold
-                'bg-slate-400/20 text-slate-200 border-slate-400/40', // #2 Silver
-                'bg-amber-700/20 text-amber-400 border-amber-700/40', // #3 Bronze
+                isDark ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-amber-50 text-amber-700 border-amber-200', // #1 Gold
+                isDark ? 'bg-slate-400/20 text-slate-200 border-slate-400/40' : 'bg-slate-100 text-slate-700 border-slate-300', // #2 Silver
+                isDark ? 'bg-amber-700/20 text-amber-400 border-amber-700/40' : 'bg-orange-50 text-orange-700 border-orange-200', // #3 Bronze
               ]
 
               return (
-                <div key={cat.label?.en || index} className="group rounded-xl p-2 transition-all hover:bg-slate-800/60">
+                <div key={cat.label?.en || index} className={`group rounded-xl p-2 transition-all ${
+                  isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'
+                }`}>
                   <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span
                         className={`flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-black border ${
-                          rankStyles[index] || 'bg-slate-800 text-slate-400 border-slate-700'
+                          rankStyles[index] || (isDark ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-500 border-slate-200')
                         }`}
                       >
                         #{index + 1}
                       </span>
-                      <span className="truncate font-semibold text-slate-200 group-hover:text-white transition-colors">
+                      <span className={`truncate font-semibold transition-colors ${
+                        isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-[#232F3F]'
+                      }`}>
                         {cat.label?.[lang] || cat.label?.en}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="font-mono text-xs font-bold text-white">
-                        {count} <span className="text-[10px] text-slate-400 font-normal">{lang === 'en' ? 'SKUs' : 'មុខ'}</span>
+                      <span className={`font-mono text-xs font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
+                        {count} <span className={`text-[10px] font-normal ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{lang === 'en' ? 'SKUs' : 'មុខ'}</span>
                       </span>
                       <span
                         className="rounded px-1.5 py-0.5 text-[10px] font-black"
                         style={{
-                          backgroundColor: `${cat.color}25`,
+                          backgroundColor: `${cat.color}20`,
                           color: cat.color,
                         }}
                       >
@@ -112,9 +132,11 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
                   </div>
 
                   {/* Horizontal Bar */}
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800/80 p-0.5 border border-slate-700/30">
+                  <div className={`h-3 w-full overflow-hidden rounded-full p-0.5 border ${
+                    isDark ? 'bg-slate-800/80 border-slate-700/30' : 'bg-slate-100 border-slate-200'
+                  }`}>
                     <div
-                      className="h-full rounded-full transition-all duration-700 shadow-sm"
+                      className="h-full rounded-full transition-all duration-700 shadow-xs"
                       style={{
                         width: `${barWidthPercent}%`,
                         background: `linear-gradient(90deg, ${cat.color}99 0%, ${cat.color} 100%)`,
@@ -129,7 +151,7 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
           topLowStock.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <span className="text-3xl">✨</span>
-              <p className="mt-2 text-xs font-bold text-emerald-400">
+              <p className="mt-2 text-xs font-bold text-emerald-600">
                 {lang === 'en' ? 'All stock levels are optimal!' : 'ស្តុកទាំងអស់គ្រប់គ្រាន់ល្អ!'}
               </p>
             </div>
@@ -141,14 +163,18 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
               const barWidthPercent = isOut ? 4 : Math.min(100, Math.max(10, Math.round((qty / 5) * 100)))
 
               return (
-                <div key={prod.id || index} className="group rounded-xl p-2 transition-all hover:bg-slate-800/60">
+                <div key={prod.id || index} className={`group rounded-xl p-2 transition-all ${
+                  isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'
+                }`}>
                   <div className="mb-1.5 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-sm">{isOut ? '🚨' : '⚠️'}</span>
-                      <span className="truncate font-semibold text-slate-200 group-hover:text-white">
+                      <span className={`truncate font-semibold ${
+                        isDark ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-[#232F3F]'
+                      }`}>
                         {name}
                       </span>
-                      <span className="hidden sm:inline font-mono text-[10px] text-slate-500">
+                      <span className="hidden sm:inline font-mono text-[10px] text-slate-400">
                         ({prod.barCode || prod.code || '—'})
                       </span>
                     </div>
@@ -156,8 +182,12 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-black border ${
                         isOut
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                          : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                          ? isDark
+                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                            : 'bg-rose-50 text-rose-700 border-rose-200 animate-pulse'
+                          : isDark
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
                       }`}
                     >
                       {isOut ? (lang === 'en' ? '0 Out of Stock' : 'អស់ពីស្តុក') : `${qty} on hand`}
@@ -165,7 +195,9 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
                   </div>
 
                   {/* Stock Bar */}
-                  <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800/80 p-0.5 border border-slate-700/30">
+                  <div className={`h-3 w-full overflow-hidden rounded-full p-0.5 border ${
+                    isDark ? 'bg-slate-800/80 border-slate-700/30' : 'bg-slate-100 border-slate-200'
+                  }`}>
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{
@@ -184,15 +216,17 @@ export default function HorizontalBarChart({ categoryData, stockKpis, topLowStoc
       </div>
 
       {/* Footer link */}
-      <div className="flex items-center justify-between border-t border-slate-800 pt-3 text-xs">
-        <span className="text-slate-400">
+      <div className={`flex items-center justify-between border-t pt-3 text-xs ${
+        isDark ? 'border-slate-800' : 'border-slate-100'
+      }`}>
+        <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>
           {viewMode === 'categories'
             ? (lang === 'en' ? 'Showing top volume categories' : 'បង្ហាញប្រភេទដែលមានចំនួនច្រើន')
             : (lang === 'en' ? 'Prioritize restock orders' : 'ផ្តល់អាទិភាពដល់ការបំពេញស្តុក')}
         </span>
         <Link
           to="/admin/products/all"
-          className="font-bold text-sky-400 hover:text-sky-300 hover:underline flex items-center gap-1"
+          className="font-bold text-sky-500 hover:text-sky-600 hover:underline flex items-center gap-1"
         >
           <span>{lang === 'en' ? 'Full Catalog' : 'កាតាឡុកពេញលេញ'}</span>
           <span>→</span>

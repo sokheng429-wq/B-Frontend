@@ -121,6 +121,20 @@ export const NotificationProvider = ({ children }) => {
     setNotifications([])
   }, [])
 
+  const showNotification = useCallback((payload) => {
+    if (!payload) return
+    if (typeof payload === 'string') {
+      addNotification({ title: payload, detail: payload, type: 'office' })
+    } else {
+      addNotification({
+        type: payload.type || 'office',
+        title: payload.title || payload.message || 'Notification',
+        detail: payload.message || payload.detail || '',
+        action: payload.action || 'info',
+      })
+    }
+  }, [addNotification])
+
   const unreadCount = notifications.filter((n) => !n.read).length
 
   return (
@@ -129,6 +143,7 @@ export const NotificationProvider = ({ children }) => {
         notifications,
         unreadCount,
         addNotification,
+        showNotification,
         markAsRead,
         markAllRead,
         removeNotification,
@@ -139,6 +154,7 @@ export const NotificationProvider = ({ children }) => {
     </NotificationContext.Provider>
   )
 }
+
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext)

@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
+import { useTheme } from '../../../context/ThemeContext'
 
 export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, lang }) {
+  const { isDark } = useTheme()
   const [metricMode, setMetricMode] = useState('products') // 'products' | 'activity' | 'combined'
   const [hoveredPoint, setHoveredPoint] = useState(null)
 
@@ -86,28 +88,42 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
   }[metricMode]
 
   return (
-    <div className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 shadow-xl">
+    <div className={`relative flex flex-col justify-between overflow-hidden rounded-3xl border p-6 transition-colors ${
+      isDark
+        ? 'border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 shadow-xl'
+        : 'border-slate-200 bg-white shadow-sm'
+    }`}>
       {/* Glow ambient background */}
-      <div
-        className="pointer-events-none absolute -right-16 -top-16 h-60 w-60 rounded-full blur-3xl opacity-20"
-        style={{ background: themeColors.line }}
-      />
+      {isDark && (
+        <div
+          className="pointer-events-none absolute -right-16 -top-16 h-60 w-60 rounded-full blur-3xl opacity-20"
+          style={{ background: themeColors.line }}
+        />
+      )}
 
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 pb-4">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4 ${
+        isDark ? 'border-slate-800' : 'border-slate-100'
+      }`}>
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 text-sm border border-emerald-500/20">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm border ${
+              isDark
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            }`}>
               📈
             </span>
-            <h3 className="text-base font-black text-white">
+            <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
               {lang === 'en' ? 'Annual Timeline & Trends' : 'ដំណើរវិវត្តន៍និងនិន្នាការប្រចាំឆ្នាំ'}
             </h3>
-            <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-mono font-bold text-slate-400 border border-slate-700">
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold border ${
+              isDark ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-100 text-slate-600 border-slate-200'
+            }`}>
               {new Date().getFullYear()}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className={`mt-0.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
             {lang === 'en'
               ? 'Continuous monthly activity curve with peak volume annotation'
               : 'ខ្សែកោងសកម្មភាពប្រចាំខែជាមួយនឹងចំណុចខ្ពស់បំផុត'}
@@ -115,7 +131,9 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex items-center gap-1 rounded-xl bg-slate-800/90 p-1 border border-slate-700/60">
+        <div className={`flex items-center gap-1 rounded-xl p-1 border ${
+          isDark ? 'bg-slate-800/90 border-slate-700/60' : 'bg-slate-100 border-slate-200'
+        }`}>
           {[
             { id: 'products', label: { en: 'Products', kh: 'ផលិតផល' }, color: 'emerald' },
             { id: 'activity', label: { en: 'Jobs/Apps', kh: 'ការងារ/ពាក្យសុំ' }, color: 'amber' },
@@ -127,8 +145,12 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
               onClick={() => setMetricMode(mode.id)}
               className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all ${
                 metricMode === mode.id
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md shadow-emerald-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? isDark
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md shadow-emerald-500/20'
+                    : 'bg-white text-emerald-700 font-black shadow-sm border border-slate-200'
+                  : isDark
+                  ? 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 hover:text-[#232F3F]'
               }`}
             >
               {mode.label[lang]}
@@ -175,15 +197,15 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                   y1={y}
                   x2={padding.left + innerWidth}
                   y2={y}
-                  stroke="#334155"
-                  strokeOpacity="0.4"
+                  stroke={isDark ? '#334155' : '#cbd5e1'}
+                  strokeOpacity={isDark ? '0.4' : '0.8'}
                   strokeDasharray="4 4"
                 />
                 <text
                   x={padding.left - 8}
                   y={y + 4}
                   textAnchor="end"
-                  fill="#64748b"
+                  fill={isDark ? '#64748b' : '#64748b'}
                   fontSize="10"
                   fontFamily="monospace"
                 >
@@ -204,7 +226,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
-            filter="url(#lineGlow)"
+            filter={isDark ? 'url(#lineGlow)' : undefined}
           />
 
           {/* PEAK ANNOTATION CALLOUT */}
@@ -224,7 +246,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                   width="110"
                   height="22"
                   rx="6"
-                  fill="#0f172a"
+                  fill={isDark ? '#0f172a' : '#ffffff'}
                   stroke={themeColors.line}
                   strokeWidth="1.5"
                   className="filter drop-shadow-md"
@@ -233,7 +255,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                   x="0"
                   y="-4"
                   textAnchor="middle"
-                  fill="#ffffff"
+                  fill={isDark ? '#ffffff' : '#1e293b'}
                   fontSize="10"
                   fontWeight="bold"
                   fontFamily="sans-serif"
@@ -244,7 +266,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
 
               {/* Pulsing peak point dot */}
               <circle r="6" fill={themeColors.line} opacity="0.4" className="animate-ping" />
-              <circle r="4" fill="#ffffff" stroke={themeColors.line} strokeWidth="2" />
+              <circle r="4" fill={isDark ? '#ffffff' : themeColors.line} stroke={isDark ? themeColors.line : '#ffffff'} strokeWidth="2" />
             </g>
           )}
 
@@ -276,7 +298,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                     y1={padding.top}
                     x2={pt.x}
                     y2={padding.top + innerHeight}
-                    stroke="#ffffff"
+                    stroke={isDark ? '#ffffff' : '#64748b'}
                     strokeOpacity="0.4"
                     strokeDasharray="3 3"
                   />
@@ -287,8 +309,8 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                   cx={pt.x}
                   cy={pt.y}
                   r={isHovered ? 6 : isCurrentMonth ? 4 : 3}
-                  fill={isHovered ? '#ffffff' : themeColors.line}
-                  stroke="#0f172a"
+                  fill={isHovered ? (isDark ? '#ffffff' : '#0f172a') : themeColors.line}
+                  stroke={isDark ? '#0f172a' : '#ffffff'}
                   strokeWidth="2"
                   className="transition-all duration-200"
                 />
@@ -298,7 +320,7 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
                   x={pt.x}
                   y={padding.top + innerHeight + 18}
                   textAnchor="middle"
-                  fill={isHovered || isCurrentMonth ? '#ffffff' : '#64748b'}
+                  fill={isHovered || isCurrentMonth ? (isDark ? '#ffffff' : '#0f172a') : (isDark ? '#94a3b8' : '#64748b')}
                   fontWeight={isHovered || isCurrentMonth ? 'bold' : 'normal'}
                   fontSize={isCurrentMonth ? '11' : '10'}
                 >
@@ -312,26 +334,32 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
         {/* Floating Tooltip when hovering over a point */}
         {hoveredPoint && (
           <div
-            className="pointer-events-none absolute -top-12 z-20 flex flex-col rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-2xl backdrop-blur-md transition-all text-xs"
+            className={`pointer-events-none absolute -top-12 z-20 flex flex-col rounded-xl border px-3 py-2 shadow-xl backdrop-blur-md transition-all text-xs ${
+              isDark ? 'border-slate-700 bg-slate-900/95 text-white' : 'border-slate-200 bg-white/95 text-slate-900 shadow-slate-200'
+            }`}
             style={{
               left: `${(hoveredPoint.x / width) * 100}%`,
               transform: 'translateX(-50%)',
             }}
           >
-            <div className="flex items-center gap-1.5 font-bold text-white">
+            <div className={`flex items-center gap-1.5 font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: themeColors.line }} />
               <span>{lang === 'kh' ? hoveredPoint.monthKh : hoveredPoint.monthEn} {new Date().getFullYear()}</span>
             </div>
-            <div className="mt-1 flex items-center justify-between gap-4 font-mono text-[11px] text-slate-300">
+            <div className={`mt-1 flex items-center justify-between gap-4 font-mono text-[11px] ${
+              isDark ? 'text-slate-300' : 'text-slate-600'
+            }`}>
               <span>{lang === 'en' ? 'New Items:' : 'បន្ថែមថ្មី:'}</span>
-              <span className="font-bold text-emerald-400">{hoveredPoint.value}</span>
+              <span className="font-bold text-emerald-600">{hoveredPoint.value}</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Summary Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800 pt-3 text-xs text-slate-400">
+      <div className={`flex flex-wrap items-center justify-between gap-2 border-t pt-3 text-xs ${
+        isDark ? 'border-slate-800 text-slate-400' : 'border-slate-100 text-slate-500'
+      }`}>
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
@@ -343,9 +371,9 @@ export default function AreaLineChartWidget({ monthlyProducts, monthlyActivity, 
           </span>
         </div>
 
-        <div className="font-mono text-[11px] text-slate-400">
+        <div className={`font-mono text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
           {lang === 'en' ? 'Peak Month:' : 'ខែខ្ពស់បំផុត:'}{' '}
-          <span className="font-bold text-white">
+          <span className={`font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
             {lang === 'kh' ? peakItem.monthKh : peakItem.monthEn} ({peakItem.value})
           </span>
         </div>

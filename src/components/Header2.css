@@ -226,3 +226,85 @@
   font-weight: 700;
   color: var(--brand);
 }
+
+/* ============================================================
+   LIGHT MODE HEADER2 STYLES
+   ============================================================ */
+:root[data-theme="light"] .h2-header,
+html.light-theme .h2-header,
+[data-theme="light"] .h2-header {
+  background: #ffffff;
+  border-bottom: 2px solid var(--accent);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-link,
+html.light-theme .h2-header .h2-nav-link,
+[data-theme="light"] .h2-header .h2-nav-link {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-link:hover,
+html.light-theme .h2-header .h2-nav-link:hover,
+[data-theme="light"] .h2-header .h2-nav-link:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-link--active,
+html.light-theme .h2-header .h2-nav-link--active,
+[data-theme="light"] .h2-header .h2-nav-link--active {
+  color: var(--brand);
+}
+
+:root[data-theme="light"] .h2-header .h2-btn-brand,
+html.light-theme .h2-header .h2-btn-brand,
+[data-theme="light"] .h2-header .h2-btn-brand {
+  color: #ffffff;
+  background: var(--brand);
+}
+
+:root[data-theme="light"] .h2-header .h2-btn-brand:hover,
+html.light-theme .h2-header .h2-btn-brand:hover,
+[data-theme="light"] .h2-header .h2-btn-brand:hover {
+  background: var(--brand-dark);
+}
+
+:root[data-theme="light"] .h2-header .h2-mobile-toggle,
+html.light-theme .h2-header .h2-mobile-toggle,
+[data-theme="light"] .h2-header .h2-mobile-toggle {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .h2-header .h2-mobile-menu,
+html.light-theme .h2-header .h2-mobile-menu,
+[data-theme="light"] .h2-header .h2-mobile-menu {
+  background: #ffffff;
+  border-top: 1px solid var(--border-subtle);
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-link-mobile,
+html.light-theme .h2-header .h2-nav-link-mobile,
+[data-theme="light"] .h2-header .h2-nav-link-mobile {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-link-mobile:hover,
+html.light-theme .h2-header .h2-nav-link-mobile:hover,
+[data-theme="light"] .h2-header .h2-nav-link-mobile:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-cart,
+html.light-theme .h2-header .h2-nav-cart,
+[data-theme="light"] .h2-header .h2-nav-cart {
+  color: #232F3F;
+}
+
+:root[data-theme="light"] .h2-header .h2-nav-cart:hover,
+html.light-theme .h2-header .h2-nav-cart:hover,
+[data-theme="light"] .h2-header .h2-nav-cart:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}

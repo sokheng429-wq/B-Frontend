@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { adminBankTransferAPI } from '../../api/api'
 import { exportStyledExcel } from '../../utils/excelExport'
 import toggleIcon from '../../assets/icon/3dicons-toggle-dynamic-color.png'
 import { CASH_BOOK_CATEGORIES } from './CashInOutList'
@@ -41,10 +42,10 @@ function ChevronLeftIcon({ className = 'w-3.5 h-3.5' }) {
 }
 
 const SAMPLE_TRANSFERS = [
-  { id: 'TRF-001', code: 'TRF-2026-0001', date: '2026-09-08T09:00:00', fromAccount: 'Counter Till #1 (Main Store)', toAccount: 'Vault / Strongbox Safe', amount: 1200.00, reference: 'INT-TR-0012', status: 'COMPLETED', note: 'Mid-morning till cash sweep drop' },
-  { id: 'TRF-002', code: 'TRF-2026-0002', date: '2026-09-07T15:30:00', fromAccount: 'Vault / Strongbox Safe', toAccount: 'ABA Bank - Corporate (USD)', amount: 3500.00, reference: 'CIT-ABA-889', status: 'COMPLETED', note: 'Armored cash deposit transport to bank branch' },
-  { id: 'TRF-003', code: 'TRF-2026-0003', date: '2026-09-06T10:15:00', fromAccount: 'ABA Bank - Corporate (USD)', toAccount: 'Petty Cash Register BKK1', amount: 500.00, reference: 'ABA-WD-2210', status: 'COMPLETED', note: 'Petty cash float replenishment' },
-  { id: 'TRF-004', code: 'TRF-2026-0004', date: '2026-09-05T17:00:00', fromAccount: 'Counter Till #2 (Toul Kork)', toAccount: 'Vault / Strongbox Safe', amount: 850.00, reference: 'INT-TR-0011', status: 'COMPLETED', note: 'Daily closing till transfer to branch safe' },
+  { id: 1, code: 'TRF-2026-0001', date: '2026-09-08T09:00:00', fromAccount: 'Counter Till #1 (Main Store)', toAccount: 'Vault / Strongbox Safe', amount: 1200.00, reference: 'INT-TR-0012', status: 'COMPLETED', note: 'Mid-morning till cash sweep drop' },
+  { id: 2, code: 'TRF-2026-0002', date: '2026-09-07T15:30:00', fromAccount: 'Vault / Strongbox Safe', toAccount: 'ABA Bank - Corporate (USD)', amount: 3500.00, reference: 'CIT-ABA-889', status: 'COMPLETED', note: 'Armored cash deposit transport to bank branch' },
+  { id: 3, code: 'TRF-2026-0003', date: '2026-09-06T10:15:00', fromAccount: 'ABA Bank - Corporate (USD)', toAccount: 'Petty Cash Register BKK1', amount: 500.00, reference: 'ABA-WD-2210', status: 'COMPLETED', note: 'Petty cash float replenishment' },
+  { id: 4, code: 'TRF-2026-0004', date: '2026-09-05T17:00:00', fromAccount: 'Counter Till #2 (Toul Kork)', toAccount: 'Vault / Strongbox Safe', amount: 850.00, reference: 'INT-TR-0011', status: 'COMPLETED', note: 'Daily closing till transfer to branch safe' },
 ]
 
 export default function BankTransferList() {
@@ -52,22 +53,73 @@ export default function BankTransferList() {
   const { showNotification } = useNotifications()
 
   const [isCreateMode, setIsCreateMode] = useState(false)
-  const [transfers, setTransfers] = useState(() => {
-    try {
-      const stored = localStorage.getItem('bg_bank_transfers')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge unique by code/id
-          const ids = new Set(parsed.map(p => p.id || p.code))
-          const remain = SAMPLE_TRANSFERS.filter(s => !ids.has(s.id) && !ids.has(s.code))
-          return [...parsed, ...remain]
-        }
-      }
-    } catch {}
-    return SAMPLE_TRANSFERS
-  })
+  const [transfers, setTransfers] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+
+  // Load from backend API with auto-sync from localStorage
+  useEffect(() => {
+    const fetchTransfers = async () => {
+      setLoading(true)
+      try {
+        const res = await adminBankTransferAPI.getAll()
+        if (res?.data && res.data.length > 0) {
+          setTransfers(res.data)
+        } else {
+          // Check local cache
+          let localItems = []
+          try {
+            const stored = localStorage.getItem('bg_bank_transfers')
+            if (stored) localItems = JSON.parse(stored)
+          } catch {}
+
+          if (localItems && localItems.length > 0) {
+            const migrated = []
+            for (const item of localItems) {
+              try {
+                const created = await adminBankTransferAPI.create({
+                  code: item.code,
+                  date: item.date,
+                  fromAccount: item.fromAccount,
+                  toAccount: item.toAccount,
+                  amount: Number(item.amount) || 0,
+                  reference: item.reference,
+                  status: item.status || 'COMPLETED',
+                  note: item.note,
+                })
+                if (created?.data) migrated.push(created.data)
+              } catch {
+                migrated.push(item)
+              }
+            }
+            setTransfers(migrated)
+          } else {
+            // Seed sample transfers
+            const seeded = []
+            for (const s of SAMPLE_TRANSFERS) {
+              try {
+                const created = await adminBankTransferAPI.create(s)
+                if (created?.data) seeded.push(created.data)
+              } catch {}
+            }
+            setTransfers(seeded.length > 0 ? seeded : SAMPLE_TRANSFERS)
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load bank transfers from backend:', err)
+        try {
+          const stored = localStorage.getItem('bg_bank_transfers')
+          if (stored) setTransfers(JSON.parse(stored))
+          else setTransfers(SAMPLE_TRANSFERS)
+        } catch {
+          setTransfers(SAMPLE_TRANSFERS)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTransfers()
+  }, [])
 
   const filtered = useMemo(() => {
     return transfers.filter((tr) => {

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../../../context/ThemeContext'
 import RealTimeClock from './RealTimeClock'
 import StatCards from './StatCards'
 import DonutPieChartWidget from './DonutPieChartWidget'
@@ -30,6 +31,8 @@ export default function DashboardOverview({
   formatTime,
   TEXTS,
 }) {
+  const { isDark } = useTheme()
+
   return (
     <div className="space-y-6">
       {/* Loading / Error Banner */}
@@ -111,41 +114,53 @@ export default function DashboardOverview({
       {/* ── 5. BOTTOM ROW: RECENT AUDIT ACTIVITY & DIRECT SHORTCUTS ── */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Recent Activity Timeline */}
-        <div className="xl:col-span-2 rounded-3xl border border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 shadow-xl">
-          <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className={`xl:col-span-2 rounded-3xl border p-6 transition-colors ${
+          isDark
+            ? 'border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 shadow-xl'
+            : 'border-slate-200 bg-white shadow-sm'
+        }`}>
+          <div className={`mb-4 flex items-center justify-between border-b pb-3 ${
+            isDark ? 'border-slate-800' : 'border-slate-100'
+          }`}>
             <div>
-              <h3 className="text-base font-black text-white">{TEXTS.recentTitle[lang]}</h3>
-              <p className="text-xs text-slate-400">{TEXTS.recentSub[lang]}</p>
+              <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.recentTitle[lang]}</h3>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{TEXTS.recentSub[lang]}</p>
             </div>
             <Link
               to="/admin/applications"
-              className="text-xs font-bold text-purple-400 hover:text-purple-300 hover:underline"
+              className="text-xs font-bold text-purple-500 hover:text-purple-600 hover:underline"
             >
               {lang === 'en' ? 'All Activity' : 'សកម្មភាពទាំងអស់'} →
             </Link>
           </div>
 
           {recentActivity.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-500">{TEXTS.noActivity[lang]}</div>
+            <div className="py-8 text-center text-xs text-slate-400">{TEXTS.noActivity[lang]}</div>
           ) : (
             <div className="space-y-3">
-              {recentActivity.map((item, idx) => (
+              {recentActivity.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-slate-800/80 bg-slate-900/60 p-3.5 transition hover:border-slate-700 hover:bg-slate-800/50"
+                  className={`flex items-center justify-between gap-4 rounded-2xl border p-3.5 transition ${
+                    isDark
+                      ? 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-800/50'
+                      : 'border-slate-200 bg-slate-50/70 hover:border-slate-300 hover:bg-slate-100/70'
+                  }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <span
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg border border-slate-700/60 shadow-inner"
-                      style={{ backgroundColor: `${item.color}20` }}
+                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-lg border ${
+                        isDark ? 'border-slate-700/60 shadow-inner' : 'border-slate-200 bg-white'
+                      }`}
+                      style={{ backgroundColor: `${item.color}15` }}
                     >
                       {item.icon}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-xs sm:text-sm font-bold text-white">
+                      <p className={`truncate text-xs sm:text-sm font-bold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
                         {item.detail}
                       </p>
-                      <p className="text-[10px] text-slate-400 capitalize">
+                      <p className={`text-[10px] capitalize ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                         {item.type === 'job'
                           ? (lang === 'en' ? '💼 Job Position' : '💼 មុខតំណែងការងារ')
                           : (lang === 'en' ? '📋 Candidate Application' : '📋 ពាក្យសុំបេក្ខជន')}
@@ -153,7 +168,11 @@ export default function DashboardOverview({
                     </div>
                   </div>
 
-                  <span className="flex-shrink-0 rounded-lg bg-slate-800 px-2.5 py-1 text-[11px] font-mono text-slate-300 border border-slate-700/60">
+                  <span className={`flex-shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-mono border ${
+                    isDark
+                      ? 'bg-slate-800 text-slate-300 border-slate-700/60'
+                      : 'bg-slate-100 text-slate-600 border-slate-200 font-semibold'
+                  }`}>
                     {formatTime(item.timestamp)}
                   </span>
                 </div>
@@ -163,11 +182,15 @@ export default function DashboardOverview({
         </div>
 
         {/* Quick Management Shortcuts */}
-        <div className="xl:col-span-1 rounded-3xl border border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 p-6 shadow-xl flex flex-col justify-between">
+        <div className={`xl:col-span-1 rounded-3xl border p-6 flex flex-col justify-between transition-colors ${
+          isDark
+            ? 'border-slate-700/60 bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 shadow-xl'
+            : 'border-slate-200 bg-white shadow-sm'
+        }`}>
           <div>
-            <div className="mb-4 border-b border-slate-800 pb-3">
-              <h3 className="text-base font-black text-white">{TEXTS.quickActions[lang]}</h3>
-              <p className="text-xs text-slate-400">{TEXTS.quickActionsSub[lang]}</p>
+            <div className={`mb-4 border-b pb-3 ${isDark ? 'border-slate-800' : 'border-slate-100'}`}>
+              <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.quickActions[lang]}</h3>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{TEXTS.quickActionsSub[lang]}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -182,7 +205,11 @@ export default function DashboardOverview({
                   <Link
                     key={action.to}
                     to={action.to}
-                    className="group flex flex-col items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/80 p-3.5 text-center transition hover:-translate-y-0.5 hover:border-slate-600 hover:bg-slate-800 hover:shadow-lg"
+                    className={`group flex flex-col items-center gap-2 rounded-2xl border p-3.5 text-center transition hover:-translate-y-0.5 ${
+                      isDark
+                        ? 'border-slate-800 bg-slate-900/80 hover:border-slate-600 hover:bg-slate-800 hover:shadow-lg'
+                        : 'border-slate-200 bg-slate-50/80 hover:border-[#77BC1F] hover:bg-white hover:shadow-md'
+                    }`}
                   >
                     <span
                       className="flex h-10 w-10 items-center justify-center rounded-xl shadow-inner transition-transform group-hover:scale-110"
@@ -190,7 +217,9 @@ export default function DashboardOverview({
                     >
                       <img src={action.icon} alt="" className="h-6 w-6 object-contain" />
                     </span>
-                    <span className="text-xs font-bold text-slate-300 group-hover:text-white">
+                    <span className={`text-xs font-bold transition-colors ${
+                      isDark ? 'text-slate-300 group-hover:text-white' : 'text-slate-700 group-hover:text-[#232F3F]'
+                    }`}>
                       {action.label[lang]}
                     </span>
                   </Link>
@@ -198,11 +227,15 @@ export default function DashboardOverview({
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-3 text-center">
-            <p className="text-[11px] font-bold text-emerald-400">
+          <div className={`mt-4 rounded-2xl border p-3 text-center transition-colors ${
+            isDark
+              ? 'border-emerald-500/20 bg-emerald-950/20'
+              : 'border-emerald-200 bg-emerald-50/80'
+          }`}>
+            <p className={`text-[11px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-800'}`}>
               {lang === 'en' ? 'B’Groceries ERP Suite v2.0' : 'ប្រព័ន្ធគ្រប់គ្រង B’Groceries ២.០'}
             </p>
-            <p className="text-[10px] text-slate-400">
+            <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-emerald-700/80'}`}>
               {lang === 'en' ? 'All systems active and operational' : 'ប្រព័ន្ធទាំងអស់ដំណើរការយ៉ាងល្អ'}
             </p>
           </div>

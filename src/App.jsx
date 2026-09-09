@@ -31,12 +31,34 @@ import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
 import ShopLayout from './components/ShopSidebar'
 
+const ALLOWED_ADMIN_ROLES = ['ADMIN', 'STORE', 'SUPERADMIN', 'MANAGER']
+
+// Standard authenticated user guard (redirects unauthenticated users to /login)
+const ProtectedRoute = ({ children }) => {
+  const { isLoggedIn } = useAuth()
+  const location = useLocation()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+
+  if (!isLoggedIn || !token) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
+}
+
 // ADMIN and STORE (Online Store) may open the admin panel; STORE only sees
 // the products-side sections (Products, Promotions, Partners) via AdminD.
 const AdminRoute = ({ children }) => {
-  const { user } = useAuth()
+  const { user, isLoggedIn } = useAuth()
+  const location = useLocation()
 
-  // Extract and normalize role from various backend response formats
+  // 1. Must be logged in and possess a token
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  if (!isLoggedIn || !token) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // 2. Extract and normalize role from various backend response formats
   let rawRole = ''
   if (user) {
     if (typeof user.role === 'string') rawRole = user.role
@@ -65,8 +87,8 @@ const AdminRoute = ({ children }) => {
 
   const role = rawRole.replace(/^ROLE_/, '').toUpperCase()
 
-  // Only block if explicitly a standard customer with no admin/store role
-  if (role === 'CUSTOMER') {
+  // 3. Only allow verified administrative roles
+  if (!ALLOWED_ADMIN_ROLES.includes(role)) {
     return <Navigate to="/" replace />
   }
 
@@ -166,11 +188,15 @@ function App() {
           <Route path="/section" element={<Navigate to="/admin/employee/section" replace />} />
           <Route path="/position" element={<Navigate to="/admin/employee/position" replace />} />
 
+          {/* Direct Report shortcuts */}
+          <Route path="/report" element={<Navigate to="/admin/report" replace />} />
+          <Route path="/report/*" element={<Navigate to="/admin/report" replace />} />
+
           {/* Wildcard routes last */}
           <Route path="/admin" element={<AdminRoute><AdminD /></AdminRoute>} />
           <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
 
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
         </Routes>
       </PageTransition>
@@ -180,3 +206,5 @@ function App() {
 }
 
 export default App
+
+

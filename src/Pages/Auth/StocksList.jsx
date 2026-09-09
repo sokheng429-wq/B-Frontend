@@ -7,6 +7,7 @@ import { adminProductAPI } from '../../api/api'
 import { ConfirmModal } from './stockUI'
 import { PageLoader } from '../../components/PageLoader'
 import { exportStyledExcel } from '../../utils/excelExport'
+import { useTheme } from '../../context/ThemeContext'
 import './StocksList.css'
 import { PRODUCTS as DEMO_PRODUCTS, CATEGORIES, formatPrice } from '../../data/products'
 
@@ -118,6 +119,7 @@ const numOrEmpty = (v) => (v === '' || v == null ? null : Number(v))
 // the dark admin theme. Tries the live backend first and falls back to the
 // bundled demo catalog so the page is never empty.
 export const StocksList = () => {
+  const { isDark } = useTheme()
   const { lang } = useLanguage()
   const { addNotification } = useNotifications()
   const navigate = useNavigate()
@@ -537,9 +539,14 @@ export const StocksList = () => {
     importFail: { en: 'failed', kh: 'បរាជ័យ' },
   }
 
-  // shared dark select styling — green focus ring
-  const selectCls = 'w-full rounded-lg border border-slate-700/70 bg-slate-950/60 px-3 py-2.5 text-sm font-medium text-white outline-none transition focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10 hover:border-slate-600'
-  const ghostBtnCls = 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40'
+  // shared adaptive select styling — green focus ring
+  const selectCls = isDark
+    ? 'w-full rounded-lg border border-slate-700/70 bg-slate-950/60 px-3 py-2.5 text-sm font-medium text-white outline-none transition focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10 hover:border-slate-600'
+    : 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-green-500 focus:bg-white focus:ring-4 focus:ring-green-500/10 hover:border-slate-400 shadow-xs'
+
+  const ghostBtnCls = isDark
+    ? 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40'
+    : 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 shadow-xs'
 
   // cell renderer per column key (used by both thead labels and tbody cells)
   const renderCell = (product, key) => {
@@ -548,20 +555,20 @@ export const StocksList = () => {
         return (
           <button type="button" onClick={() => onEditProduct(product)} className="flex items-center gap-3 text-left" title={lang === 'en' ? 'Click to edit this product' : 'ចុចដើម្បីកែប្រែផលិតផលនេះ'}>
             {product.image ? (
-              <img src={product.image} alt="" className="h-10 w-10 flex-shrink-0 rounded-lg object-cover ring-1 ring-slate-700" onError={(e) => {
+              <img src={product.image} alt="" className={`h-10 w-10 flex-shrink-0 rounded-lg object-cover ring-1 ${isDark ? 'ring-slate-700' : 'ring-slate-200'}`} onError={(e) => {
                 // broken URL (e.g. truncated legacy upload) — swap to the placeholder
                 e.currentTarget.outerHTML = '<span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ring-slate-700" style="background-color:rgba(119,188,31,0.12)">🥫</span>'
               }} />
             ) : (
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ring-slate-700" style={{ backgroundColor: 'rgba(119,188,31,0.12)' }}>🥫</span>
+              <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ${isDark ? 'ring-slate-700' : 'ring-slate-200'}`} style={{ backgroundColor: 'rgba(119,188,31,0.12)' }}>🥫</span>
             )}
             <span className="min-w-0">
-              <span className="block max-w-[240px] truncate font-semibold text-white">{(lang === 'kh' ? product.name?.kh : product.name?.en) || '—'}</span>
+              <span className={`block max-w-[240px] truncate font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{(lang === 'kh' ? product.name?.kh : product.name?.en) || '—'}</span>
             </span>
           </button>
         )
       case 'category':
-        return <span className="text-slate-400">{categoryLabel(product.category)}</span>
+        return <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>{categoryLabel(product.category)}</span>
       case 'status': {
         const meta = STATUS_META[stockState(product.onHand)]
         return (
@@ -572,26 +579,26 @@ export const StocksList = () => {
       }
       case 'onHand':
         return (
-          <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+          <span className={`inline-flex items-center gap-1.5 font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
             {stockState(product.onHand) === 'low' && <span style={{ color: ORANGE }}><AlertIcon size={13} /></span>}
-            {Number(product.onHand) || 0} <span className="text-xs font-normal text-slate-500">{TEXTS.units[lang]}</span>
+            {Number(product.onHand) || 0} <span className={`text-xs font-normal ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{TEXTS.units[lang]}</span>
           </span>
         )
       case 'basePrice':
         return (
-          <span className="font-semibold text-white">
+          <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
             {formatPrice(product.basePrice)}
             {product.oldPrice > product.basePrice && (
-              <span className="ml-1.5 text-xs line-through text-slate-600">{formatPrice(product.oldPrice)}</span>
+              <span className={`ml-1.5 text-xs line-through ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>{formatPrice(product.oldPrice)}</span>
             )}
           </span>
         )
       case 'barcode':
-        return <span className="font-mono text-xs text-slate-300">{product.barCode || `#${product.id}`}</span>
+        return <span className={`font-mono text-xs ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{product.barCode || `#${product.id}`}</span>
       default: {
         const def = COLUMN_DEFS.find((c) => c.key === key)
         const value = def?.bool ? (product[key] ? '✓' : '✗') : (product[key] ?? '')
-        return <span className={def?.bool ? 'font-semibold' : ''} style={{ color: def?.bool ? (product[key] ? GREEN : '#FB7185') : undefined }}>{value || '—'}</span>
+        return <span className={def?.bool ? 'font-semibold' : (isDark ? 'text-slate-200' : 'text-slate-700')} style={{ color: def?.bool ? (product[key] ? GREEN : '#FB7185') : undefined }}>{value || '—'}</span>
       }
     }
   }
@@ -608,11 +615,11 @@ export const StocksList = () => {
       {/* Page header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <Link to="/admin/products" className="mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] text-green-400 transition hover:text-green-300">
+          <Link to="/admin/products" className={`mb-2 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.16em] transition ${isDark ? 'text-green-400 hover:text-green-300' : 'text-green-700 hover:text-green-800'}`}>
             <ChevronLeftIcon /> {TEXTS.back[lang]}
           </Link>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">{TEXTS.heroTitle[lang]}</h1>
+            <h1 className={`text-2xl font-extrabold tracking-tight md:text-3xl ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.heroTitle[lang]}</h1>
             <span
               className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
               style={source === 'live'
@@ -622,7 +629,7 @@ export const StocksList = () => {
               ● {source === 'live' ? TEXTS.liveData[lang] : TEXTS.demoData[lang]}
             </span>
           </div>
-          <p className="mt-1 max-w-2xl text-sm text-slate-400">{TEXTS.heroSub[lang]}</p>
+          <p className={`mt-1 max-w-2xl text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{TEXTS.heroSub[lang]}</p>
         </div>
         {/* Import / Template / Export / Create */}
         <div className="flex flex-wrap items-center gap-2">
@@ -667,7 +674,11 @@ export const StocksList = () => {
             type="button"
             onClick={() => onKpiClick(kpi.key)}
             disabled={!kpi.clickable}
-            className={`flex items-center gap-4 rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 text-left shadow-xl shadow-black/20 transition ${kpi.clickable ? 'cursor-pointer hover:-translate-y-0.5 hover:border-green-500/40' : 'cursor-default'}`}
+            className={`flex items-center gap-4 rounded-2xl border p-5 text-left shadow-xl transition ${
+              isDark
+                ? 'border-slate-700/60 bg-slate-900/80 shadow-black/20'
+                : 'border-slate-200 bg-white shadow-slate-200/50'
+            } ${kpi.clickable ? (isDark ? 'cursor-pointer hover:-translate-y-0.5 hover:border-green-500/40' : 'cursor-pointer hover:-translate-y-0.5 hover:border-green-500/50 hover:shadow-md') : 'cursor-default'}`}
           >
             <span
               className="flex h-12 w-12 min-w-[48px] items-center justify-center rounded-xl"
@@ -675,29 +686,33 @@ export const StocksList = () => {
                 backgroundColor:
                   kpi.tone === 'orange' ? 'rgba(255,153,0,0.15)'
                     : kpi.tone === 'red' ? 'rgba(244,63,94,0.15)'
-                      : kpi.tone === 'navy' ? 'rgba(148,163,184,0.12)'
+                      : kpi.tone === 'navy' ? (isDark ? 'rgba(148,163,184,0.12)' : 'rgba(35,47,63,0.08)')
                         : 'rgba(119,188,31,0.15)',
                 color:
                   kpi.tone === 'orange' ? ORANGE
                     : kpi.tone === 'red' ? '#FB7185'
-                      : kpi.tone === 'navy' ? '#CBD5E1'
+                      : kpi.tone === 'navy' ? (isDark ? '#CBD5E1' : '#232F3F')
                         : GREEN,
               }}
             >
               {kpi.icon}
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-2xl font-extrabold leading-tight text-white">{kpi.value}</span>
-              <span className="block text-xs font-semibold text-slate-400">{kpi.label[lang]}</span>
+              <span className={`block truncate text-2xl font-extrabold leading-tight ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{kpi.value}</span>
+              <span className={`block text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label[lang]}</span>
             </span>
           </button>
         ))}
       </div>
 
       {/* Data table card */}
-      <section className="overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/80 shadow-xl shadow-black/20">
+      <section className={`overflow-hidden rounded-2xl border shadow-xl ${
+        isDark
+          ? 'border-slate-700/60 bg-slate-900/80 shadow-black/20'
+          : 'border-slate-200 bg-white shadow-slate-200/50'
+      }`}>
         {/* Filter bar */}
-        <div className="flex flex-col gap-3 border-b border-slate-700/60 p-4 lg:flex-row lg:items-center">
+        <div className={`flex flex-col gap-3 border-b p-4 lg:flex-row lg:items-center ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
           {/* Search By dropdown */}
           <select
             value={searchBy}
@@ -717,7 +732,11 @@ export const StocksList = () => {
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(1) }}
               placeholder={TEXTS.searchPlaceholder[lang]}
-              className="w-full rounded-lg border border-slate-700/70 bg-slate-950/60 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10"
+              className={`w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:ring-4 focus:ring-green-500/10 ${
+                isDark
+                  ? 'border-slate-700/70 bg-slate-950/60 text-white placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950'
+                  : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:bg-white shadow-xs'
+              }`}
             />
           </div>
 
@@ -739,7 +758,11 @@ export const StocksList = () => {
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
             aria-expanded={showAdvanced}
-            className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition ${showAdvanced || activeFilterCount > 0 ? 'border-green-400 text-green-300' : 'border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-800'}`}
+            className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition ${
+              showAdvanced || activeFilterCount > 0
+                ? (isDark ? 'border-green-400 text-green-300' : 'border-green-500 text-green-700 bg-green-50/50')
+                : (isDark ? 'border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-100 shadow-xs')
+            }`}
           >
             <FunnelIcon /> {TEXTS.filters[lang]}
             {activeFilterCount > 0 && (
@@ -760,9 +783,9 @@ export const StocksList = () => {
 
         {/* Advanced filter panel */}
         {showAdvanced && (
-          <div className="border-b border-slate-700/60 bg-slate-800/30 p-4">
+          <div className={`border-b p-4 ${isDark ? 'border-slate-700/60 bg-slate-800/30' : 'border-slate-200 bg-slate-50'}`}>
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">{TEXTS.filters[lang]}</p>
+              <p className={`text-xs font-bold uppercase tracking-[0.16em] ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>{TEXTS.filters[lang]}</p>
               <button
                 type="button"
                 onClick={clearFilters}
@@ -811,7 +834,9 @@ export const StocksList = () => {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-700/60 bg-slate-800/40 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <tr className={`border-b text-xs font-bold uppercase tracking-wide ${
+                isDark ? 'border-slate-700/60 bg-slate-800/40 text-slate-400' : 'border-slate-200 bg-slate-100 text-slate-600'
+              }`}>
                 <th className="w-12 px-4 py-3">
                   <input
                     type="checkbox"
@@ -833,15 +858,23 @@ export const StocksList = () => {
               {paged.length === 0 ? (
                 <tr>
                   <td colSpan={2 + activeCols.length} className="px-4 py-16 text-center">
-                    <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-500"><SearchIcon /></span>
-                    <p className="text-sm text-slate-400">{TEXTS.noResults[lang]}</p>
+                    <span className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full ${
+                      isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-200 text-slate-400'
+                    }`}><SearchIcon /></span>
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{TEXTS.noResults[lang]}</p>
                   </td>
                 </tr>
               ) : (
                 paged.map((product) => {
                   const idStr = String(product.id)
                   return (
-                    <tr key={product.id} className={`border-b border-slate-800/60 transition last:border-0 ${selected.has(idStr) ? 'bg-green-500/[0.06]' : 'hover:bg-slate-800/40'}`}>
+                    <tr key={product.id} className={`border-b transition last:border-0 ${
+                      isDark ? 'border-slate-800/60' : 'border-slate-100'
+                    } ${
+                      selected.has(idStr)
+                        ? 'bg-green-500/[0.08]'
+                        : (isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50/80')
+                    }`}>
                       <td className="px-4 py-3">
                         <input
                           type="checkbox"
@@ -863,7 +896,9 @@ export const StocksList = () => {
                             onClick={() => onEditProduct(product)}
                             aria-label={TEXTS.edit[lang]}
                             title={TEXTS.edit[lang]}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:text-green-300"
+                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition ${
+                              isDark ? 'hover:bg-slate-800 hover:text-green-300' : 'hover:bg-slate-100 hover:text-green-700'
+                            }`}
                           >
                             <EditIcon />
                           </button>
@@ -874,7 +909,9 @@ export const StocksList = () => {
                             aria-label={TEXTS.delete[lang]}
                             title={TEXTS.delete[lang]}
                             style={{ color: ORANGE }}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:scale-110 disabled:cursor-not-allowed disabled:opacity-40"
+                            className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-40 ${
+                              isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'
+                            }`}
                           >
                             {deletingId === String(product.id) ? <SpinnerIcon /> : <TrashIcon />}
                           </button>
@@ -889,8 +926,8 @@ export const StocksList = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex flex-col gap-3 border-t border-slate-700/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-500">
+        <div className={`flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
+          <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
             {filtered.length > 0
               ? `${TEXTS.showing[lang]} ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} ${TEXTS.of[lang]} ${filtered.length} ${TEXTS.productsWord[lang]}`
               : ''}
@@ -905,7 +942,9 @@ export const StocksList = () => {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage <= 1}
-              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+              }`}
             >
               {TEXTS.prev[lang]}
             </button>
@@ -913,7 +952,7 @@ export const StocksList = () => {
               .filter((n) => n === 1 || n === totalPages || Math.abs(n - safePage) <= 1)
               .map((n, idx, arr) => (
                 <span key={n} className="flex items-center gap-1.5">
-                  {idx > 0 && arr[idx - 1] !== n - 1 && <span className="px-0.5 text-xs text-slate-600">…</span>}
+                  {idx > 0 && arr[idx - 1] !== n - 1 && <span className={`px-0.5 text-xs ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>…</span>}
                   <button
                     type="button"
                     onClick={() => setPage(n)}
@@ -921,7 +960,9 @@ export const StocksList = () => {
                     className={`h-8 min-w-8 rounded-lg px-2 text-xs font-bold transition ${
                       safePage === n
                         ? 'bg-green-500 text-slate-950 shadow-md shadow-green-500/20'
-                        : 'border border-slate-700 text-slate-300 hover:bg-slate-800'
+                        : isDark
+                          ? 'border border-slate-700 text-slate-300 hover:bg-slate-800'
+                          : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
                     }`}
                   >
                     {n}
@@ -932,7 +973,9 @@ export const StocksList = () => {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage >= totalPages}
-              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+              }`}
             >
               {TEXTS.next[lang]}
             </button>
@@ -950,17 +993,21 @@ export const StocksList = () => {
             role="dialog"
             aria-modal="true"
             aria-label={TEXTS.chooseColumn[lang]}
-            className="max-h-[85vh] w-full max-w-xl overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-900 shadow-2xl shadow-black/60 modal-panel"
+            className={`max-h-[85vh] w-full max-w-xl overflow-hidden rounded-2xl border shadow-2xl modal-panel ${
+              isDark ? 'border-slate-700/80 bg-slate-900 shadow-black/60' : 'border-slate-200 bg-white shadow-slate-300/60'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* header */}
-            <div className="flex items-center justify-between border-b border-slate-700/60 px-5 py-4">
-              <h3 className="text-base font-extrabold text-white">{TEXTS.chooseColumn[lang]}</h3>
+            <div className={`flex items-center justify-between border-b px-5 py-4 ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
+              <h3 className={`text-base font-extrabold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.chooseColumn[lang]}</h3>
               <button
                 type="button"
                 onClick={() => setShowColModal(false)}
                 aria-label={TEXTS.cancel[lang]}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-800 hover:text-white"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+                  isDark ? 'text-slate-500 hover:bg-slate-800 hover:text-white' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-900'
+                }`}
               >
                 <XSmallIcon />
               </button>
@@ -969,7 +1016,9 @@ export const StocksList = () => {
             {/* two-column checkbox grid (scrollable — 27 columns) */}
             <div className="grid max-h-[55vh] grid-cols-1 gap-x-6 gap-y-1 overflow-y-auto p-5 sm:grid-cols-2">
               {/* Status pill column (derived, not a DTO field) */}
-              <label className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${colDraft.has('status') ? 'text-white' : 'text-slate-400'} hover:bg-slate-800`}>
+              <label className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                colDraft.has('status') ? (isDark ? 'text-white' : 'text-[#232F3F]') : (isDark ? 'text-slate-400' : 'text-slate-500')
+              } ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
                 <input type="checkbox" checked={colDraft.has('status')} onChange={() => toggleColDraft('status')} className="h-4 w-4 cursor-pointer rounded accent-green-500" />
                 {TEXTS.colStatus[lang]}
               </label>
@@ -978,7 +1027,9 @@ export const StocksList = () => {
                 return (
                   <label
                     key={col.key}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${checked ? 'text-white' : 'text-slate-400'} hover:bg-slate-800`}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                      checked ? (isDark ? 'text-white' : 'text-[#232F3F]') : (isDark ? 'text-slate-400' : 'text-slate-500')
+                    } ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                   >
                     <input
                       type="checkbox"
@@ -993,12 +1044,12 @@ export const StocksList = () => {
             </div>
 
             {/* footer actions */}
-            <div className="flex items-center justify-between gap-3 border-t border-slate-700/60 px-5 py-4">
+            <div className={`flex items-center justify-between gap-3 border-t px-5 py-4 ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
               <button
                 type="button"
                 onClick={resetColumns}
                 title={TEXTS.resetCols[lang]}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition hover:bg-slate-800"
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                 style={{ color: ORANGE }}
               >
                 <ResetIcon /> {TEXTS.resetCols[lang]}
@@ -1007,7 +1058,9 @@ export const StocksList = () => {
                 <button
                   type="button"
                   onClick={() => setShowColModal(false)}
-                  className="rounded-lg border border-slate-700 px-5 py-2 text-sm font-bold text-slate-300 transition hover:bg-slate-800"
+                  className={`rounded-lg border px-5 py-2 text-sm font-bold transition ${
+                    isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+                  }`}
                 >
                   {TEXTS.cancel[lang]}
                 </button>

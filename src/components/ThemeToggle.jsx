@@ -7,6 +7,7 @@ export const ThemeToggle = ({ className = '' }) => {
 
   return (
     <button
+      type="button"
       className={`theme-pill ${className}`}
       onClick={toggleTheme}
       aria-label={`Switch to ${isDark ? 'Light' : 'Dark'} mode`}

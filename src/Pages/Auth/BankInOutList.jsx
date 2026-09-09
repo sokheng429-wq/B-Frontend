@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
+import { adminBankTransactionAPI } from '../../api/api'
 import { exportStyledExcel } from '../../utils/excelExport'
 import creditCardIcon from '../../assets/icon/3dicons-credit-card-dynamic-color.png'
 import { CASH_BOOK_CATEGORIES } from './CashInOutList'
@@ -41,11 +42,11 @@ function ChevronLeftIcon({ className = 'w-3.5 h-3.5' }) {
 }
 
 const SAMPLE_BANK_TRANSACTIONS = [
-  { id: 'BNK-001', code: 'BNK-2026-0001', date: '2026-09-08T09:30:00', type: 'BANK_IN', bank: 'ABA Bank - Corporate (USD)', amount: 4850.00, reference: 'ABA-TX-998124', status: 'COMPLETED', note: 'Online KHQR merchant store sales batch settlement' },
-  { id: 'BNK-002', code: 'BNK-2026-0002', date: '2026-09-08T11:00:00', type: 'BANK_OUT', bank: 'Canadia Bank (USD)', amount: 2400.00, reference: 'CAN-TR-443102', status: 'COMPLETED', note: 'Wire transfer for bulk dairy cold chain import' },
-  { id: 'BNK-003', code: 'BNK-2026-0003', date: '2026-09-07T14:15:00', type: 'BANK_IN', bank: 'ACLEDA Bank Plc (USD)', amount: 1950.00, reference: 'ACL-CD-112940', status: 'COMPLETED', note: 'Customer deposit wire transfer for wholesale reservation' },
-  { id: 'BNK-004', code: 'BNK-2026-0004', date: '2026-09-06T16:20:00', type: 'BANK_OUT', bank: 'ABA Bank - Corporate (USD)', amount: 620.00, reference: 'ABA-UT-781920', status: 'COMPLETED', note: 'Direct debit for Phnom Penh cold warehouse power utility' },
-  { id: 'BNK-005', code: 'BNK-2026-0005', date: '2026-09-05T10:45:00', type: 'BANK_IN', bank: 'Wing Bank (KHR)', amount: 800.00, reference: 'WNG-QR-665120', status: 'COMPLETED', note: 'Wing QR counter checkout daily settlement' },
+  { id: 1, code: 'BNK-2026-0001', date: '2026-09-08T09:30:00', type: 'BANK_IN', bank: 'ABA Bank - Corporate (USD)', amount: 4850.00, reference: 'ABA-TX-998124', status: 'COMPLETED', note: 'Online KHQR merchant store sales batch settlement' },
+  { id: 2, code: 'BNK-2026-0002', date: '2026-09-08T11:00:00', type: 'BANK_OUT', bank: 'Canadia Bank (USD)', amount: 2400.00, reference: 'CAN-TR-443102', status: 'COMPLETED', note: 'Wire transfer for bulk dairy cold chain import' },
+  { id: 3, code: 'BNK-2026-0003', date: '2026-09-07T14:15:00', type: 'BANK_IN', bank: 'ACLEDA Bank Plc (USD)', amount: 1950.00, reference: 'ACL-CD-112940', status: 'COMPLETED', note: 'Customer deposit wire transfer for wholesale reservation' },
+  { id: 4, code: 'BNK-2026-0004', date: '2026-09-06T16:20:00', type: 'BANK_OUT', bank: 'ABA Bank - Corporate (USD)', amount: 620.00, reference: 'ABA-UT-781920', status: 'COMPLETED', note: 'Direct debit for Phnom Penh cold warehouse power utility' },
+  { id: 5, code: 'BNK-2026-0005', date: '2026-09-05T10:45:00', type: 'BANK_IN', bank: 'Wing Bank (KHR)', amount: 800.00, reference: 'WNG-QR-665120', status: 'COMPLETED', note: 'Wing QR counter checkout daily settlement' },
 ]
 
 export default function BankInOutList() {
@@ -53,22 +54,74 @@ export default function BankInOutList() {
   const { showNotification } = useNotifications()
 
   const [isCreateMode, setIsCreateMode] = useState(false)
-  const [transactions, setTransactions] = useState(() => {
-    try {
-      const stored = localStorage.getItem('bg_bank_in_out')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const ids = new Set(parsed.map(p => p.id || p.code))
-          const remain = SAMPLE_BANK_TRANSACTIONS.filter(s => !ids.has(s.id) && !ids.has(s.code))
-          return [...parsed, ...remain]
-        }
-      }
-    } catch {}
-    return SAMPLE_BANK_TRANSACTIONS
-  })
+  const [transactions, setTransactions] = useState([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('ALL')
+
+  // Load from backend API with auto-sync from localStorage
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true)
+      try {
+        const res = await adminBankTransactionAPI.getAll()
+        if (res?.data && res.data.length > 0) {
+          setTransactions(res.data)
+        } else {
+          // Check local cache
+          let localItems = []
+          try {
+            const stored = localStorage.getItem('bg_bank_in_out')
+            if (stored) localItems = JSON.parse(stored)
+          } catch {}
+
+          if (localItems && localItems.length > 0) {
+            const migrated = []
+            for (const item of localItems) {
+              try {
+                const created = await adminBankTransactionAPI.create({
+                  code: item.code,
+                  date: item.date,
+                  type: item.type,
+                  bank: item.bank,
+                  amount: Number(item.amount) || 0,
+                  reference: item.reference,
+                  status: item.status || 'COMPLETED',
+                  note: item.note,
+                })
+                if (created?.data) migrated.push(created.data)
+              } catch {
+                migrated.push(item)
+              }
+            }
+            setTransactions(migrated)
+          } else {
+            // Seed sample transactions
+            const seeded = []
+            for (const s of SAMPLE_BANK_TRANSACTIONS) {
+              try {
+                const created = await adminBankTransactionAPI.create(s)
+                if (created?.data) seeded.push(created.data)
+              } catch {}
+            }
+            setTransactions(seeded.length > 0 ? seeded : SAMPLE_BANK_TRANSACTIONS)
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load bank transactions from backend:', err)
+        try {
+          const stored = localStorage.getItem('bg_bank_in_out')
+          if (stored) setTransactions(JSON.parse(stored))
+          else setTransactions(SAMPLE_BANK_TRANSACTIONS)
+        } catch {
+          setTransactions(SAMPLE_BANK_TRANSACTIONS)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTransactions()
+  }, [])
 
   const filtered = useMemo(() => {
     return transactions.filter((tx) => {

@@ -102,3 +102,554 @@ a:focus-visible {
   /* Single column stats on mobile handled by Tailwind */
 }
 
+/* ===== LIGHT THEME FOR ADMIN DASHBOARD ===== */
+/* Primary Green: #77BC1F | Accent Orange: #FF9900 | Navy: #232F3F */
+.light-theme .admin-dashboard-root,
+[data-theme="light"] .admin-dashboard-root {
+  background: #f8fafc !important;
+}
+
+/* 1. LEFT SIDEBAR NAVBAR (Crisp Clean White in Light Mode) */
+.light-theme aside,
+[data-theme="light"] aside {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-right: 1px solid #e2e8f0 !important;
+  color: #232F3F !important;
+  box-shadow: 2px 0 12px rgba(35, 47, 63, 0.04) !important;
+}
+
+.light-theme aside > div:first-child,
+[data-theme="light"] aside > div:first-child {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light-theme aside > div:first-child h3,
+[data-theme="light"] aside > div:first-child h3 {
+  color: #232F3F !important;
+}
+
+.light-theme aside > div:first-child p,
+[data-theme="light"] aside > div:first-child p {
+  color: #64748b !important;
+}
+
+.light-theme aside nav,
+[data-theme="light"] aside nav {
+  background: #ffffff !important;
+}
+
+.light-theme aside::-webkit-scrollbar-track,
+.light-theme aside nav::-webkit-scrollbar-track,
+[data-theme="light"] aside::-webkit-scrollbar-track,
+[data-theme="light"] aside nav::-webkit-scrollbar-track {
+  background: #f8fafc !important;
+}
+
+.light-theme aside::-webkit-scrollbar-thumb,
+.light-theme aside nav::-webkit-scrollbar-thumb,
+[data-theme="light"] aside::-webkit-scrollbar-thumb,
+[data-theme="light"] aside nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 3px;
+}
+
+/* Category section titles (e.g. MAIN, INVENTORY MANAGEMENT SYSTEM, etc.) */
+.light-theme aside nav .text-slate-500,
+.light-theme aside nav span[class*="text-[10px]"],
+[data-theme="light"] aside nav .text-slate-500,
+[data-theme="light"] aside nav span[class*="text-[10px]"] {
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+}
+
+/* All Links and Buttons in sidebar (normal state) */
+.light-theme aside nav a,
+.light-theme aside nav button,
+[data-theme="light"] aside nav a,
+[data-theme="light"] aside nav button {
+  color: #475569 !important;
+}
+
+/* Specific text color overrides */
+.light-theme aside nav .text-slate-300,
+.light-theme aside nav .text-slate-400,
+[data-theme="light"] aside nav .text-slate-300,
+[data-theme="light"] aside nav .text-slate-400 {
+  color: #475569 !important;
+}
+
+/* Hover state for normal links & buttons */
+.light-theme aside nav a:hover,
+.light-theme aside nav button:hover,
+[data-theme="light"] aside nav a:hover,
+[data-theme="light"] aside nav button:hover {
+  color: #232F3F !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Active links in sidebar (Dashboard, Hubs, Categories) */
+.light-theme aside nav a[class*="bg-gradient-to-r"],
+.light-theme aside nav button[class*="bg-gradient-to-r"],
+.light-theme aside nav a[class*="border-green-500"],
+.light-theme aside nav a[class*="border-blue-500"],
+.light-theme aside nav a[class*="border-purple-500"],
+.light-theme aside nav a[class*="border-pink-500"],
+.light-theme aside nav a[class*="border-orange-500"],
+.light-theme aside nav a[class*="border-red-500"],
+.light-theme aside nav a[class*="border-yellow-500"],
+.light-theme aside nav a[class*="border-amber-500"],
+.light-theme aside nav a[class*="border-indigo-500"],
+.light-theme aside nav a[class*="border-violet-500"],
+.light-theme aside nav a[class*="border-cyan-500"],
+[data-theme="light"] aside nav a[class*="bg-gradient-to-r"],
+[data-theme="light"] aside nav button[class*="bg-gradient-to-r"],
+[data-theme="light"] aside nav a[class*="border-green-500"],
+[data-theme="light"] aside nav a[class*="border-blue-500"],
+[data-theme="light"] aside nav a[class*="border-purple-500"],
+[data-theme="light"] aside nav a[class*="border-pink-500"],
+[data-theme="light"] aside nav a[class*="border-orange-500"],
+[data-theme="light"] aside nav a[class*="border-red-500"],
+[data-theme="light"] aside nav a[class*="border-yellow-500"],
+[data-theme="light"] aside nav a[class*="border-amber-500"],
+[data-theme="light"] aside nav a[class*="border-indigo-500"],
+[data-theme="light"] aside nav a[class*="border-violet-500"],
+[data-theme="light"] aside nav a[class*="border-cyan-500"] {
+  background: #f0fdf4 !important;
+  background-image: none !important;
+  border-color: #77BC1F !important;
+  color: #166534 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(119, 188, 31, 0.12) !important;
+}
+
+.light-theme aside nav a[class*="bg-gradient-to-r"] *,
+.light-theme aside nav button[class*="bg-gradient-to-r"] *,
+[data-theme="light"] aside nav a[class*="bg-gradient-to-r"] *,
+[data-theme="light"] aside nav button[class*="bg-gradient-to-r"] * {
+  color: #166534 !important;
+}
+
+/* Active submenu items (e.g. Enter Bill, Bill Payment, Employee List) */
+.light-theme aside nav a[class*="bg-red-500"],
+.light-theme aside nav a[class*="bg-amber-500"],
+.light-theme aside nav a[class*="bg-purple-500"],
+.light-theme aside nav a[class*="bg-blue-500"],
+.light-theme aside nav a[class*="bg-cyan-500"],
+.light-theme aside nav a[class*="bg-emerald-500"],
+.light-theme aside nav a[class*="bg-pink-500"],
+[data-theme="light"] aside nav a[class*="bg-red-500"],
+[data-theme="light"] aside nav a[class*="bg-amber-500"],
+[data-theme="light"] aside nav a[class*="bg-purple-500"],
+[data-theme="light"] aside nav a[class*="bg-blue-500"],
+[data-theme="light"] aside nav a[class*="bg-cyan-500"],
+[data-theme="light"] aside nav a[class*="bg-emerald-500"],
+[data-theme="light"] aside nav a[class*="bg-pink-500"] {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  font-weight: 700 !important;
+}
+
+/* Dropdown containers and tree lines */
+.light-theme aside div[class*="border-l-2"],
+[data-theme="light"] aside div[class*="border-l-2"] {
+  border-left-color: #e2e8f0 !important;
+}
+
+.light-theme aside .border-slate-700,
+.light-theme aside .border-slate-700\/60,
+.light-theme aside .border-slate-700\/50,
+.light-theme aside .border-slate-800,
+.light-theme aside [role="separator"],
+[data-theme="light"] aside .border-slate-700,
+[data-theme="light"] aside .border-slate-700\/60,
+[data-theme="light"] aside .border-slate-700\/50,
+[data-theme="light"] aside .border-slate-800,
+[data-theme="light"] aside [role="separator"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Bottom Footer (Back to site button) */
+.light-theme aside > div:last-child,
+[data-theme="light"] aside > div:last-child {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.light-theme aside > div:last-child a,
+[data-theme="light"] aside > div:last-child a {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.light-theme aside > div:last-child a:hover,
+[data-theme="light"] aside > div:last-child a:hover {
+  background: #f1f5f9 !important;
+  border-color: #77BC1F !important;
+  color: #232F3F !important;
+}
+
+/* 2. MAIN WORKSPACE & TOPBAR */
+.light-theme main,
+[data-theme="light"] main {
+  background: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+.light-theme main::-webkit-scrollbar-track,
+[data-theme="light"] main::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+.light-theme main::-webkit-scrollbar-thumb,
+[data-theme="light"] main::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+.light-theme main > header,
+[data-theme="light"] main > header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 4px rgba(35, 47, 63, 0.05) !important;
+}
+
+.light-theme main > header h1,
+[data-theme="light"] main > header h1 {
+  color: #232F3F !important;
+}
+
+.light-theme main > header button,
+[data-theme="light"] main > header button {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+.light-theme main > header button:hover,
+[data-theme="light"] main > header button:hover {
+  background: #e2e8f0 !important;
+}
+
+/* 3. ALL DASHBOARD WIDGET BOXES & CARDS (Clean White in Light Mode) */
+.light-theme main [class*="bg-gradient-to-br"],
+.light-theme main [class*="bg-gradient-to-b"],
+.light-theme main [class*="from-slate-9"],
+.light-theme main [class*="from-slate-8"],
+.light-theme main [class*="to-slate-9"],
+.light-theme main [class*="to-slate-8"],
+.light-theme main [class*="via-slate-9"],
+.light-theme main [class*="bg-slate-950"],
+.light-theme main [class*="bg-slate-900"],
+.light-theme main [class*="bg-slate-850"],
+.light-theme main [class*="bg-[#0d1117]"],
+.light-theme main [class*="bg-[#0f172a]"],
+.light-theme main [class*="bg-[#141922]"],
+.light-theme main [class*="bg-[#161c28]"],
+.light-theme main [class*="bg-[#1a2230]"],
+.light-theme main [class*="bg-[#1e293b]"],
+.light-theme main [class*="bg-[#243040]"],
+.light-theme main .hub-card,
+[data-theme="light"] main [class*="bg-gradient-to-br"],
+[data-theme="light"] main [class*="bg-gradient-to-b"],
+[data-theme="light"] main [class*="from-slate-9"],
+[data-theme="light"] main [class*="from-slate-8"],
+[data-theme="light"] main [class*="to-slate-9"],
+[data-theme="light"] main [class*="to-slate-8"],
+[data-theme="light"] main [class*="via-slate-9"],
+[data-theme="light"] main [class*="bg-slate-950"],
+[data-theme="light"] main [class*="bg-slate-900"],
+[data-theme="light"] main [class*="bg-slate-850"],
+[data-theme="light"] main [class*="bg-[#0d1117]"],
+[data-theme="light"] main [class*="bg-[#0f172a]"],
+[data-theme="light"] main [class*="bg-[#141922]"],
+[data-theme="light"] main [class*="bg-[#161c28]"],
+[data-theme="light"] main [class*="bg-[#1a2230]"],
+[data-theme="light"] main [class*="bg-[#1e293b]"],
+[data-theme="light"] main [class*="bg-[#243040]"],
+[data-theme="light"] main .hub-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #1e293b !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(35, 47, 63, 0.05) !important;
+}
+
+.light-theme main .hub-card:hover,
+[data-theme="light"] main .hub-card:hover {
+  background-color: #f8fafc !important;
+  border-color: #77BC1F !important;
+  box-shadow: 0 8px 24px rgba(119, 188, 31, 0.15) !important;
+}
+
+/* 4. REAL-TIME CLOCK WIDGET BOXES */
+.light-theme main [class*="bg-emerald-950"],
+[data-theme="light"] main [class*="bg-emerald-950"] {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  box-shadow: none !important;
+}
+
+.light-theme main [class*="bg-emerald-950"] span.text-white,
+[data-theme="light"] main [class*="bg-emerald-950"] span.text-white {
+  color: #14532d !important;
+}
+
+.light-theme main [class*="bg-indigo-950"],
+[data-theme="light"] main [class*="bg-indigo-950"] {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  box-shadow: none !important;
+}
+
+.light-theme main [class*="bg-indigo-950"] p.text-white,
+[data-theme="light"] main [class*="bg-indigo-950"] p.text-white {
+  color: #1e1b4b !important;
+}
+
+.light-theme main [class*="bg-cyan-950"],
+[data-theme="light"] main [class*="bg-cyan-950"] {
+  background-color: #ecfeff !important;
+  border-color: #a5f3fc !important;
+  box-shadow: none !important;
+}
+
+.light-theme main [class*="bg-cyan-950"] p,
+[data-theme="light"] main [class*="bg-cyan-950"] p {
+  color: #0e7490 !important;
+}
+
+/* 5. STAT CARDS VALUES & LABELS */
+.light-theme main .text-3xl.font-black,
+.light-theme main .text-2xl.font-black,
+[data-theme="light"] main .text-3xl.font-black,
+[data-theme="light"] main .text-2xl.font-black {
+  color: #232F3F !important;
+}
+
+.light-theme main h4.text-slate-300,
+.light-theme main h3.text-white,
+[data-theme="light"] main h4.text-slate-300,
+[data-theme="light"] main h3.text-white {
+  color: #232F3F !important;
+}
+
+.light-theme main p.text-white,
+[data-theme="light"] main p.text-white {
+  color: #232F3F !important;
+}
+
+.light-theme main span.text-white:not(.btn-brand):not(button *):not(a.bg-gradient-to-r *):not([class*="bg-emerald-500"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-cyan"]),
+[data-theme="light"] main span.text-white:not(.btn-brand):not(button *):not(a.bg-gradient-to-r *):not([class*="bg-emerald-500"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-cyan"]) {
+  color: #232F3F !important;
+}
+
+/* 6. SECONDARY CONTAINERS, TABS & ROWS */
+.light-theme main [class*="bg-slate-800"],
+.light-theme main [class*="bg-slate-800/90"],
+.light-theme main [class*="bg-slate-800/80"],
+.light-theme main [class*="bg-slate-800/60"],
+.light-theme main [class*="bg-slate-800/50"],
+.light-theme main [class*="bg-slate-700/50"],
+[data-theme="light"] main [class*="bg-slate-800"],
+[data-theme="light"] main [class*="bg-slate-800/90"],
+[data-theme="light"] main [class*="bg-slate-800/80"],
+[data-theme="light"] main [class*="bg-slate-800/60"],
+[data-theme="light"] main [class*="bg-slate-800/50"],
+[data-theme="light"] main [class*="bg-slate-700/50"] {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.light-theme main [class*="bg-slate-900/60"],
+.light-theme main [class*="bg-slate-900/80"],
+.light-theme main [class*="bg-slate-950/60"],
+.light-theme main [class*="bg-slate-950/80"],
+[data-theme="light"] main [class*="bg-slate-900/60"],
+[data-theme="light"] main [class*="bg-slate-900/80"],
+[data-theme="light"] main [class*="bg-slate-950/60"],
+[data-theme="light"] main [class*="bg-slate-950/80"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #232F3F !important;
+}
+
+.light-theme main [class*="hover:bg-slate-800"]:hover,
+.light-theme main [class*="hover:bg-slate-800/50"]:hover,
+.light-theme main [class*="hover:bg-slate-800/60"]:hover,
+.light-theme main [class*="hover:bg-slate-700"]:hover,
+[data-theme="light"] main [class*="hover:bg-slate-800"]:hover,
+[data-theme="light"] main [class*="hover:bg-slate-800/50"]:hover,
+[data-theme="light"] main [class*="hover:bg-slate-800/60"]:hover,
+[data-theme="light"] main [class*="hover:bg-slate-700"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #232F3F !important;
+}
+
+/* 7. CHARTS & VISUAL ELEMENTS */
+.light-theme main svg circle[stroke="#1e293b"],
+[data-theme="light"] main svg circle[stroke="#1e293b"] {
+  stroke: #f1f5f9 !important;
+}
+
+.light-theme main svg g rect[fill="#0f172a"],
+[data-theme="light"] main svg g rect[fill="#0f172a"] {
+  fill: #ffffff !important;
+  stroke: #10b981 !important;
+}
+
+.light-theme main svg g text[fill="#ffffff"],
+[data-theme="light"] main svg g text[fill="#ffffff"] {
+  fill: #1e293b !important;
+}
+
+.light-theme main [class*="bg-slate-900/95"],
+[data-theme="light"] main [class*="bg-slate-900/95"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #232F3F !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 8. BORDERS & DIVIDERS */
+.light-theme main .border-slate-800,
+.light-theme main .border-slate-800\/80,
+.light-theme main .border-slate-800\/60,
+.light-theme main .border-slate-800\/50,
+.light-theme main .border-slate-700,
+.light-theme main .border-slate-700\/80,
+.light-theme main .border-slate-700\/60,
+.light-theme main .border-slate-700\/50,
+.light-theme main .border-slate-700\/40,
+[data-theme="light"] main .border-slate-800,
+[data-theme="light"] main .border-slate-800\/80,
+[data-theme="light"] main .border-slate-800\/60,
+[data-theme="light"] main .border-slate-800\/50,
+[data-theme="light"] main .border-slate-700,
+[data-theme="light"] main .border-slate-700\/80,
+[data-theme="light"] main .border-slate-700\/60,
+[data-theme="light"] main .border-slate-700\/50,
+[data-theme="light"] main .border-slate-700\/40 {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme main .text-slate-300,
+.light-theme main .text-slate-400,
+[data-theme="light"] main .text-slate-300,
+[data-theme="light"] main .text-slate-400 {
+  color: #475569 !important;
+}
+
+.light-theme main .text-slate-500,
+[data-theme="light"] main .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* 9. INPUTS, SELECTS & TEXTAREAS */
+.light-theme main input,
+.light-theme main select,
+.light-theme main textarea,
+[data-theme="light"] main input,
+[data-theme="light"] main select,
+[data-theme="light"] main textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+.light-theme main input::placeholder,
+.light-theme main textarea::placeholder,
+[data-theme="light"] main input::placeholder,
+[data-theme="light"] main textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* 10. TABLES IN LIGHT MODE */
+.light-theme main thead,
+.light-theme main thead tr,
+.light-theme main table th,
+[data-theme="light"] main thead,
+[data-theme="light"] main thead tr,
+[data-theme="light"] main table th {
+  background-color: #f1f5f9 !important;
+  border-bottom-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+.light-theme main tbody tr,
+[data-theme="light"] main tbody tr {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.light-theme main tbody tr:hover,
+[data-theme="light"] main tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme main table td,
+[data-theme="light"] main table td {
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.light-theme main tfoot tr,
+.light-theme main tfoot td,
+[data-theme="light"] main tfoot tr,
+[data-theme="light"] main tfoot td {
+  background-color: #f1f5f9 !important;
+  border-top-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+/* 11. QUICK ACTIONS & ERP BANNER */
+.light-theme main .bg-emerald-950\/20,
+[data-theme="light"] main .bg-emerald-950\/20 {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.light-theme main .bg-emerald-950\/20 p.text-emerald-400,
+[data-theme="light"] main .bg-emerald-950\/20 p.text-emerald-400 {
+  color: #166534 !important;
+}
+
+/* 12. PROTECT WHITE TEXT ON COLORED BUTTONS & BADGES */
+.light-theme main button.bg-gradient-to-r,
+.light-theme main a.bg-gradient-to-r,
+.light-theme main button.bg-cyan-500,
+.light-theme main a.bg-cyan-500,
+.light-theme main button.bg-green-500,
+.light-theme main a.bg-green-500,
+.light-theme main button.bg-emerald-500,
+.light-theme main a.bg-emerald-500,
+.light-theme main button.bg-blue-600,
+.light-theme main a.bg-blue-600,
+.light-theme main button.bg-indigo-600,
+.light-theme main a.bg-indigo-600,
+[data-theme="light"] main button.bg-gradient-to-r,
+[data-theme="light"] main a.bg-gradient-to-r,
+[data-theme="light"] main button.bg-cyan-500,
+[data-theme="light"] main a.bg-cyan-500,
+[data-theme="light"] main button.bg-green-500,
+[data-theme="light"] main a.bg-green-500,
+[data-theme="light"] main button.bg-emerald-500,
+[data-theme="light"] main a.bg-emerald-500,
+[data-theme="light"] main button.bg-blue-600,
+[data-theme="light"] main a.bg-blue-600,
+[data-theme="light"] main button.bg-indigo-600,
+[data-theme="light"] main a.bg-indigo-600 {
+  color: #ffffff !important;
+}
+
+.light-theme main button.bg-gradient-to-r *,
+.light-theme main a.bg-gradient-to-r *,
+[data-theme="light"] main button.bg-gradient-to-r *,
+[data-theme="light"] main a.bg-gradient-to-r * {
+  color: #ffffff !important;
+}
+
+
+

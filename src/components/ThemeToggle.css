@@ -3,18 +3,39 @@
   position: relative;
   width: 68px;
   height: 34px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
   padding: 0;
   cursor: pointer;
   overflow: visible;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+:root[data-theme="light"] .theme-pill,
+.light-theme .theme-pill {
+  background: rgba(35, 47, 63, 0.08);
+  border: 1px solid rgba(35, 47, 63, 0.2);
+}
+
+/* In Dark Navy header, maintain crisp high contrast */
+[data-theme="dark"] .header .theme-pill,
+[data-theme="dark"] .h2-header .theme-pill {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] .header .theme-pill,
+[data-theme="light"] .h2-header .theme-pill {
+  background: rgba(35, 47, 63, 0.08);
+  border: 1px solid rgba(35, 47, 63, 0.2);
 }
 
 .theme-pill:hover {
-  border-color: var(--accent);
+  border-color: #77BC1F !important;
+  box-shadow: 0 0 10px rgba(119, 188, 31, 0.35);
 }
 
 .theme-pill-track {
@@ -32,12 +53,27 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  transition: opacity 0.25s ease;
-  color: rgba(255, 255, 255, 0.5);
+  transition: opacity 0.25s ease, color 0.25s ease;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+:root[data-theme="light"] .theme-pill-side,
+.light-theme .theme-pill-side {
+  color: #232F3F;
+}
+
+[data-theme="dark"] .header .theme-pill-side,
+[data-theme="dark"] .h2-header .theme-pill-side {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+[data-theme="light"] .header .theme-pill-side,
+[data-theme="light"] .h2-header .theme-pill-side {
+  color: #232F3F;
 }
 
 .theme-pill-side:not(.theme-pill-side--on) {
-  opacity: 0.3;
+  opacity: 0.35;
 }
 
 .theme-pill-side--on {
@@ -51,19 +87,19 @@
   width: 30px;
   height: 28px;
   border-radius: 50px;
-  background: var(--accent);
-  color: var(--navy-dark);
+  background: #FF9900; /* Accent Orange for Sun */
+  color: #1A232F;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px var(--accent-tint);
-  transition: left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.45);
+  transition: left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, box-shadow 0.25s ease;
   pointer-events: none;
 }
 
 .theme-pill-thumb--right {
   left: 34px;
-  background: var(--brand);
-  color: var(--navy-dark);
-  box-shadow: 0 2px 8px var(--brand-tint);
+  background: #77BC1F; /* Primary Green for Moon */
+  color: #1A232F;
+  box-shadow: 0 2px 8px rgba(119, 188, 31, 0.45);
 }

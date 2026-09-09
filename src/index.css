@@ -105,12 +105,112 @@
   --font-family: "Montserrat", "Kantumruy Pro", sans-serif;
 }
 
+/* ============================================================
+   LIGHT MODE DESIGN TOKENS
+   Primary Green: #77BC1F | Accent Orange: #FF9900 | Navy: #232F3F
+   ============================================================ */
+html.light-theme,
+[data-theme="light"],
+.light-theme {
+  /* Brand colors */
+  --brand: #77BC1F;
+  --brand-light: #5a9e1a;
+  --brand-dark: #4d8616;
+  --brand-tint: rgba(119, 188, 31, 0.12);
+  --brand-tint-soft: rgba(119, 188, 31, 0.06);
+  --brand-border: rgba(119, 188, 31, 0.28);
+  --brand-border-strong: rgba(119, 188, 31, 0.5);
+
+  --accent: #FF9900;
+  --accent-light: #ffad33;
+  --accent-dark: #cc7700;
+  --accent-tint: rgba(255, 153, 0, 0.12);
+  --accent-tint-soft: rgba(255, 153, 0, 0.06);
+  --accent-border: rgba(255, 153, 0, 0.28);
+  --accent-border-strong: rgba(255, 153, 0, 0.5);
+
+  --navy: #232F3F;
+  --navy-dark: #1A232F;
+
+  /* Surfaces in Light Mode */
+  --surface-0: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+  --surface-3: #f1f5f9;
+  --surface-4: #e2e8f0;
+
+  /* Text in Light Mode */
+  --text-strong: #232F3F;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --text-dim: #cbd5e1;
+
+  /* Borders in Light Mode */
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+
+  /* Status */
+  --danger: #dc2626;
+  --danger-tint: rgba(220, 38, 38, 0.08);
+  --danger-border: rgba(220, 38, 38, 0.25);
+  --success: #77BC1F;
+  --info: #0284c7;
+  --info-tint: rgba(2, 132, 199, 0.08);
+}
+
 body {
-  background: var(--navy);
+  background: var(--surface-0);
   color: var(--text-strong);
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Brand Navbar: Maintain crisp high contrast in both themes */
+:root:not([data-theme="light"]) .header .nav-link,
+:root:not([data-theme="light"]) .h2-header .h2-nav-link,
+[data-theme="dark"] .header .nav-link,
+[data-theme="dark"] .h2-header .h2-nav-link {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:root:not([data-theme="light"]) .header .nav-link:hover,
+:root:not([data-theme="light"]) .h2-header .h2-nav-link:hover,
+[data-theme="dark"] .header .nav-link:hover,
+[data-theme="dark"] .h2-header .h2-nav-link:hover {
+  color: var(--brand-light);
+  background: rgba(119, 188, 31, 0.15);
+}
+
+:root:not([data-theme="light"]) .header .nav-link--active,
+:root:not([data-theme="light"]) .h2-header .h2-nav-link--active,
+[data-theme="dark"] .header .nav-link--active,
+[data-theme="dark"] .h2-header .h2-nav-link--active {
+  color: #ffffff;
+}
+
+[data-theme="light"] .header .nav-link,
+[data-theme="light"] .h2-header .h2-nav-link,
+html.light-theme .header .nav-link,
+html.light-theme .h2-header .h2-nav-link {
+  color: #232F3F;
+}
+
+[data-theme="light"] .header .nav-link:hover,
+[data-theme="light"] .h2-header .h2-nav-link:hover,
+html.light-theme .header .nav-link:hover,
+html.light-theme .h2-header .h2-nav-link:hover {
+  color: var(--brand);
+  background: rgba(119, 188, 31, 0.1);
+}
+
+[data-theme="light"] .header .nav-link--active,
+[data-theme="light"] .h2-header .h2-nav-link--active,
+html.light-theme .header .nav-link--active,
+html.light-theme .h2-header .h2-nav-link--active {
+  color: var(--brand);
 }
 
 /* ============================================================
@@ -584,3 +684,695 @@ body {
 .text-accent-dot {
   @apply text-accent-500;
 }
+
+/* ============================================================
+   UNIVERSAL COMPREHENSIVE LIGHT THEME ENGINE
+   Covers ALL Public Storefront Pages & Admin Back-Office Views
+   Primary Green: #77BC1F | Accent Orange: #FF9900 | Navy: #232F3F
+   ============================================================ */
+
+/* 1. ALL PAGE CANVASES & ROOTS */
+html.light-theme,
+[data-theme="light"],
+.light-theme {
+  --surface-0: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #ffffff;
+  --surface-3: #f1f5f9;
+  --surface-4: #e2e8f0;
+  --text-strong: #232F3F;
+  --text-body: #475569;
+  --text-muted: #64748b;
+  --text-faint: #94a3b8;
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+}
+
+html.light-theme body,
+[data-theme="light"] body,
+.light-theme body,
+html.light-theme #root,
+[data-theme="light"] #root,
+.light-theme .home-page,
+.light-theme .popular-products,
+.light-theme .member-page,
+.light-theme .career-page,
+.light-theme .about-page,
+.light-theme .contact-page,
+.light-theme .cart-page,
+.light-theme .promotion-page,
+.light-theme .faq-page,
+.light-theme .shipping-page,
+.light-theme .terms-page,
+.light-theme .partners-page,
+.light-theme .tracking-page,
+.light-theme .order-history-page,
+.light-theme .profile-page,
+.light-theme .apply-page,
+.light-theme .product-detail-page,
+.light-theme .pd-page,
+.light-theme .cd-page,
+.light-theme .md-page,
+.light-theme .auth,
+.light-theme .admin-dashboard-root,
+.light-theme main,
+[data-theme="light"] main {
+  background-color: #f8fafc !important;
+  color: #232F3F !important;
+}
+
+/* 2. HERO SECTIONS & BANNERS ACROSS ALL PAGES */
+.light-theme .home-hero,
+.light-theme .pp-hero,
+.light-theme .member-hero,
+.light-theme .career-hero,
+.light-theme .about-hero,
+.light-theme .contact-hero,
+.light-theme .promo-hero,
+.light-theme .cart-hero,
+.light-theme .faq-hero,
+.light-theme .shipping-hero,
+.light-theme .tp-hero,
+.light-theme .partners-hero,
+.light-theme .apply-hero,
+.light-theme .pd-hero,
+.light-theme .cd-hero,
+.light-theme .md-hero,
+.light-theme .pt-hero,
+.light-theme .oh-hero,
+.light-theme .tracking-hero,
+.light-theme .cart-hero-card,
+.light-theme .promo-hero-card,
+.light-theme .md-hero-card,
+.light-theme .cd-hero-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light-theme .home-hero-glow-green,
+.light-theme .home-hero-glow-orange,
+.light-theme .home-hero-slides-bg::after {
+  opacity: 0.1 !important;
+}
+
+/* 3. ALL CARDS & SURFACES ACROSS PUBLIC STOREFRONT */
+.light-theme .home-top-ticker,
+.light-theme .home-hero-copy,
+.light-theme .home-feature-chip,
+.light-theme .home-live-status-card,
+.light-theme .home-category-card,
+.light-theme .home-cat-card,
+.light-theme .home-value-card,
+.light-theme .home-number-card,
+.light-theme .home-timeline-card,
+.light-theme .home-mission-card,
+.light-theme .home-benefit-card,
+.light-theme .home-review-card,
+.light-theme .home-stat-card,
+.light-theme .home-story-wrap,
+.light-theme .home-cta-card,
+.light-theme .home-drop-section,
+.light-theme .home-drop-card,
+.light-theme .home-drop-tabs,
+.light-theme .home-drop-media,
+.light-theme .home-journey-card,
+.light-theme .home-bento-card,
+.light-theme .home-stats-band,
+.light-theme .home-faq-contact-card,
+.light-theme .home-faq-item,
+.light-theme .pc-card,
+.light-theme .product-card,
+.light-theme .pshop-sidebar,
+.light-theme .pshop-filter-card,
+.light-theme .pshop-search-box,
+.light-theme .pd-main-img-wrap,
+.light-theme .pd-thumb-btn,
+.light-theme .pd-price-box,
+.light-theme .pd-stepper,
+.light-theme .pd-tabs-section,
+.light-theme .pd-desc-card,
+.light-theme .pd-card,
+.light-theme .pd-related-card,
+.light-theme .promo-card,
+.light-theme .promo-clock-cell,
+.light-theme .promo-voucher-card,
+.light-theme .promo-deal-card,
+.light-theme .cart-progress-box,
+.light-theme .cart-card,
+.light-theme .cart-item,
+.light-theme .cart-stepper,
+.light-theme .cart-empty-state,
+.light-theme .cart-summary,
+.light-theme .cart-summary-card,
+.light-theme .cart-prod-card,
+.light-theme .cart-empty,
+.light-theme .oh-card,
+.light-theme .oh-card-body,
+.light-theme .oh-empty-card,
+.light-theme .order-card,
+.light-theme .tracking-card,
+.light-theme .tr-map-card,
+.light-theme .tr-map-head,
+.light-theme .tr-timeline-card,
+.light-theme .tr-courier-card,
+.light-theme .tr-order-summary-card,
+.light-theme .tr-dest-box,
+.light-theme .pt-stat-pill,
+.light-theme .pt-featured-card,
+.light-theme .pt-card,
+.light-theme .pt-cta-banner,
+.light-theme .pt-empty-box,
+.light-theme .partner-card,
+.light-theme .career-card,
+.light-theme .career-job-card,
+.light-theme .career-detail-card,
+.light-theme .career-hero-copy,
+.light-theme .career-filters,
+.light-theme .cd-content-card,
+.light-theme .cd-sidebar-card,
+.light-theme .member-card,
+.light-theme .member-detail-card,
+.light-theme .member-card-visual,
+.light-theme .member-join-banner,
+.light-theme .member-empty-card,
+.light-theme .md-avatar-frame,
+.light-theme .md-section,
+.light-theme .md-sidebar-card,
+.light-theme .md-other-card,
+.light-theme .about-mission-card,
+.light-theme .about-timeline-card,
+.light-theme .about-stat-card,
+.light-theme .about-value-card,
+.light-theme .about-stats-band,
+.light-theme .contact-info-card,
+.light-theme .contact-form-card,
+.light-theme .contact-faq,
+.light-theme .contact-faq-box,
+.light-theme .contact-map-wrap,
+.light-theme .contact-map-card,
+.light-theme .faq-card,
+.light-theme .faq-help-card,
+.light-theme .faq-empty-state,
+.light-theme .shipping-tier-card,
+.light-theme .shipping-zone-card,
+.light-theme .shipping-step-card,
+.light-theme .shipping-freshness-banner,
+.light-theme .tp-card,
+.light-theme .tp-tabs-bar,
+.light-theme .tp-footnote,
+.light-theme .profile-card,
+.light-theme .profile-user-card,
+.light-theme .profile-nav-menu,
+.light-theme .profile-content-card,
+.light-theme .profile-sidebar,
+.light-theme .profile-account-bar,
+.light-theme .profile-collapse-row,
+.light-theme .shop-sidebar,
+.light-theme .ss-box,
+.light-theme .auth-card,
+.light-theme .auth-panel,
+.light-theme .apply-form-card,
+.light-theme .apply-perks-card {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #232F3F !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(35, 47, 63, 0.06) !important;
+}
+
+.light-theme .home-bento-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.95) 80%) !important;
+}
+
+.light-theme .home-btn-contact {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+.light-theme .home-btn-contact:hover {
+  background: #e2e8f0 !important;
+  border-color: #FF9900 !important;
+}
+
+/* 4. UNIVERSAL TAILWIND DARK SURFACES & GRADIENTS -> PURE WHITE IN LIGHT MODE
+   Applies to ALL Admin Hubs, Reports, Settings, Sales, Modals, Left Navbar & Dashboard Widgets */
+.light-theme [class*="bg-slate-950"],
+.light-theme [class*="bg-slate-900"],
+.light-theme [class*="bg-slate-850"],
+.light-theme [class*="bg-[#0d1117]"],
+.light-theme [class*="bg-[#0f172a]"],
+.light-theme [class*="bg-[#141922]"],
+.light-theme [class*="bg-[#161c28]"],
+.light-theme [class*="bg-[#161f2e]"],
+.light-theme [class*="bg-[#1a2230]"],
+.light-theme [class*="bg-[#1e293b]"],
+.light-theme [class*="bg-[#243040]"],
+.light-theme [class*="from-slate-9"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="from-slate-8"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="from-[#0"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="from-[#1"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="to-slate-9"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="to-slate-8"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="to-[#0"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="to-[#1"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="to-black"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="from-black"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="via-slate-9"]:not(button):not(button *):not(a):not(a *),
+.light-theme [class*="via-slate-8"]:not(button):not(button *):not(a):not(a *),
+.light-theme .hub-card {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #232F3F !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(35, 47, 63, 0.05) !important;
+}
+
+/* Soft secondary containers and filter bars */
+.light-theme [class*="bg-slate-800"]:not(button.bg-green-500):not(button.bg-emerald-500):not(button.bg-blue-600):not(button.bg-sky-500):not(button.bg-amber-500):not([class*="bg-gradient"]):not(.theme-pill *),
+.light-theme [class*="bg-slate-700"]:not(button.bg-green-500):not(button.bg-emerald-500):not(button.bg-blue-600):not(button.bg-sky-500):not(button.bg-amber-500):not([class*="bg-gradient"]):not(.theme-pill *) {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme [class*="hover:bg-slate-800"]:hover,
+.light-theme [class*="hover:bg-slate-800/50"]:hover,
+.light-theme [class*="hover:bg-slate-800/60"]:hover,
+.light-theme [class*="hover:bg-slate-700"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #232F3F !important;
+}
+
+.light-theme [class*="hover:bg-slate-900"]:hover {
+  background-color: #f8fafc !important;
+  color: #232F3F !important;
+}
+
+/* 5. ALL TAILWIND BORDERS */
+.light-theme [class*="border-slate-800"],
+.light-theme [class*="border-slate-700"],
+.light-theme [class*="border-slate-600"],
+.light-theme [class*="border-slate-900"],
+.light-theme [class*="border-slate-950"],
+.light-theme [class*="divide-slate-800"],
+.light-theme [class*="divide-slate-700"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* 6. ALL HEADINGS & TITLES (Brand Navy #232F3F) */
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6,
+.light-theme .home-section-title,
+.light-theme .home-hero-title,
+.light-theme .pp-hero-title,
+.light-theme .member-hero-title,
+.light-theme .career-hero-title,
+.light-theme .career-section-title,
+.light-theme .about-hero-title,
+.light-theme .about-section-title,
+.light-theme .about-mission-title,
+.light-theme .contact-hero-title,
+.light-theme .contact-form-title,
+.light-theme .tp-hero-title,
+.light-theme .tp-card-title,
+.light-theme .pd-section-title,
+.light-theme .partners-title,
+.light-theme .partners-cta-title,
+.light-theme .auth-panel-title,
+.light-theme .auth-title,
+.light-theme .member-card-name,
+.light-theme .career-card-title,
+.light-theme .benefit-label,
+.light-theme .shipping-tier-name,
+.light-theme .shipping-step-title,
+.light-theme .faq-q,
+.light-theme .profile-account-name,
+.light-theme .home-feature-chip strong {
+  color: #232F3F !important;
+}
+
+/* White text override on non-buttons / non-sidebar */
+.light-theme .text-white:not(.btn-brand):not(.btn-brand *):not(button.bg-green-500):not(button.bg-green-500 *):not(button.bg-blue-600):not(button.bg-blue-600 *):not(button.bg-indigo-600):not(button.bg-indigo-600 *):not(button.bg-cyan-500):not(button.bg-cyan-500 *):not([class*="bg-gradient-to-r"]):not([class*="bg-gradient-to-r"] *):not(.header *):not(.h2-header *):not(aside *):not(.theme-pill *):not(.lang-pill *) {
+  color: #232F3F !important;
+}
+
+/* 7. ALL BODY TEXT & DESCRIPTIONS */
+.light-theme p,
+.light-theme .home-section-body,
+.light-theme .home-hero-sub,
+.light-theme .home-value-desc,
+.light-theme .home-timeline-desc,
+.light-theme .home-cta-sub,
+.light-theme .pp-hero-subtitle,
+.light-theme .member-hero-sub,
+.light-theme .member-card-bio,
+.light-theme .career-hero-subtitle,
+.light-theme .career-section-sub,
+.light-theme .career-meta-item,
+.light-theme .about-hero-sub,
+.light-theme .about-section-sub,
+.light-theme .about-mission-text,
+.light-theme .about-timeline-text,
+.light-theme .about-value-desc,
+.light-theme .contact-hero-sub,
+.light-theme .contact-info-label,
+.light-theme .faq-a,
+.light-theme .shipping-tier-time,
+.light-theme .shipping-step-text,
+.light-theme .tp-card-text,
+.light-theme .pd-description,
+.light-theme .home-feature-chip span {
+  color: #475569 !important;
+}
+
+.light-theme [class*="text-slate-300"]:not(aside):not(aside *),
+.light-theme [class*="text-slate-400"]:not(aside):not(aside *) {
+  color: #475569 !important;
+}
+
+.light-theme [class*="text-slate-200"]:not(aside):not(aside *),
+.light-theme [class*="text-slate-100"]:not(aside):not(aside *) {
+  color: #232F3F !important;
+}
+
+.light-theme [class*="text-slate-500"]:not(aside):not(aside *) {
+  color: #64748b !important;
+}
+
+/* 8. ALL INPUTS, FILTER PILLS & SEARCH BOXES */
+.light-theme input:not([type="checkbox"]):not([type="radio"]),
+.light-theme select,
+.light-theme textarea,
+.light-theme .member-search-input,
+.light-theme .career-search-input,
+.light-theme .pshop-search,
+.light-theme .faq-search-input,
+.light-theme .auth-input,
+.light-theme .profile-field-input,
+.light-theme [class*="bg-slate-950"] input,
+.light-theme [class*="bg-slate-950"] select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+.light-theme input::placeholder,
+.light-theme select::placeholder,
+.light-theme textarea::placeholder,
+.light-theme [class*="placeholder-slate-500"]::placeholder,
+.light-theme [class*="placeholder-slate-400"]::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light-theme .member-pill,
+.light-theme .career-filter-pill,
+.light-theme .career-filter-btn,
+.light-theme .faq-cat-tab,
+.light-theme .faq-cat-pill,
+.light-theme .popular-filter-tab,
+.light-theme .tp-tab,
+.light-theme .login-tab,
+.light-theme .member-filter-chip,
+.light-theme .home-drop-tab-btn,
+.light-theme .oh-filter-pill,
+.light-theme .pt-filter-pill {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.light-theme .member-pill:hover,
+.light-theme .career-filter-pill:hover,
+.light-theme .career-filter-btn:hover,
+.light-theme .faq-cat-pill:hover,
+.light-theme .home-drop-tab-btn:hover,
+.light-theme .oh-filter-pill:hover,
+.light-theme .pt-filter-pill:hover {
+  background-color: #e2e8f0 !important;
+  color: #232F3F !important;
+}
+
+.light-theme .member-pill--active,
+.light-theme .career-filter-pill--active,
+.light-theme .career-filter-btn--active,
+.light-theme .faq-cat-tab--active,
+.light-theme .faq-cat-pill--active,
+.light-theme .popular-filter-tab--active,
+.light-theme .tp-tab.active,
+.light-theme .tp-tab-pill--active,
+.light-theme .login-tab--active,
+.light-theme .member-filter-chip--active,
+.light-theme .home-drop-tab-btn--active,
+.light-theme .oh-filter-pill--active,
+.light-theme .pt-filter-pill--active {
+  background-color: #77BC1F !important;
+  color: #ffffff !important;
+  border-color: #77BC1F !important;
+  font-weight: 800 !important;
+}
+
+/* 9. ALL TABLES */
+.light-theme thead,
+.light-theme thead tr,
+.light-theme thead th,
+.light-theme th {
+  background-color: #f1f5f9 !important;
+  color: #232F3F !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme tbody tr {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
+.light-theme tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme tbody td,
+.light-theme td {
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.light-theme tfoot,
+.light-theme tfoot tr,
+.light-theme tfoot td {
+  background-color: #f1f5f9 !important;
+  border-top-color: #cbd5e1 !important;
+  color: #232F3F !important;
+}
+
+/* 10. MODALS & POPUPS */
+.light-theme .fixed.inset-0[class*="bg-black"],
+.light-theme [class*="bg-black/60"],
+.light-theme [class*="bg-black/70"],
+.light-theme [class*="bg-black/75"],
+.light-theme [class*="bg-black/80"],
+.light-theme [class*="bg-black/85"] {
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* 11. FOOTER */
+.light-theme .footer {
+  background: #ffffff !important;
+  border-top: 2px solid #77BC1F !important;
+  color: #334155 !important;
+}
+
+.light-theme .footer-title {
+  color: #232F3F !important;
+}
+
+.light-theme .footer-link {
+  color: #475569 !important;
+}
+
+.light-theme .footer-link:hover {
+  color: #77BC1F !important;
+}
+
+.light-theme .footer-bottom {
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.light-theme .footer-copyright,
+.light-theme .footer-tagline {
+  color: #64748b !important;
+}
+
+.light-theme .social-icon {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #232F3F !important;
+}
+
+.light-theme .social-icon:hover {
+  background: #77BC1F !important;
+  color: #ffffff !important;
+  border-color: #77BC1F !important;
+}
+
+/* 12. LEFT SIDEBAR NAVBAR (Crisp Clean White in Light Mode) */
+.light-theme aside,
+[data-theme="light"] aside {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-right: 1px solid #e2e8f0 !important;
+  color: #232F3F !important;
+  box-shadow: 2px 0 12px rgba(35, 47, 63, 0.04) !important;
+}
+
+.light-theme aside > div:first-child,
+[data-theme="light"] aside > div:first-child {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.light-theme aside > div:first-child h3,
+[data-theme="light"] aside > div:first-child h3 {
+  color: #232F3F !important;
+}
+
+.light-theme aside > div:first-child p,
+[data-theme="light"] aside > div:first-child p {
+  color: #64748b !important;
+}
+
+.light-theme aside nav,
+[data-theme="light"] aside nav {
+  background: #ffffff !important;
+}
+
+.light-theme aside nav::-webkit-scrollbar-track,
+[data-theme="light"] aside nav::-webkit-scrollbar-track {
+  background: #f8fafc !important;
+}
+
+.light-theme aside nav::-webkit-scrollbar-thumb,
+[data-theme="light"] aside nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+/* Sidebar Links & Buttons in Light Mode */
+.light-theme aside nav a,
+.light-theme aside nav button,
+[data-theme="light"] aside nav a,
+[data-theme="light"] aside nav button {
+  color: #475569 !important;
+}
+
+.light-theme aside nav a:hover,
+.light-theme aside nav button:hover,
+[data-theme="light"] aside nav a:hover,
+[data-theme="light"] aside nav button:hover {
+  color: #232F3F !important;
+  background-color: #f1f5f9 !important;
+}
+
+/* Active links in sidebar */
+.light-theme aside nav a[class*="bg-gradient-to-r"],
+.light-theme aside nav button[class*="bg-gradient-to-r"],
+.light-theme aside nav a[class*="border-green-500"],
+.light-theme aside nav a[class*="border-blue-500"],
+.light-theme aside nav a[class*="border-purple-500"],
+.light-theme aside nav a[class*="border-pink-500"],
+.light-theme aside nav a[class*="border-orange-500"],
+.light-theme aside nav a[class*="border-red-500"],
+.light-theme aside nav a[class*="border-amber-500"],
+.light-theme aside nav a[class*="border-indigo-500"],
+.light-theme aside nav a[class*="border-violet-500"],
+[data-theme="light"] aside nav a[class*="bg-gradient-to-r"],
+[data-theme="light"] aside nav button[class*="bg-gradient-to-r"] {
+  background: #f0fdf4 !important;
+  background-image: none !important;
+  border-color: #77BC1F !important;
+  color: #166534 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(119, 188, 31, 0.12) !important;
+}
+
+.light-theme aside nav a[class*="bg-gradient-to-r"] *,
+.light-theme aside nav button[class*="bg-gradient-to-r"] *,
+[data-theme="light"] aside nav a[class*="bg-gradient-to-r"] *,
+[data-theme="light"] aside nav button[class*="bg-gradient-to-r"] * {
+  color: #166534 !important;
+}
+
+/* Sidebar Section Headers */
+.light-theme aside .text-slate-500,
+.light-theme aside span[class*="text-[10px]"],
+[data-theme="light"] aside .text-slate-500 {
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+}
+
+/* Submenu container borders and links */
+.light-theme aside div[class*="border-l-2"],
+[data-theme="light"] aside div[class*="border-l-2"] {
+  border-left-color: #e2e8f0 !important;
+}
+
+.light-theme aside div[class*="border-l-2"] a,
+[data-theme="light"] aside div[class*="border-l-2"] a {
+  color: #475569 !important;
+}
+
+.light-theme aside div[class*="border-l-2"] a:hover,
+[data-theme="light"] aside div[class*="border-l-2"] a:hover {
+  color: #232F3F !important;
+  background-color: #f1f5f9 !important;
+}
+
+.light-theme aside .border-slate-700,
+.light-theme aside .border-slate-700\/60,
+.light-theme aside .border-slate-700\/50,
+.light-theme aside .border-slate-800,
+.light-theme aside [role="separator"],
+[data-theme="light"] aside [role="separator"] {
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme aside > div:last-child,
+[data-theme="light"] aside > div:last-child {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+.light-theme aside > div:last-child a,
+[data-theme="light"] aside > div:last-child a {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.light-theme aside > div:last-child a:hover,
+[data-theme="light"] aside > div:last-child a:hover {
+  background: #f1f5f9 !important;
+  border-color: #77BC1F !important;
+  color: #232F3F !important;
+}
+
+/* 13. PRESERVE WHITE TEXT ON SOLID CTAs & BRAND BUTTONS ONLY (EXCLUDE ASIDE) */
+.light-theme .btn-brand,
+.light-theme button.bg-green-500,
+.light-theme a.bg-green-500,
+.light-theme button.bg-cyan-500,
+.light-theme a.bg-cyan-500,
+.light-theme button.bg-blue-600,
+.light-theme a.bg-blue-600,
+.light-theme button.bg-indigo-600,
+.light-theme a.bg-indigo-600 {
+  color: #ffffff !important;
+}
+
+
+
