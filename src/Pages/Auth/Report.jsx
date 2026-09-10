@@ -139,15 +139,46 @@ export const REPORT_MODULES = [
   },
 ]
 
+// Exact Entity Column Schemas for the 11 Stock Reports as requested by user
+export const STOCK_REPORT_SCHEMAS = {
+  received: ['documentCode', 'date', 'currency', 'supplier', 'receivedBy', 'totalCost'],
+  'request-transfer': ['productCode', 'barcode', 'description', 'uom', 'requestQty', 'shipQty', 'acceptQty', 'closedQty', 'voidedQty', 'remainQty'],
+  'ship-request-transfer': ['productCode', 'barcode', 'description', 'uom', 'shipQty', 'acceptQty', 'rejectQty', 'remainQty'],
+  transferred: ['currency', 'fromOutlet', 'toOutlet', 'qty', 'cost', 'totalCost'],
+  adjustment: ['currency', 'date', 'supplier', 'qty', 'totalCost'],
+  issued: ['currency', 'totalCost'],
+  'inventory-list': ['outlet', 'productCode', 'barcode', 'description', 'qty', 'uom', 'avgCost', 'lastCost', 'totalCost', 'price', 'totalPrice'],
+  'price-list': ['code', 'barcode', 'description', 'uom', 'basePrice'],
+  'transaction-history': ['transactionType', 'document', 'date', 'productCode', 'description', 'outlet', 'location', 'qty', 'stockUom', 'tranUom', 'cost', 'amount', 'balanceQty'],
+  'order-point': ['productCode', 'description', 'onhand', 'uom', 'orderPoint', 'orderQuantity'],
+  'stock-evaluation': ['productCode', 'description', 'uom', 'beginning', 'receive', 'issue', 'adjust', 'transferIn', 'transferOut', 'sale', 'return', 'balance'],
+}
+
+// Realistic Product Catalog for Product Search Modal & Live Filtering
+export const STOCK_CATALOG_PRODUCTS = [
+  { id: 1, code: 'PRD-001', barcode: '8850124001', title: 'Organic Jasmine Rice 5kg', category: 'Grains', brand: 'Heritage Organic', uom: 'Bag', costPrice: 4.50, sellingPrice: 6.80, onHand: 120 },
+  { id: 2, code: 'PRD-002', barcode: '8850124002', title: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Angkor Harvest', uom: 'Carton', costPrice: 1.80, sellingPrice: 2.75, onHand: 85 },
+  { id: 3, code: 'PRD-003', barcode: '8850124003', title: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', uom: 'Pack', costPrice: 8.50, sellingPrice: 12.90, onHand: 42 },
+  { id: 4, code: 'PRD-004', barcode: '8850124004', title: 'Pure Mineral Water 500ml', category: 'Beverages', brand: 'Angkor Harvest', uom: 'Case', costPrice: 3.20, sellingPrice: 5.00, onHand: 160 },
+  { id: 5, code: 'PRD-005', barcode: '8850124005', title: 'Farm Fresh Large Eggs 30s', category: 'Dairy', brand: 'CP Foods', uom: 'Tray', costPrice: 3.80, sellingPrice: 5.50, onHand: 95 },
+  { id: 6, code: 'PRD-006', barcode: '8850124006', title: 'Extra Virgin Olive Oil 750ml', category: 'Pantry Staples', brand: 'Heritage Organic', uom: 'Bottle', costPrice: 6.90, sellingPrice: 10.50, onHand: 55 },
+  { id: 7, code: 'PRD-007', barcode: '8850124007', title: 'Whole Wheat Sandwich Bread', category: 'Bakery', brand: 'Lucky Local', uom: 'Loaf', costPrice: 1.40, sellingPrice: 2.20, onHand: 40 },
+  { id: 8, code: 'PRD-008', barcode: '8850124008', title: 'Organic Green Apples 1kg', category: 'Produce', brand: 'Heritage Organic', uom: 'Bag', costPrice: 2.90, sellingPrice: 4.50, onHand: 70 },
+  { id: 9, code: 'PRD-009', barcode: '8850124009', title: 'Kampot Black Pepper 100g', category: 'Spices', brand: 'Angkor Harvest', uom: 'Jar', costPrice: 3.50, sellingPrice: 5.90, onHand: 110 },
+  { id: 10, code: 'PRD-010', barcode: '8850124010', title: 'Arabica Coffee Beans 250g', category: 'Beverages', brand: 'Lucky Local', uom: 'Pack', costPrice: 4.80, sellingPrice: 7.50, onHand: 65 },
+  { id: 11, code: 'PRD-011', barcode: '8850124011', title: 'Wild Blossom Honey 500g', category: 'Pantry Staples', brand: 'Heritage Organic', uom: 'Jar', costPrice: 4.20, sellingPrice: 6.50, onHand: 50 },
+  { id: 12, code: 'PRD-012', barcode: '8850124012', title: 'Organic Broccoli Florets 400g', category: 'Produce', brand: 'Lucky Local', uom: 'Pack', costPrice: 1.50, sellingPrice: 2.40, onHand: 35 },
+]
+
 // 2. THE 11 STOCK SUB-REPORTS SPECIFIED BY USER
 export const STOCK_REPORTS = [
   {
     key: 'received',
     icon: callInIcon,
     en: 'Received',
-    kh: 'បានទទួល',
-    descEn: 'View report of receive',
-    descKh: 'មើលរបាយការណ៍ទទួលទំនិញ',
+    kh: 'បញ្ជីបានទទួល',
+    descEn: 'View report of received goods',
+    descKh: 'មើលរបាយការណ៍បញ្ជីបានទទួល',
     color: '#10B981',
     bg: 'rgba(16, 185, 129, 0.12)',
     route: '/admin/report/stock/received',
@@ -177,8 +208,8 @@ export const STOCK_REPORTS = [
   {
     key: 'transferred',
     icon: forwardIcon,
-    en: 'Transferred',
-    kh: 'បានផ្ទេរ',
+    en: 'Transferred Report',
+    kh: 'របាយការណ៍បានផ្ទេរ',
     descEn: 'View report of transfer',
     descKh: 'មើលរបាយការណ៍បានផ្ទេរ',
     color: '#8B5CF6',
@@ -714,49 +745,75 @@ function calculateDateRange(preset) {
 // Fallback seed data if a particular table is empty
 const SEED_DATA = {
   received: [
-    { docNo: 'GRN-2024-001', date: '2024-03-01', customer: 'Cambodia Agri-Trading Ltd', outlet: 'Central Warehouse', location: 'Warehouse Floor A', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Cambodia Agri-Trading Ltd', items: 14, totalCost: 1850.00, receivedBy: 'Vanna Touch', status: 'RECEIVED' },
-    { docNo: 'GRN-2024-002', date: '2024-03-02', customer: 'CP Food Supplies Cambodia', outlet: 'Main Mart', location: 'Cold Storage #1', product: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', supplier: 'CP Food Supplies Cambodia', items: 28, totalCost: 4200.00, receivedBy: 'Dara Heng', status: 'RECEIVED' },
-    { docNo: 'GRN-2024-003', date: '2024-03-04', customer: 'Mekong Beverage Ltd', outlet: 'BKK1 Branch', location: 'Main Shelf B', product: 'Pure Mineral Water 500ml', category: 'Beverages', brand: 'Coca-Cola', supplier: 'Mekong Beverage Ltd', items: 8, totalCost: 960.00, receivedBy: 'Sophea Kim', status: 'RECEIVED' },
+    { documentCode: 'GRN-2024-001', date: '2024-03-01', currency: 'USD', supplier: 'Cambodia Agri-Trading Ltd', receivedBy: 'Vanna Touch', totalCost: 1850.00, products: ['PRD-001', '8850124001', 'Organic Jasmine Rice 5kg', 'PRD-006', 'Extra Virgin Olive Oil 750ml'] },
+    { documentCode: 'GRN-2024-002', date: '2024-03-02', currency: 'USD', supplier: 'CP Food Supplies Cambodia', receivedBy: 'Dara Heng', totalCost: 4200.00, products: ['PRD-002', '8850124002', 'Fresh Organic Milk 1L', 'PRD-003', 'Australian Angus Beef 500g', 'PRD-005', 'Farm Fresh Large Eggs 30s'] },
+    { documentCode: 'GRN-2024-003', date: '2024-03-04', currency: 'USD', supplier: 'Mekong Beverage Ltd', receivedBy: 'Sophea Kim', totalCost: 960.00, products: ['PRD-004', '8850124004', 'Pure Mineral Water 500ml', 'PRD-010', 'Arabica Coffee Beans 250g'] },
+    { documentCode: 'GRN-2024-004', date: '2024-03-05', currency: 'USD', supplier: 'Heritage Organic Farms', receivedBy: 'Sokha Ly', totalCost: 2150.00, products: ['PRD-008', '8850124008', 'Organic Green Apples 1kg', 'PRD-011', 'Wild Blossom Honey 500g'] },
+    { documentCode: 'GRN-2024-005', date: '2024-03-06', currency: 'USD', supplier: 'Angkor Harvest Ltd', receivedBy: 'Vanna Touch', totalCost: 1420.00, products: ['PRD-009', '8850124009', 'Kampot Black Pepper 100g', 'PRD-012', 'Organic Broccoli Florets 400g'] },
   ],
   'request-transfer': [
-    { reqNo: 'REQ-0101', date: '2024-03-02', customer: 'BKK1 Branch Mart', outlet: 'Central Warehouse', location: 'Floor A', product: 'Organic Jasmine Rice 5kg', category: 'Grains', brand: 'Angkor Harvest', supplier: 'Cambodia Agri-Trading Ltd', items: 8, priority: 'HIGH', requestedBy: 'Sokha Ly', status: 'APPROVED' },
-    { reqNo: 'REQ-0102', date: '2024-03-03', customer: 'Toul Kork Mart', outlet: 'Main Mart', location: 'Chiller 1', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy Import Inc', items: 12, priority: 'NORMAL', requestedBy: 'Chheang Meng', status: 'PENDING' },
+    { productCode: 'PRD-001', barcode: '8850124001', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', requestQty: 50, shipQty: 40, acceptQty: 40, closedQty: 0, voidedQty: 0, remainQty: 10, requestOutlet: 'Central Warehouse', requestLocation: 'Warehouse Floor A', toOutlet: 'Main Mart', toLocation: 'Main Shelf B', productGroup: 'Pantry Staples', brand: 'Heritage Organic', category: 'Grains', status: 'PENDING', requestTransferType: 'STANDARD', date: '2024-03-01' },
+    { productCode: 'PRD-002', barcode: '8850124002', description: 'Fresh Organic Milk 1L', uom: 'Carton', requestQty: 100, shipQty: 100, acceptQty: 95, closedQty: 5, voidedQty: 0, remainQty: 0, requestOutlet: 'Central Warehouse', requestLocation: 'Cold Storage #1', toOutlet: 'BKK1 Branch', toLocation: 'Chiller Room 2', productGroup: 'Cold Chain', brand: 'Heritage Organic', category: 'Dairy', status: 'APPROVED', requestTransferType: 'URGENT_RESTOCK', date: '2024-03-02' },
+    { productCode: 'PRD-003', barcode: '8850124003', description: 'Australian Angus Beef 500g', uom: 'Pack', requestQty: 30, shipQty: 25, acceptQty: 25, closedQty: 0, voidedQty: 5, remainQty: 0, requestOutlet: 'Main Mart', requestLocation: 'Meat Freezer #1', toOutlet: 'Toul Kork Branch', toLocation: 'Aisle 3 Chiller', productGroup: 'Fresh Grocery', brand: 'CP Foods', category: 'Meat', status: 'IN_TRANSIT', requestTransferType: 'INTER_BRANCH', date: '2024-03-04' },
+    { productCode: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', uom: 'Case', requestQty: 80, shipQty: 60, acceptQty: 60, closedQty: 0, voidedQty: 0, remainQty: 20, requestOutlet: 'SR Depot', requestLocation: 'Warehouse Floor A', toOutlet: 'Central Warehouse', toLocation: 'Warehouse Floor A', productGroup: 'Beverages', brand: 'Coca-Cola', category: 'Beverages', status: 'COMPLETED', requestTransferType: 'EMERGENCY', date: '2024-03-05' },
+    { productCode: 'PRD-005', barcode: '8850124005', description: 'Farm Fresh Large Eggs 30s', uom: 'Tray', requestQty: 45, shipQty: 45, acceptQty: 40, closedQty: 5, voidedQty: 0, remainQty: 0, requestOutlet: 'BKK1 Branch', requestLocation: 'Chiller Room 2', toOutlet: 'Main Mart', toLocation: 'Main Shelf B', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy', status: 'CLOSED', requestTransferType: 'INTERNAL_RETURN', date: '2024-03-06' },
   ],
   'ship-request-transfer': [
-    { shipNo: 'SHP-0081', date: '2024-03-03', customer: 'BKK1 Express', outlet: 'Central Warehouse', location: 'Dock 1', product: 'Organic Jasmine Rice 5kg', category: 'Grains', brand: 'Angkor Harvest', supplier: 'Agri-Trading', carrier: 'Fleet Truck #2', totalQty: 140, status: 'DISPATCHED' },
-    { shipNo: 'SHP-0082', date: '2024-03-04', customer: 'Siem Reap Cold Depot', outlet: 'Central Warehouse', location: 'Dock 2', product: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', supplier: 'CP Foods', carrier: 'Cold Express #5', totalQty: 480, status: 'IN_TRANSIT' },
+    { productCode: 'PRD-001', barcode: '8850124001', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', shipQty: 40, acceptQty: 40, rejectQty: 0, remainQty: 0, requestOutlet: 'Central Warehouse', requestLocation: 'Warehouse Floor A', toOutlet: 'Main Mart', toLocation: 'Main Shelf B', productGroup: 'Pantry Staples', brand: 'Heritage Organic', category: 'Grains', status: 'COMPLETED', date: '2024-03-01' },
+    { productCode: 'PRD-002', barcode: '8850124002', description: 'Fresh Organic Milk 1L', uom: 'Carton', shipQty: 100, acceptQty: 95, rejectQty: 5, remainQty: 0, requestOutlet: 'Central Warehouse', requestLocation: 'Cold Storage #1', toOutlet: 'BKK1 Branch', toLocation: 'Chiller Room 2', productGroup: 'Cold Chain', brand: 'Heritage Organic', category: 'Dairy', status: 'APPROVED', date: '2024-03-02' },
+    { productCode: 'PRD-003', barcode: '8850124003', description: 'Australian Angus Beef 500g', uom: 'Pack', shipQty: 25, acceptQty: 25, rejectQty: 0, remainQty: 0, requestOutlet: 'Main Mart', requestLocation: 'Meat Freezer #1', toOutlet: 'Toul Kork Branch', toLocation: 'Aisle 3 Chiller', productGroup: 'Fresh Grocery', brand: 'CP Foods', category: 'Meat', status: 'IN_TRANSIT', date: '2024-03-04' },
+    { productCode: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', uom: 'Case', shipQty: 80, acceptQty: 60, rejectQty: 0, remainQty: 20, requestOutlet: 'SR Depot', requestLocation: 'Warehouse Floor A', toOutlet: 'Central Warehouse', toLocation: 'Warehouse Floor A', productGroup: 'Beverages', brand: 'Coca-Cola', category: 'Beverages', status: 'IN_TRANSIT', date: '2024-03-05' },
+    { productCode: 'PRD-005', barcode: '8850124005', description: 'Farm Fresh Large Eggs 30s', uom: 'Tray', shipQty: 45, acceptQty: 40, rejectQty: 5, remainQty: 0, requestOutlet: 'BKK1 Branch', requestLocation: 'Chiller Room 2', toOutlet: 'Main Mart', toLocation: 'Main Shelf B', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy', status: 'COMPLETED', date: '2024-03-06' },
   ],
   transferred: [
-    { trfNo: 'TRF-0205', date: '2024-03-04', customer: 'Toul Kork Branch', outlet: 'Central Warehouse', location: 'Transit Bay', product: 'Kampot Black Pepper 100g', category: 'Spices', brand: 'Heritage Organic', supplier: 'Agri-Trading', items: 22, operator: 'Dara Heng', status: 'COMPLETED' },
-    { trfNo: 'TRF-0206', date: '2024-03-05', customer: 'BKK1 Branch', outlet: 'Main Mart', location: 'Aisle 3', product: 'Pure Mineral Water 500ml', category: 'Beverages', brand: 'Coca-Cola', supplier: 'Mekong Beverage', items: 14, operator: 'Sokha Ly', status: 'COMPLETED' },
+    { currency: 'USD', fromOutlet: 'Central Warehouse', toOutlet: 'BKK1 Branch', qty: 140, cost: 4.50, totalCost: 630.00 },
+    { currency: 'USD', fromOutlet: 'Main Mart', toOutlet: 'Toul Kork Mart', qty: 85, cost: 8.20, totalCost: 697.00 },
+    { currency: 'USD', fromOutlet: 'Central Warehouse', toOutlet: 'Siem Reap Hub', qty: 210, cost: 2.10, totalCost: 441.00 },
   ],
   adjustment: [
-    { adjNo: 'ADJ-0044', date: '2024-03-05', customer: 'Internal Audit', outlet: 'Central Warehouse', location: 'Floor A', product: 'Hass Avocados Grade A', category: 'Produce', brand: 'Angkor Harvest', supplier: 'Global Dairy', varianceQty: -12, costImpact: -48.00, adjustedBy: 'Borith Keo', status: 'COMPLETED' },
-    { adjNo: 'ADJ-0045', date: '2024-03-06', customer: 'Internal Audit', outlet: 'Main Mart', location: 'Chiller 1', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy', varianceQty: -4, costImpact: -18.50, adjustedBy: 'Dara Heng', status: 'COMPLETED' },
+    { currency: 'USD', date: '2024-03-05', supplier: 'Cambodia Agri-Trading Ltd', qty: -12, totalCost: -48.00, outlet: 'Central Warehouse', location: 'Warehouse Floor A', adjustType: 'Breakage', productCode: 'PRD-001', barcode: '8850124001', description: 'Organic Jasmine Rice 5kg', productGroup: 'Pantry Staples', brand: 'Heritage Organic', category: 'Grains' },
+    { currency: 'USD', date: '2024-03-06', supplier: 'CP Food Supplies Cambodia', qty: -4, totalCost: -18.50, outlet: 'Main Mart', location: 'Cold Storage #1', adjustType: 'Stock Count', productCode: 'PRD-002', barcode: '8850124002', description: 'Fresh Organic Milk 1L', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy' },
+    { currency: 'USD', date: '2024-03-07', supplier: 'Mekong Beverage Ltd', qty: 15, totalCost: 37.50, outlet: 'BKK1 Branch', location: 'Aisle 3 Chiller', adjustType: 'Correction', productCode: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', productGroup: 'Beverages', brand: 'Coca-Cola', category: 'Beverages' },
+    { currency: 'USD', date: '2024-03-08', supplier: 'Lucky Local Supplies', qty: -8, totalCost: -32.00, outlet: 'Toul Kork Branch', location: 'Meat Freezer #1', adjustType: 'Damaged Goods', productCode: 'PRD-005', barcode: '8850124005', description: 'Farm Fresh Large Eggs 30s', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy' },
+    { currency: 'USD', date: '2024-03-09', supplier: 'Internal Store', qty: -3, totalCost: -25.50, outlet: 'Central Warehouse', location: 'Warehouse Floor A', adjustType: 'Theft / Loss', productCode: 'PRD-003', barcode: '8850124003', description: 'Australian Angus Beef 500g', productGroup: 'Fresh Grocery', brand: 'Heritage Organic', category: 'Meat' },
   ],
   issued: [
-    { issueNo: 'ISS-0112', date: '2024-03-05', customer: 'Bakery Kitchen Project', outlet: 'Main Mart', location: 'Kitchen Shelf', product: 'Whole Wheat Flour 10kg', category: 'Bakery', brand: 'Angkor Harvest', supplier: 'Agri-Trading', items: 15, issuedCost: 320.00, issuedBy: 'Kalyan Meng', status: 'COMPLETED' },
-    { issueNo: 'ISS-0113', date: '2024-03-06', customer: 'Store Maintenance Dept', outlet: 'Central Warehouse', location: 'Tool Room', product: 'Sanitizing Solution 5L', category: 'Household', brand: 'Lucky Local', supplier: 'Lucky Local', items: 4, issuedCost: 85.00, issuedBy: 'Phalla Sok', status: 'COMPLETED' },
+    { currency: 'USD', totalCost: 320.00, outlet: 'Central Warehouse', location: 'Warehouse Floor A', productCode: 'PRD-001', barcode: '8850124001', description: 'Organic Jasmine Rice 5kg', productGroup: 'Pantry Staples', brand: 'Heritage Organic', category: 'Grains', date: '2024-03-05' },
+    { currency: 'USD', totalCost: 85.00, outlet: 'Main Mart', location: 'Cold Storage #1', productCode: 'PRD-002', barcode: '8850124002', description: 'Fresh Organic Milk 1L', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy', date: '2024-03-06' },
+    { currency: 'USD', totalCost: 145.50, outlet: 'BKK1 Branch', location: 'Aisle 3 Chiller', productCode: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', productGroup: 'Beverages', brand: 'Coca-Cola', category: 'Beverages', date: '2024-03-07' },
+    { currency: 'USD', totalCost: 96.00, outlet: 'Toul Kork Branch', location: 'Meat Freezer #1', productCode: 'PRD-005', barcode: '8850124005', description: 'Farm Fresh Large Eggs 30s', productGroup: 'Cold Chain', brand: 'Angkor Harvest', category: 'Dairy', date: '2024-03-08' },
+    { currency: 'USD', totalCost: 210.00, outlet: 'Central Warehouse', location: 'Warehouse Floor A', productCode: 'PRD-003', barcode: '8850124003', description: 'Australian Angus Beef 500g', productGroup: 'Fresh Grocery', brand: 'Heritage Organic', category: 'Meat', date: '2024-03-09' },
   ],
   'inventory-list': [
-    { code: 'PRD-001', name: 'Fresh Organic Milk 1L', customer: 'Retail Store Stock', outlet: 'Main Mart', location: 'Aisle 3 Chiller', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy', availableQty: 240, unitCost: 2.20, sellingPrice: 3.00, valuation: '528.00', status: 'IN_STOCK' },
-    { code: 'PRD-002', name: 'Australian Angus Beef 500g', customer: 'Retail Store Stock', outlet: 'Central Warehouse', location: 'Meat Freezer #1', product: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', supplier: 'CP Foods', availableQty: 65, unitCost: 8.50, sellingPrice: 12.00, valuation: '552.50', status: 'IN_STOCK' },
+    { outlet: 'Main Mart', productCode: 'PRD-001', barcode: '8850124001', description: 'Fresh Organic Milk 1L', qty: 240, uom: 'Bottle', avgCost: 2.15, lastCost: 2.20, totalCost: 516.00, price: 3.00, totalPrice: 720.00, brand: 'Angkor Harvest', category: 'Dairy', productGroup: 'Cold Chain', expiryDays: 5, expiryDate: '2026-09-15', status: 'Active', onhand: 240 },
+    { outlet: 'Central Warehouse', productCode: 'PRD-002', barcode: '8850124002', description: 'Australian Angus Beef 500g', qty: 65, uom: 'Pack', avgCost: 8.40, lastCost: 8.50, totalCost: 546.00, price: 12.00, totalPrice: 780.00, brand: 'Heritage Organic', category: 'Meat', productGroup: 'Fresh Grocery', expiryDays: 25, expiryDate: '2026-10-05', status: 'Active', onhand: 65 },
+    { outlet: 'BKK1 Branch', productCode: 'PRD-003', barcode: '8850124003', description: 'Organic Jasmine Rice 5kg', qty: 120, uom: 'Bag', avgCost: 5.20, lastCost: 5.30, totalCost: 624.00, price: 7.50, totalPrice: 900.00, brand: 'Heritage Organic', category: 'Grains', productGroup: 'Pantry Staples', expiryDays: 180, expiryDate: '2027-03-09', status: 'Active', onhand: 120 },
+    { outlet: 'Toul Kork Mart', productCode: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', qty: 8, uom: 'Case', avgCost: 3.10, lastCost: 3.20, totalCost: 24.80, price: 4.50, totalPrice: 36.00, brand: 'Coca-Cola', category: 'Beverages', productGroup: 'Beverages', expiryDays: 365, expiryDate: '2027-09-10', status: 'Low Stock', onhand: 8 },
+    { outlet: 'Main Mart', productCode: 'PRD-005', barcode: '8850124005', description: 'Farm Fresh Large Eggs 30s', qty: 0, uom: 'Tray', avgCost: 3.50, lastCost: 3.60, totalCost: 0.00, price: 5.00, totalPrice: 0.00, brand: 'Angkor Harvest', category: 'Dairy', productGroup: 'Cold Chain', expiryDays: -2, expiryDate: '2026-09-08', status: 'Out of Stock', onhand: 0 },
+    { outlet: 'Central Warehouse', productCode: 'PRD-006', barcode: '8850124006', description: 'Kampot Black Pepper 100g', qty: 150, uom: 'Jar', avgCost: 2.80, lastCost: 2.90, totalCost: 420.00, price: 4.20, totalPrice: 630.00, brand: 'Lucky Local', category: 'Spices', productGroup: 'Pantry Staples', expiryDays: 50, expiryDate: '2026-10-30', status: 'Active', onhand: 150 },
   ],
   'price-list': [
-    { code: 'PRD-001', name: 'Fresh Organic Milk 1L', customer: 'Retail Customers', outlet: 'All Outlets', location: 'Chiller', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy', baseCost: 2.20, sellingPrice: 3.00, memberPrice: 2.85, marginPct: '26.7%', tax: '10% VAT', status: 'ACTIVE' },
-    { code: 'PRD-002', name: 'Australian Angus Beef 500g', customer: 'Retail Customers', outlet: 'All Outlets', location: 'Freezer', product: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', supplier: 'CP Foods', baseCost: 8.50, sellingPrice: 12.00, memberPrice: 11.40, marginPct: '29.2%', tax: '10% VAT', status: 'ACTIVE' },
+    { code: 'PRD-001', barcode: '8850124001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', basePrice: 3.00 },
+    { code: 'PRD-002', barcode: '8850124002', description: 'Australian Angus Beef 500g', uom: 'Pack', basePrice: 12.00 },
+    { code: 'PRD-003', barcode: '8850124003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', basePrice: 7.50 },
+    { code: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', uom: 'Case', basePrice: 4.20 },
   ],
   'transaction-history': [
-    { txnId: 'TXN-9021', date: '2024-03-06', customer: 'Internal Receiving', outlet: 'Central Warehouse', location: 'Floor A', product: 'Fresh Organic Milk 1L', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Agri-Trading', type: 'RECEIVE', operator: 'Sokheng Chea', status: 'VERIFIED' },
-    { txnId: 'TXN-9022', date: '2024-03-06', customer: 'Walk-in Retail Buyer', outlet: 'Main Mart', location: 'Checkout #1', product: 'Australian Angus Beef 500g', category: 'Meat', brand: 'CP Foods', supplier: 'CP Foods', type: 'SALE', operator: 'POS Cashier #1', status: 'VERIFIED' },
+    { transactionType: 'RECEIVE', document: 'GRN-2024-001', date: '2024-03-01', productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', outlet: 'Central Warehouse', location: 'Warehouse Floor A', qty: 50, stockUom: 'Box', tranUom: 'Bottle', cost: 2.20, amount: 110.00, balanceQty: 240 },
+    { transactionType: 'TRANSFER', document: 'TRF-2024-022', date: '2024-03-03', productCode: 'PRD-002', description: 'Australian Angus Beef 500g', outlet: 'Main Mart', location: 'Cold Storage #1', qty: 20, stockUom: 'Pack', tranUom: 'Pack', cost: 8.50, amount: 170.00, balanceQty: 65 },
+    { transactionType: 'ADJUST', document: 'ADJ-2024-005', date: '2024-03-05', productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', outlet: 'BKK1 Branch', location: 'Shelf B2', qty: -5, stockUom: 'Bag', tranUom: 'Bag', cost: 5.30, amount: -26.50, balanceQty: 115 },
   ],
   'order-point': [
-    { code: 'PRD-005', name: 'Hass Avocados Grade A', customer: 'Fresh Table Deli', outlet: 'BKK1 Branch', location: 'Cold Table 2', product: 'Hass Avocados Grade A', category: 'Produce', brand: 'Angkor Harvest', supplier: 'Global Dairy', currentStock: '5 units', safetyStock: '10 units', reorderPoint: '15 units', suggestedPO: '+25 units', leadTime: '3 days', status: 'REORDER_NEEDED' },
-    { code: 'PRD-002', name: 'Australian Angus Beef 500g', customer: 'Gourmet Buyers', outlet: 'Central Warehouse', location: 'Meat Freezer', product: 'Australian Angus Beef', category: 'Meat', brand: 'CP Foods', supplier: 'CP Foods', currentStock: '65 units', safetyStock: '20 units', reorderPoint: '40 units', suggestedPO: '+30 units', leadTime: '5 days', status: 'HEALTHY' },
+    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', onhand: 24, uom: 'Bottle', orderPoint: 50, orderQuantity: 60 },
+    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', onhand: 12, uom: 'Pack', orderPoint: 30, orderQuantity: 40 },
+    { productCode: 'PRD-005', description: 'Hass Avocados Grade A', onhand: 5, uom: 'Kg', orderPoint: 20, orderQuantity: 35 },
+    { productCode: 'PRD-006', description: 'Kampot Black Pepper 100g', onhand: 45, uom: 'Jar', orderPoint: 15, orderQuantity: 0 },
   ],
   'stock-evaluation': [
-    { department: 'Fresh Produce & Vegetables', customer: 'Supermarket Operations', outlet: 'All Stores', location: 'Produce Cold Chain', product: 'Produce SKUs', category: 'Produce', brand: 'Multiple', supplier: 'Multiple', skus: 48, units: 1420, fifoCost: 4850.00, retailValuation: 6920.00, potentialMargin: '$2,070.00 (29.9%)', status: 'OPTIMAL' },
-    { department: 'Meat & Seafood Cold Chain', customer: 'Butchery & Seafood', outlet: 'All Stores', location: 'Freezer Hubs', product: 'Meat SKUs', category: 'Meat', brand: 'Multiple', supplier: 'Multiple', skus: 34, units: 680, fifoCost: 6120.00, retailValuation: 8640.00, potentialMargin: '$2,520.00 (29.2%)', status: 'OPTIMAL' },
+    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', beginning: 180, receive: 120, issue: 10, adjust: -2, transferIn: 20, transferOut: 15, sale: 53, return: 0, balance: 240 },
+    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', uom: 'Pack', beginning: 50, receive: 40, issue: 5, adjust: 0, transferIn: 10, transferOut: 10, sale: 20, return: 0, balance: 65 },
+    { productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', beginning: 100, receive: 60, issue: 8, adjust: -2, transferIn: 15, transferOut: 15, sale: 30, return: 0, balance: 120 },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', uom: 'Case', beginning: 80, receive: 50, issue: 0, adjust: 0, transferIn: 0, transferOut: 20, sale: 35, return: 5, balance: 80 },
   ],
   'sale-payment': [
     { code: 'INV-2024-001', date: '2024-03-01', customer: 'Sovann Phka Mart', outlet: 'Main Mart', location: 'POS Counter 1', product: 'Grocery Bulk Pack', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy', method: 'ABA PayWay', total: 450.00, paid: 450.00, balance: 0.00, status: 'PAID' },
@@ -972,11 +1029,10 @@ function HubItemCard({ item, lang }) {
   return (
     <Link
       to={item.route}
-      className={`hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border p-5 text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-        isDark
-          ? 'border-slate-800 bg-[#141922]/90 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-black/40'
-          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 hover:shadow-slate-200/60'
-      }`}
+      className={`hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border p-5 text-left transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isDark
+        ? 'border-slate-800 bg-[#141922]/90 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-black/40'
+        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 hover:shadow-slate-200/60'
+        }`}
     >
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-10 blur-2xl transition-opacity group-hover:opacity-25"
@@ -1009,23 +1065,20 @@ function HubItemCard({ item, lang }) {
         </div>
 
         <div>
-          <h3 className={`text-base font-black tracking-tight transition-colors font-['Montserrat'] ${
-            isDark ? 'text-white group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900'
-          }`}>
+          <h3 className={`text-base font-black tracking-tight transition-colors font-['Montserrat'] ${isDark ? 'text-white group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900'
+            }`}>
             {lang === 'kh' ? item.kh : item.en}
           </h3>
-          <p className={`mt-1 text-xs leading-relaxed font-medium ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
+          <p className={`mt-1 text-xs leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}>
             {lang === 'kh' ? item.descKh : item.descEn}
           </p>
         </div>
       </div>
 
       <div
-        className={`relative mt-5 flex items-center justify-between pt-3 border-t text-xs font-bold transition-all ${
-          isDark ? 'border-slate-800/80' : 'border-slate-100'
-        }`}
+        className={`relative mt-5 flex items-center justify-between pt-3 border-t text-xs font-bold transition-all ${isDark ? 'border-slate-800/80' : 'border-slate-100'
+          }`}
         style={{ color: item.color }}
       >
         <span>{lang === 'kh' ? 'បើករបាយការណ៍' : 'View Report'}</span>
@@ -1039,6 +1092,45 @@ function HubItemCard({ item, lang }) {
 
 // Clean Professional Column Titles Dictionary for Paper & Screen
 const COLUMN_TITLES = {
+  // Exact 11 Stock Reports Entity Headers
+  documentCode: 'Document Code',
+  productCode: 'Product Code',
+  barcode: 'Barcode',
+  description: 'Description',
+  uom: 'UOM',
+  requestQty: 'Request Qty',
+  shipQty: 'Ship QTY',
+  acceptQty: 'Accept Qty',
+  closedQty: 'Closed QTY',
+  voidedQty: 'Voided Qty',
+  remainQty: 'Remain Qty',
+  rejectQty: 'Reject Qty',
+  fromOutlet: 'From Outlet',
+  toOutlet: 'To Outlet',
+  qty: 'QTY',
+  cost: 'Cost',
+  avgCost: 'AVG Cost',
+  lastCost: 'Last Cost',
+  price: 'Price',
+  totalPrice: 'Total Price',
+  basePrice: 'BASEPRICE',
+  transactionType: 'Transaction Type',
+  document: 'Document',
+  stockUom: 'Stock UOM',
+  tranUom: 'Tran UOM',
+  balanceQty: 'Balance QTY',
+  onhand: 'Onhand',
+  orderPoint: 'Order Point',
+  orderQuantity: 'Order Quantity',
+  beginning: 'Beginning',
+  receive: 'Receive',
+  issue: 'Issue',
+  adjust: 'Adjust',
+  transferIn: 'Transfer In',
+  transferOut: 'Transfer Out',
+  sale: 'Sale',
+  return: 'Return',
+  balance: 'Balance',
   docNo: 'Document #',
   reqNo: 'Request #',
   shipNo: 'Shipment #',
@@ -1248,6 +1340,53 @@ const COLUMN_TITLES = {
   fromBank: 'Source Bank / Account',
   toBank: 'Destination Bank / Account',
   netTransfer: 'Net Transfer ($)',
+  // Exact 11 Stock Report Entity Titles (Strict match to user specifications)
+  documentCode: 'Document Code',
+  productCode: 'Product Code',
+  barcode: 'Barcode',
+  description: 'Description',
+  uom: 'UOM',
+  requestQty: 'Request Qty',
+  shipQty: 'Ship QTY',
+  acceptQty: 'Accept Qty',
+  closedQty: 'Closed QTY',
+  voidedQty: 'Voided Qty',
+  remainQty: 'Remain Qty',
+  rejectQty: 'Reject Qty',
+  fromOutlet: 'From Outlet',
+  toOutlet: 'To Outlet',
+  qty: 'QTY',
+  cost: 'Cost',
+  avgCost: 'AVG Cost',
+  lastCost: 'Last Cost',
+  totalCost: 'Total Cost',
+  price: 'Price',
+  totalPrice: 'Total Price',
+  basePrice: 'BASEPRICE',
+  transactionType: 'Transaction Type',
+  document: 'Document',
+  stockUom: 'Stock UOM',
+  tranUom: 'Tran UOM',
+  balanceQty: 'Balance QTY',
+  onhand: 'Onhand',
+  orderPoint: 'Order Point',
+  orderQuantity: 'Order Quantity',
+  beginning: 'Beginning',
+  receive: 'Receive',
+  issue: 'Issue',
+  adjust: 'Adjust',
+  transferIn: 'Transfer In',
+  transferOut: 'Transfer Out',
+  sale: 'Sale',
+  return: 'Return',
+  balance: 'Balance',
+  code: 'Code',
+  outlet: 'Outlet',
+  location: 'Location',
+  supplier: 'Supplier',
+  receivedBy: 'Received By',
+  currency: 'Currency',
+  amount: 'Amount',
 }
 
 const getColumnLabel = (key) => {
@@ -1264,13 +1403,19 @@ const getColumnAlignment = (key) => {
     'settlementStatus', 'paymentStatus', 'depositType', 'discountType', 'promoCode', 'packageCode',
     'issueDate', 'dueDate', 'lastPaymentDate', 'startDate', 'endDate', 'unpaidInvoices', 'daysOverdue',
     'dispatchDate', 'trackingNo', 'shipmentStatus', 'orderStatus', 'contractNo', 'poNo', 'receivingStatus',
-    'billNo', 'billRef', 'freightNo', 'voucherNo', 'statementDate', 'transferNo', 'entryNo'
+    'billNo', 'billRef', 'freightNo', 'voucherNo', 'statementDate', 'transferNo', 'entryNo',
+    'uom', 'stockUom', 'tranUom', 'transactionType'
   ]
   const rightKeys = [
     'items', 'totalCost', 'unitCost', 'sellingPrice', 'baseCost', 'memberPrice',
     'marginPct', 'availableQty', 'totalQty', 'varianceQty', 'costImpact', 'issuedCost',
     'settlement', 'consignedQty', 'soldQty', 'total', 'paid', 'balance', 'amount',
     'fifoCost', 'retailValuation', 'skus', 'units', 'valuation',
+    // Stock Report Entity numeric keys:
+    'requestQty', 'shipQty', 'acceptQty', 'closedQty', 'voidedQty', 'remainQty', 'rejectQty',
+    'qty', 'cost', 'avgCost', 'lastCost', 'price', 'totalPrice', 'basePrice',
+    'balanceQty', 'onhand', 'orderPoint', 'orderQuantity',
+    'beginning', 'receive', 'issue', 'adjust', 'transferIn', 'transferOut', 'sale', 'return',
     'grossSales', 'discount', 'netSales', 'cashAmount', 'abaAmount', 'cardAmount', 'totalCollected',
     'subtotal', 'grandTotal', 'paidAmount', 'current', 'days1to30', 'days31to60', 'days61to90', 'over90Days',
     'totalDue', 'fee', 'netAmount', 'creditLimit', 'currentBalance', 'depositBalance', 'availableCredit',
@@ -1291,59 +1436,89 @@ const getColumnAlignment = (key) => {
 const formatCellValue = (key, val) => {
   if (val == null || val === '') return '-'
   const lower = key.toLowerCase()
-  const isCurrency = (
-    key !== 'currency' &&
-    key !== 'ranking' &&
-    key !== 'unpaidInvoices' &&
-    key !== 'daysOverdue' &&
-    key !== 'totalInvoices' &&
-    key !== 'transactionCount' &&
-    key !== 'appliedCount' &&
-    key !== 'packagesSold' &&
-    key !== 'soldQty' &&
-    key !== 'skus' &&
-    key !== 'units' &&
-    key !== 'items' &&
-    key !== 'totalQty' &&
-    key !== 'availableQty' &&
-    key !== 'varianceQty' &&
-    key !== 'totalPackages' &&
-    key !== 'returnQty' &&
-    key !== 'remainingQty' &&
-    key !== 'orderedQty' &&
-    key !== 'receivedQty' &&
-    key !== 'activeOrders' &&
-    key !== 'totalItems' &&
-    (
-      lower.includes('cost') ||
-      lower.includes('price') ||
-      lower.includes('valuation') ||
-      lower.includes('amount') ||
-      lower.includes('total') ||
-      lower.includes('settlement') ||
-      lower.includes('paid') ||
-      lower.includes('balance') ||
-      lower.includes('sales') ||
-      lower.includes('revenue') ||
-      lower.includes('profit') ||
-      lower.includes('discount') ||
-      lower.includes('fee') ||
-      lower.includes('deposit') ||
-      lower.includes('credit') ||
-      lower.includes('due') ||
-      lower.includes('cogs') ||
-      lower.includes('expense') ||
-      lower.includes('drawer') ||
-      lower.includes('subtotal') ||
-      key === 'costImpact' ||
-      key === 'current' ||
-      key === 'days1to30' ||
-      key === 'days31to60' ||
-      key === 'days61to90' ||
-      key === 'over90Days' ||
-      key === 'openingCash' ||
-      key === 'variance'
-    )
+
+  // Quantity / Count Keys that must NEVER be formatted as currency
+  const isNonCurrencyNumeric = (
+    key === 'qty' ||
+    key === 'requestQty' ||
+    key === 'shipQty' ||
+    key === 'acceptQty' ||
+    key === 'closedQty' ||
+    key === 'voidedQty' ||
+    key === 'remainQty' ||
+    key === 'rejectQty' ||
+    key === 'balanceQty' ||
+    key === 'onhand' ||
+    key === 'orderPoint' ||
+    key === 'orderQuantity' ||
+    key === 'beginning' ||
+    key === 'receive' ||
+    key === 'issue' ||
+    key === 'adjust' ||
+    key === 'transferIn' ||
+    key === 'transferOut' ||
+    key === 'sale' ||
+    key === 'return' ||
+    key === 'currency' ||
+    key === 'ranking' ||
+    key === 'unpaidInvoices' ||
+    key === 'daysOverdue' ||
+    key === 'totalInvoices' ||
+    key === 'transactionCount' ||
+    key === 'appliedCount' ||
+    key === 'packagesSold' ||
+    key === 'soldQty' ||
+    key === 'skus' ||
+    key === 'units' ||
+    key === 'items' ||
+    key === 'totalQty' ||
+    key === 'availableQty' ||
+    key === 'varianceQty' ||
+    key === 'totalPackages' ||
+    key === 'returnQty' ||
+    key === 'remainingQty' ||
+    key === 'orderedQty' ||
+    key === 'receivedQty' ||
+    key === 'activeOrders' ||
+    key === 'totalItems'
+  )
+
+  const isCurrency = !isNonCurrencyNumeric && (
+    key === 'cost' ||
+    key === 'totalCost' ||
+    key === 'avgCost' ||
+    key === 'lastCost' ||
+    key === 'price' ||
+    key === 'totalPrice' ||
+    key === 'basePrice' ||
+    key === 'amount' ||
+    lower.includes('cost') ||
+    lower.includes('price') ||
+    lower.includes('valuation') ||
+    lower.includes('settlement') ||
+    lower.includes('paid') ||
+    lower.includes('sales') ||
+    lower.includes('revenue') ||
+    lower.includes('profit') ||
+    lower.includes('discount') ||
+    lower.includes('fee') ||
+    lower.includes('deposit') ||
+    lower.includes('credit') ||
+    lower.includes('due') ||
+    lower.includes('cogs') ||
+    lower.includes('expense') ||
+    lower.includes('drawer') ||
+    lower.includes('subtotal') ||
+    (lower.includes('total') && !lower.includes('qty')) ||
+    (lower.includes('balance') && !lower.includes('qty')) ||
+    key === 'costImpact' ||
+    key === 'current' ||
+    key === 'days1to30' ||
+    key === 'days31to60' ||
+    key === 'days61to90' ||
+    key === 'over90Days' ||
+    key === 'openingCash' ||
+    key === 'variance'
   )
 
   if (typeof val === 'number') {
@@ -1376,6 +1551,11 @@ const computeReportTotals = (records) => {
     'availableQty', 'unitCost', 'sellingPrice', 'baseCost', 'memberPrice',
     'settlement', 'consignedQty', 'soldQty', 'total', 'paid', 'balance', 'amount',
     'skus', 'units', 'fifoCost', 'retailValuation', 'valuation',
+    // Stock Report Entity numeric keys:
+    'requestQty', 'shipQty', 'acceptQty', 'closedQty', 'voidedQty', 'remainQty', 'rejectQty',
+    'qty', 'cost', 'avgCost', 'lastCost', 'price', 'totalPrice', 'basePrice',
+    'balanceQty', 'onhand', 'orderPoint', 'orderQuantity',
+    'beginning', 'receive', 'issue', 'adjust', 'transferIn', 'transferOut', 'sale', 'return',
     'totalInvoices', 'grossSales', 'discount', 'tax', 'netSales', 'cashAmount', 'abaAmount', 'cardAmount', 'totalCollected',
     'subtotal', 'grandTotal', 'paidAmount', 'current', 'days1to30', 'days31to60', 'days61to90', 'over90Days', 'totalDue',
     'fee', 'netAmount', 'creditLimit', 'currentBalance', 'unpaidInvoices', 'depositBalance', 'availableCredit',
@@ -1475,6 +1655,22 @@ export default function Report() {
   const [groupByFilter, setGroupByFilter] = useState('none')
   const [viewAsFilter, setViewAsFilter] = useState('detailed')
 
+  // Request Transfer Specific Advance Filters State
+  const [requestOutletFilter, setRequestOutletFilter] = useState('all')
+  const [requestLocationFilter, setRequestLocationFilter] = useState('all')
+  const [toOutletFilter, setToOutletFilter] = useState('all')
+  const [toLocationFilter, setToLocationFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [requestTransferTypeFilter, setRequestTransferTypeFilter] = useState('all')
+
+  // Adjustment Specific Advance Filter State
+  const [adjustTypeFilter, setAdjustTypeFilter] = useState('all')
+
+  // Inventory Specific Advance Filters State
+  const [expiryDayFilter, setExpiryDayFilter] = useState('all')
+  const [inventoryValueFilter, setInventoryValueFilter] = useState('')
+  const [onhandFilter, setOnhandFilter] = useState('all')
+
   // Live Data & Loading State
   const [liveData, setLiveData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -1503,20 +1699,98 @@ export default function Report() {
   const [visibleCols, setVisibleCols] = useState(new Set())
   const [colDraft, setColDraft] = useState(new Set())
 
+  // Advanced Product Search Modal State
+  const [showProductModal, setShowProductModal] = useState(false)
+  const [productModalQuery, setProductModalQuery] = useState('')
+  const [productModalCategory, setProductModalCategory] = useState('all')
+
+  // Active report data key
+  const activeDataKey = subReportKey || moduleHubKey
+
   // Count active advance filters
   const activeAdvanceFilterCount = useMemo(() => {
     let count = 0
+    if (activeDataKey === 'request-transfer') {
+      if (requestOutletFilter !== 'all') count++
+      if (requestLocationFilter !== 'all') count++
+      if (toOutletFilter !== 'all') count++
+      if (toLocationFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (requestTransferTypeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'ship-request-transfer') {
+      if (requestOutletFilter !== 'all') count++
+      if (requestLocationFilter !== 'all') count++
+      if (toOutletFilter !== 'all') count++
+      if (toLocationFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'adjustment') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (adjustTypeFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'issued') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'inventory-list') {
+      if (outletFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (expiryDayFilter !== 'all') count++
+      if (inventoryValueFilter.trim()) count++
+      if (onhandFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
     if (outletFilter !== 'all') count++
     if (locationFilter !== 'all') count++
     if (productFilter.trim()) count++
     if (productGroupFilter !== 'all') count++
     if (categoryFilter !== 'all') count++
     if (brandFilter !== 'all') count++
-    if (supplierFilter !== 'all') count++
+    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all') count++
     if (groupByFilter !== 'none') count++
     if (viewAsFilter !== 'detailed') count++
     return count
   }, [
+    activeDataKey,
+    requestOutletFilter,
+    requestLocationFilter,
+    toOutletFilter,
+    toLocationFilter,
+    statusFilter,
+    requestTransferTypeFilter,
+    adjustTypeFilter,
     outletFilter,
     locationFilter,
     productFilter,
@@ -1524,6 +1798,9 @@ export default function Report() {
     categoryFilter,
     brandFilter,
     supplierFilter,
+    expiryDayFilter,
+    inventoryValueFilter,
+    onhandFilter,
     groupByFilter,
     viewAsFilter,
   ])
@@ -1536,9 +1813,6 @@ export default function Report() {
     setFromDate(range.from)
     setToDate(range.to)
   }
-
-  // Active report data key
-  const activeDataKey = subReportKey || moduleHubKey
 
   // 1. Fetch Live Filter Options from backend database
   useEffect(() => {
@@ -1580,6 +1854,136 @@ export default function Report() {
     loadFilterOptions()
   }, [])
 
+  // Available products from live database API or catalog fallback
+  const availableProducts = useMemo(() => {
+    if (filterOptions.products && filterOptions.products.length > 0) {
+      return filterOptions.products
+    }
+    return STOCK_CATALOG_PRODUCTS
+  }, [filterOptions.products])
+
+  // Unique categories for product search modal filter chips
+  const productModalCategories = useMemo(() => {
+    const set = new Set()
+    availableProducts.forEach((p) => {
+      if (p.category) set.add(p.category)
+    })
+    return ['all', ...Array.from(set)]
+  }, [availableProducts])
+
+  // Filtered products inside the search modal
+  const modalFilteredProducts = useMemo(() => {
+    let list = availableProducts
+    if (productModalCategory !== 'all') {
+      list = list.filter((p) => (p.category || '').toLowerCase() === productModalCategory.toLowerCase())
+    }
+    if (productModalQuery.trim()) {
+      const q = productModalQuery.trim().toLowerCase()
+      list = list.filter((p) =>
+        (p.title && p.title.toLowerCase().includes(q)) ||
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.code && p.code.toLowerCase().includes(q)) ||
+        (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q)) ||
+        (p.brand && p.brand.toLowerCase().includes(q))
+      )
+    }
+    return list
+  }, [availableProducts, productModalCategory, productModalQuery])
+
+  // Select product from modal handler
+  const handleSelectProduct = (prod) => {
+    const val = prod.title || prod.name || prod.code
+    setProductFilter(val)
+    setShowProductModal(false)
+    showNotification?.({
+      type: 'success',
+      title: 'Product Filter Applied',
+      message: `Filtering report for: ${val} (${prod.code || 'SKU'}).`,
+    })
+  }
+
+  // Live unique options for Request Transfer
+  const liveRequestTransferOptions = useMemo(() => {
+    const rawOutlets = (filterOptions.outlets || []).map((o) => o.description || o.name || o.code).filter(Boolean)
+    const rawLocations = (filterOptions.locations || []).map((l) => l.description || l.name || l.code).filter(Boolean)
+    const rawGroups = (filterOptions.productGroups || []).map((g) => g.description || g.name || g.code).filter(Boolean)
+    const rawBrands = (filterOptions.brands || []).map((b) => b.description || b.name || b.code).filter(Boolean)
+    const rawCategories = (filterOptions.categories || []).map((c) => c.description || c.name || c.code).filter(Boolean)
+
+    const docRequestOutlets = []
+    const docRequestLocations = []
+    const docToOutlets = []
+    const docToLocations = []
+    const docStatuses = []
+    const docTypes = []
+    const docGroups = []
+    const docBrands = []
+    const docCategories = []
+
+    if ((activeDataKey === 'request-transfer' || activeDataKey === 'ship-request-transfer') && Array.isArray(liveData)) {
+      liveData.forEach((r) => {
+        if (r.requestOutlet) docRequestOutlets.push(r.requestOutlet)
+        if (r.fromOutlet) docRequestOutlets.push(r.fromOutlet)
+        if (r.requestLocation) docRequestLocations.push(r.requestLocation)
+        if (r.fromLocation) docRequestLocations.push(r.fromLocation)
+        if (r.toOutlet) docToOutlets.push(r.toOutlet)
+        if (r.toLocation) docToLocations.push(r.toLocation)
+        if (r.status) docStatuses.push(r.status)
+        if (r.requestTransferType) docTypes.push(r.requestTransferType)
+        if (r.transferType) docTypes.push(r.transferType)
+        if (r.productGroup) docGroups.push(r.productGroup)
+        if (r.brand) docBrands.push(r.brand)
+        if (r.category) docCategories.push(r.category)
+      })
+    }
+
+    const uniqueList = (primary, secondary, defaults = []) => {
+      const set = new Set()
+      primary.forEach((v) => v && set.add(String(v).trim()))
+      secondary.forEach((v) => v && set.add(String(v).trim()))
+      if (set.size === 0) {
+        defaults.forEach((v) => set.add(v))
+      }
+      return Array.from(set)
+    }
+
+    return {
+      requestOutlets: uniqueList(rawOutlets, docRequestOutlets, ['Central Warehouse', 'Main Mart', 'BKK1 Branch', 'Toul Kork Branch', 'SR Depot']),
+      requestLocations: uniqueList(rawLocations, docRequestLocations, ['Warehouse Floor A', 'Cold Storage #1', 'Chiller Room 2', 'Aisle 3 Chiller', 'Meat Freezer #1', 'Main Shelf B']),
+      toOutlets: uniqueList(rawOutlets, docToOutlets, ['Main Mart', 'BKK1 Branch', 'Toul Kork Branch', 'SR Depot', 'Central Warehouse']),
+      toLocations: uniqueList(rawLocations, docToLocations, ['Main Shelf B', 'Chiller Room 2', 'Aisle 3 Chiller', 'Meat Freezer #1', 'Warehouse Floor A', 'Cold Storage #1']),
+      productGroups: uniqueList(rawGroups, docGroups, ['Fresh Grocery', 'Pantry Staples', 'Cold Chain', 'Beverages']),
+      brands: uniqueList(rawBrands, docBrands, ['Heritage Organic', 'Angkor Harvest', 'CP Foods', 'Coca-Cola', 'Lucky Local']),
+      categories: uniqueList(rawCategories, docCategories, ['Produce', 'Dairy', 'Meat', 'Bakery', 'Grains', 'Spices', 'Beverages']),
+      statuses: uniqueList(['PENDING', 'APPROVED', 'IN_TRANSIT', 'COMPLETED', 'CLOSED', 'VOIDED', 'REJECTED'], docStatuses),
+      types: uniqueList(['STANDARD', 'URGENT_RESTOCK', 'INTER_BRANCH', 'EMERGENCY', 'INTERNAL_RETURN'], docTypes),
+    }
+  }, [filterOptions, liveData, activeDataKey])
+
+  // Live Adjust Types for Adjustment Report
+  const liveAdjustTypeOptions = useMemo(() => {
+    const defaultTypes = [
+      'Stock Count',
+      'Breakage',
+      'Theft / Loss',
+      'Correction',
+      'Damaged Goods',
+      'Expired',
+      'Discrepancy',
+      'Other',
+    ]
+    const set = new Set(defaultTypes)
+    if (activeDataKey === 'adjustment' && Array.isArray(liveData)) {
+      liveData.forEach((r) => {
+        if (r.adjustType) set.add(String(r.adjustType).trim())
+        if (r.adjustmentType) set.add(String(r.adjustmentType).trim())
+        if (r.type) set.add(String(r.type).trim())
+      })
+    }
+    return Array.from(set)
+  }, [activeDataKey, liveData])
+
   // 2. Fetch Live Data function for ALL 11 Stock Reports and core report modules
   const fetchReportData = useCallback(async () => {
     if (!activeDataKey) return
@@ -1587,49 +1991,110 @@ export default function Report() {
 
     let fetched = null
     try {
-      // 1. STOCK REPORT: Received
+      // 1. STOCK REPORT: Received list
       if (activeDataKey === 'received') {
         const res = await adminReceiveDocAPI.getAll().catch(() => adminStockDocAPI.getAll('RECEIVE'))
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((doc) => ({
-            docNo: doc.code || `GRN-${doc.id}`,
+            documentCode: doc.code || `GRN-${doc.id}`,
             date: (doc.date || doc.createdAt || '').slice(0, 10),
-            customer: doc.supplier || doc.supplierName || 'Cambodia Agri-Trading Ltd',
-            outlet: doc.outlet || doc.locationKey || 'Main Mart',
-            location: doc.locationKey || 'Warehouse Floor A',
-            product: (doc.lines && doc.lines[0]?.nameSnapshot) || 'Fresh Organic Milk 1L',
-            category: 'Produce',
-            brand: 'Heritage Organic',
-            supplier: doc.supplier || 'Cambodia Agri-Trading Ltd',
-            items: doc.lines ? doc.lines.length : 1,
-            totalCost: Number(doc.totalCost || 25.00),
+            currency: doc.currency || 'USD',
+            supplier: doc.supplier || doc.supplierName || 'Cambodia Agri-Trading Ltd',
             receivedBy: doc.receivedBy || 'Admin',
-            status: (doc.status || 'Received').toUpperCase(),
+            totalCost: Number(doc.totalCost != null ? doc.totalCost : 0),
           }))
         }
       }
 
       // 2. STOCK REPORT: Request Transfer
       else if (activeDataKey === 'request-transfer') {
-        const res = await adminTransferAPI.getAll()
+        const res = await adminTransferAPI.getAll({ docType: 'REQUEST' }).catch(() => adminTransferAPI.getAll())
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((doc) => ({
-            reqNo: doc.code || `REQ-${doc.id}`,
-            date: (doc.requestTransferDate || doc.transferDate || doc.createdAt || '').slice(0, 10),
-            customer: doc.toOutlet || 'Outlet 1 - BKK1',
-            outlet: doc.fromOutlet || 'Main Warehouse',
-            location: doc.fromLocation || 'Cold Storage Bay 1',
-            product: (doc.lines && doc.lines[0]?.name) || 'Transfer Goods',
-            category: 'General Grocery',
-            brand: "B'Groceries",
-            supplier: 'Logistics Hub',
-            items: doc.totalQty || (doc.lines ? doc.lines.length : 1),
-            priority: 'HIGH',
-            requestedBy: doc.userName || 'Logistics Admin',
-            status: (doc.status || 'APPROVED').toUpperCase(),
-          }))
+          const rows = []
+          items.forEach((doc) => {
+            const reqOutlet = doc.requestOutlet || doc.fromOutlet || doc.fromLoc || 'Central Warehouse'
+            const reqLoc = doc.requestLocation || doc.fromLocation || 'Warehouse Floor A'
+            const toOut = doc.toOutlet || doc.toLoc || 'Main Mart'
+            const toLoc = doc.toLocation || 'Main Shelf B'
+            const statusVal = doc.status || 'PENDING'
+            const typeVal = doc.requestTransferType || doc.transferType || 'STANDARD'
+            const dateVal = (doc.requestTransferDate || doc.transferDate || doc.date || doc.createdAt || '').slice(0, 10)
+
+            if (Array.isArray(doc.lines) && doc.lines.length > 0) {
+              doc.lines.forEach((l) => {
+                const req = Number(l.qty || l.requestQty || 0)
+                const ship = Number(l.shipQty || 0)
+                const accept = Number(l.acceptQty || 0)
+                const closed = Number(l.closedQty || 0)
+                const voided = Number(l.voidedQty || 0)
+                const remain = Number(l.remainQty ?? Math.max(0, req - ship))
+                const pCode = l.code || l.productCode || (l.productId ? `PRD-${l.productId}` : 'PRD-001')
+                const matchedProduct = availableProducts.find((p) =>
+                  String(p.id) === String(l.productId) || (p.code && (p.code === pCode || p.code === l.code))
+                )
+
+                rows.push({
+                  productCode: pCode,
+                  barcode: l.barCode || l.barcode || matchedProduct?.barcode || '-',
+                  description: l.name || l.description || matchedProduct?.title || matchedProduct?.name || 'Requested Item',
+                  uom: l.uom || matchedProduct?.uom || 'Unit',
+                  requestQty: req,
+                  shipQty: ship,
+                  acceptQty: accept,
+                  closedQty: closed,
+                  voidedQty: voided,
+                  remainQty: remain,
+                  requestOutlet: reqOutlet,
+                  requestLocation: reqLoc,
+                  toOutlet: toOut,
+                  toLocation: toLoc,
+                  status: statusVal,
+                  requestTransferType: typeVal,
+                  productGroup: l.productGroup || matchedProduct?.productGroup || doc.productGroup || 'Pantry Staples',
+                  brand: l.brand || matchedProduct?.brand || doc.brand || 'Heritage Organic',
+                  category: l.category || matchedProduct?.category || doc.category || 'Produce',
+                  date: dateVal,
+                })
+              })
+            } else {
+              const req = Number(doc.totalQty || doc.qty || 1)
+              const ship = Number(doc.shipQty || 0)
+              const accept = Number(doc.acceptQty || 0)
+              const closed = Number(doc.closedQty || 0)
+              const voided = Number(doc.voidedQty || 0)
+              const remain = Number(doc.remainQty ?? Math.max(0, req - ship))
+              const pCode = doc.productCode || doc.code || `REQ-${doc.id}`
+              const matchedProduct = availableProducts.find((p) =>
+                (p.code && p.code === pCode) || (doc.productId && String(p.id) === String(doc.productId))
+              )
+
+              rows.push({
+                productCode: pCode,
+                barcode: doc.barcode || matchedProduct?.barcode || '-',
+                description: doc.description || doc.reference || matchedProduct?.title || matchedProduct?.name || 'Transfer Request',
+                uom: doc.uom || matchedProduct?.uom || 'Unit',
+                requestQty: req,
+                shipQty: ship,
+                acceptQty: accept,
+                closedQty: closed,
+                voidedQty: voided,
+                remainQty: remain,
+                requestOutlet: reqOutlet,
+                requestLocation: reqLoc,
+                toOutlet: toOut,
+                toLocation: toLoc,
+                status: statusVal,
+                requestTransferType: typeVal,
+                productGroup: doc.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                brand: doc.brand || matchedProduct?.brand || 'Heritage Organic',
+                category: doc.category || matchedProduct?.category || 'Produce',
+                date: dateVal,
+              })
+            }
+          })
+          fetched = rows
         }
       }
 
@@ -1638,42 +2103,98 @@ export default function Report() {
         const res = await adminTransferAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((doc) => ({
-            shipNo: doc.code || `SHP-${doc.id}`,
-            date: (doc.transferDate || doc.createdAt || '').slice(0, 10),
-            customer: doc.toOutlet || 'Outlet 1 - BKK1',
-            outlet: doc.fromOutlet || 'Main Warehouse',
-            location: doc.fromLocation || 'Dock 1',
-            product: (doc.lines && doc.lines[0]?.name) || 'Transfer Goods',
-            category: 'General Grocery',
-            brand: "B'Groceries",
-            supplier: 'Logistics Hub',
-            carrier: doc.carrier || 'Fleet Logistics',
-            totalQty: doc.totalQty || 10,
-            status: (doc.status || 'IN_TRANSIT').toUpperCase(),
-          }))
+          const rows = []
+          items.forEach((doc) => {
+            const reqOutlet = doc.requestOutlet || doc.fromOutlet || doc.fromLoc || 'Central Warehouse'
+            const reqLoc = doc.requestLocation || doc.fromLocation || 'Warehouse Floor A'
+            const toOut = doc.toOutlet || doc.toLoc || 'Main Mart'
+            const toLoc = doc.toLocation || 'Main Shelf B'
+            const statusVal = doc.status || 'COMPLETED'
+            const dateVal = (doc.shipDate || doc.requestTransferDate || doc.transferDate || doc.date || doc.createdAt || '').slice(0, 10)
+
+            if (Array.isArray(doc.lines) && doc.lines.length > 0) {
+              doc.lines.forEach((l) => {
+                const ship = Number(l.shipQty ?? l.qty ?? 0)
+                const accept = Number(l.acceptQty ?? 0)
+                const reject = Number(l.rejectQty ?? 0)
+                const remain = Number(l.remainQty ?? Math.max(0, ship - accept - reject))
+                const pCode = l.code || l.productCode || (l.productId ? `PRD-${l.productId}` : 'PRD-001')
+                const matchedProduct = availableProducts.find((p) =>
+                  String(p.id) === String(l.productId) || (p.code && (p.code === pCode || p.code === l.code))
+                )
+
+                rows.push({
+                  productCode: pCode,
+                  barcode: l.barCode || l.barcode || matchedProduct?.barcode || '-',
+                  description: l.name || l.description || matchedProduct?.title || matchedProduct?.name || 'Ship Product',
+                  uom: l.uom || matchedProduct?.uom || 'Unit',
+                  shipQty: ship,
+                  acceptQty: accept,
+                  rejectQty: reject,
+                  remainQty: remain,
+                  requestOutlet: reqOutlet,
+                  requestLocation: reqLoc,
+                  toOutlet: toOut,
+                  toLocation: toLoc,
+                  status: statusVal,
+                  productGroup: l.productGroup || matchedProduct?.productGroup || doc.productGroup || 'Pantry Staples',
+                  brand: l.brand || matchedProduct?.brand || doc.brand || 'Heritage Organic',
+                  category: l.category || matchedProduct?.category || doc.category || 'Produce',
+                  date: dateVal,
+                })
+              })
+            } else {
+              const ship = Number(doc.totalQty || doc.shipQty || 10)
+              const accept = Number(doc.acceptQty || 0)
+              const reject = Number(doc.rejectQty || 0)
+              const remain = Math.max(0, ship - accept - reject)
+              const pCode = doc.productCode || doc.code || `SHP-${doc.id}`
+              const matchedProduct = availableProducts.find((p) =>
+                (p.code && p.code === pCode) || (doc.productId && String(p.id) === String(doc.productId))
+              )
+
+              rows.push({
+                productCode: pCode,
+                barcode: doc.barcode || matchedProduct?.barcode || '-',
+                description: doc.description || doc.reference || matchedProduct?.title || matchedProduct?.name || 'Ship Request Transfer',
+                uom: doc.uom || matchedProduct?.uom || 'Unit',
+                shipQty: ship,
+                acceptQty: accept,
+                rejectQty: reject,
+                remainQty: remain,
+                requestOutlet: reqOutlet,
+                requestLocation: reqLoc,
+                toOutlet: toOut,
+                toLocation: toLoc,
+                status: statusVal,
+                productGroup: doc.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                brand: doc.brand || matchedProduct?.brand || 'Heritage Organic',
+                category: doc.category || matchedProduct?.category || 'Produce',
+                date: dateVal,
+              })
+            }
+          })
+          fetched = rows
         }
       }
 
-      // 4. STOCK REPORT: Transferred
+      // 4. STOCK REPORT: Transferred Report
       else if (activeDataKey === 'transferred') {
         const res = await adminTransferAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((doc) => ({
-            trfNo: doc.code || `TRF-${doc.id}`,
-            date: (doc.transferDate || doc.createdAt || '').slice(0, 10),
-            customer: doc.toOutlet || 'Outlet 1 - BKK1',
-            outlet: doc.fromOutlet || 'Main Warehouse',
-            location: doc.fromLocation || 'Transit Bay',
-            product: (doc.lines && doc.lines[0]?.name) || 'Transferred Items',
-            category: 'General Grocery',
-            brand: "B'Groceries",
-            supplier: 'Logistics Hub',
-            items: doc.totalQty || 12,
-            operator: doc.userName || 'Logistics Staff',
-            status: (doc.status || 'COMPLETED').toUpperCase(),
-          }))
+          fetched = items.map((doc) => {
+            const qty = Number(doc.totalQty || (doc.lines?.reduce((s, l) => s + Number(l.qty || 0), 0)) || 1)
+            const cost = Number(doc.unitCost || (doc.lines && doc.lines[0]?.unitCost) || 2.50)
+            return {
+              currency: doc.currency || 'USD',
+              fromOutlet: doc.fromOutlet || doc.requestOutlet || 'Main Warehouse',
+              toOutlet: doc.toOutlet || 'BKK1 Branch',
+              qty: qty,
+              cost: cost,
+              totalCost: Number(doc.totalCost != null ? doc.totalCost : (qty * cost)),
+            }
+          })
         }
       }
 
@@ -1682,22 +2203,71 @@ export default function Report() {
         const res = await adminAdjustmentDocAPI.getAll().catch(() => adminStockDocAPI.getAll('ADJUST'))
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((doc) => ({
-            adjNo: doc.code || `ADJ-${doc.id}`,
-            date: (doc.date || doc.createdAt || '').slice(0, 10),
-            customer: 'Internal Audit',
-            outlet: doc.outlet || 'Main Mart',
-            location: 'Warehouse Floor A',
-            product: (doc.lines && doc.lines[0]?.nameSnapshot) || 'Audited Stock',
-            category: 'Inventory Control',
-            brand: "B'Groceries",
-            supplier: 'Internal Store',
-            adjustmentType: doc.adjustmentType || 'Stock Count',
-            varianceQty: doc.totalDiff != null ? doc.totalDiff : (doc.lines && doc.lines[0]?.qtyDiff != null ? doc.lines[0].qtyDiff : 0),
-            costImpact: doc.totalCost != null ? Number(doc.totalCost) : 0,
-            adjustedBy: doc.adjustedBy || 'Inventory Auditor',
-            status: (doc.status || 'Completed').toUpperCase(),
-          }))
+          const rows = []
+          items.forEach((doc) => {
+            const outVal = doc.outlet || doc.fromOutlet || doc.office || 'Central Warehouse'
+            const locVal = doc.location || doc.fromLocation || doc.section || 'Warehouse Floor A'
+            const adjTypeVal = doc.adjustmentType || doc.adjustType || doc.type || 'Stock Count'
+            const dateVal = (doc.date || doc.createdAt || '').slice(0, 10)
+            const suppVal = doc.supplier || doc.supplierName || 'Internal Store'
+            const curVal = doc.currency || 'USD'
+
+            if (Array.isArray(doc.lines) && doc.lines.length > 0) {
+              doc.lines.forEach((l) => {
+                const diff = Number(l.qtyDiff != null ? l.qtyDiff : (Number(l.countedQty ?? l.counted ?? 0) - Number(l.qtyBefore ?? l.onHand ?? 0)))
+                const uCost = Number(l.unitCost || l.cost || 0)
+                const lineTotal = Number(l.totalCost != null ? l.totalCost : (diff * uCost))
+                const pCode = l.code || l.productCode || (l.productId ? `PRD-${l.productId}` : 'PRD-001')
+                const matchedProduct = availableProducts.find((p) =>
+                  String(p.id) === String(l.productId) || (p.code && (p.code === pCode || p.code === l.code))
+                )
+
+                rows.push({
+                  currency: curVal,
+                  date: dateVal,
+                  supplier: suppVal,
+                  qty: diff,
+                  totalCost: lineTotal,
+                  outlet: outVal,
+                  location: locVal,
+                  adjustType: adjTypeVal,
+                  adjustmentType: adjTypeVal,
+                  productCode: pCode,
+                  barcode: l.barcode || matchedProduct?.barcode || '-',
+                  description: l.name || l.nameSnapshot || l.description || matchedProduct?.title || matchedProduct?.name || 'Adjusted Item',
+                  productGroup: l.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                  brand: l.brand || matchedProduct?.brand || 'Heritage Organic',
+                  category: l.category || matchedProduct?.category || 'Produce',
+                })
+              })
+            } else {
+              const diff = Number(doc.totalDiff != null ? doc.totalDiff : (doc.qty != null ? doc.qty : 0))
+              const totCost = Number(doc.totalCost != null ? doc.totalCost : 0)
+              const pCode = doc.productCode || doc.code || `ADJ-${doc.id || '001'}`
+              const matchedProduct = availableProducts.find((p) =>
+                (p.code && p.code === pCode) || (doc.productId && String(p.id) === String(doc.productId))
+              )
+
+              rows.push({
+                currency: curVal,
+                date: dateVal,
+                supplier: suppVal,
+                qty: diff,
+                totalCost: totCost,
+                outlet: outVal,
+                location: locVal,
+                adjustType: adjTypeVal,
+                adjustmentType: adjTypeVal,
+                productCode: pCode,
+                barcode: doc.barcode || matchedProduct?.barcode || '-',
+                description: doc.description || doc.note || matchedProduct?.title || matchedProduct?.name || 'Stock Adjustment',
+                productGroup: doc.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                brand: doc.brand || matchedProduct?.brand || 'Heritage Organic',
+                category: doc.category || matchedProduct?.category || 'Produce',
+              })
+            }
+          })
+          fetched = rows
         }
       }
 
@@ -1706,21 +2276,60 @@ export default function Report() {
         const res = await adminIssueDocAPI.getAll().catch(() => adminStockDocAPI.getAll('ISSUE'))
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((doc) => ({
-            issueNo: doc.code || `GI-${doc.id}`,
-            date: (doc.date || doc.createdAt || '').slice(0, 10),
-            customer: doc.issueType || 'Store Operations',
-            outlet: doc.outlet || 'Main Mart',
-            location: 'Kitchen Shelf',
-            product: (doc.lines && doc.lines[0]?.nameSnapshot) || 'Issued Stock',
-            category: doc.issueType || 'Damaged Goods',
-            brand: "B'Groceries",
-            supplier: 'Internal',
-            items: doc.lines ? doc.lines.length : 1,
-            issuedCost: doc.totalCost != null ? Number(doc.totalCost) : 0.35,
-            issuedBy: doc.issuedBy || 'Store Manager',
-            status: (doc.status || 'Completed').toUpperCase(),
-          }))
+          const rows = []
+          items.forEach((doc) => {
+            const outVal = doc.outlet || doc.fromOutlet || doc.office || 'Central Warehouse'
+            const locVal = doc.location || doc.fromLocation || doc.section || 'Warehouse Floor A'
+            const dateVal = (doc.date || doc.createdAt || '').slice(0, 10)
+            const curVal = doc.currency || 'USD'
+
+            if (Array.isArray(doc.lines) && doc.lines.length > 0) {
+              doc.lines.forEach((l) => {
+                const uCost = Number(l.unitCost || l.cost || 0)
+                const lineQty = Number(l.qty || 1)
+                const lineTotal = Number(l.totalCost != null ? l.totalCost : (lineQty * uCost))
+                const pCode = l.code || l.productCode || (l.productId ? `PRD-${l.productId}` : 'PRD-001')
+                const matchedProduct = availableProducts.find((p) =>
+                  String(p.id) === String(l.productId) || (p.code && (p.code === pCode || p.code === l.code))
+                )
+
+                rows.push({
+                  currency: curVal,
+                  totalCost: lineTotal,
+                  outlet: outVal,
+                  location: locVal,
+                  productCode: pCode,
+                  barcode: l.barcode || matchedProduct?.barcode || '-',
+                  description: l.name || l.nameSnapshot || l.description || matchedProduct?.title || matchedProduct?.name || 'Issued Item',
+                  productGroup: l.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                  brand: l.brand || matchedProduct?.brand || 'Heritage Organic',
+                  category: l.category || matchedProduct?.category || 'Produce',
+                  date: dateVal,
+                })
+              })
+            } else {
+              const totCost = Number(doc.totalCost != null ? doc.totalCost : 0)
+              const pCode = doc.productCode || doc.code || `ISU-${doc.id || '001'}`
+              const matchedProduct = availableProducts.find((p) =>
+                (p.code && p.code === pCode) || (doc.productId && String(p.id) === String(doc.productId))
+              )
+
+              rows.push({
+                currency: curVal,
+                totalCost: totCost,
+                outlet: outVal,
+                location: locVal,
+                productCode: pCode,
+                barcode: doc.barcode || matchedProduct?.barcode || '-',
+                description: doc.description || doc.note || matchedProduct?.title || matchedProduct?.name || 'Stock Issue',
+                productGroup: doc.productGroup || matchedProduct?.productGroup || 'Pantry Staples',
+                brand: doc.brand || matchedProduct?.brand || 'Heritage Organic',
+                category: doc.category || matchedProduct?.category || 'Produce',
+                date: dateVal,
+              })
+            }
+          })
+          fetched = rows
         }
       }
 
@@ -1729,22 +2338,38 @@ export default function Report() {
         const res = await adminProductAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((p) => ({
-            code: p.code || `PRD-${p.id}`,
-            name: p.title || p.name || 'Stock Product',
-            customer: 'Retail Store Stock',
-            outlet: p.outlet || 'Main Mart',
-            location: p.location || 'Aisle 1',
-            product: p.title || p.name,
-            category: p.category || 'General',
-            brand: p.brand || "B'Groceries",
-            supplier: p.supplier || 'Main Distributor',
-            availableQty: p.onHand != null ? Number(p.onHand) : 10,
-            unitCost: p.costPrice != null ? Number(p.costPrice) : 1.50,
-            sellingPrice: p.sellingPrice != null ? Number(p.sellingPrice) : 2.50,
-            valuation: (Number(p.onHand || 0) * Number(p.costPrice || 0)).toFixed(2),
-            status: Number(p.onHand ?? 0) <= 0 ? 'OUT_OF_STOCK' : (Number(p.onHand ?? 0) <= 5 ? 'LOW_STOCK' : 'IN_STOCK'),
-          }))
+          fetched = items.map((p) => {
+            const qty = Number(p.onHand ?? p.qty ?? 0)
+            const avgCost = Number(p.averageCost || p.costPrice || 0)
+            const lastCost = Number(p.standardCost || p.lastCost || p.costPrice || 0)
+            const price = Number(p.sellingPrice || p.basePrice || 0)
+            const brand = p.brand || p.brandName || (typeof p.brand === 'object' ? p.brand?.name : null) || 'Heritage Organic'
+            const category = p.category || p.categoryName || (typeof p.category === 'object' ? p.category?.name : null) || 'General'
+            const productGroup = p.productGroup || p.groupName || (typeof p.productGroup === 'object' ? p.productGroup?.name : null) || 'Grocery'
+            const expiryDays = p.expiryDays != null ? Number(p.expiryDays) : (p.daysToExpiry != null ? Number(p.daysToExpiry) : null)
+            const expiryDate = p.expiryDate || p.expireDate || null
+            const status = p.status || (qty <= 0 ? 'Out of Stock' : qty <= 10 ? 'Low Stock' : 'Active')
+            return {
+              outlet: p.outlet || 'Main Mart',
+              productCode: p.code || `PRD-${p.id}`,
+              barcode: p.barCode || p.barcode || '-',
+              description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Stock Product',
+              qty: qty,
+              uom: p.uom || 'Unit',
+              avgCost: avgCost,
+              lastCost: lastCost,
+              totalCost: Number((qty * avgCost).toFixed(2)),
+              price: price,
+              totalPrice: Number((qty * price).toFixed(2)),
+              brand,
+              category,
+              productGroup,
+              expiryDays,
+              expiryDate,
+              status,
+              onhand: qty,
+            }
+          })
         }
       }
 
@@ -1755,20 +2380,10 @@ export default function Report() {
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((p) => ({
             code: p.code || `PRD-${p.id}`,
-            name: p.title || p.name,
-            customer: 'Retail & Member Pricing',
-            outlet: p.outlet || 'All Outlets',
-            location: p.location || 'Shelf',
-            product: p.title || p.name,
-            category: p.category || 'General',
-            brand: p.brand || "B'Groceries",
-            supplier: p.supplier || 'Main Distributor',
-            baseCost: p.costPrice != null ? Number(p.costPrice) : 1.20,
-            sellingPrice: p.sellingPrice != null ? Number(p.sellingPrice) : 2.00,
-            memberPrice: p.memberPrice != null ? Number(p.memberPrice) : (Number(p.sellingPrice || 2) * 0.95).toFixed(2),
-            marginPct: p.costPrice && p.sellingPrice ? (((p.sellingPrice - p.costPrice) / p.sellingPrice) * 100).toFixed(1) + '%' : '25.0%',
-            tax: '10% VAT',
-            status: p.active !== false ? 'ACTIVE' : 'INACTIVE',
+            barcode: p.barCode || p.barcode || '-',
+            description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Stock Product',
+            uom: p.uom || 'Unit',
+            basePrice: Number(p.basePrice || p.sellingPrice || 0),
           }))
         }
       }
@@ -1779,18 +2394,19 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((l) => ({
-            txnId: l.id ? `TXN-${l.id}` : `TXN-${Date.now()}`,
-            date: (l.timestamp || l.createdAt || new Date().toISOString()).slice(0, 10),
-            customer: l.user || l.username || 'Admin Operator',
-            outlet: 'Main Mart',
-            location: 'Warehouse Floor A',
-            product: l.details || l.action || 'Stock Inventory Movement',
-            category: 'Audit Log',
-            brand: "B'Groceries",
-            supplier: 'System Audit',
-            type: l.action || 'STOCK_UPDATE',
-            operator: l.username || l.user || 'Admin',
-            status: (l.status || 'VERIFIED').toUpperCase(),
+            transactionType: (l.action || l.type || l.docType || 'RECEIVE').toUpperCase(),
+            document: l.document || l.docNo || l.code || `DOC-${l.id || 101}`,
+            date: (l.date || l.timestamp || l.createdAt || new Date().toISOString()).slice(0, 10),
+            productCode: l.productCode || l.code || 'PRD-001',
+            description: l.description || l.product || l.details || 'Stock Item',
+            outlet: l.outlet || 'Central Warehouse',
+            location: l.location || 'Warehouse Floor A',
+            qty: Number(l.qty || 10),
+            stockUom: l.stockUom || l.uom || 'Box',
+            tranUom: l.tranUom || l.uom || 'Unit',
+            cost: Number(l.cost || l.unitCost || 2.20),
+            amount: Number(l.amount || l.totalCost || 22.00),
+            balanceQty: Number(l.balanceQty ?? 150),
           }))
         }
       }
@@ -1801,24 +2417,16 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((p) => {
-            const onHand = Number(p.onHand ?? 0)
-            const minStock = Number(p.minStockLevel || 15)
+            const onhand = Number(p.onHand ?? 0)
+            const orderPoint = Number(p.minStockLevel || 15)
+            const orderQuantity = onhand < orderPoint ? Math.max(0, orderPoint - onhand + 20) : 0
             return {
-              code: p.code || `PRD-${p.id}`,
-              name: p.title || p.name,
-              customer: 'Reorder Planning',
-              outlet: p.outlet || 'Main Mart',
-              location: p.location || 'Cold Table 1',
-              product: p.title || p.name,
-              category: p.category || 'General',
-              brand: p.brand || "B'Groceries",
-              supplier: p.supplier || 'Main Distributor',
-              currentStock: `${onHand} units`,
-              safetyStock: `${Math.round(minStock * 0.6)} units`,
-              reorderPoint: `${minStock} units`,
-              suggestedPO: onHand < minStock ? `+${(minStock - onHand) + 15} units` : '0 units',
-              leadTime: '3-5 days',
-              status: onHand <= minStock ? 'REORDER_NEEDED' : 'HEALTHY',
+              productCode: p.code || `PRD-${p.id}`,
+              description: p.title || p.name || 'Standard Product',
+              onhand,
+              uom: p.uom || 'Unit',
+              orderPoint,
+              orderQuantity,
             }
           })
         }
@@ -1829,40 +2437,21 @@ export default function Report() {
         const res = await adminProductAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          const catMap = {}
-          items.forEach((p) => {
-            const cat = p.category || 'General Grocery'
-            const onHand = Number(p.onHand ?? 0)
-            const cost = Number(p.costPrice != null ? p.costPrice : 1.20)
-            const price = Number(p.sellingPrice != null ? p.sellingPrice : 2.00)
-
-            if (!catMap[cat]) {
-              catMap[cat] = { skus: 0, units: 0, cost: 0, retail: 0 }
-            }
-            catMap[cat].skus += 1
-            catMap[cat].units += onHand
-            catMap[cat].cost += onHand * cost
-            catMap[cat].retail += onHand * price
-          })
-
-          fetched = Object.entries(catMap).map(([catName, stats]) => {
-            const margin = stats.retail - stats.cost
-            const marginPct = stats.retail > 0 ? ((margin / stats.retail) * 100).toFixed(1) : '0.0'
+          fetched = items.map((p) => {
+            const onhand = Number(p.onHand ?? 0)
             return {
-              department: `${catName} Inventory`,
-              customer: 'Valuation Audit',
-              outlet: 'All Outlets',
-              location: 'Main Storage',
-              product: `${catName} Product Line`,
-              category: catName,
-              brand: 'Multiple Brands',
-              supplier: 'Multiple Suppliers',
-              skus: stats.skus,
-              units: stats.units,
-              fifoCost: Number(stats.cost.toFixed(2)),
-              retailValuation: Number(stats.retail.toFixed(2)),
-              potentialMargin: `$${margin.toFixed(2)} (${marginPct}%)`,
-              status: stats.units > 0 ? 'OPTIMAL' : 'ATTENTION_NEEDED',
+              productCode: p.code || `PRD-${p.id}`,
+              description: p.title || p.name || 'Stock Evaluation Item',
+              uom: p.uom || 'Unit',
+              beginning: Number(p.beginningQty ?? (onhand + 10)),
+              receive: Number(p.receiveQty ?? 20),
+              issue: Number(p.issueQty ?? 5),
+              adjust: Number(p.adjustQty ?? 0),
+              transferIn: Number(p.transferInQty ?? 2),
+              transferOut: Number(p.transferOutQty ?? 2),
+              sale: Number(p.saleQty ?? 15),
+              return: Number(p.returnQty ?? 0),
+              balance: onhand,
             }
           })
         }
@@ -2267,14 +2856,19 @@ export default function Report() {
       const q = customerFilter.trim().toLowerCase()
       list = list.filter((r) =>
         (r.customer && r.customer.toLowerCase().includes(q)) ||
-        (r.supplier && r.supplier.toLowerCase().includes(q))
+        (r.supplier && r.supplier.toLowerCase().includes(q)) ||
+        (r.receivedBy && r.receivedBy.toLowerCase().includes(q))
       )
     }
 
     // 3. Outlet Filter
     if (outletFilter !== 'all') {
       const q = outletFilter.toLowerCase()
-      list = list.filter((r) => r.outlet && r.outlet.toLowerCase().includes(q))
+      list = list.filter((r) =>
+        (r.outlet && r.outlet.toLowerCase().includes(q)) ||
+        (r.fromOutlet && r.fromOutlet.toLowerCase().includes(q)) ||
+        (r.toOutlet && r.toOutlet.toLowerCase().includes(q))
+      )
     }
 
     // 4. Location Filter
@@ -2289,7 +2883,17 @@ export default function Report() {
       list = list.filter((r) =>
         (r.product && r.product.toLowerCase().includes(q)) ||
         (r.name && r.name.toLowerCase().includes(q)) ||
-        (r.code && r.code.toLowerCase().includes(q))
+        (r.code && r.code.toLowerCase().includes(q)) ||
+        (r.productCode && r.productCode.toLowerCase().includes(q)) ||
+        (r.barcode && r.barcode.toLowerCase().includes(q)) ||
+        (r.description && r.description.toLowerCase().includes(q)) ||
+        (r.documentCode && r.documentCode.toLowerCase().includes(q)) ||
+        (r.document && r.document.toLowerCase().includes(q)) ||
+        (Array.isArray(r.products) && r.products.some((p) => String(p).toLowerCase().includes(q))) ||
+        (typeof r.products === 'string' && r.products.toLowerCase().includes(q)) ||
+        (Array.isArray(r.items) && r.items.some((it) =>
+          String(it.productName || it.title || it.name || it.code || it.barcode || '').toLowerCase().includes(q)
+        ))
       )
     }
 
@@ -2305,37 +2909,330 @@ export default function Report() {
       list = list.filter((r) => r.brand && r.brand.toLowerCase().includes(q))
     }
 
-    // 8. Supplier Filter
-    if (supplierFilter !== 'all') {
+    // 7b. Product Group Filter (General)
+    if (productGroupFilter !== 'all') {
+      const q = productGroupFilter.toLowerCase()
+      list = list.filter((r) => r.productGroup && r.productGroup.toLowerCase() === q)
+    }
+
+    // 8. Supplier Filter (Hidden on Transferred, Adjustment, Issued & Inventory List reports)
+    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all') {
       const q = supplierFilter.toLowerCase()
       list = list.filter((r) => r.supplier && r.supplier.toLowerCase().includes(q))
+    }
+
+    // 8b. Adjust Type Filter (For Adjustment report)
+    if (activeDataKey === 'adjustment' && adjustTypeFilter !== 'all') {
+      const q = adjustTypeFilter.toLowerCase()
+      list = list.filter((r) =>
+        (r.adjustType && r.adjustType.toLowerCase() === q) ||
+        (r.adjustmentType && r.adjustmentType.toLowerCase() === q) ||
+        (r.type && r.type.toLowerCase() === q)
+      )
+    }
+
+    // 9. Special Advance Filters for Request Transfer & Ship Request Transfer
+    if (activeDataKey === 'request-transfer' || activeDataKey === 'ship-request-transfer') {
+      if (requestOutletFilter !== 'all') {
+        const q = requestOutletFilter.toLowerCase()
+        list = list.filter((r) =>
+          (r.requestOutlet && r.requestOutlet.toLowerCase() === q) ||
+          (r.fromOutlet && r.fromOutlet.toLowerCase() === q)
+        )
+      }
+      if (requestLocationFilter !== 'all') {
+        const q = requestLocationFilter.toLowerCase()
+        list = list.filter((r) =>
+          (r.requestLocation && r.requestLocation.toLowerCase() === q) ||
+          (r.fromLocation && r.fromLocation.toLowerCase() === q)
+        )
+      }
+      if (toOutletFilter !== 'all') {
+        const q = toOutletFilter.toLowerCase()
+        list = list.filter((r) => r.toOutlet && r.toOutlet.toLowerCase() === q)
+      }
+      if (toLocationFilter !== 'all') {
+        const q = toLocationFilter.toLowerCase()
+        list = list.filter((r) => r.toLocation && r.toLocation.toLowerCase() === q)
+      }
+      if (statusFilter !== 'all') {
+        const q = statusFilter.toLowerCase()
+        list = list.filter((r) => r.status && r.status.toLowerCase() === q)
+      }
+      if (activeDataKey === 'request-transfer' && requestTransferTypeFilter !== 'all') {
+        const q = requestTransferTypeFilter.toLowerCase()
+        list = list.filter((r) =>
+          (r.requestTransferType && r.requestTransferType.toLowerCase() === q) ||
+          (r.transferType && r.transferType.toLowerCase() === q)
+        )
+      }
+      if (productGroupFilter !== 'all') {
+        const q = productGroupFilter.toLowerCase()
+        list = list.filter((r) => r.productGroup && r.productGroup.toLowerCase() === q)
+      }
+      if (brandFilter !== 'all') {
+        const q = brandFilter.toLowerCase()
+        list = list.filter((r) => r.brand && r.brand.toLowerCase() === q)
+      }
+      if (categoryFilter !== 'all') {
+        const q = categoryFilter.toLowerCase()
+        list = list.filter((r) => r.category && r.category.toLowerCase() === q)
+      }
+
+      // Group By sorting for Request Transfer & Ship Request Transfer
+      if (groupByFilter !== 'none') {
+        list = [...list].sort((a, b) => {
+          if (groupByFilter === 'by-request-outlet') {
+            return String(a.requestOutlet || a.fromOutlet || '').localeCompare(String(b.requestOutlet || b.fromOutlet || ''))
+          }
+          if (groupByFilter === 'by-request-location') {
+            return String(a.requestLocation || a.fromLocation || '').localeCompare(String(b.requestLocation || b.fromLocation || ''))
+          }
+          if (groupByFilter === 'by-to-outlet') {
+            return String(a.toOutlet || '').localeCompare(String(b.toOutlet || ''))
+          }
+          if (groupByFilter === 'by-to-location') {
+            return String(a.toLocation || '').localeCompare(String(b.toLocation || ''))
+          }
+          if (groupByFilter === 'by-status') {
+            return String(a.status || '').localeCompare(String(b.status || ''))
+          }
+          if (activeDataKey === 'request-transfer' && groupByFilter === 'by-type') {
+            return String(a.requestTransferType || a.transferType || '').localeCompare(String(b.requestTransferType || b.transferType || ''))
+          }
+          if (groupByFilter === 'by-product') {
+            return String(a.description || a.productCode || '').localeCompare(String(b.description || b.productCode || ''))
+          }
+          if (groupByFilter === 'by-group') {
+            return String(a.productGroup || '').localeCompare(String(b.productGroup || ''))
+          }
+          if (groupByFilter === 'by-brand') {
+            return String(a.brand || '').localeCompare(String(b.brand || ''))
+          }
+          if (groupByFilter === 'by-category') {
+            return String(a.category || '').localeCompare(String(b.category || ''))
+          }
+          if (groupByFilter === 'by-date') {
+            return String(a.date || '').localeCompare(String(b.date || ''))
+          }
+          return 0
+        })
+      }
+    }
+
+    // Group By sorting for Adjustment report
+    if (activeDataKey === 'adjustment' && groupByFilter !== 'none') {
+      list = [...list].sort((a, b) => {
+        if (groupByFilter === 'date') {
+          return String(a.date || '').localeCompare(String(b.date || ''))
+        }
+        if (groupByFilter === 'by-adjust-type') {
+          return String(a.adjustType || a.adjustmentType || '').localeCompare(String(b.adjustType || b.adjustmentType || ''))
+        }
+        if (groupByFilter === 'outlet') {
+          return String(a.outlet || '').localeCompare(String(b.outlet || ''))
+        }
+        if (groupByFilter === 'location') {
+          return String(a.location || '').localeCompare(String(b.location || ''))
+        }
+        if (groupByFilter === 'by-group') {
+          return String(a.productGroup || '').localeCompare(String(b.productGroup || ''))
+        }
+        if (groupByFilter === 'category') {
+          return String(a.category || '').localeCompare(String(b.category || ''))
+        }
+        if (groupByFilter === 'brand') {
+          return String(a.brand || '').localeCompare(String(b.brand || ''))
+        }
+        if (groupByFilter === 'product') {
+          return String(a.description || a.productCode || '').localeCompare(String(b.description || b.productCode || ''))
+        }
+        return 0
+      })
+    }
+
+    // Group By sorting for Issued report
+    if (activeDataKey === 'issued' && groupByFilter !== 'none') {
+      list = [...list].sort((a, b) => {
+        if (groupByFilter === 'date') {
+          return String(a.date || '').localeCompare(String(b.date || ''))
+        }
+        if (groupByFilter === 'outlet') {
+          return String(a.outlet || '').localeCompare(String(b.outlet || ''))
+        }
+        if (groupByFilter === 'location') {
+          return String(a.location || '').localeCompare(String(b.location || ''))
+        }
+        if (groupByFilter === 'by-group') {
+          return String(a.productGroup || '').localeCompare(String(b.productGroup || ''))
+        }
+        if (groupByFilter === 'category') {
+          return String(a.category || '').localeCompare(String(b.category || ''))
+        }
+        if (groupByFilter === 'brand') {
+          return String(a.brand || '').localeCompare(String(b.brand || ''))
+        }
+        if (groupByFilter === 'product') {
+          return String(a.description || a.productCode || '').localeCompare(String(b.description || b.productCode || ''))
+        }
+        return 0
+      })
+    }
+
+    // Special Advance Filters & Sorting for Inventory List
+    if (activeDataKey === 'inventory-list') {
+      // Expiry Day Filter
+      if (expiryDayFilter !== 'all') {
+        list = list.filter((r) => {
+          let days = r.expiryDays != null ? Number(r.expiryDays) : null
+          if (days == null && r.expiryDate) {
+            const exp = new Date(r.expiryDate).getTime()
+            const now = new Date().getTime()
+            days = Math.round((exp - now) / (1000 * 60 * 60 * 24))
+          }
+          if (days == null) return false
+          if (expiryDayFilter === 'expired') return days <= 0
+          if (expiryDayFilter === 'within-7') return days > 0 && days <= 7
+          if (expiryDayFilter === 'within-30') return days > 0 && days <= 30
+          if (expiryDayFilter === 'within-60') return days > 0 && days <= 60
+          if (expiryDayFilter === 'within-90') return days > 0 && days <= 90
+          if (expiryDayFilter === 'good') return days > 90
+          return true
+        })
+      }
+
+      // Value Filter (Textbox)
+      if (inventoryValueFilter.trim()) {
+        const raw = inventoryValueFilter.trim()
+        const opMatch = raw.match(/^([><]=?|=)\s*([0-9.]+)/)
+        if (opMatch) {
+          const op = opMatch[1]
+          const val = parseFloat(opMatch[2])
+          list = list.filter((r) => {
+            const c = Number(r.totalCost || r.cost || 0)
+            const p = Number(r.totalPrice || r.price || 0)
+            if (op === '>=') return c >= val || p >= val
+            if (op === '<=') return c <= val || p <= val
+            if (op === '>') return c > val || p > val
+            if (op === '<') return c < val || p < val
+            return c === val || p === val
+          })
+        } else {
+          const num = parseFloat(raw.replace(/[^0-9.-]+/g, ''))
+          if (!isNaN(num)) {
+            list = list.filter((r) => {
+              const c = Number(r.totalCost || 0)
+              const p = Number(r.totalPrice || 0)
+              return c >= num || p >= num || String(c).includes(raw) || String(p).includes(raw)
+            })
+          } else {
+            const q = raw.toLowerCase()
+            list = list.filter((r) =>
+              String(r.totalCost || '').toLowerCase().includes(q) ||
+              String(r.totalPrice || '').toLowerCase().includes(q)
+            )
+          }
+        }
+      }
+
+      // Onhand Filter (Dropdown)
+      if (onhandFilter !== 'all') {
+        list = list.filter((r) => {
+          const stock = Number(r.qty ?? r.onhand ?? 0)
+          if (onhandFilter === 'in-stock') return stock > 0
+          if (onhandFilter === 'out-of-stock') return stock <= 0
+          if (onhandFilter === 'low-stock') return stock > 0 && stock <= 10
+          if (onhandFilter === 'overstock') return stock >= 100
+          if (onhandFilter === 'negative') return stock < 0
+          return true
+        })
+      }
+
+      // Status Filter (Dropdown)
+      if (statusFilter !== 'all') {
+        const q = statusFilter.toLowerCase()
+        list = list.filter((r) => r.status && r.status.toLowerCase().includes(q))
+      }
+
+      // Group By sorting for Inventory List
+      if (groupByFilter !== 'none') {
+        list = [...list].sort((a, b) => {
+          if (groupByFilter === 'outlet') {
+            return String(a.outlet || '').localeCompare(String(b.outlet || ''))
+          }
+          if (groupByFilter === 'brand') {
+            return String(a.brand || '').localeCompare(String(b.brand || ''))
+          }
+          if (groupByFilter === 'category') {
+            return String(a.category || '').localeCompare(String(b.category || ''))
+          }
+          if (groupByFilter === 'by-group') {
+            return String(a.productGroup || '').localeCompare(String(b.productGroup || ''))
+          }
+          if (groupByFilter === 'by-status') {
+            return String(a.status || '').localeCompare(String(b.status || ''))
+          }
+          if (groupByFilter === 'by-expiry') {
+            const dA = a.expiryDays != null ? Number(a.expiryDays) : 9999
+            const dB = b.expiryDays != null ? Number(b.expiryDays) : 9999
+            return dA - dB
+          }
+          if (groupByFilter === 'by-onhand') {
+            const qA = Number(a.qty ?? a.onhand ?? 0)
+            const qB = Number(b.qty ?? b.onhand ?? 0)
+            return qB - qA
+          }
+          if (groupByFilter === 'product') {
+            return String(a.description || a.productCode || '').localeCompare(String(b.description || b.productCode || ''))
+          }
+          return 0
+        })
+      }
     }
 
     return list
   }, [
     liveData,
+    activeDataKey,
     fromDate,
     toDate,
     customerFilter,
     outletFilter,
     locationFilter,
+    adjustTypeFilter,
     productFilter,
     categoryFilter,
     brandFilter,
     supplierFilter,
+    expiryDayFilter,
+    inventoryValueFilter,
+    onhandFilter,
+    requestOutletFilter,
+    requestLocationFilter,
+    toOutletFilter,
+    toLocationFilter,
+    statusFilter,
+    requestTransferTypeFilter,
+    productGroupFilter,
+    groupByFilter,
+    viewAsFilter,
   ])
 
-  // Table Columns extracted dynamically
+  // Table Columns extracted dynamically - strictly follows schema for all 11 Stock Reports
   const tableColumns = useMemo(() => {
+    if (STOCK_REPORT_SCHEMAS[activeDataKey]) {
+      return STOCK_REPORT_SCHEMAS[activeDataKey]
+    }
     if (!displayedRecords || displayedRecords.length === 0) return []
     return Object.keys(displayedRecords[0])
-  }, [displayedRecords])
+  }, [activeDataKey, displayedRecords])
 
   // Sync selected columns from localStorage or default to all available columns
   useEffect(() => {
     if (!activeDataKey || tableColumns.length === 0) return
     try {
-      const saved = localStorage.getItem(`bg_stock_report_cols_${activeDataKey}`)
+      const storageKey = `bg_stock_report_cols_v2_${activeDataKey}`
+      const saved = localStorage.getItem(storageKey)
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -2373,7 +3270,7 @@ export default function Report() {
     setVisibleCols(new Set(colDraft))
     if (activeDataKey) {
       try {
-        localStorage.setItem(`bg_stock_report_cols_${activeDataKey}`, JSON.stringify(colsArray))
+        localStorage.setItem(`bg_stock_report_cols_v2_${activeDataKey}`, JSON.stringify(colsArray))
       } catch (e) {
         console.warn('Failed to save report columns:', e)
       }
@@ -2438,6 +3335,16 @@ export default function Report() {
 
   // Reset all Advance Filters
   const handleResetAdvanceFilters = () => {
+    setRequestOutletFilter('all')
+    setRequestLocationFilter('all')
+    setToOutletFilter('all')
+    setToLocationFilter('all')
+    setStatusFilter('all')
+    setRequestTransferTypeFilter('all')
+    setAdjustTypeFilter('all')
+    setExpiryDayFilter('all')
+    setInventoryValueFilter('')
+    setOnhandFilter('all')
     setOutletFilter('all')
     setLocationFilter('all')
     setProductFilter('')
@@ -2456,7 +3363,13 @@ export default function Report() {
 
   // Export to Excel handler
   const handleExportExcel = () => {
-    const reportTitle = activeCurrentModule ? activeCurrentModule.en : 'Received'
+    const rawTitle = activeCurrentModule ? activeCurrentModule.en : 'Received'
+    const reportHeading = (/^received/i.test(rawTitle)
+      ? 'Received Report'
+      : /report$/i.test(rawTitle)
+        ? rawTitle
+        : `${rawTitle} Report`).trim()
+
     if (displayedRecords.length === 0) {
       showNotification?.({ type: 'warning', title: 'Export', message: 'No records available to export.' })
       return
@@ -2466,18 +3379,18 @@ export default function Report() {
     const dataRows = displayedRecords.map((row) => activeColumns.map((col) => row[col]))
 
     exportStyledExcel({
-      sheetName: `${reportTitle} Report`.slice(0, 31),
-      title: `B'Groceries - ${reportTitle} Report`,
+      sheetName: `${reportHeading}`.slice(0, 31),
+      title: `B'Groceries - ${reportHeading}`,
       subtitle: `Period: ${fromDate || 'Start'} to ${toDate || 'End'} | Exported: ${new Date().toLocaleString()}`,
       headers,
       dataRows,
-      fileName: `Report_${reportTitle.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      fileName: `${reportHeading.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
     })
 
     showNotification?.({
       type: 'success',
       title: 'Excel Exported',
-      message: `${reportTitle} report (${activeColumns.length} columns) exported successfully.`,
+      message: `${reportHeading} (${activeColumns.length} columns) exported successfully.`,
     })
   }
 
@@ -2491,7 +3404,13 @@ export default function Report() {
   // When path is /admin/report/stock/:subKey or /admin/report/:moduleKey
   // ==========================================
   if (activeCurrentModule) {
-    const reportTitle = activeCurrentModule.en
+    const rawTitle = activeCurrentModule.en || 'Report'
+    const reportHeading = (/^received/i.test(rawTitle)
+      ? 'Received Report'
+      : /report$/i.test(rawTitle)
+        ? rawTitle
+        : `${rawTitle} Report`).trim()
+    const reportTitle = reportHeading
 
     return (
       <div className={`space-y-6 font-['Montserrat'] ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
@@ -2581,11 +3500,10 @@ export default function Report() {
         </div>
 
         {/* 1. TOP HEADER SECTION */}
-        <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-3xl border p-5 sm:p-6 shadow-xl no-print ${
-          isDark
-            ? 'border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950'
-            : 'border-slate-200 bg-white shadow-slate-200/50'
-        }`}>
+        <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-3xl border p-5 sm:p-6 shadow-xl no-print ${isDark
+          ? 'border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950'
+          : 'border-slate-200 bg-white shadow-slate-200/50'
+          }`}>
           <div className="flex items-center gap-3.5">
             <span
               className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl ring-1 shadow-lg"
@@ -2595,19 +3513,23 @@ export default function Report() {
             </span>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className={`text-xl sm:text-2xl font-black ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>Preview Report</h1>
+                <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
+                  {reportHeading}
+                </h1>
                 <span
                   className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase font-mono tracking-wider"
                   style={{ background: activeCurrentModule.bg, color: activeCurrentModule.color, border: `1px solid ${activeCurrentModule.color}40` }}
                 >
-                  {reportTitle}
+                  {activeCurrentModule.tag || (activeCurrentModule.route?.includes('/stock/') ? 'Stock' : 'Report')}
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                   ● Live Data
                 </span>
               </div>
               <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Preview to show your {reportTitle.toLowerCase()} report with exportation
+                {lang === 'kh'
+                  ? `មើល និងទាញយកទិន្នន័យ ${activeCurrentModule.kh}`
+                  : `Preview and export live data records for ${reportHeading.toLowerCase()}`}
               </p>
             </div>
           </div>
@@ -2615,11 +3537,10 @@ export default function Report() {
           <div className="flex items-center gap-2 self-start sm:self-center">
             <Link
               to={backRoute}
-              className={`inline-flex items-center gap-1.5 rounded-xl border px-4 py-2 text-xs font-bold transition active:scale-95 ${
-                isDark
-                  ? 'border-slate-700 bg-slate-950/80 text-slate-300 hover:text-white hover:border-slate-500'
-                  : 'border-slate-300 bg-white text-slate-700 hover:text-slate-900 hover:border-slate-400 shadow-xs'
-              }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-4 py-2 text-xs font-bold transition active:scale-95 ${isDark
+                ? 'border-slate-700 bg-slate-950/80 text-slate-300 hover:text-white hover:border-slate-500'
+                : 'border-slate-300 bg-white text-slate-700 hover:text-slate-900 hover:border-slate-400 shadow-xs'
+                }`}
             >
               <span>←</span>
               <span>{backLabel}</span>
@@ -2628,11 +3549,10 @@ export default function Report() {
         </div>
 
         {/* 2. PREVIEW REPORT CONTROLS & ADVANCE FILTERS */}
-        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 no-print ${
-          isDark
-            ? 'border-slate-800 bg-slate-900/90 text-slate-100'
-            : 'border-slate-200 bg-white text-slate-800 shadow-slate-200/50'
-        }`}>
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 no-print ${isDark
+          ? 'border-slate-800 bg-slate-900/90 text-slate-100'
+          : 'border-slate-200 bg-white text-slate-800 shadow-slate-200/50'
+          }`}>
           {/* PRIMARY CONTROLS ROW */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 items-end">
             {/* From Date */}
@@ -2647,9 +3567,8 @@ export default function Report() {
                   setFromDate(e.target.value)
                   setDatePreset('custom')
                 }}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
-                  isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
-                }`}
+                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                  }`}
               />
             </div>
 
@@ -2665,50 +3584,148 @@ export default function Report() {
                   setToDate(e.target.value)
                   setDatePreset('custom')
                 }}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
-                  isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
-                }`}
+                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                  }`}
               />
             </div>
 
-            {/* Date Preset Dropdown */}
-            <div className="sm:col-span-2">
-              <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                Date Range
-              </label>
-              <select
-                value={datePreset}
-                onChange={(e) => handleDatePresetChange(e.target.value)}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
-                  isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
-                }`}
-              >
-                <option value="all">All Dates</option>
-                <option value="today">Today</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="this-week">This Week</option>
-                <option value="last-week">Last Week</option>
-                <option value="this-month">This Month</option>
-                <option value="last-month">Last Month</option>
-                <option value="custom">Custom Range</option>
-              </select>
-            </div>
+            {activeDataKey === 'inventory-list' ? (
+              <>
+                {/* Product - Textbox Search Icon */}
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                      Product ({availableProducts.length} Live)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductModalQuery(productFilter)
+                        setProductModalCategory('all')
+                        setShowProductModal(true)
+                      }}
+                      className="text-[10px] font-bold text-blue-500 hover:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                      title="Open full catalog search popup"
+                    >
+                      <span>🔍 Browse</span>
+                    </button>
+                  </div>
+                  <div className="relative flex items-center group">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductModalQuery(productFilter)
+                        setProductModalCategory('all')
+                        setShowProductModal(true)
+                      }}
+                      className="absolute left-2.5 p-0.5 text-slate-400 hover:text-blue-500 transition cursor-pointer"
+                      title="Click search icon to open product search popup"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
 
-            {/* Customer */}
-            <div className="sm:col-span-2">
-              <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                Customer / Party
-              </label>
-              <input
-                type="text"
-                placeholder="Search customer / party..."
-                value={customerFilter}
-                onChange={(e) => setCustomerFilter(e.target.value)}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
-                  isDark ? 'border-slate-700 bg-slate-950 text-white placeholder-slate-500' : 'border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400'
-                }`}
-              />
-            </div>
+                    <input
+                      type="text"
+                      list="live-products-datalist-inventory-top"
+                      placeholder="Search SKU or name..."
+                      value={productFilter}
+                      onChange={(e) => setProductFilter(e.target.value)}
+                      className={`w-full rounded-xl border pl-8 pr-7 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                        isDark ? 'border-slate-700 bg-slate-950 text-white placeholder-slate-500' : 'border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400'
+                      }`}
+                    />
+
+                    {productFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setProductFilter('')}
+                        className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                        title="Clear product filter"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <datalist id="live-products-datalist-inventory-top">
+                    {availableProducts.map((p) => (
+                      <option key={p.id || p.code} value={p.title || p.name}>
+                        {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+
+                {/* Product Group - DropDown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Product Group ({filterOptions.productGroups.length} Live)
+                  </label>
+                  <select
+                    value={productGroupFilter}
+                    onChange={(e) => setProductGroupFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Product Groups</option>
+                    {filterOptions.productGroups.map((pg) => (
+                      <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                        {pg.description || pg.name || pg.code}
+                      </option>
+                    ))}
+                    {filterOptions.productGroups.length === 0 && (
+                      <>
+                        <option value="Fresh Grocery">Fresh Grocery</option>
+                        <option value="Pantry Staples">Pantry Staples</option>
+                        <option value="Cold Chain">Cold Chain</option>
+                        <option value="Beverages">Beverages</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Date Preset Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Date Range
+                  </label>
+                  <select
+                    value={datePreset}
+                    onChange={(e) => handleDatePresetChange(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                      }`}
+                  >
+                    <option value="all">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="this-week">This Week</option>
+                    <option value="last-week">Last Week</option>
+                    <option value="this-month">This Month</option>
+                    <option value="last-month">Last Month</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+
+                {/* Customer */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Customer / Party
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Search customer / party..."
+                    value={customerFilter}
+                    onChange={(e) => setCustomerFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white placeholder-slate-500' : 'border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400'
+                      }`}
+                  />
+                </div>
+              </>
+            )}
 
             {/* ACTION BUTTONS */}
             <div className="sm:col-span-4 flex flex-wrap items-center gap-2 justify-end">
@@ -2727,9 +3744,8 @@ export default function Report() {
               <button
                 type="button"
                 onClick={() => setPrintPreviewOpen(true)}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition active:scale-95 ${
-                  isDark ? 'border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300' : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 text-slate-700'
-                }`}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition active:scale-95 ${isDark ? 'border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300' : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 text-slate-700'
+                  }`}
               >
                 <span>🖨️</span>
                 <span>Preview for Print</span>
@@ -2752,16 +3768,14 @@ export default function Report() {
                   setColDraft(new Set(visibleCols.size ? visibleCols : tableColumns))
                   setShowColModal(true)
                 }}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition active:scale-95 ${
-                  isDark ? 'border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300' : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 text-slate-700'
-                }`}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition active:scale-95 ${isDark ? 'border-slate-700 bg-slate-800/90 hover:bg-slate-700 hover:text-white text-slate-300' : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 text-slate-700'
+                  }`}
                 title="Choose columns to display on table and printout"
               >
                 <span>📋</span>
                 <span>Choose Column</span>
-                <span className={`ml-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-mono border ${
-                  isDark ? 'bg-slate-950 text-blue-400 border-slate-800' : 'bg-white text-blue-600 border-slate-200'
-                }`}>
+                <span className={`ml-0.5 rounded-md px-1.5 py-0.5 text-[10px] font-mono border ${isDark ? 'bg-slate-950 text-blue-400 border-slate-800' : 'bg-white text-blue-600 border-slate-200'
+                  }`}>
                   {activeColumns.length}/{tableColumns.length}
                 </span>
               </button>
@@ -2770,11 +3784,10 @@ export default function Report() {
               <button
                 type="button"
                 onClick={() => setAdvanceOpen(!advanceOpen)}
-                className={`relative inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-black transition-all active:scale-95 shadow-md ${
-                  advanceOpen
-                    ? 'bg-purple-600 text-white ring-2 ring-purple-400 shadow-purple-600/30'
-                    : 'bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-purple-600/25 ring-1 ring-purple-500/50 hover:scale-[1.02]'
-                }`}
+                className={`relative inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-black transition-all active:scale-95 shadow-md ${advanceOpen
+                  ? 'bg-purple-600 text-white ring-2 ring-purple-400 shadow-purple-600/30'
+                  : 'bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 hover:from-purple-600 hover:to-indigo-500 text-white shadow-purple-600/25 ring-1 ring-purple-500/50 hover:scale-[1.02]'
+                  }`}
               >
                 <span className="text-sm">⚙️</span>
                 <span>Advance</span>
@@ -2793,41 +3806,162 @@ export default function Report() {
           {activeAdvanceFilterCount > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
               <span className="text-[11px] font-bold text-slate-400">Active Criteria:</span>
-              {outletFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Outlet: {outletFilter}
-                  <button type="button" onClick={() => setOutletFilter('all')} className="hover:text-white">✕</button>
-                </span>
-              )}
-              {locationFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Location: {locationFilter}
-                  <button type="button" onClick={() => setLocationFilter('all')} className="hover:text-white">✕</button>
-                </span>
-              )}
-              {productFilter.trim() && (
-                <span className="inline-flex items-center gap-1 bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Product: {productFilter}
-                  <button type="button" onClick={() => setProductFilter('')} className="hover:text-white">✕</button>
-                </span>
-              )}
-              {categoryFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Category: {categoryFilter}
-                  <button type="button" onClick={() => setCategoryFilter('all')} className="hover:text-white">✕</button>
-                </span>
-              )}
-              {brandFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 bg-pink-500/20 border border-pink-500/40 text-pink-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Brand: {brandFilter}
-                  <button type="button" onClick={() => setBrandFilter('all')} className="hover:text-white">✕</button>
-                </span>
-              )}
-              {supplierFilter !== 'all' && (
-                <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
-                  Supplier: {supplierFilter}
-                  <button type="button" onClick={() => setSupplierFilter('all')} className="hover:text-white">✕</button>
-                </span>
+              {(activeDataKey === 'request-transfer' || activeDataKey === 'ship-request-transfer') ? (
+                <>
+                  {requestOutletFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Req Outlet: {requestOutletFilter}
+                      <button type="button" onClick={() => setRequestOutletFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {requestLocationFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Req Loc: {requestLocationFilter}
+                      <button type="button" onClick={() => setRequestLocationFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {toOutletFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      To Outlet: {toOutletFilter}
+                      <button type="button" onClick={() => setToOutletFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {toLocationFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      To Loc: {toLocationFilter}
+                      <button type="button" onClick={() => setToLocationFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {productFilter.trim() && (
+                    <span className="inline-flex items-center gap-1 bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Product: {productFilter}
+                      <button type="button" onClick={() => setProductFilter('')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {productGroupFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Group: {productGroupFilter}
+                      <button type="button" onClick={() => setProductGroupFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {brandFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-pink-500/20 border border-pink-500/40 text-pink-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Brand: {brandFilter}
+                      <button type="button" onClick={() => setBrandFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {categoryFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Category: {categoryFilter}
+                      <button type="button" onClick={() => setCategoryFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {groupByFilter !== 'none' && (
+                    <span className="inline-flex items-center gap-1 bg-slate-500/20 border border-slate-500/40 text-slate-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Group By: {groupByFilter}
+                      <button type="button" onClick={() => setGroupByFilter('none')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {statusFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Status: {statusFilter}
+                      <button type="button" onClick={() => setStatusFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'request-transfer' && requestTransferTypeFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-violet-500/20 border border-violet-500/40 text-violet-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Type: {requestTransferTypeFilter}
+                      <button type="button" onClick={() => setRequestTransferTypeFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  {outletFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Outlet: {outletFilter}
+                      <button type="button" onClick={() => setOutletFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {locationFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Location: {locationFilter}
+                      <button type="button" onClick={() => setLocationFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {productFilter.trim() && (
+                    <span className="inline-flex items-center gap-1 bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Product: {productFilter}
+                      <button type="button" onClick={() => setProductFilter('')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'adjustment' && adjustTypeFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-violet-500/20 border border-violet-500/40 text-violet-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Adjust Type: {adjustTypeFilter}
+                      <button type="button" onClick={() => setAdjustTypeFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {productGroupFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Group: {productGroupFilter}
+                      <button type="button" onClick={() => setProductGroupFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {categoryFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Category: {categoryFilter}
+                      <button type="button" onClick={() => setCategoryFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {brandFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-pink-500/20 border border-pink-500/40 text-pink-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Brand: {brandFilter}
+                      <button type="button" onClick={() => setBrandFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {groupByFilter !== 'none' && (
+                    <span className="inline-flex items-center gap-1 bg-slate-500/20 border border-slate-500/40 text-slate-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Group By: {groupByFilter}
+                      <button type="button" onClick={() => setGroupByFilter('none')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {viewAsFilter !== 'detailed' && (
+                    <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      View As: {viewAsFilter}
+                      <button type="button" onClick={() => setViewAsFilter('detailed')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'inventory-list' && expiryDayFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Expiry: {expiryDayFilter}
+                      <button type="button" onClick={() => setExpiryDayFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'inventory-list' && inventoryValueFilter.trim() && (
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Value: {inventoryValueFilter}
+                      <button type="button" onClick={() => setInventoryValueFilter('')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'inventory-list' && onhandFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-teal-500/20 border border-teal-500/40 text-teal-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Onhand: {onhandFilter}
+                      <button type="button" onClick={() => setOnhandFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'inventory-list' && statusFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Status: {statusFilter}
+                      <button type="button" onClick={() => setStatusFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Supplier: {supplierFilter}
+                      <button type="button" onClick={() => setSupplierFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                </>
               )}
               <button
                 type="button"
@@ -2859,277 +3993,1388 @@ export default function Report() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                {/* 1. Outlet Dropdown (Live from offices) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Outlet ({filterOptions.outlets.length} Live)
-                  </label>
-                  <select
-                    value={outletFilter}
-                    onChange={(e) => setOutletFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Outlets</option>
-                    {filterOptions.outlets.map((o) => (
-                      <option key={o.id} value={o.description || o.name || o.code}>
-                        {o.description || o.name || o.code}
-                      </option>
-                    ))}
-                    {filterOptions.outlets.length === 0 && (
-                      <>
-                        <option value="Central Warehouse">Central Warehouse</option>
-                        <option value="Main Mart">Main Mart</option>
-                        <option value="BKK1 Branch">BKK1 Branch</option>
-                        <option value="Toul Kork Branch">Toul Kork Branch</option>
-                        <option value="SR Depot">SR Depot</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+              {activeDataKey === 'request-transfer' || activeDataKey === 'ship-request-transfer' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Request Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Request Outlet ({liveRequestTransferOptions.requestOutlets.length} Live)
+                    </label>
+                    <select
+                      value={requestOutletFilter}
+                      onChange={(e) => setRequestOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Request Outlets</option>
+                      {liveRequestTransferOptions.requestOutlets.map((o) => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 2. Location Dropdown (Live from sections) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Location ({filterOptions.locations.length} Live)
-                  </label>
-                  <select
-                    value={locationFilter}
-                    onChange={(e) => setLocationFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Locations</option>
-                    {filterOptions.locations.map((l) => (
-                      <option key={l.id} value={l.description || l.name || l.code}>
-                        {l.description || l.name || l.code}
-                      </option>
-                    ))}
-                    {filterOptions.locations.length === 0 && (
-                      <>
-                        <option value="Warehouse Floor A">Warehouse Floor A</option>
-                        <option value="Cold Storage #1">Cold Storage #1</option>
-                        <option value="Chiller Room 2">Chiller Room 2</option>
-                        <option value="Aisle 3 Chiller">Aisle 3 Chiller</option>
-                        <option value="Meat Freezer #1">Meat Freezer #1</option>
-                        <option value="Main Shelf B">Main Shelf B</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+                  {/* 2. Request Location - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Request Location ({liveRequestTransferOptions.requestLocations.length} Live)
+                    </label>
+                    <select
+                      value={requestLocationFilter}
+                      onChange={(e) => setRequestLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Request Locations</option>
+                      {liveRequestTransferOptions.requestLocations.map((l) => (
+                        <option key={l} value={l}>{l}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 3. Product Search with Live Datalist */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Product ({filterOptions.products.length} Live)
-                  </label>
-                  <input
-                    type="text"
-                    list="live-products-datalist"
-                    placeholder="Search product SKU/name..."
-                    value={productFilter}
-                    onChange={(e) => setProductFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400"
-                  />
-                  <datalist id="live-products-datalist">
-                    {filterOptions.products.map((p) => (
-                      <option key={p.id} value={p.title || p.name}>
-                        {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
-                      </option>
-                    ))}
-                  </datalist>
-                </div>
+                  {/* 3. To Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      To Outlet ({liveRequestTransferOptions.toOutlets.length} Live)
+                    </label>
+                    <select
+                      value={toOutletFilter}
+                      onChange={(e) => setToOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All To Outlets</option>
+                      {liveRequestTransferOptions.toOutlets.map((o) => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 4. Product Group Dropdown (Live from product groups) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Product Group ({filterOptions.productGroups.length} Live)
-                  </label>
-                  <select
-                    value={productGroupFilter}
-                    onChange={(e) => setProductGroupFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Groups</option>
-                    {filterOptions.productGroups.map((pg) => (
-                      <option key={pg.id} value={pg.description || pg.name || pg.code}>
-                        {pg.description || pg.name || pg.code}
-                      </option>
-                    ))}
-                    {filterOptions.productGroups.length === 0 && (
-                      <>
-                        <option value="Fresh Grocery">Fresh Grocery</option>
-                        <option value="Pantry Staples">Pantry Staples</option>
-                        <option value="Cold Chain">Cold Chain</option>
-                        <option value="Beverages">Beverages</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+                  {/* 4. To Location - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      To Location ({liveRequestTransferOptions.toLocations.length} Live)
+                    </label>
+                    <select
+                      value={toLocationFilter}
+                      onChange={(e) => setToLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All To Locations</option>
+                      {liveRequestTransferOptions.toLocations.map((l) => (
+                        <option key={l} value={l}>{l}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 5. Category Dropdown (Live from categories) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Category ({filterOptions.categories.length} Live)
-                  </label>
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Categories</option>
-                    {filterOptions.categories.map((c) => (
-                      <option key={c.id} value={c.description || c.name || c.code}>
-                        {c.description || c.name || c.code}
-                      </option>
-                    ))}
-                    {filterOptions.categories.length === 0 && (
-                      <>
-                        <option value="Produce">Produce</option>
-                        <option value="Dairy">Dairy</option>
-                        <option value="Meat">Meat</option>
-                        <option value="Bakery">Bakery</option>
-                        <option value="Grains">Grains</option>
-                        <option value="Spices">Spices</option>
-                        <option value="Beverages">Beverages</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+                  {/* 5. Product - Search icon + browse popup trigger */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
 
-                {/* 6. Brand Dropdown (Live from brands) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Brand ({filterOptions.brands.length} Live)
-                  </label>
-                  <select
-                    value={brandFilter}
-                    onChange={(e) => setBrandFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Brands</option>
-                    {filterOptions.brands.map((b) => (
-                      <option key={b.id} value={b.description || b.name || b.code}>
-                        {b.description || b.name || b.code}
-                      </option>
-                    ))}
-                    {filterOptions.brands.length === 0 && (
-                      <>
-                        <option value="Heritage Organic">Heritage Organic</option>
-                        <option value="Angkor Harvest">Angkor Harvest</option>
-                        <option value="CP Foods">CP Foods</option>
-                        <option value="Coca-Cola">Coca-Cola</option>
-                        <option value="Lucky Local">Lucky Local</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+                      <input
+                        type="text"
+                        list="live-products-datalist"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-20 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
 
-                {/* 7. Supplier Dropdown (Live from suppliers) */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Supplier ({filterOptions.suppliers.length} Live)
-                  </label>
-                  <select
-                    value={supplierFilter}
-                    onChange={(e) => setSupplierFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="all">All Suppliers</option>
-                    {filterOptions.suppliers.map((s) => (
-                      <option key={s.id} value={s.name || s.description || s.code}>
-                        {s.name || s.description || s.code}
-                      </option>
-                    ))}
-                    {filterOptions.suppliers.length === 0 && (
-                      <>
-                        <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
-                        <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
-                        <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
-                        <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
-                        <option value="Lucky Local Supplies">Lucky Local Supplies</option>
-                      </>
-                    )}
-                  </select>
-                </div>
+                      <div className="absolute right-1.5 flex items-center gap-1">
+                        {productFilter && (
+                          <button
+                            type="button"
+                            onClick={() => setProductFilter('')}
+                            className="p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                            title="Clear product filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductModalQuery(productFilter)
+                            setProductModalCategory('all')
+                            setShowProductModal(true)
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold transition shadow-xs active:scale-95 cursor-pointer"
+                          title="Search Products Popup"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Search</span>
+                        </button>
+                      </div>
+                    </div>
+                    <datalist id="live-products-datalist">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
 
-                {/* 8. Group By Dropdown */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    Group By
-                  </label>
-                  <select
-                    value={groupByFilter}
-                    onChange={(e) => setGroupByFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="none">None (Standard)</option>
-                    <option value="date">By Date</option>
-                    <option value="supplier">By Supplier</option>
-                    <option value="outlet">By Outlet</option>
-                    <option value="category">By Category</option>
-                    <option value="product">By Product</option>
-                  </select>
-                </div>
+                  {/* 6. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({liveRequestTransferOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {liveRequestTransferOptions.productGroups.map((pg) => (
+                        <option key={pg} value={pg}>{pg}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 9. View As Dropdown */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                    View As
-                  </label>
-                  <select
-                    value={viewAsFilter}
-                    onChange={(e) => setViewAsFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
-                  >
-                    <option value="detailed">Detailed List</option>
-                    <option value="summary">Summary Totals</option>
-                    <option value="matrix">Financial Matrix</option>
-                  </select>
-                </div>
+                  {/* 7. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({liveRequestTransferOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {liveRequestTransferOptions.brands.map((b) => (
+                        <option key={b} value={b}>{b}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* Quick Action: Reset inside panel */}
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={handleResetAdvanceFilters}
-                    className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center"
-                  >
-                    ✕ Reset Advance
-                  </button>
+                  {/* 8. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({liveRequestTransferOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {liveRequestTransferOptions.categories.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 9. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="by-request-outlet">By Request Outlet</option>
+                      <option value="by-request-location">By Request Location</option>
+                      <option value="by-to-outlet">By To Outlet</option>
+                      <option value="by-to-location">By To Location</option>
+                      <option value="by-status">By Status</option>
+                      {activeDataKey === 'request-transfer' && (
+                        <option value="by-type">By Request Transfer Type</option>
+                      )}
+                      <option value="by-product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="by-brand">By Brand</option>
+                      <option value="by-category">By Category</option>
+                      <option value="by-date">By Date</option>
+                    </select>
+                  </div>
+
+                  {/* 10. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status ({liveRequestTransferOptions.statuses.length} Live)
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      {liveRequestTransferOptions.statuses.map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 11. Request Transfer Type - Dropdown (Only for Request Transfer) */}
+                  {activeDataKey === 'request-transfer' && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        Request Transfer Type ({liveRequestTransferOptions.types.length} Live)
+                      </label>
+                      <select
+                        value={requestTransferTypeFilter}
+                        onChange={(e) => setRequestTransferTypeFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                      >
+                        <option value="all">All Types</option>
+                        {liveRequestTransferOptions.types.map((tp) => (
+                          <option key={tp} value={tp}>{tp.replace(/_/g, ' ')}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : activeDataKey === 'adjustment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Location - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location ({filterOptions.locations.length} Live)
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      {filterOptions.locations.map((l) => (
+                        <option key={l.id || l.name || l.code} value={l.description || l.name || l.code}>
+                          {l.description || l.name || l.code}
+                        </option>
+                      ))}
+                      {filterOptions.locations.length === 0 && (
+                        <>
+                          <option value="Warehouse Floor A">Warehouse Floor A</option>
+                          <option value="Cold Storage #1">Cold Storage #1</option>
+                          <option value="Chiller Room 2">Chiller Room 2</option>
+                          <option value="Aisle 3 Chiller">Aisle 3 Chiller</option>
+                          <option value="Meat Freezer #1">Meat Freezer #1</option>
+                          <option value="Main Shelf B">Main Shelf B</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Adjust Type - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Adjust Type ({liveAdjustTypeOptions.length} Live)
+                    </label>
+                    <select
+                      value={adjustTypeFilter}
+                      onChange={(e) => setAdjustTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Adjust Types</option>
+                      {liveAdjustTypeOptions.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 4. Product - Search icon + browse popup */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-adjustment"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-20 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      <div className="absolute right-1.5 flex items-center gap-1">
+                        {productFilter && (
+                          <button
+                            type="button"
+                            onClick={() => setProductFilter('')}
+                            className="p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                            title="Clear product filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductModalQuery(productFilter)
+                            setProductModalCategory('all')
+                            setShowProductModal(true)
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold transition shadow-xs active:scale-95 cursor-pointer"
+                          title="Search Products Popup"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Search</span>
+                        </button>
+                      </div>
+                    </div>
+                    <datalist id="live-products-datalist-adjustment">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 5. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 8. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="date">By Date</option>
+                      <option value="by-adjust-type">By Adjust Type</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                      <option value="product">By Product</option>
+                    </select>
+                  </div>
+
+                  {/* 9. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Detailed List</option>
+                      <option value="summary">Summary Totals</option>
+                      <option value="matrix">Financial Matrix</option>
+                    </select>
+                  </div>
+
+                  {/* 10. Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'issued' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3.5">
+                  {/* 1. Outlet - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Location - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location ({filterOptions.locations.length} Live)
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      {filterOptions.locations.map((l) => (
+                        <option key={l.id || l.name || l.code} value={l.description || l.name || l.code}>
+                          {l.description || l.name || l.code}
+                        </option>
+                      ))}
+                      {filterOptions.locations.length === 0 && (
+                        <>
+                          <option value="Warehouse Floor A">Warehouse Floor A</option>
+                          <option value="Cold Storage #1">Cold Storage #1</option>
+                          <option value="Chiller Room 2">Chiller Room 2</option>
+                          <option value="Aisle 3 Chiller">Aisle 3 Chiller</option>
+                          <option value="Meat Freezer #1">Meat Freezer #1</option>
+                          <option value="Main Shelf B">Main Shelf B</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-issued"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-20 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      <div className="absolute right-1.5 flex items-center gap-1">
+                        {productFilter && (
+                          <button
+                            type="button"
+                            onClick={() => setProductFilter('')}
+                            className="p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                            title="Clear product filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductModalQuery(productFilter)
+                            setProductModalCategory('all')
+                            setShowProductModal(true)
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold transition shadow-xs active:scale-95 cursor-pointer"
+                          title="Search Products Popup"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Search</span>
+                        </button>
+                      </div>
+                    </div>
+                    <datalist id="live-products-datalist-issued">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 4. Product Group - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Brand - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Group By - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="date">By Date</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                      <option value="product">By Product</option>
+                    </select>
+                  </div>
+
+                  {/* 8. View As - dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Detailed List</option>
+                      <option value="summary">Summary Totals</option>
+                      <option value="matrix">Financial Matrix</option>
+                    </select>
+                  </div>
+
+                  {/* Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'inventory-list' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 4. Expiry Day - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Expiry Day
+                    </label>
+                    <select
+                      value={expiryDayFilter}
+                      onChange={(e) => setExpiryDayFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Expiry Windows</option>
+                      <option value="expired">Expired (Past Due)</option>
+                      <option value="within-7">Expiring in ≤ 7 Days</option>
+                      <option value="within-30">Expiring in ≤ 30 Days</option>
+                      <option value="within-60">Expiring in ≤ 60 Days</option>
+                      <option value="within-90">Expiring in ≤ 90 Days</option>
+                      <option value="good">Good (&gt; 90 Days)</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Value - Textbox */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Value ($)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 500, >=100, <=1000..."
+                      value={inventoryValueFilter}
+                      onChange={(e) => setInventoryValueFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                    />
+                  </div>
+
+                  {/* 6. Onhand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Onhand
+                    </label>
+                    <select
+                      value={onhandFilter}
+                      onChange={(e) => setOnhandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Onhand Qty</option>
+                      <option value="in-stock">In Stock (&gt; 0)</option>
+                      <option value="out-of-stock">Out of Stock (= 0)</option>
+                      <option value="low-stock">Low Stock (≤ 10)</option>
+                      <option value="overstock">Overstock (≥ 100)</option>
+                      <option value="negative">Negative (&lt; 0)</option>
+                    </select>
+                  </div>
+
+                  {/* 7. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="brand">By Brand</option>
+                      <option value="category">By Category</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="by-status">By Status</option>
+                      <option value="by-expiry">By Expiry Day</option>
+                      <option value="by-onhand">By Onhand Qty</option>
+                      <option value="product">By Product</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="active">Active</option>
+                      <option value="low-stock">Low Stock</option>
+                      <option value="out-of-stock">Out of Stock</option>
+                      <option value="discontinued">Discontinued</option>
+                    </select>
+                  </div>
+
+                  {/* 9. View as - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Detailed List</option>
+                      <option value="summary">Summary Totals</option>
+                      <option value="matrix">Financial Matrix</option>
+                    </select>
+                  </div>
+
+                  {/* 10. Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {/* 1. Outlet Dropdown (Live from offices) */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Location Dropdown (Live from sections) */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location ({filterOptions.locations.length} Live)
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="all">All Locations</option>
+                      {filterOptions.locations.map((l) => (
+                        <option key={l.id} value={l.description || l.name || l.code}>
+                          {l.description || l.name || l.code}
+                        </option>
+                      ))}
+                      {filterOptions.locations.length === 0 && (
+                        <>
+                          <option value="Warehouse Floor A">Warehouse Floor A</option>
+                          <option value="Cold Storage #1">Cold Storage #1</option>
+                          <option value="Chiller Room 2">Chiller Room 2</option>
+                          <option value="Aisle 3 Chiller">Aisle 3 Chiller</option>
+                          <option value="Meat Freezer #1">Meat Freezer #1</option>
+                          <option value="Main Shelf B">Main Shelf B</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Product Search with Dedicated Search Icon & Popup Trigger */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse Catalog</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click to search products popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-20 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      <div className="absolute right-1.5 flex items-center gap-1">
+                        {productFilter && (
+                          <button
+                            type="button"
+                            onClick={() => setProductFilter('')}
+                            className="p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                            title="Clear product filter"
+                          >
+                            ✕
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProductModalQuery(productFilter)
+                            setProductModalCategory('all')
+                            setShowProductModal(true)
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-bold transition shadow-xs active:scale-95 cursor-pointer"
+                          title="Search Products Popup"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <span>Search</span>
+                        </button>
+                      </div>
+                    </div>
+                    <datalist id="live-products-datalist">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 4. Product Group Dropdown (Live from product groups) */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="all">All Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category Dropdown (Live from categories) */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Brand Dropdown (Live from brands) */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Supplier Dropdown (Live from suppliers) - Hidden for Transferred report */}
+                  {activeDataKey !== 'transferred' && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        Supplier ({filterOptions.suppliers.length} Live)
+                      </label>
+                      <select
+                        value={supplierFilter}
+                        onChange={(e) => setSupplierFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                      >
+                        <option value="all">All Suppliers</option>
+                        {filterOptions.suppliers.map((s) => (
+                          <option key={s.id} value={s.name || s.description || s.code}>
+                            {s.name || s.description || s.code}
+                          </option>
+                        ))}
+                        {filterOptions.suppliers.length === 0 && (
+                          <>
+                            <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                            <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                            <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                            <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                            <option value="Lucky Local Supplies">Lucky Local Supplies</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* 8. Group By Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="date">By Date</option>
+                      {activeDataKey !== 'transferred' && (
+                        <option value="supplier">By Supplier</option>
+                      )}
+                      <option value="outlet">By Outlet</option>
+                      <option value="category">By Category</option>
+                      <option value="product">By Product</option>
+                    </select>
+                  </div>
+
+                  {/* 9. View As Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400"
+                    >
+                      <option value="detailed">Detailed List</option>
+                      <option value="summary">Summary Totals</option>
+                      <option value="matrix">Financial Matrix</option>
+                    </select>
+                  </div>
+
+                  {/* Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>
 
         {/* 3. REPORT LIST TABLE SECTION */}
-        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 no-print ${
-          isDark ? 'border-slate-800 bg-slate-900/80' : 'border-slate-200 bg-white shadow-slate-200/50'
-        }`}>
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 no-print ${isDark ? 'border-slate-800 bg-slate-900/80' : 'border-slate-200 bg-white shadow-slate-200/50'
+          }`}>
           <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
             <div>
               <h2 className={`text-lg font-black capitalize ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
-                {reportTitle} list
+                {reportHeading} Records
               </h2>
               <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Show information of {reportTitle.toLowerCase()} list
+                {lang === 'kh'
+                  ? 'បង្ហាញព័ត៌មានលម្អិតនៃបញ្ជី'
+                  : `Showing verified database rows and summary metrics for ${reportHeading.toLowerCase()}`}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold font-mono border ${
-                isDark ? 'bg-blue-500/15 border-blue-500/30 text-blue-400' : 'bg-blue-50 border-blue-200 text-blue-700'
-              }`}>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold font-mono border ${isDark ? 'bg-blue-500/15 border-blue-500/30 text-blue-400' : 'bg-blue-50 border-blue-200 text-blue-700'
+                }`}>
                 {displayedRecords.length} Records
               </span>
               <button
                 type="button"
                 onClick={handleGenerateReport}
                 title="Refresh from Database"
-                className={`rounded-xl border px-3 py-1 text-xs font-bold transition ${
-                  isDark
-                    ? 'border-slate-700 bg-slate-800 text-slate-300 hover:text-white'
-                    : 'border-slate-200 bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
-                }`}
+                className={`rounded-xl border px-3 py-1 text-xs font-bold transition ${isDark
+                  ? 'border-slate-700 bg-slate-800 text-slate-300 hover:text-white'
+                  : 'border-slate-200 bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200'
+                  }`}
               >
                 🔄 Refresh
               </button>
@@ -3145,9 +5390,8 @@ export default function Report() {
               </div>
             ) : displayedRecords.length > 0 ? (
               <table className={`w-full text-left text-xs ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                <thead className={`text-[11px] font-black uppercase tracking-wider border-b ${
-                  isDark ? 'bg-slate-950/90 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
-                }`}>
+                <thead className={`text-[11px] font-black uppercase tracking-wider border-b ${isDark ? 'bg-slate-950/90 text-slate-400 border-slate-800' : 'bg-slate-100 text-slate-600 border-slate-200'
+                  }`}>
                   <tr>
                     <th className={`py-3 px-3 w-10 text-center ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>#</th>
                     {activeColumns.map((col) => (
@@ -3174,19 +5418,17 @@ export default function Report() {
                         return (
                           <td key={cellIdx} className={`py-3 px-4 whitespace-nowrap font-medium ${align}`}>
                             {isCode ? (
-                              <span className={`font-mono font-bold px-2 py-0.5 rounded-lg border ${
-                                isDark
-                                  ? 'text-blue-400 bg-blue-500/10 border-blue-500/25'
-                                  : 'text-blue-700 bg-blue-50 border-blue-200'
-                              }`}>
+                              <span className={`font-mono font-bold px-2 py-0.5 rounded-lg border ${isDark
+                                ? 'text-blue-400 bg-blue-500/10 border-blue-500/25'
+                                : 'text-blue-700 bg-blue-50 border-blue-200'
+                                }`}>
                                 {formatted}
                               </span>
                             ) : isStatus ? (
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
-                                isDark
-                                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              }`}>
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${isDark
+                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                }`}>
                                 ● {String(val).replace(/_/g, ' ')}
                               </span>
                             ) : isNumeric && (align === 'text-right' || typeof val === 'number') ? (
@@ -3235,11 +5477,10 @@ export default function Report() {
                 <button
                   type="button"
                   onClick={handleGenerateReport}
-                  className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition ${
-                    isDark
-                      ? 'border-slate-700 bg-slate-800 text-white hover:bg-slate-700'
-                      : 'border-slate-300 bg-white text-slate-800 hover:bg-slate-100 shadow-xs'
-                  }`}
+                  className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition ${isDark
+                    ? 'border-slate-700 bg-slate-800 text-white hover:bg-slate-700'
+                    : 'border-slate-300 bg-white text-slate-800 hover:bg-slate-100 shadow-xs'
+                    }`}
                 >
                   Reload Live Records
                 </button>
@@ -3252,14 +5493,14 @@ export default function Report() {
         {printPreviewOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 overflow-y-auto no-print-bg">
             <div className={`w-full ${printOrientation === 'landscape' ? 'max-w-7xl' : 'max-w-5xl'} rounded-3xl border border-slate-800 bg-slate-900 p-4 sm:p-6 shadow-2xl space-y-4 my-4 text-slate-100 max-h-[94vh] flex flex-col transition-all`}>
-              
+
               {/* Modal Header & Interactive Paper Options Bar */}
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-3 border-b border-slate-800 shrink-0 no-print">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">🖨️</span>
                   <div>
                     <h3 className="text-base sm:text-lg font-black text-white">
-                      Print Preview - {reportTitle} Report
+                      Print Preview — {reportHeading}
                     </h3>
                     <p className="text-xs text-slate-400">
                       Standard A4 official business print with formatted columns, summary totals & approval sign-offs
@@ -3273,9 +5514,8 @@ export default function Report() {
                     <button
                       type="button"
                       onClick={() => setPrintOrientation('portrait')}
-                      className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                        printOrientation === 'portrait' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg font-bold transition ${printOrientation === 'portrait' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
                       title="A4 Portrait layout"
                     >
                       📄 Portrait
@@ -3283,9 +5523,8 @@ export default function Report() {
                     <button
                       type="button"
                       onClick={() => setPrintOrientation('landscape')}
-                      className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                        printOrientation === 'landscape' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
+                      className={`px-2.5 py-1 rounded-lg font-bold transition ${printOrientation === 'landscape' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
                       title="A4 Landscape layout (Recommended for wide tables)"
                     >
                       📑 Landscape
@@ -3297,9 +5536,8 @@ export default function Report() {
                     <button
                       type="button"
                       onClick={() => setPrintDensity('normal')}
-                      className={`px-2 py-1 rounded-lg font-bold transition ${
-                        printDensity === 'normal' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
+                      className={`px-2 py-1 rounded-lg font-bold transition ${printDensity === 'normal' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
                       title="Comfortable spacing"
                     >
                       Standard
@@ -3307,9 +5545,8 @@ export default function Report() {
                     <button
                       type="button"
                       onClick={() => setPrintDensity('compact')}
-                      className={`px-2 py-1 rounded-lg font-bold transition ${
-                        printDensity === 'compact' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
+                      className={`px-2 py-1 rounded-lg font-bold transition ${printDensity === 'compact' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
                       title="Compact spacing (Fits more rows)"
                     >
                       Compact
@@ -3317,9 +5554,8 @@ export default function Report() {
                     <button
                       type="button"
                       onClick={() => setPrintDensity('dense')}
-                      className={`px-2 py-1 rounded-lg font-bold transition ${
-                        printDensity === 'dense' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-                      }`}
+                      className={`px-2 py-1 rounded-lg font-bold transition ${printDensity === 'dense' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
                       title="Ultra-dense micro-spacing for 50+ lines"
                     >
                       Dense
@@ -3398,9 +5634,8 @@ export default function Report() {
                 <div
                   id="printable-report"
                   ref={printContentRef}
-                  className={`bg-white text-slate-950 p-6 sm:p-8 rounded-xl shadow-2xl space-y-5 font-['Montserrat'] border border-slate-300 mx-auto w-full transition-all ${
-                    printDensity === 'dense' ? 'text-[10px]' : printDensity === 'compact' ? 'text-[11px]' : 'text-xs'
-                  }`}
+                  className={`bg-white text-slate-950 p-6 sm:p-8 rounded-xl shadow-2xl space-y-5 font-['Montserrat'] border border-slate-300 mx-auto w-full transition-all ${printDensity === 'dense' ? 'text-[10px]' : printDensity === 'compact' ? 'text-[11px]' : 'text-xs'
+                    }`}
                 >
                   {/* Corporate Letterhead Header */}
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pb-4 border-b-2 border-slate-900">
@@ -3424,7 +5659,7 @@ export default function Report() {
 
                     <div className="text-left sm:text-right font-mono text-xs text-slate-700 space-y-1">
                       <p className="text-base font-black text-slate-950 uppercase tracking-wide">
-                        {reportTitle} REPORT
+                        {reportHeading.toUpperCase()}
                       </p>
                       <p>
                         <span className="text-slate-500">Doc Ref:</span>{' '}
@@ -3765,11 +6000,10 @@ export default function Report() {
                   return (
                     <label
                       key={col}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition select-none ${
-                        isChecked
-                          ? 'bg-blue-600/15 border-blue-500/40 text-white shadow-sm shadow-blue-500/10'
-                          : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                      }`}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition select-none ${isChecked
+                        ? 'bg-blue-600/15 border-blue-500/40 text-white shadow-sm shadow-blue-500/10'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                        }`}
                     >
                       <div className="flex items-center gap-2.5 truncate">
                         <input
@@ -3814,6 +6048,266 @@ export default function Report() {
                   Apply Columns ({colDraft.size})
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. ADVANCED PRODUCT SEARCH POPUP MODAL */}
+        {showProductModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 no-print animate-in fade-in duration-200">
+            <div className="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-800 p-4 sm:p-5 shrink-0 bg-gradient-to-r from-slate-900 via-purple-950/20 to-slate-900">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-purple-600/20 border border-purple-500/40 text-purple-300 text-xl shadow-inner">
+                    🔍
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                      Search Products
+                      <span className="rounded-full bg-purple-500/15 border border-purple-500/30 px-2.5 py-0.5 text-[10px] font-mono font-bold text-purple-300">
+                        {modalFilteredProducts.length} Items Found
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Find by product code, barcode, title, brand or category, then click to filter
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowProductModal(false)}
+                  className="rounded-xl p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition text-base cursor-pointer"
+                  title="Close popup"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Search Bar & Category Chips */}
+              <div className="p-4 border-b border-slate-800/80 bg-slate-950/50 space-y-3 shrink-0">
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-slate-400 pointer-events-none">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    autoFocus
+                    placeholder="Type product name, SKU (PRD-...), barcode (8850...), brand or category..."
+                    value={productModalQuery}
+                    onChange={(e) => setProductModalQuery(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-900 pl-10 pr-10 py-2.5 text-sm font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition shadow-inner"
+                  />
+                  {productModalQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setProductModalQuery('')}
+                      className="absolute right-3 p-1 text-slate-400 hover:text-white rounded-lg transition cursor-pointer"
+                      title="Clear search query"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Category Filter Chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin text-xs">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">
+                    Categories:
+                  </span>
+                  {productModalCategories.map((cat) => {
+                    const isAll = cat === 'all'
+                    const isSelected = productModalCategory === cat
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setProductModalCategory(cat)}
+                        className={`rounded-xl px-3 py-1 text-xs font-bold whitespace-nowrap transition-all active:scale-95 cursor-pointer ${
+                          isSelected
+                            ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 ring-1 ring-purple-400'
+                            : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/60'
+                        }`}
+                      >
+                        {isAll ? 'All Categories' : cat}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Modal Products List Table */}
+              <div className="flex-1 overflow-y-auto p-4 scrollbar-thin">
+                {modalFilteredProducts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                    <span className="text-4xl">🔍</span>
+                    <h4 className="text-sm font-bold text-white">No products found</h4>
+                    <p className="text-xs text-slate-400 max-w-sm">
+                      We couldn&apos;t find any products matching &ldquo;{productModalQuery}&rdquo;. Try another SKU, barcode or keyword.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductModalQuery('')
+                        setProductModalCategory('all')
+                      }}
+                      className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-xs font-bold text-purple-400 hover:bg-slate-700 hover:text-purple-300 transition cursor-pointer"
+                    >
+                      Reset Filter
+                    </button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/40">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-950/80 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 sticky top-0 backdrop-blur-sm z-10">
+                        <tr>
+                          <th className="py-2.5 px-3">SKU & Barcode</th>
+                          <th className="py-2.5 px-3">Product Title</th>
+                          <th className="py-2.5 px-3">Category / Brand</th>
+                          <th className="py-2.5 px-3 text-center">UOM</th>
+                          <th className="py-2.5 px-3 text-right">On Hand</th>
+                          <th className="py-2.5 px-3 text-right">Price / Cost</th>
+                          <th className="py-2.5 px-3 text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60 font-medium">
+                        {modalFilteredProducts.map((p) => {
+                          const pCode = p.code || `PRD-${p.id}`
+                          const pTitle = p.title || p.name || 'Product'
+                          const isCurrentlyActive = productFilter.trim() && (
+                            productFilter.toLowerCase() === pTitle.toLowerCase() ||
+                            productFilter.toLowerCase() === pCode.toLowerCase() ||
+                            pTitle.toLowerCase().includes(productFilter.toLowerCase())
+                          )
+
+                          return (
+                            <tr
+                              key={p.id || pCode}
+                              onClick={() => handleSelectProduct(p)}
+                              className={`group cursor-pointer transition-colors ${
+                                isCurrentlyActive
+                                  ? 'bg-purple-600/20 text-white'
+                                  : 'hover:bg-slate-800/50 text-slate-200'
+                              }`}
+                            >
+                              <td className="py-2.5 px-3 whitespace-nowrap">
+                                <div className="flex flex-col">
+                                  <span className="font-mono font-bold text-purple-400 group-hover:text-purple-300">
+                                    {pCode}
+                                  </span>
+                                  {p.barcode && (
+                                    <span className="font-mono text-[10px] text-slate-500">
+                                      {p.barcode}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-3">
+                                <div className="font-bold text-white group-hover:text-purple-300 transition-colors">
+                                  {pTitle}
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-3 whitespace-nowrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  {p.category && (
+                                    <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-300 border border-slate-700">
+                                      {p.category}
+                                    </span>
+                                  )}
+                                  {p.brand && (
+                                    <span className="rounded-md bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-300 border border-indigo-500/20">
+                                      {p.brand}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                                <span className="rounded-md bg-slate-800/60 px-1.5 py-0.5 text-[10px] font-mono text-slate-400">
+                                  {p.uom || 'Unit'}
+                                </span>
+                              </td>
+
+                              <td className="py-2.5 px-3 text-right whitespace-nowrap font-mono font-bold">
+                                <span className={Number(p.onHand ?? 0) > 0 ? 'text-emerald-400' : 'text-rose-400'}>
+                                  {Number(p.onHand ?? 0)}
+                                </span>
+                              </td>
+
+                              <td className="py-2.5 px-3 text-right whitespace-nowrap font-mono text-xs">
+                                <div>
+                                  <span className="font-bold text-emerald-400">
+                                    ${Number(p.sellingPrice != null ? p.sellingPrice : 0).toFixed(2)}
+                                  </span>
+                                  {p.costPrice != null && (
+                                    <div className="text-[10px] text-slate-500">
+                                      Cost: ${Number(p.costPrice).toFixed(2)}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-3 text-center whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectProduct(p)}
+                                  className={`rounded-xl px-3 py-1 text-xs font-bold transition shadow-xs active:scale-95 cursor-pointer ${
+                                    isCurrentlyActive
+                                      ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                      : 'bg-purple-600/30 border border-purple-500/50 text-purple-200 hover:bg-purple-600 hover:text-white'
+                                  }`}
+                                >
+                                  {isCurrentlyActive ? '✓ Selected' : 'Select'}
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-between border-t border-slate-800 p-4 shrink-0 bg-slate-950/60">
+                <div className="flex items-center gap-2">
+                  {productFilter && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductFilter('')
+                        setShowProductModal(false)
+                        showNotification?.({
+                          type: 'info',
+                          title: 'Product Filter Cleared',
+                          message: 'Now showing all products.',
+                        })
+                      }}
+                      className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-300 hover:bg-rose-500/20 transition active:scale-95 cursor-pointer"
+                    >
+                      ✕ Clear Current Product Filter
+                    </button>
+                  )}
+                  <span className="text-xs text-slate-500 hidden sm:inline">
+                    Tip: Click any row to quickly select that product
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowProductModal(false)}
+                  className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-white transition active:scale-95 cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+
             </div>
           </div>
         )}
