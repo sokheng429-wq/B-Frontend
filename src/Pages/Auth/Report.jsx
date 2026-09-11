@@ -15,12 +15,15 @@ import {
   adminBrandAPI,
   adminProductGroupAPI,
   adminSupplierAPI,
+  adminSupplierGroupAPI,
   adminOfficeAPI,
   adminSectionAPI,
   adminSaleInvoiceAPI,
   adminPurchaseOrderAPI,
   adminEnterBillAPI,
   adminCashOperationAPI,
+  adminBankTransactionAPI,
+  adminBankTransferAPI,
   adminConsignmentAPI,
   adminSaleOrderAPI,
   adminWebOrderAPI,
@@ -30,7 +33,9 @@ import {
   adminSalePromotionAPI,
   adminCustomerRefundAPI,
   adminPaymentTermAPI,
+  userAPI,
 } from '../../api/api'
+import { loadCollection } from './stockStore'
 
 // 3D Icons
 import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
@@ -154,6 +159,258 @@ export const STOCK_REPORT_SCHEMAS = {
   'stock-evaluation': ['productCode', 'description', 'uom', 'beginning', 'receive', 'issue', 'adjust', 'transferIn', 'transferOut', 'sale', 'return', 'balance'],
 }
 
+// Exact Entity Column Schemas for the 15 Sale Payment Reports as requested by user
+export const SALE_PAYMENT_REPORT_SCHEMAS = {
+  'end-of-day': ['description', 'qty', 'amount'],
+  'sale-transaction': ['totalInvoice', 'soldQty', 'lineDiscount', 'subAmount', 'invoiceDisc', 'tax', 'totalSale', 'totalSaleWithTax', 'markupAmount', 'totalCost', 'profits'],
+  'aging-invoice': ['customerCode', 'customerName', 'currentInvoice', 'days1_30', 'days31_60', 'days61_90', 'days91_120', 'over120Days', 'total'],
+  'payment-gateway': ['paymentType', 'date', 'invoiceCode', 'approveCode', 'customerCode', 'customer', 'outlet', 'amount', 'voidedDate', 'reference', 'status'],
+  'customer-balance': ['customerCode', 'customer'],
+  'customer-credit-deposit': ['creditCode', 'creditDate', 'reference', 'creditAmount', 'balance', 'status'],
+  'invoice-payment': ['invoiceCode', 'invoiceDate', 'invoiceAmount', 'redeem', 'paidAmount', 'discount', 'balance'],
+  'ar-invoice-status': ['invoiceCode', 'customerName', 'invoiceDate', 'dueDate', 'type', 'invoiceAmount', 'paidAmount', 'balance', 'reference'],
+  'top-bottom-sale': ['productCode', 'description', 'soldQty', 'uom', 'unitPrice', 'totalPrice'],
+  'cash-receipt': ['currency', 'amount'],
+  profits: ['no', 'description', 'amount'],
+  'sale-payment-type': ['paymentType', 'invoiceCode', 'invoiceDate', 'userName', 'customer', 'customerGroup', 'salesperson', 'invoiceType', 'amount', 'paymentDiscount'],
+  'close-shift': ['loginTime', 'logoutTime', 'opening', 'closing', 'outlet', 'sale', 'cashSales', 'depositAmount', 'terminal', 'user'],
+  'sale-promotion-report': ['promoOnBills', 'promoOnItems', 'totalBeforePromo', 'totalDiscOnItems', 'totalDiscOnBills', 'totalAfterPromo'],
+  'sale-package-item-report': ['invoiceDate', 'invoiceCode', 'code', 'description', 'subItemCode', 'subItemDesc', 'subQty', 'subPrice', 'subCost', 'subSale', 'subProfit'],
+}
+
+// 3. ORDER MANAGEMENT REPORT SCHEMAS
+export const ORDER_MANAGEMENT_REPORT_SCHEMAS = {
+  'sale-order-status': [
+    'soQuotationCode',
+    'customer',
+    'soQuotationDate',
+    'type',
+    'note',
+    'status',
+    'amount',
+    'shipAmount',
+    'closedAmount',
+    'openAmount',
+  ],
+  'sale-order-shipment': [
+    'soCode',
+    'shipCode',
+    'shipDate',
+    'customerName',
+    'productCode',
+    'partNumber',
+    'productDescription',
+    'uom',
+    'orderQty',
+    'orderAmount',
+    'shipQty',
+    'shipAmount',
+    'returnQty',
+    'returnAmount',
+    'balanceQty',
+    'balanceAmount',
+  ],
+}
+
+// 4. CONSIGNMENT REPORT SCHEMAS
+export const CONSIGNMENT_REPORT_SCHEMAS = {
+  'consignment-shipment': [
+    'conCode',
+    'shipCode',
+    'customer',
+    'description',
+    'ums',
+    'conQty',
+    'shipQty',
+    'shipAmount',
+    'returnQty',
+    'returnAmount',
+    'invoiceQty',
+    'invoiceAmount',
+    'balanceQty',
+    'balanceAmount',
+  ],
+  'consignment-status-report': [
+    'conCode',
+    'customer',
+    'date',
+    'status',
+    'conAmount',
+    'shipAmount',
+    'returnAmount',
+    'closedAmount',
+    'balanceAmount',
+  ],
+}
+
+// 5. PURCHASE MANAGEMENT REPORT SCHEMAS
+export const PURCHASE_MANAGEMENT_REPORT_SCHEMAS = {
+  'requisition': [
+    'productCode',
+    'barcode',
+    'description',
+    'uom',
+    'requisitionQty',
+    'poQty',
+    'completedQty',
+    'voidedQty',
+    'remainQty',
+  ],
+  'purchase-order-status': [
+    'poCode',
+    'soCode',
+    'supplierName',
+    'poDate',
+    'requireDate',
+    'voidDate',
+    'totalAmount',
+    'receiveAmount',
+    'closedAmount',
+    'status',
+  ],
+  'purchase-order-products-status': [
+    'productCode',
+    'description',
+    'totalQty',
+    'receiveQty',
+    'closedQty',
+    'openQty',
+    'uom',
+    'totalAmount',
+    'receiveAmount',
+    'closedAmount',
+    'openAmount',
+    'status',
+  ],
+  'purchase-order-products': [
+    'productCode',
+    'description',
+    'totalQty',
+    'receiveQty',
+    'closedQty',
+    'openQty',
+    'uom',
+    'totalAmount',
+    'receiveAmount',
+    'closedAmount',
+    'openAmount',
+    'status',
+  ],
+  'purchase-order-product-status': [
+    'productCode',
+    'description',
+    'totalQty',
+    'receiveQty',
+    'closedQty',
+    'openQty',
+    'uom',
+    'totalAmount',
+    'receiveAmount',
+    'closedAmount',
+    'openAmount',
+    'status',
+  ],
+  'receive-return-purchase-order': [
+    'currency',
+    'status',
+  ],
+}
+
+// 7. PAYABLE MANAGEMENT REPORT SCHEMAS
+export const PAYABLE_MANAGEMENT_REPORT_SCHEMAS = {
+  'bill-aging': [
+    'supplierCode',
+    'supplierName',
+    'current',
+    'days1to30',
+    'days31to60',
+    'days61to90',
+    'days91to120',
+    'over120Days',
+    'balance',
+  ],
+  'bill-payment': [
+    'billPaymentCode',
+    'supplierInvoiceCode',
+    'paymentType',
+    'billReceiptDate',
+    'billAmount',
+    'paidAmount',
+    'discount',
+    'balance',
+  ],
+  'bill-status': [
+    'billCode',
+    'supplier',
+    'billDate',
+    'dueDate',
+    'billAmount',
+    'paidAmount',
+    'balance',
+    'voidedDate',
+  ],
+  'freight-status': [
+    'tariffDescription',
+    'receiveDate',
+    'receiveCode',
+    'freightBillCode',
+    'supplier',
+    'amount',
+    'status',
+  ],
+  'supplier-deposit-debit': [
+    'debitDate',
+    'paymentType',
+    'serviceCharge',
+    'debitAmount',
+    'balance',
+    'balanceToBase',
+    'status',
+  ],
+  'ap-cash-payment': [
+    'currency',
+    'receiptType',
+    'paymentType',
+    'amount',
+    'amountToBase',
+    'status',
+  ],
+  'supplier-list': [
+    'supplierCode',
+    'supplierName',
+    'contactName',
+    'phone',
+    'fax',
+    'currentBalance',
+    'debitDeposit',
+    'status',
+  ],
+}
+
+// 8. CASH BOOK REPORT SCHEMAS
+export const CASH_BOOK_REPORT_SCHEMAS = {
+  'cash-in-out-status': ['payment', 'cash', 'bankDeposit', 'total'],
+  'cash-statement': [
+    'code',
+    'date',
+    'type',
+    'bankIn',
+    'bankOut',
+    'description',
+    'cashIn',
+    'cashOut',
+    'depositIn',
+    'depositOut',
+    'paidToBy',
+  ],
+  'bank-transfer': [
+    'code',
+    'date',
+    'employee',
+    'amount',
+  ],
+}
+
 // Realistic Product Catalog for Product Search Modal & Live Filtering
 export const STOCK_CATALOG_PRODUCTS = [
   { id: 1, code: 'PRD-001', barcode: '8850124001', title: 'Organic Jasmine Rice 5kg', category: 'Grains', brand: 'Heritage Organic', uom: 'Bag', costPrice: 4.50, sellingPrice: 6.80, onHand: 120 },
@@ -241,10 +498,10 @@ export const STOCK_REPORTS = [
   {
     key: 'inventory-list',
     icon: cubeIcon,
-    en: 'Inventory List',
-    kh: 'បញ្ជីសារពើភ័ណ្ឌ',
-    descEn: 'View report of inventory list',
-    descKh: 'មើលរបាយការណ៍បញ្ជីសារពើភ័ណ្ឌ',
+    en: 'Inventory in Stock',
+    kh: 'បញ្ជីសារពើភ័ណ្ឌស្តុក',
+    descEn: 'View report of inventory in stock',
+    descKh: 'មើលរបាយការណ៍បញ្ជីសារពើភ័ណ្ឌស្តុក',
     color: '#3B82F6',
     bg: 'rgba(59, 130, 246, 0.12)',
     route: '/admin/report/stock/inventory-list',
@@ -793,217 +1050,262 @@ const SEED_DATA = {
     { outlet: 'Central Warehouse', productCode: 'PRD-006', barcode: '8850124006', description: 'Kampot Black Pepper 100g', qty: 150, uom: 'Jar', avgCost: 2.80, lastCost: 2.90, totalCost: 420.00, price: 4.20, totalPrice: 630.00, brand: 'Lucky Local', category: 'Spices', productGroup: 'Pantry Staples', expiryDays: 50, expiryDate: '2026-10-30', status: 'Active', onhand: 150 },
   ],
   'price-list': [
-    { code: 'PRD-001', barcode: '8850124001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', basePrice: 3.00 },
-    { code: 'PRD-002', barcode: '8850124002', description: 'Australian Angus Beef 500g', uom: 'Pack', basePrice: 12.00 },
-    { code: 'PRD-003', barcode: '8850124003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', basePrice: 7.50 },
-    { code: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', uom: 'Case', basePrice: 4.20 },
+    { code: 'PRD-001', barcode: '8850124001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', basePrice: 3.00, brand: 'Angkor Harvest', category: 'Dairy', productGroup: 'Cold Chain', currency: 'Dollar', priceBook: 'Standard Retail' },
+    { code: 'PRD-002', barcode: '8850124002', description: 'Australian Angus Beef 500g', uom: 'Pack', basePrice: 12.00, brand: 'CP Foods', category: 'Meat', productGroup: 'Fresh Grocery', currency: 'Dollar', priceBook: 'Standard Retail' },
+    { code: 'PRD-003', barcode: '8850124003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', basePrice: 30000.00, brand: 'Heritage Organic', category: 'Grains', productGroup: 'Pantry Staples', currency: 'Khmer Riels', priceBook: 'Wholesale' },
+    { code: 'PRD-004', barcode: '8850124004', description: 'Pure Mineral Water 500ml', uom: 'Case', basePrice: 4.20, brand: 'Lucky Local', category: 'Beverages', productGroup: 'Beverages', currency: 'Dollar', priceBook: 'Promotion Price' },
+    { code: 'PRD-005', barcode: '8850124005', description: 'Sample Zero-Price Item', uom: 'Pcs', basePrice: 0.00, brand: 'Lucky Local', category: 'Produce', productGroup: 'Fresh Grocery', currency: 'Dollar', priceBook: 'Standard Retail' },
   ],
-  'transaction-history': [
-    { transactionType: 'RECEIVE', document: 'GRN-2024-001', date: '2024-03-01', productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', outlet: 'Central Warehouse', location: 'Warehouse Floor A', qty: 50, stockUom: 'Box', tranUom: 'Bottle', cost: 2.20, amount: 110.00, balanceQty: 240 },
-    { transactionType: 'TRANSFER', document: 'TRF-2024-022', date: '2024-03-03', productCode: 'PRD-002', description: 'Australian Angus Beef 500g', outlet: 'Main Mart', location: 'Cold Storage #1', qty: 20, stockUom: 'Pack', tranUom: 'Pack', cost: 8.50, amount: 170.00, balanceQty: 65 },
-    { transactionType: 'ADJUST', document: 'ADJ-2024-005', date: '2024-03-05', productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', outlet: 'BKK1 Branch', location: 'Shelf B2', qty: -5, stockUom: 'Bag', tranUom: 'Bag', cost: 5.30, amount: -26.50, balanceQty: 115 },
-  ],
+  'transaction-history': [],
   'order-point': [
-    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', onhand: 24, uom: 'Bottle', orderPoint: 50, orderQuantity: 60 },
-    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', onhand: 12, uom: 'Pack', orderPoint: 30, orderQuantity: 40 },
-    { productCode: 'PRD-005', description: 'Hass Avocados Grade A', onhand: 5, uom: 'Kg', orderPoint: 20, orderQuantity: 35 },
-    { productCode: 'PRD-006', description: 'Kampot Black Pepper 100g', onhand: 45, uom: 'Jar', orderPoint: 15, orderQuantity: 0 },
+    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', onhand: 24, uom: 'Bottle', orderPoint: 50, orderQuantity: 60, outlet: 'Central Warehouse', productGroup: 'Cold Chain', category: 'Dairy', brand: 'Angkor Harvest', supplier: 'Global Dairy' },
+    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', onhand: 12, uom: 'Pack', orderPoint: 30, orderQuantity: 40, outlet: 'Main Mart', productGroup: 'Fresh Grocery', category: 'Meat', brand: 'CP Foods', supplier: 'CP Food Supplies Cambodia' },
+    { productCode: 'PRD-005', description: 'Hass Avocados Grade A', onhand: 5, uom: 'Kg', orderPoint: 20, orderQuantity: 35, outlet: 'BKK1 Branch', productGroup: 'Fresh Grocery', category: 'Produce', brand: 'Lucky Local', supplier: 'Lucky Local Supplies' },
+    { productCode: 'PRD-006', description: 'Kampot Black Pepper 100g', onhand: 45, uom: 'Jar', orderPoint: 15, orderQuantity: 0, outlet: 'Central Warehouse', productGroup: 'Pantry Staples', category: 'Spices', brand: 'Heritage Organic', supplier: 'Cambodia Agri-Trading Ltd' },
   ],
   'stock-evaluation': [
-    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', beginning: 180, receive: 120, issue: 10, adjust: -2, transferIn: 20, transferOut: 15, sale: 53, return: 0, balance: 240 },
-    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', uom: 'Pack', beginning: 50, receive: 40, issue: 5, adjust: 0, transferIn: 10, transferOut: 10, sale: 20, return: 0, balance: 65 },
-    { productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', beginning: 100, receive: 60, issue: 8, adjust: -2, transferIn: 15, transferOut: 15, sale: 30, return: 0, balance: 120 },
-    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', uom: 'Case', beginning: 80, receive: 50, issue: 0, adjust: 0, transferIn: 0, transferOut: 20, sale: 35, return: 5, balance: 80 },
+    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', uom: 'Bottle', beginning: 180, receive: 120, issue: 10, adjust: -2, transferIn: 20, transferOut: 15, sale: 53, return: 0, balance: 240, outlet: 'Central Warehouse', location: 'Cold Room', productGroup: 'Cold Chain', category: 'Dairy', brand: 'Angkor Harvest', status: 'Completed', date: '2024-03-01' },
+    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', uom: 'Pack', beginning: 50, receive: 40, issue: 5, adjust: 0, transferIn: 10, transferOut: 10, sale: 20, return: 0, balance: 65, outlet: 'Main Mart', location: 'Main Storage', productGroup: 'Fresh Grocery', category: 'Meat', brand: 'CP Foods', status: 'Approved', date: '2024-03-02' },
+    { productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', beginning: 100, receive: 60, issue: 8, adjust: -2, transferIn: 15, transferOut: 15, sale: 30, return: 0, balance: 120, outlet: 'BKK1 Branch', location: 'Backroom Rack', productGroup: 'Pantry Staples', category: 'Grains', brand: 'Heritage Organic', status: 'Completed', date: '2024-03-03' },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', uom: 'Case', beginning: 80, receive: 50, issue: 0, adjust: 0, transferIn: 0, transferOut: 20, sale: 35, return: 5, balance: 80, outlet: 'Central Warehouse', location: 'Main Storage', productGroup: 'Beverages', category: 'Beverages', brand: 'Lucky Local', status: 'Pending', date: '2024-03-04' },
   ],
   'sale-payment': [
     { code: 'INV-2024-001', date: '2024-03-01', customer: 'Sovann Phka Mart', outlet: 'Main Mart', location: 'POS Counter 1', product: 'Grocery Bulk Pack', category: 'Dairy', brand: 'Heritage Organic', supplier: 'Global Dairy', method: 'ABA PayWay', total: 450.00, paid: 450.00, balance: 0.00, status: 'PAID' },
   ],
   'end-of-day': [
-    { date: '2024-03-06', outlet: 'Main Mart (Central)', register: 'POS-01', cashier: 'Sokha Ly', totalInvoices: 142, grossSales: 4850.00, discount: 120.00, tax: 473.00, netSales: 5203.00, cashAmount: 1450.00, abaAmount: 2953.00, cardAmount: 800.00, totalCollected: 5203.00, status: 'BALANCED' },
-    { date: '2024-03-06', outlet: 'BKK1 Express Store', register: 'POS-02', cashier: 'Dara Heng', totalInvoices: 98, grossSales: 3120.00, discount: 85.00, tax: 303.50, netSales: 3338.50, cashAmount: 820.00, abaAmount: 2118.50, cardAmount: 400.00, totalCollected: 3338.50, status: 'BALANCED' },
-    { date: '2024-03-06', outlet: 'Toul Kork Mart', register: 'POS-01', cashier: 'Kalyan Meng', totalInvoices: 115, grossSales: 3950.00, discount: 95.00, tax: 385.50, netSales: 4240.50, cashAmount: 1100.00, abaAmount: 2540.50, cardAmount: 600.00, totalCollected: 4240.50, status: 'BALANCED' },
+    { description: 'Cash Sales Summary', qty: 142, amount: 2850.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { description: 'ABA PayWay Digital Sales', qty: 230, amount: 5640.50, outlet: 'Main Mart', date: '2024-03-06' },
+    { description: 'Credit Card (Visa/Master)', qty: 45, amount: 1320.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { description: 'Wing Bank KHQR Sales', qty: 38, amount: 680.00, outlet: 'BKK1 Branch', date: '2024-03-06' },
+    { description: 'Customer Store Credit Sales', qty: 12, amount: 450.00, outlet: 'Toul Kork Mart', date: '2024-03-06' },
+    { description: 'Returns & Voids (EOD Adjustment)', qty: -3, amount: -85.00, outlet: 'Central Warehouse', date: '2024-03-06' },
   ],
   'sale-transaction': [
-    { docNo: 'INV-2024-101', date: '2024-03-06', customer: 'Sovann Phka Mart', outlet: 'Main Mart', cashier: 'Sokha Ly', paymentMethod: 'ABA PayWay', subtotal: 320.00, discount: 15.00, tax: 30.50, grandTotal: 335.50, paidAmount: 335.50, balance: 0.00, status: 'PAID' },
-    { docNo: 'INV-2024-102', date: '2024-03-06', customer: 'Angkor Organic Cafe', outlet: 'Main Mart', cashier: 'Sokha Ly', paymentMethod: 'Cash', subtotal: 185.00, discount: 0.00, tax: 18.50, grandTotal: 203.50, paidAmount: 203.50, balance: 0.00, status: 'PAID' },
-    { docNo: 'INV-2024-103', date: '2024-03-06', customer: 'Bayon Bakery Kitchen', outlet: 'BKK1 Express', cashier: 'Dara Heng', paymentMethod: 'Wing Bank', subtotal: 540.00, discount: 25.00, tax: 51.50, grandTotal: 566.50, paidAmount: 566.50, balance: 0.00, status: 'PAID' },
-    { docNo: 'INV-2024-104', date: '2024-03-06', customer: 'Rosewood Phnom Penh', outlet: 'Main Mart', cashier: 'Vanna Touch', paymentMethod: 'Visa / MasterCard', subtotal: 1250.00, discount: 50.00, tax: 120.00, grandTotal: 1320.00, paidAmount: 1320.00, balance: 0.00, status: 'PAID' },
+    { totalInvoice: 'INV-2024-001', soldQty: 24, lineDiscount: 5.00, subAmount: 240.00, invoiceDisc: 10.00, tax: 23.00, totalSale: 225.00, totalSaleWithTax: 248.00, markupAmount: 65.00, totalCost: 160.00, profits: 88.00, date: '2024-03-06', outlet: 'Main Mart', location: 'POS Counter 1', invoiceType: 'Standard', productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', productGroup: 'Cold Chain', category: 'Dairy', brand: 'Angkor Harvest', customerGroup: 'Supermarket Wholesale', customer: 'Sovann Phka Mart', user: 'Sokha Ly', salesperson: 'Borith Keo' },
+    { totalInvoice: 'INV-2024-002', soldQty: 15, lineDiscount: 0.00, subAmount: 180.00, invoiceDisc: 0.00, tax: 18.00, totalSale: 180.00, totalSaleWithTax: 198.00, markupAmount: 52.50, totalCost: 127.50, profits: 70.50, date: '2024-03-06', outlet: 'Main Mart', location: 'POS Counter 2', invoiceType: 'Tax Invoice', productCode: 'PRD-002', description: 'Australian Angus Beef 500g', productGroup: 'Fresh Grocery', category: 'Meat', brand: 'CP Foods', customerGroup: 'Restaurant & F&B', customer: 'Angkor Organic Cafe', user: 'Vanna Touch', salesperson: 'Chheang Meng' },
+    { totalInvoice: 'INV-2024-003', soldQty: 50, lineDiscount: 15.00, subAmount: 450.00, invoiceDisc: 20.00, tax: 41.50, totalSale: 415.00, totalSaleWithTax: 456.50, markupAmount: 115.00, totalCost: 300.00, profits: 156.50, date: '2024-03-05', outlet: 'BKK1 Branch', location: 'Main Storage', invoiceType: 'Standard', productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', productGroup: 'Pantry Staples', category: 'Grains', brand: 'Heritage Organic', customerGroup: 'Bakery Chain', customer: 'Bayon Bakery Kitchen', user: 'Dara Heng', salesperson: 'Sokha Ly' },
+    { totalInvoice: 'INV-2024-004', soldQty: 80, lineDiscount: 8.00, subAmount: 360.00, invoiceDisc: 15.00, tax: 33.70, totalSale: 337.00, totalSaleWithTax: 370.70, markupAmount: 81.00, totalCost: 256.00, profits: 114.70, date: '2024-03-04', outlet: 'Toul Kork Mart', location: 'Cold Room', invoiceType: 'Credit Invoice', productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', productGroup: 'Beverages', category: 'Beverages', brand: 'Coca-Cola', customerGroup: 'Hotel & Luxury', customer: 'Rosewood Phnom Penh', user: 'Kalyan Meng', salesperson: 'Borith Keo' },
   ],
   'aging-invoice': [
-    { code: 'CUST-001', customer: 'Sovann Phka Mart', phone: '+855 12 889 900', current: 450.00, days1to30: 1200.00, days31to60: 0.00, days61to90: 0.00, over90Days: 0.00, totalDue: 1650.00, salesperson: 'Borith Keo', status: 'GOOD_STANDING' },
-    { code: 'CUST-002', customer: 'Angkor Organic Cafe', phone: '+855 10 334 455', current: 320.00, days1to30: 450.00, days31to60: 280.00, days61to90: 0.00, over90Days: 0.00, totalDue: 1050.00, salesperson: 'Chheang Meng', status: 'ATTENTION' },
-    { code: 'CUST-003', customer: 'Bayon Bakery Kitchen', phone: '+855 77 665 544', current: 0.00, days1to30: 0.00, days31to60: 620.00, days61to90: 410.00, over90Days: 150.00, totalDue: 1180.00, salesperson: 'Sokha Ly', status: 'OVERDUE' },
-    { code: 'CUST-004', customer: 'Khmer Gourmet Delights', phone: '+855 15 221 133', current: 890.00, days1to30: 150.00, days31to60: 0.00, days61to90: 0.00, over90Days: 0.00, totalDue: 1040.00, salesperson: 'Borith Keo', status: 'GOOD_STANDING' },
+    { customerCode: 'CUST-001', customerName: 'Sovann Phka Mart', currentInvoice: 450.00, days1_30: 1200.00, days31_60: 0.00, days61_90: 0.00, days91_120: 0.00, over120Days: 0.00, total: 1650.00, outlet: 'Main Mart', location: 'Main Storage', date: '2024-03-06', customer: 'Sovann Phka Mart' },
+    { customerCode: 'CUST-002', customerName: 'Angkor Organic Cafe', currentInvoice: 320.00, days1_30: 450.00, days31_60: 280.00, days61_90: 0.00, days91_120: 0.00, over120Days: 0.00, total: 1050.00, outlet: 'Main Mart', location: 'POS Counter 1', date: '2024-03-05', customer: 'Angkor Organic Cafe' },
+    { customerCode: 'CUST-003', customerName: 'Bayon Bakery Kitchen', currentInvoice: 0.00, days1_30: 0.00, days31_60: 620.00, days61_90: 410.00, days91_120: 150.00, over120Days: 0.00, total: 1180.00, outlet: 'BKK1 Branch', location: 'Main Storage', date: '2024-03-04', customer: 'Bayon Bakery Kitchen' },
+    { customerCode: 'CUST-004', customerName: 'Rosewood Phnom Penh', currentInvoice: 1850.00, days1_30: 950.00, days31_60: 420.00, days61_90: 200.00, days91_120: 0.00, over120Days: 0.00, total: 3420.00, outlet: 'Central Warehouse', location: 'Cold Room', date: '2024-03-03', customer: 'Rosewood Phnom Penh' },
+    { customerCode: 'CUST-005', customerName: 'Fresh Table Deli', currentInvoice: 210.00, days1_30: 0.00, days31_60: 0.00, days61_90: 0.00, days91_120: 0.00, over120Days: 95.00, total: 305.00, outlet: 'Toul Kork Mart', location: 'POS Counter 2', date: '2024-03-01', customer: 'Fresh Table Deli' },
   ],
   'payment-gateway': [
-    { txnId: 'GW-ABA-9821', date: '2024-03-06', gateway: 'ABA PayWay QR', referenceNo: 'REF-8921820', customer: 'Sovann Phka Mart', orderRef: 'INV-2024-101', amount: 335.50, fee: 2.68, netAmount: 332.82, currency: 'USD', settlementStatus: 'SETTLED', status: 'SUCCESS' },
-    { txnId: 'GW-WNG-4412', date: '2024-03-06', gateway: 'Wing Bank KHQR', referenceNo: 'REF-3310492', customer: 'Bayon Bakery Kitchen', orderRef: 'INV-2024-103', amount: 566.50, fee: 4.53, netAmount: 561.97, currency: 'USD', settlementStatus: 'SETTLED', status: 'SUCCESS' },
-    { txnId: 'GW-VSA-7731', date: '2024-03-06', gateway: 'Visa Credit Card', referenceNo: 'REF-7729104', customer: 'Rosewood Phnom Penh', orderRef: 'INV-2024-104', amount: 1320.00, fee: 19.80, netAmount: 1300.20, currency: 'USD', settlementStatus: 'PENDING_BATCH', status: 'SUCCESS' },
-    { txnId: 'GW-ACL-1092', date: '2024-03-06', gateway: 'ACLEDA KHQR', referenceNo: 'REF-1192834', customer: 'Fresh Table Deli', orderRef: 'INV-2024-099', amount: 184.20, fee: 1.47, netAmount: 182.73, currency: 'USD', settlementStatus: 'SETTLED', status: 'SUCCESS' },
+    { paymentType: 'ABA PayWay', date: '2024-03-06', invoiceCode: 'INV-2024-101', approveCode: 'APP-99214', customerCode: 'CUST-001', customer: 'Sovann Phka Mart', outlet: 'Main Mart', amount: 335.50, voidedDate: '-', reference: 'REF-8921820', status: 'Approved' },
+    { paymentType: 'Wing Bank KHQR', date: '2024-03-06', invoiceCode: 'INV-2024-103', approveCode: 'APP-33104', customerCode: 'CUST-003', customer: 'Bayon Bakery Kitchen', outlet: 'BKK1 Branch', amount: 566.50, voidedDate: '-', reference: 'REF-3310492', status: 'Approved' },
+    { paymentType: 'Visa Card', date: '2024-03-06', invoiceCode: 'INV-2024-104', approveCode: 'APP-77291', customerCode: 'CUST-004', customer: 'Rosewood Phnom Penh', outlet: 'Main Mart', amount: 1320.00, voidedDate: '-', reference: 'REF-7729104', status: 'Pending' },
+    { paymentType: 'ACLEDA KHQR', date: '2024-03-05', invoiceCode: 'INV-2024-099', approveCode: 'APP-11928', customerCode: 'CUST-005', customer: 'Fresh Table Deli', outlet: 'Toul Kork Mart', amount: 184.20, voidedDate: '-', reference: 'REF-1192834', status: 'Approved' },
+    { paymentType: 'TrueMoney', date: '2024-03-04', invoiceCode: 'INV-2024-085', approveCode: 'APP-44102', customerCode: 'CUST-002', customer: 'Angkor Organic Cafe', outlet: 'Main Mart', amount: 95.00, voidedDate: '2024-03-04', reference: 'REF-4410219', status: 'Voided' },
   ],
   'customer-balance': [
-    { code: 'CUST-001', customer: 'Sovann Phka Mart', customerGroup: 'Supermarket Wholesale', creditLimit: 5000.00, currentBalance: 1650.00, unpaidInvoices: 2, depositBalance: 500.00, availableCredit: 3350.00, lastPaymentDate: '2024-03-04', status: 'ACTIVE' },
-    { code: 'CUST-002', customer: 'Angkor Organic Cafe', customerGroup: 'Restaurant & F&B', creditLimit: 3000.00, currentBalance: 1050.00, unpaidInvoices: 3, depositBalance: 200.00, availableCredit: 1950.00, lastPaymentDate: '2024-03-01', status: 'ACTIVE' },
-    { code: 'CUST-003', customer: 'Bayon Bakery Kitchen', customerGroup: 'Bakery Chain', creditLimit: 4000.00, currentBalance: 1180.00, unpaidInvoices: 3, depositBalance: 0.00, availableCredit: 2820.00, lastPaymentDate: '2024-02-20', status: 'ACTIVE' },
-    { code: 'CUST-004', customer: 'Rosewood Phnom Penh', customerGroup: 'Hotel & Luxury', creditLimit: 15000.00, currentBalance: 3420.00, unpaidInvoices: 1, depositBalance: 2500.00, availableCredit: 11580.00, lastPaymentDate: '2024-03-05', status: 'VIP' },
+    { customerCode: 'CUST-001', customer: 'Sovann Phka Mart', date: '2024-03-06' },
+    { customerCode: 'CUST-002', customer: 'Angkor Organic Cafe', date: '2024-03-06' },
+    { customerCode: 'CUST-003', customer: 'Bayon Bakery Kitchen', date: '2024-03-05' },
+    { customerCode: 'CUST-004', customer: 'Rosewood Phnom Penh', date: '2024-03-05' },
+    { customerCode: 'CUST-005', customer: 'Fresh Table Deli', date: '2024-03-04' },
   ],
   'customer-credit-deposit': [
-    { docNo: 'DEP-2024-001', date: '2024-03-01', customer: 'Rosewood Phnom Penh', depositType: 'PREPAID_DEPOSIT', outlet: 'Central Warehouse', amount: 3000.00, utilizedAmount: 500.00, remainingBalance: 2500.00, paymentMethod: 'Bank Transfer (ABA)', note: 'Quarterly produce advance', status: 'ACTIVE' },
-    { docNo: 'DEP-2024-002', date: '2024-03-02', customer: 'Sovann Phka Mart', depositType: 'SECURITY_DEPOSIT', outlet: 'Main Mart', amount: 1000.00, utilizedAmount: 500.00, remainingBalance: 500.00, paymentMethod: 'Cash', note: 'Cold-chain tote deposit', status: 'ACTIVE' },
-    { docNo: 'DEP-2024-003', date: '2024-03-04', customer: 'Angkor Organic Cafe', depositType: 'PREPAID_DEPOSIT', outlet: 'BKK1 Branch', amount: 500.00, utilizedAmount: 300.00, remainingBalance: 200.00, paymentMethod: 'Wing Bank', note: 'Monthly catering credit', status: 'ACTIVE' },
+    { creditCode: 'DEP-2024-001', creditDate: '2024-03-01', reference: 'REF-DP-01', creditAmount: 3000.00, balance: 2500.00, status: 'Active', outlet: 'Central Warehouse', customer: 'Rosewood Phnom Penh', type: 'Deposit', date: '2024-03-01' },
+    { creditCode: 'DEP-2024-002', creditDate: '2024-03-02', reference: 'REF-DP-02', creditAmount: 1000.00, balance: 500.00, status: 'Active', outlet: 'Main Mart', customer: 'Sovann Phka Mart', type: 'Credit', date: '2024-03-02' },
+    { creditCode: 'DEP-2024-003', creditDate: '2024-03-04', reference: 'REF-DP-03', creditAmount: 500.00, balance: 200.00, status: 'Active', outlet: 'BKK1 Branch', customer: 'Angkor Organic Cafe', type: 'Deposit', date: '2024-03-04' },
+    { creditCode: 'DEP-2024-004', creditDate: '2024-03-05', reference: 'REF-DP-04', creditAmount: 800.00, balance: 0.00, status: 'Closed', outlet: 'Toul Kork Mart', customer: 'Bayon Bakery Kitchen', type: 'Credit', date: '2024-03-05' },
   ],
   'invoice-payment': [
-    { paymentNo: 'RCT-2024-401', date: '2024-03-06', invoiceCode: 'INV-2024-101', customer: 'Sovann Phka Mart', outlet: 'Main Mart', paymentMethod: 'ABA PayWay', paidAmount: 335.50, discountTaken: 0.00, bankAccount: 'ABA 001 224 889', collectedBy: 'Sokha Ly', status: 'CONFIRMED' },
-    { paymentNo: 'RCT-2024-402', date: '2024-03-06', invoiceCode: 'INV-2024-102', customer: 'Angkor Organic Cafe', outlet: 'Main Mart', paymentMethod: 'Cash', paidAmount: 203.50, discountTaken: 0.00, bankAccount: 'Cash Drawer #1', collectedBy: 'Sokha Ly', status: 'CONFIRMED' },
-    { paymentNo: 'RCT-2024-403', date: '2024-03-06', invoiceCode: 'INV-2024-103', customer: 'Bayon Bakery Kitchen', outlet: 'BKK1 Express', paymentMethod: 'Wing Bank', paidAmount: 566.50, discountTaken: 0.00, bankAccount: 'Wing 092 110 334', collectedBy: 'Dara Heng', status: 'CONFIRMED' },
-    { paymentNo: 'RCT-2024-404', date: '2024-03-06', invoiceCode: 'INV-2024-104', customer: 'Rosewood Phnom Penh', outlet: 'Main Mart', paymentMethod: 'Visa Card', paidAmount: 1320.00, discountTaken: 0.00, bankAccount: 'Visa Merchant Terminal', collectedBy: 'Vanna Touch', status: 'CONFIRMED' },
+    { invoiceCode: 'INV-2024-101', invoiceDate: '2024-03-06', invoiceAmount: 335.50, redeem: 0.00, paidAmount: 335.50, discount: 0.00, balance: 0.00, outlet: 'Main Mart', customer: 'Sovann Phka Mart', date: '2024-03-06' },
+    { invoiceCode: 'INV-2024-102', invoiceDate: '2024-03-06', invoiceAmount: 203.50, redeem: 10.00, paidAmount: 193.50, discount: 0.00, balance: 0.00, outlet: 'Main Mart', customer: 'Angkor Organic Cafe', date: '2024-03-06' },
+    { invoiceCode: 'INV-2024-103', invoiceDate: '2024-03-05', invoiceAmount: 566.50, redeem: 0.00, paidAmount: 500.00, discount: 15.00, balance: 51.50, outlet: 'BKK1 Branch', customer: 'Bayon Bakery Kitchen', date: '2024-03-05' },
+    { invoiceCode: 'INV-2024-104', invoiceDate: '2024-03-04', invoiceAmount: 1320.00, redeem: 50.00, paidAmount: 1000.00, discount: 20.00, balance: 250.00, outlet: 'Central Warehouse', customer: 'Rosewood Phnom Penh', date: '2024-03-04' },
   ],
   'ar-invoice-status': [
-    { invoiceNo: 'INV-2024-088', issueDate: '2024-02-15', dueDate: '2024-03-01', customer: 'Bayon Bakery Kitchen', outlet: 'Main Mart', totalAmount: 850.00, paidAmount: 230.00, outstandingBalance: 620.00, daysOverdue: 5, paymentStatus: 'PARTIAL', status: 'OVERDUE' },
-    { invoiceNo: 'INV-2024-091', issueDate: '2024-02-20', dueDate: '2024-03-06', customer: 'Angkor Organic Cafe', outlet: 'BKK1 Express', totalAmount: 280.00, paidAmount: 0.00, outstandingBalance: 280.00, daysOverdue: 0, paymentStatus: 'UNPAID', status: 'DUE_TODAY' },
-    { invoiceNo: 'INV-2024-095', issueDate: '2024-02-28', dueDate: '2024-03-14', customer: 'Sovann Phka Mart', outlet: 'Main Mart', totalAmount: 1200.00, paidAmount: 0.00, outstandingBalance: 1200.00, daysOverdue: 0, paymentStatus: 'UNPAID', status: 'CURRENT' },
-    { invoiceNo: 'INV-2024-099', issueDate: '2024-03-01', dueDate: '2024-03-15', customer: 'Rosewood Phnom Penh', outlet: 'Main Mart', totalAmount: 3420.00, paidAmount: 0.00, outstandingBalance: 3420.00, daysOverdue: 0, paymentStatus: 'UNPAID', status: 'CURRENT' },
+    { invoiceCode: 'INV-2024-088', customerName: 'Bayon Bakery Kitchen', invoiceDate: '2024-02-15', dueDate: '2024-03-01', type: 'Credit Sale', invoiceAmount: 850.00, paidAmount: 230.00, balance: 620.00, reference: 'PO-BYN-881', outlet: 'Main Mart', customer: 'Bayon Bakery Kitchen', salesperson: 'Sokha Ly', date: '2024-02-15' },
+    { invoiceCode: 'INV-2024-091', customerName: 'Angkor Organic Cafe', invoiceDate: '2024-02-20', dueDate: '2024-03-06', type: 'Standard', invoiceAmount: 280.00, paidAmount: 0.00, balance: 280.00, reference: 'PO-AOC-091', outlet: 'BKK1 Branch', customer: 'Angkor Organic Cafe', salesperson: 'Chheang Meng', date: '2024-02-20' },
+    { invoiceCode: 'INV-2024-095', customerName: 'Sovann Phka Mart', invoiceDate: '2024-02-28', dueDate: '2024-03-14', type: 'Wholesale', invoiceAmount: 1200.00, paidAmount: 0.00, balance: 1200.00, reference: 'PO-SPM-095', outlet: 'Main Mart', customer: 'Sovann Phka Mart', salesperson: 'Borith Keo', date: '2024-02-28' },
+    { invoiceCode: 'INV-2024-099', customerName: 'Rosewood Phnom Penh', invoiceDate: '2024-03-01', dueDate: '2024-03-15', type: 'Contract', invoiceAmount: 3420.00, paidAmount: 0.00, balance: 3420.00, reference: 'PO-RSW-099', outlet: 'Central Warehouse', customer: 'Rosewood Phnom Penh', salesperson: 'Borith Keo', date: '2024-03-01' },
   ],
   'top-bottom-sale': [
-    { code: 'PRD-001', name: 'Fresh Organic Milk 1L', category: 'Dairy', soldQty: 840, unitCost: 2.20, sellingPrice: 3.00, totalRevenue: 2520.00, grossProfit: 672.00, profitMargin: '26.7%', ranking: '#1 Top', performanceType: 'TOP' },
-    { code: 'PRD-003', name: 'Organic Jasmine Rice 5kg', category: 'Grains', soldQty: 320, unitCost: 6.50, sellingPrice: 9.00, totalRevenue: 2880.00, grossProfit: 800.00, profitMargin: '27.8%', ranking: '#2 Top', performanceType: 'TOP' },
-    { code: 'PRD-002', name: 'Australian Angus Beef 500g', category: 'Meat', soldQty: 195, unitCost: 8.50, sellingPrice: 12.00, totalRevenue: 2340.00, grossProfit: 682.50, profitMargin: '29.2%', ranking: '#3 Top', performanceType: 'TOP' },
-    { code: 'PRD-019', name: 'Artisan Herb Mustard 150g', category: 'Condiments', soldQty: 4, unitCost: 3.80, sellingPrice: 5.50, totalRevenue: 22.00, grossProfit: 6.80, profitMargin: '30.9%', ranking: '#1 Bottom', performanceType: 'BOTTOM' },
-    { code: 'PRD-022', name: 'Organic Cacao Powder 250g', category: 'Baking', soldQty: 6, unitCost: 5.20, sellingPrice: 7.50, totalRevenue: 45.00, grossProfit: 13.80, profitMargin: '30.7%', ranking: '#2 Bottom', performanceType: 'BOTTOM' },
+    { productCode: 'PRD-001', description: 'Fresh Organic Milk 1L', soldQty: 840, uom: 'Bottle', unitPrice: 3.00, totalPrice: 2520.00, outlet: 'Main Mart', location: 'Cold Storage #1', customer: 'Sovann Phka Mart', date: '2024-03-06' },
+    { productCode: 'PRD-003', description: 'Organic Jasmine Rice 5kg', soldQty: 320, uom: 'Bag', unitPrice: 9.00, totalPrice: 2880.00, outlet: 'BKK1 Branch', location: 'Warehouse Floor A', customer: 'Bayon Bakery Kitchen', date: '2024-03-06' },
+    { productCode: 'PRD-002', description: 'Australian Angus Beef 500g', soldQty: 195, uom: 'Pack', unitPrice: 12.00, totalPrice: 2340.00, outlet: 'Main Mart', location: 'Meat Freezer #1', customer: 'Angkor Organic Cafe', date: '2024-03-05' },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', soldQty: 160, uom: 'Case', unitPrice: 5.00, totalPrice: 800.00, outlet: 'Toul Kork Mart', location: 'Main Shelf B', customer: 'Rosewood Phnom Penh', date: '2024-03-05' },
+    { productCode: 'PRD-006', description: 'Extra Virgin Olive Oil 750ml', soldQty: 25, uom: 'Bottle', unitPrice: 10.50, totalPrice: 262.50, outlet: 'Central Warehouse', location: 'Warehouse Floor A', customer: 'Fresh Table Deli', date: '2024-03-04' },
+    { productCode: 'PRD-007', description: 'Artisan Herb Mustard 150g', soldQty: 4, uom: 'Jar', unitPrice: 5.50, totalPrice: 22.00, outlet: 'Main Mart', location: 'Aisle 3 Chiller', customer: 'Angkor Organic Cafe', date: '2024-03-03' },
   ],
   'cash-receipt': [
-    { receiptNo: 'CSH-REC-001', date: '2024-03-06', customer: 'Walk-in Retail Buyer', outlet: 'Main Mart', cashier: 'Sokha Ly', receivedFrom: 'POS Cashier Counter #1', cashAmount: 450.00, currency: 'USD', reason: 'Retail Grocery Sales Payment', receivedBy: 'Sokha Ly', status: 'VERIFIED' },
-    { receiptNo: 'CSH-REC-002', date: '2024-03-06', customer: 'Angkor Organic Cafe', outlet: 'Main Mart', cashier: 'Sokha Ly', receivedFrom: 'Wholesale Buyer Drop', cashAmount: 203.50, currency: 'USD', reason: 'Invoice Payment INV-2024-102', receivedBy: 'Sokha Ly', status: 'VERIFIED' },
-    { receiptNo: 'CSH-REC-003', date: '2024-03-06', customer: 'Walk-in Retail Buyer', outlet: 'BKK1 Express', cashier: 'Dara Heng', receivedFrom: 'POS Cashier Counter #2', cashAmount: 320.00, currency: 'USD', reason: 'Express Mart Store Sales', receivedBy: 'Dara Heng', status: 'VERIFIED' },
+    { currency: 'USD', amount: 450.00, date: '2024-03-06', outlet: 'Main Mart', customer: 'Sovann Phka Mart', paymentType: 'Cash', receiptType: 'Invoice Payment', status: 'Completed' },
+    { currency: 'KHR (Riel)', amount: 820000.00, date: '2024-03-06', outlet: 'Main Mart', customer: 'Angkor Organic Cafe', paymentType: 'Cash', receiptType: 'Direct Sale', status: 'Completed' },
+    { currency: 'USD', amount: 320.00, date: '2024-03-05', outlet: 'BKK1 Branch', customer: 'Bayon Bakery Kitchen', paymentType: 'Cash', receiptType: 'Deposit Receipt', status: 'Completed' },
+    { currency: 'USD', amount: 1250.00, date: '2024-03-04', outlet: 'Central Warehouse', customer: 'Rosewood Phnom Penh', paymentType: 'Cash', receiptType: 'Advance Payment', status: 'Completed' },
+    { currency: 'KHR (Riel)', amount: 450000.00, date: '2024-03-03', outlet: 'Toul Kork Mart', customer: 'Fresh Table Deli', paymentType: 'Cash', receiptType: 'Invoice Payment', status: 'Pending' },
   ],
   'profits': [
-    { period: 'March 2024 (Month-to-Date)', outlet: 'All Outlets Combined', category: 'Enterprise P&L', revenue: 48500.00, cogs: 34150.00, grossProfit: 14350.00, profitMargin: '29.6%', operationalExpense: 5200.00, netProfit: 9150.00, roiPct: '18.9%', status: 'HIGH_PERFORMING' },
-    { period: 'February 2024', outlet: 'All Outlets Combined', category: 'Enterprise P&L', revenue: 142000.00, cogs: 100820.00, grossProfit: 41180.00, profitMargin: '29.0%', operationalExpense: 15400.00, netProfit: 25780.00, roiPct: '18.2%', status: 'STABLE' },
-    { period: 'January 2024', outlet: 'All Outlets Combined', category: 'Enterprise P&L', revenue: 138500.00, cogs: 98600.00, grossProfit: 39900.00, profitMargin: '28.8%', operationalExpense: 14900.00, netProfit: 25000.00, roiPct: '18.1%', status: 'STABLE' },
+    { no: '01', description: 'Gross Sales Revenue', amount: 48500.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { no: '02', description: 'Cost of Goods Sold (COGS)', amount: -34150.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { no: '03', description: 'Gross Profit Margin', amount: 14350.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { no: '04', description: 'Operating & Staff Expenses', amount: -5200.00, outlet: 'BKK1 Branch', date: '2024-03-05' },
+    { no: '05', description: 'Net Operating Profit', amount: 9150.00, outlet: 'Central Warehouse', date: '2024-03-05' },
   ],
   'sale-payment-type': [
-    { paymentType: 'ABA PayWay (Mobile QR)', outlet: 'All Outlets', transactionCount: 1420, totalAmount: 26850.00, pctOfTotal: '55.4%', avgTicketSize: 18.90, processingFee: 214.80, netSettlement: 26635.20, status: 'PRIMARY' },
-    { paymentType: 'Cash at Counter', outlet: 'All Outlets', transactionCount: 890, totalAmount: 12450.00, pctOfTotal: '25.7%', avgTicketSize: 13.98, processingFee: 0.00, netSettlement: 12450.00, status: 'STANDARD' },
-    { paymentType: 'Visa / MasterCard', outlet: 'All Outlets', transactionCount: 280, totalAmount: 5820.00, pctOfTotal: '12.0%', avgTicketSize: 20.78, processingFee: 87.30, netSettlement: 5732.70, status: 'ACTIVE' },
-    { paymentType: 'Wing Bank / KHQR', outlet: 'All Outlets', transactionCount: 140, totalAmount: 2380.00, pctOfTotal: '4.9%', avgTicketSize: 17.00, processingFee: 19.04, netSettlement: 2360.96, status: 'ACTIVE' },
-    { paymentType: 'Customer Deposit Account', outlet: 'All Outlets', transactionCount: 45, totalAmount: 1000.00, pctOfTotal: '2.0%', avgTicketSize: 22.22, processingFee: 0.00, netSettlement: 1000.00, status: 'INTERNAL' },
+    { paymentType: 'ABA PayWay', invoiceCode: 'INV-2024-101', invoiceDate: '2024-03-06', userName: 'Sokha Ly', customer: 'Sovann Phka Mart', customerGroup: 'Supermarket Wholesale', salesperson: 'Borith Keo', invoiceType: 'Standard', amount: 335.50, paymentDiscount: 0.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { paymentType: 'Cash', invoiceCode: 'INV-2024-102', invoiceDate: '2024-03-06', userName: 'Sokha Ly', customer: 'Angkor Organic Cafe', customerGroup: 'Restaurant & F&B', salesperson: 'Chheang Meng', invoiceType: 'Tax Invoice', amount: 203.50, paymentDiscount: 0.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { paymentType: 'Wing Bank', invoiceCode: 'INV-2024-103', invoiceDate: '2024-03-05', userName: 'Dara Heng', customer: 'Bayon Bakery Kitchen', customerGroup: 'Bakery Chain', salesperson: 'Sokha Ly', invoiceType: 'Standard', amount: 566.50, paymentDiscount: 15.00, outlet: 'BKK1 Branch', date: '2024-03-05' },
+    { paymentType: 'Visa Card', invoiceCode: 'INV-2024-104', invoiceDate: '2024-03-04', userName: 'Vanna Touch', customer: 'Rosewood Phnom Penh', customerGroup: 'Hotel & Luxury', salesperson: 'Borith Keo', invoiceType: 'Credit Invoice', amount: 1320.00, paymentDiscount: 20.00, outlet: 'Central Warehouse', date: '2024-03-04' },
+    { paymentType: 'ACLEDA KHQR', invoiceCode: 'INV-2024-105', invoiceDate: '2024-03-03', userName: 'Kalyan Meng', customer: 'Fresh Table Deli', customerGroup: 'Restaurant & F&B', salesperson: 'Chheang Meng', invoiceType: 'Standard', amount: 184.20, paymentDiscount: 0.00, outlet: 'Toul Kork Mart', date: '2024-03-03' },
   ],
   'close-shift': [
-    { shiftNo: 'SFT-01', date: '2024-03-06', shiftName: 'Morning Shift (07:00 - 15:00)', cashier: 'Sokha Ly', outlet: 'Main Mart', openingCash: 100.00, cashSales: 850.00, electronicSales: 1650.00, cashInDrawer: 950.00, variance: 0.00, closedAt: '15:05:12', status: 'BALANCED' },
-    { shiftNo: 'SFT-02', date: '2024-03-06', shiftName: 'Evening Shift (15:00 - 22:00)', cashier: 'Vanna Touch', outlet: 'Main Mart', openingCash: 100.00, cashSales: 600.00, electronicSales: 1303.00, cashInDrawer: 700.00, variance: 0.00, closedAt: '22:08:44', status: 'BALANCED' },
-    { shiftNo: 'SFT-03', date: '2024-03-06', shiftName: 'Full Day Shift (08:00 - 20:00)', cashier: 'Dara Heng', outlet: 'BKK1 Express', openingCash: 100.00, cashSales: 820.00, electronicSales: 2518.50, cashInDrawer: 920.00, variance: 0.00, closedAt: '20:12:00', status: 'BALANCED' },
+    { loginTime: '2024-03-06 07:00', logoutTime: '2024-03-06 15:00', opening: 100.00, closing: 950.00, outlet: 'Main Mart', sale: 2500.00, cashSales: 850.00, depositAmount: 100.00, terminal: 'Station POS-01', user: 'Sokha Ly', date: '2024-03-06', station: 'Station POS-01' },
+    { loginTime: '2024-03-06 15:00', logoutTime: '2024-03-06 22:00', opening: 100.00, closing: 700.00, outlet: 'Main Mart', sale: 1903.00, cashSales: 600.00, depositAmount: 0.00, terminal: 'Station POS-02', user: 'Vanna Touch', date: '2024-03-06', station: 'Station POS-02' },
+    { loginTime: '2024-03-06 08:00', logoutTime: '2024-03-06 20:00', opening: 100.00, closing: 920.00, outlet: 'BKK1 Branch', sale: 3338.50, cashSales: 820.00, depositAmount: 200.00, terminal: 'Station POS-01', user: 'Dara Heng', date: '2024-03-06', station: 'Station POS-01' },
+    { loginTime: '2024-03-05 07:30', logoutTime: '2024-03-05 16:00', opening: 100.00, closing: 880.00, outlet: 'Toul Kork Mart', sale: 2150.00, cashSales: 780.00, depositAmount: 50.00, terminal: 'Station POS-03', user: 'Kalyan Meng', date: '2024-03-05', station: 'Station POS-03' },
   ],
   'sale-promotion-report': [
-    { promoCode: 'PROMO-FARM10', promoName: 'Farm Fresh Weekend 10%', discountType: 'PERCENTAGE_10', startDate: '2024-03-01', endDate: '2024-03-03', appliedCount: 340, totalDiscountGiven: 480.00, revenueGenerated: 4800.00, roiPct: '900%', status: 'EXPIRED' },
-    { promoCode: 'PROMO-ORGANIC5', promoName: 'Organic Certified Discount', discountType: 'FIXED_$5', startDate: '2024-03-04', endDate: '2024-03-10', appliedCount: 185, totalDiscountGiven: 925.00, revenueGenerated: 6475.00, roiPct: '600%', status: 'ACTIVE' },
-    { promoCode: 'PROMO-VIPMEMBER', promoName: 'Gold Member Exclusive Savings', discountType: 'PERCENTAGE_15', startDate: '2024-03-01', endDate: '2024-03-31', appliedCount: 520, totalDiscountGiven: 1420.00, revenueGenerated: 11200.00, roiPct: '688%', status: 'ACTIVE' },
+    { promoOnBills: 'Weekend 10% Off Bill', promoOnItems: 'Buy 2 Get 1 Organic Milk', totalBeforePromo: 4800.00, totalDiscOnItems: 320.00, totalDiscOnBills: 480.00, totalAfterPromo: 4000.00, outlet: 'Main Mart', date: '2024-03-06' },
+    { promoOnBills: 'VIP Member 15%', promoOnItems: 'Angus Beef $2 Off', totalBeforePromo: 6475.00, totalDiscOnItems: 450.00, totalDiscOnBills: 925.00, totalAfterPromo: 5100.00, outlet: 'BKK1 Branch', date: '2024-03-06' },
+    { promoOnBills: 'Grand Opening Voucher', promoOnItems: 'Mineral Water 5% Disc', totalBeforePromo: 11200.00, totalDiscOnItems: 220.00, totalDiscOnBills: 1200.00, totalAfterPromo: 9780.00, outlet: 'Central Warehouse', date: '2024-03-05' },
+    { promoOnBills: 'Pantry Flash Sale', promoOnItems: 'Jasmine Rice 10% Off', totalBeforePromo: 3200.00, totalDiscOnItems: 180.00, totalDiscOnBills: 250.00, totalAfterPromo: 2770.00, outlet: 'Toul Kork Mart', date: '2024-03-04' },
   ],
   'sale-package-item-report': [
-    { packageCode: 'PKG-VEG-01', packageName: 'Organic Family Veggie Basket', category: 'Fresh Produce', itemsCount: 6, packagePrice: 15.00, itemsTotalValue: 18.50, packagesSold: 120, totalRevenue: 1800.00, costPrice: 11.20, profit: 456.00, status: 'BEST_SELLER' },
-    { packageCode: 'PKG-BBQ-02', packageName: 'Gourmet Weekend BBQ Combo', category: 'Meat & Seafood', itemsCount: 4, packagePrice: 35.00, itemsTotalValue: 42.00, packagesSold: 85, totalRevenue: 2975.00, costPrice: 24.50, profit: 892.50, status: 'POPULAR' },
-    { packageCode: 'PKG-BRK-03', packageName: 'Healthy Breakfast Essentials', category: 'Dairy & Bakery', itemsCount: 5, packagePrice: 12.00, itemsTotalValue: 14.20, packagesSold: 160, totalRevenue: 1920.00, costPrice: 8.80, profit: 512.00, status: 'HIGH_DEMAND' },
+    { invoiceDate: '2024-03-06', invoiceCode: 'INV-2024-001', code: 'PKG-VEG-01', description: 'Family Veggie Basket', subItemCode: 'SUB-01', subItemDesc: 'Fresh Carrots 1kg', subQty: 2, subPrice: 3.00, subCost: 1.80, subSale: 6.00, subProfit: 2.40, outlet: 'Main Mart', date: '2024-03-06' },
+    { invoiceDate: '2024-03-06', invoiceCode: 'INV-2024-001', code: 'PKG-VEG-01', description: 'Family Veggie Basket', subItemCode: 'SUB-02', subItemDesc: 'Organic Broccoli 500g', subQty: 1, subPrice: 4.50, subCost: 2.80, subSale: 4.50, subProfit: 1.70, outlet: 'Main Mart', date: '2024-03-06' },
+    { invoiceDate: '2024-03-05', invoiceCode: 'INV-2024-002', code: 'PKG-BBQ-02', description: 'Gourmet BBQ Combo', subItemCode: 'SUB-03', subItemDesc: 'Angus Beef Ribeye', subQty: 2, subPrice: 15.00, subCost: 9.50, subSale: 30.00, subProfit: 11.00, outlet: 'BKK1 Branch', date: '2024-03-05' },
+    { invoiceDate: '2024-03-04', invoiceCode: 'INV-2024-003', code: 'PKG-BRK-03', description: 'Breakfast Essentials', subItemCode: 'SUB-04', subItemDesc: 'Farm Fresh Eggs 30s', subQty: 1, subPrice: 5.50, subCost: 3.80, subSale: 5.50, subProfit: 1.70, outlet: 'Toul Kork Mart', date: '2024-03-04' },
   ],
   // ORDER MANAGEMENT SUB-REPORTS
   'sale-order-status': [
-    { orderNo: 'SO-2024-001', date: '2024-03-06', customer: 'Bayon Market Toul Kork', outlet: 'Central Warehouse', items: 18, totalAmount: 850.00, paymentStatus: 'PAID', orderStatus: 'PROCESSING', salesperson: 'Borith Keo' },
-    { orderNo: 'SO-2024-002', date: '2024-03-06', customer: 'Angkor Organic Cafe', outlet: 'Main Mart', items: 8, totalAmount: 320.50, paymentStatus: 'PARTIAL', orderStatus: 'CONFIRMED', salesperson: 'Sokha Ly' },
-    { orderNo: 'SO-2024-003', date: '2024-03-05', customer: 'Rosewood Phnom Penh', outlet: 'Main Mart', items: 25, totalAmount: 2450.00, paymentStatus: 'PENDING', orderStatus: 'DISPATCHED', salesperson: 'Dara Heng' },
-    { orderNo: 'SO-2024-004', date: '2024-03-04', customer: 'Sovann Phka Mart', outlet: 'Central Warehouse', items: 12, totalAmount: 640.00, paymentStatus: 'PAID', orderStatus: 'DELIVERED', salesperson: 'Vanna Touch' },
+    { soQuotationCode: 'SO-2024-001', customer: 'Bayon Market Toul Kork', soQuotationDate: '2024-03-06', type: 'Sales Order', note: 'Priority morning delivery', status: 'Confirmed', amount: 850.00, shipAmount: 850.00, closedAmount: 0.00, openAmount: 0.00, outlet: 'Central Warehouse', salesperson: 'Borith Keo', date: '2024-03-06' },
+    { soQuotationCode: 'QT-2024-089', customer: 'Angkor Organic Cafe', soQuotationDate: '2024-03-06', type: 'Quotation', note: 'Pending menu update', status: 'Pending', amount: 320.50, shipAmount: 0.00, closedAmount: 0.00, openAmount: 320.50, outlet: 'Main Mart', salesperson: 'Sokha Ly', date: '2024-03-06' },
+    { soQuotationCode: 'SO-2024-002', customer: 'Rosewood Phnom Penh', soQuotationDate: '2024-03-05', type: 'Sales Order', note: 'VIP hospitality client', status: 'Processing', amount: 2450.00, shipAmount: 1200.00, closedAmount: 0.00, openAmount: 1250.00, outlet: 'Main Mart', salesperson: 'Dara Heng', date: '2024-03-05' },
+    { soQuotationCode: 'SO-2024-003', customer: 'Sovann Phka Mart', soQuotationDate: '2024-03-04', type: 'Sales Order', note: 'Weekly scheduled restock', status: 'Closed', amount: 640.00, shipAmount: 640.00, closedAmount: 640.00, openAmount: 0.00, outlet: 'Central Warehouse', salesperson: 'Vanna Touch', date: '2024-03-04' },
+    { soQuotationCode: 'QT-2024-092', customer: 'Lucky Supermarket Group', soQuotationDate: '2024-03-03', type: 'Quotation', note: 'Bulk seasonal order estimate', status: 'Draft', amount: 1580.00, shipAmount: 0.00, closedAmount: 0.00, openAmount: 1580.00, outlet: 'Toul Kork Mart', salesperson: 'Borith Keo', date: '2024-03-03' },
   ],
   'sale-order-shipment': [
-    { shipmentNo: 'SHP-ORD-101', orderNo: 'SO-2024-001', dispatchDate: '2024-03-06', customer: 'Bayon Market Toul Kork', deliveryAddress: '#128 St. 598 Toul Kork, Phnom Penh', carrier: 'Fleet Truck #3', trackingNo: 'TRK-KH-8891', shipmentStatus: 'OUT_FOR_DELIVERY' },
-    { shipmentNo: 'SHP-ORD-102', orderNo: 'SO-2024-003', dispatchDate: '2024-03-05', customer: 'Rosewood Phnom Penh', deliveryAddress: 'Vattanac Capital Tower, Monivong Blvd', carrier: 'Cold Express #2', trackingNo: 'TRK-KH-8892', shipmentStatus: 'DELIVERED' },
-    { shipmentNo: 'SHP-ORD-103', orderNo: 'SO-2024-004', dispatchDate: '2024-03-04', customer: 'Sovann Phka Mart', deliveryAddress: '#45 St. 271, Boeng Tumpun', carrier: 'Van Express #1', trackingNo: 'TRK-KH-8893', shipmentStatus: 'DELIVERED' },
+    { soCode: 'SO-2024-001', shipCode: 'SHP-2024-001', shipDate: '2024-03-06', customerName: 'Bayon Market Toul Kork', productCode: 'PRD-001', partNumber: 'PN-RIC-01', productDescription: 'Organic Jasmine Rice 5kg', uom: 'Bag', orderQty: 50, orderAmount: 340.00, shipQty: 50, shipAmount: 340.00, returnQty: 0, returnAmount: 0.00, balanceQty: 0, balanceAmount: 0.00, outlet: 'Central Warehouse', category: 'Grains', brand: 'Heritage Organic', productGroup: 'Pantry Staples', type: 'Direct Delivery', date: '2024-03-06' },
+    { soCode: 'SO-2024-002', shipCode: 'SHP-2024-002', shipDate: '2024-03-05', customerName: 'Rosewood Phnom Penh', productCode: 'PRD-003', partNumber: 'PN-MEAT-03', productDescription: 'Australian Angus Beef 500g', uom: 'Pack', orderQty: 40, orderAmount: 516.00, shipQty: 20, shipAmount: 258.00, returnQty: 0, returnAmount: 0.00, balanceQty: 20, balanceAmount: 258.00, outlet: 'Main Mart', category: 'Meat', brand: 'CP Foods', productGroup: 'Cold Chain', type: 'Partial Shipment', date: '2024-03-05' },
+    { soCode: 'SO-2024-003', shipCode: 'SHP-2024-003', shipDate: '2024-03-04', customerName: 'Sovann Phka Mart', productCode: 'PRD-002', partNumber: 'PN-DAI-02', productDescription: 'Fresh Organic Milk 1L', uom: 'Carton', orderQty: 60, orderAmount: 165.00, shipQty: 60, shipAmount: 165.00, returnQty: 5, returnAmount: 13.75, balanceQty: 0, balanceAmount: 0.00, outlet: 'Central Warehouse', category: 'Dairy', brand: 'Angkor Harvest', productGroup: 'Beverages', type: 'Direct Delivery', date: '2024-03-04' },
+    { soCode: 'SO-2024-004', shipCode: 'SHP-2024-004', shipDate: '2024-03-04', customerName: 'Lucky Supermarket Group', productCode: 'PRD-006', partNumber: 'PN-OIL-06', productDescription: 'Extra Virgin Olive Oil 750ml', uom: 'Bottle', orderQty: 30, orderAmount: 315.00, shipQty: 25, shipAmount: 262.50, returnQty: 0, returnAmount: 0.00, balanceQty: 5, balanceAmount: 52.50, outlet: 'Toul Kork Mart', category: 'Pantry Staples', brand: 'Heritage Organic', productGroup: 'Pantry Staples', type: 'Partial Shipment', date: '2024-03-04' },
   ],
 
   // CONSIGNMENT SUB-REPORTS
   'consignment-shipment': [
-    { shipmentNo: 'CSG-SHP-001', date: '2024-03-05', vendor: 'Khmer Heritage Farm', outlet: 'Main Mart', receivedBy: 'Dara Heng', totalPackages: 45, carrier: 'Farm Direct Truck', status: 'RECEIVED' },
-    { shipmentNo: 'CSG-SHP-002', date: '2024-03-04', vendor: 'Kampot Organic Spice Co', outlet: 'Central Warehouse', receivedBy: 'Sokha Ly', totalPackages: 20, carrier: 'Phnom Penh Post Logistics', status: 'VERIFIED' },
-    { shipmentNo: 'CSG-SHP-003', date: '2024-03-02', vendor: 'Mondulkiri Fresh Honey', outlet: 'BKK1 Express Store', receivedBy: 'Vanna Touch', totalPackages: 15, carrier: 'Local Express Delivery', status: 'RECEIVED' },
+    { conCode: 'CSG-2024-001', shipCode: 'CSG-SHP-001', customer: 'Khmer Heritage Farm', description: 'Pure Organic Honey 500g', ums: 'Jar', conQty: 100, shipQty: 80, shipAmount: 520.00, returnQty: 5, returnAmount: 32.50, invoiceQty: 75, invoiceAmount: 487.50, balanceQty: 20, balanceAmount: 130.00, outlet: 'Main Mart', category: 'Pantry Staples', brand: 'Heritage Organic', productGroup: 'Pantry Staples', date: '2024-03-05' },
+    { conCode: 'CSG-2024-002', shipCode: 'CSG-SHP-002', customer: 'Kampot Organic Spice Co', description: 'Black Pepper Grade A 100g', ums: 'Jar', conQty: 200, shipQty: 150, shipAmount: 885.00, returnQty: 0, returnAmount: 0.00, invoiceQty: 150, invoiceAmount: 885.00, balanceQty: 50, balanceAmount: 295.00, outlet: 'Central Warehouse', category: 'Spices', brand: 'Angkor Harvest', productGroup: 'Pantry Staples', date: '2024-03-04' },
+    { conCode: 'CSG-2024-003', shipCode: 'CSG-SHP-003', customer: 'Mondulkiri Fresh Honey', description: 'Wildflower Honey 250ml', ums: 'Bottle', conQty: 80, shipQty: 60, shipAmount: 390.00, returnQty: 2, returnAmount: 13.00, invoiceQty: 58, invoiceAmount: 377.00, balanceQty: 20, balanceAmount: 130.00, outlet: 'BKK1 Branch', category: 'Pantry Staples', brand: 'Lucky Local', productGroup: 'Pantry Staples', date: '2024-03-02' },
+    { conCode: 'CSG-2024-004', shipCode: 'CSG-SHP-004', customer: 'Bayon Market Toul Kork', description: 'Organic Jasmine Rice 5kg', ums: 'Bag', conQty: 120, shipQty: 120, shipAmount: 816.00, returnQty: 0, returnAmount: 0.00, invoiceQty: 120, invoiceAmount: 816.00, balanceQty: 0, balanceAmount: 0.00, outlet: 'Toul Kork Mart', category: 'Grains', brand: 'Heritage Organic', productGroup: 'Fresh Grocery', date: '2024-03-01' },
   ],
   'consignment-status-report': [
-    { contractNo: 'CSG-CT-01', vendor: 'Khmer Heritage Farm', product: 'Pure Organic Honey 500g', consignedQty: 300, soldQty: 245, returnQty: 5, remainingQty: 50, settlementAmount: 735.00, status: 'ACTIVE' },
-    { contractNo: 'CSG-CT-02', vendor: 'Kampot Organic Spice Co', product: 'Black Pepper Grade A 100g', consignedQty: 500, soldQty: 410, returnQty: 0, remainingQty: 90, settlementAmount: 1230.00, status: 'ACTIVE' },
-    { contractNo: 'CSG-CT-03', vendor: 'Mondulkiri Fresh Honey', product: 'Wildflower Honey 250ml', consignedQty: 200, soldQty: 180, returnQty: 2, remainingQty: 18, settlementAmount: 540.00, status: 'NEAR_RECONCILE' },
+    { conCode: 'CSG-2024-001', customer: 'Khmer Heritage Farm', date: '2024-03-05', status: 'Active', conAmount: 650.00, shipAmount: 520.00, returnAmount: 32.50, closedAmount: 487.50, balanceAmount: 130.00, outlet: 'Main Mart', salesperson: 'Borith Keo' },
+    { conCode: 'CSG-2024-002', customer: 'Kampot Organic Spice Co', date: '2024-03-04', status: 'Active', conAmount: 1180.00, shipAmount: 885.00, returnAmount: 0.00, closedAmount: 885.00, balanceAmount: 295.00, outlet: 'Central Warehouse', salesperson: 'Sokha Ly' },
+    { conCode: 'CSG-2024-003', customer: 'Mondulkiri Fresh Honey', date: '2024-03-02', status: 'Near Reconcile', conAmount: 520.00, shipAmount: 390.00, returnAmount: 13.00, closedAmount: 377.00, balanceAmount: 130.00, outlet: 'BKK1 Branch', salesperson: 'Dara Heng' },
+    { conCode: 'CSG-2024-004', customer: 'Bayon Market Toul Kork', date: '2024-03-01', status: 'Closed', conAmount: 816.00, shipAmount: 816.00, returnAmount: 0.00, closedAmount: 816.00, balanceAmount: 0.00, outlet: 'Toul Kork Mart', salesperson: 'Vanna Touch' },
   ],
 
   // PURCHASE MANAGEMENT SUB-REPORTS
   'requisition': [
-    { reqNo: 'PR-2024-051', date: '2024-03-06', department: 'Fresh Produce Dept', requestedBy: 'Sokha Ly', totalItems: 6, estimatedCost: 1450.00, priority: 'HIGH', status: 'APPROVED' },
-    { reqNo: 'PR-2024-052', date: '2024-03-05', department: 'Dairy & Chilled Section', requestedBy: 'Kalyan Meng', totalItems: 4, estimatedCost: 820.00, priority: 'NORMAL', status: 'PENDING' },
-    { reqNo: 'PR-2024-053', date: '2024-03-04', department: 'Warehouse Logistics', requestedBy: 'Borith Keo', totalItems: 12, estimatedCost: 3100.00, priority: 'URGENT', status: 'PO_CREATED' },
+    { productCode: 'PRD-001', barcode: '8850124001', description: 'Organic Jasmine Rice 5kg', uom: 'Bag', requisitionQty: 50, poQty: 50, completedQty: 40, voidedQty: 0, remainQty: 10, outlet: 'Central Warehouse', category: 'Grains', brand: 'Heritage Organic', productGroup: 'Pantry Staples', status: 'Approved', requisitionType: 'Stock Replenishment', date: '2024-03-06' },
+    { productCode: 'PRD-002', barcode: '8850124002', description: 'Fresh Organic Milk 1L', uom: 'Carton', requisitionQty: 80, poQty: 60, completedQty: 60, voidedQty: 0, remainQty: 20, outlet: 'Main Mart', category: 'Dairy', brand: 'Angkor Harvest', productGroup: 'Beverages', status: 'Pending', requisitionType: 'Emergency Order', date: '2024-03-05' },
+    { productCode: 'PRD-003', barcode: '8850124003', description: 'Australian Angus Beef 500g', uom: 'Pack', requisitionQty: 30, poQty: 30, completedQty: 25, voidedQty: 5, remainQty: 0, outlet: 'Main Mart', category: 'Meat', brand: 'CP Foods', productGroup: 'Cold Chain', status: 'Completed', requisitionType: 'Special Order', date: '2024-03-04' },
+    { productCode: 'PRD-006', barcode: '8850124006', description: 'Extra Virgin Olive Oil 750ml', uom: 'Bottle', requisitionQty: 25, poQty: 20, completedQty: 20, voidedQty: 0, remainQty: 5, outlet: 'Toul Kork Mart', category: 'Pantry Staples', brand: 'Heritage Organic', productGroup: 'Pantry Staples', status: 'Approved', requisitionType: 'Stock Replenishment', date: '2024-03-03' },
   ],
   'purchase-order-status': [
-    { poNo: 'PO-2024-041', date: '2024-03-05', supplier: 'Cambodia Agri-Trading Ltd', outlet: 'Central Warehouse', term: 'Net 30', totalAmount: 4200.00, receivingStatus: 'PARTIAL', paymentStatus: 'UNPAID', status: 'OPEN' },
-    { poNo: 'PO-2024-042', date: '2024-03-04', supplier: 'CP Food Supplies Cambodia', outlet: 'Main Mart', term: 'Net 15', totalAmount: 3450.00, receivingStatus: 'RECEIVED', paymentStatus: 'PAID', status: 'CLOSED' },
-    { poNo: 'PO-2024-043', date: '2024-03-02', supplier: 'Mekong Beverage Ltd', outlet: 'BKK1 Express', term: 'Immediate', totalAmount: 1280.00, receivingStatus: 'RECEIVED', paymentStatus: 'PAID', status: 'CLOSED' },
+    { poCode: 'PO-2024-041', soCode: 'SO-2024-001', supplierName: 'Cambodia Agri-Trading Ltd', poDate: '2024-03-05', requireDate: '2024-03-12', voidDate: '-', totalAmount: 4200.00, receiveAmount: 3150.00, closedAmount: 3150.00, status: 'Open', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', date: '2024-03-05' },
+    { poCode: 'PO-2024-042', soCode: 'SO-2024-002', supplierName: 'CP Food Supplies Cambodia', poDate: '2024-03-04', requireDate: '2024-03-10', voidDate: '-', totalAmount: 3450.00, receiveAmount: 3450.00, closedAmount: 3450.00, status: 'Closed', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', date: '2024-03-04' },
+    { poCode: 'PO-2024-043', soCode: 'SO-2024-003', supplierName: 'Mekong Beverage Ltd', poDate: '2024-03-02', requireDate: '2024-03-08', voidDate: '-', totalAmount: 1280.00, receiveAmount: 0.00, closedAmount: 0.00, status: 'Partial', outlet: 'BKK1 Branch', supplier: 'Mekong Beverage Ltd', date: '2024-03-02' },
+    { poCode: 'PO-2024-044', soCode: 'SO-2024-004', supplierName: 'Global Dairy Import Inc', poDate: '2024-03-01', requireDate: '2024-03-06', voidDate: '2024-03-03', totalAmount: 950.00, receiveAmount: 0.00, closedAmount: 0.00, status: 'Cancelled', outlet: 'Central Warehouse', supplier: 'Global Dairy Import Inc', date: '2024-03-01' },
   ],
   'purchase-order-products-status': [
-    { poNo: 'PO-2024-041', code: 'PRD-003', product: 'Organic Jasmine Rice 5kg', supplier: 'Cambodia Agri-Trading Ltd', orderedQty: 400, receivedQty: 300, unitCost: 6.50, totalCost: 1950.00, status: 'PARTIAL_DELIVERY' },
-    { poNo: 'PO-2024-041', code: 'PRD-004', product: 'Brown Rice Organic 2kg', supplier: 'Cambodia Agri-Trading Ltd', orderedQty: 250, receivedQty: 250, unitCost: 3.20, totalCost: 800.00, status: 'COMPLETED' },
-    { poNo: 'PO-2024-042', code: 'PRD-002', product: 'Australian Angus Beef 500g', supplier: 'CP Food Supplies Cambodia', orderedQty: 150, receivedQty: 150, unitCost: 8.50, totalCost: 1275.00, status: 'COMPLETED' },
+    { productCode: 'PRD-001', description: 'Organic Jasmine Rice 5kg', totalQty: 400, receiveQty: 300, closedQty: 300, openQty: 100, uom: 'Bag', totalAmount: 2600.00, receiveAmount: 1950.00, closedAmount: 1950.00, openAmount: 650.00, status: 'Open', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', purchasePerson: 'Sokha Ly', productGroup: 'Pantry Staples', date: '2024-03-05' },
+    { productCode: 'PRD-003', description: 'Australian Angus Beef 500g', totalQty: 150, receiveQty: 150, closedQty: 150, openQty: 0, uom: 'Pack', totalAmount: 1275.00, receiveAmount: 1275.00, closedAmount: 1275.00, openAmount: 0.00, status: 'Closed', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', purchasePerson: 'Borith Keo', productGroup: 'Cold Chain', date: '2024-03-04' },
+    { productCode: 'PRD-002', description: 'Fresh Organic Milk 1L', totalQty: 250, receiveQty: 120, closedQty: 120, openQty: 130, uom: 'Carton', totalAmount: 687.50, receiveAmount: 330.00, closedAmount: 330.00, openAmount: 357.50, status: 'Partial', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', purchasePerson: 'Dara Heng', productGroup: 'Beverages', date: '2024-03-03' },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', totalQty: 500, receiveQty: 500, closedQty: 500, openQty: 0, uom: 'Case', totalAmount: 1600.00, receiveAmount: 1600.00, closedAmount: 1600.00, openAmount: 0.00, status: 'Closed', outlet: 'Central Warehouse', supplier: 'Mekong Beverage Ltd', purchasePerson: 'Vanna Touch', productGroup: 'Beverages', date: '2024-03-02' },
+  ],
+  'purchase-order-products': [
+    { productCode: 'PRD-001', description: 'Organic Jasmine Rice 5kg', totalQty: 400, receiveQty: 300, closedQty: 300, openQty: 100, uom: 'Bag', totalAmount: 2600.00, receiveAmount: 1950.00, closedAmount: 1950.00, openAmount: 650.00, status: 'Open', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', purchasePerson: 'Sokha Ly', productGroup: 'Pantry Staples', date: '2024-03-05' },
+    { productCode: 'PRD-003', description: 'Australian Angus Beef 500g', totalQty: 150, receiveQty: 150, closedQty: 150, openQty: 0, uom: 'Pack', totalAmount: 1275.00, receiveAmount: 1275.00, closedAmount: 1275.00, openAmount: 0.00, status: 'Closed', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', purchasePerson: 'Borith Keo', productGroup: 'Cold Chain', date: '2024-03-04' },
+    { productCode: 'PRD-002', description: 'Fresh Organic Milk 1L', totalQty: 250, receiveQty: 120, closedQty: 120, openQty: 130, uom: 'Carton', totalAmount: 687.50, receiveAmount: 330.00, closedAmount: 330.00, openAmount: 357.50, status: 'Partial', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', purchasePerson: 'Dara Heng', productGroup: 'Beverages', date: '2024-03-03' },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', totalQty: 500, receiveQty: 500, closedQty: 500, openQty: 0, uom: 'Case', totalAmount: 1600.00, receiveAmount: 1600.00, closedAmount: 1600.00, openAmount: 0.00, status: 'Closed', outlet: 'Central Warehouse', supplier: 'Mekong Beverage Ltd', purchasePerson: 'Vanna Touch', productGroup: 'Beverages', date: '2024-03-02' },
+  ],
+  'purchase-order-product-status': [
+    { productCode: 'PRD-001', description: 'Organic Jasmine Rice 5kg', totalQty: 400, receiveQty: 300, closedQty: 300, openQty: 100, uom: 'Bag', totalAmount: 2600.00, receiveAmount: 1950.00, closedAmount: 1950.00, openAmount: 650.00, status: 'Open', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', purchasePerson: 'Sokha Ly', productGroup: 'Pantry Staples', date: '2024-03-05' },
+    { productCode: 'PRD-003', description: 'Australian Angus Beef 500g', totalQty: 150, receiveQty: 150, closedQty: 150, openQty: 0, uom: 'Pack', totalAmount: 1275.00, receiveAmount: 1275.00, closedAmount: 1275.00, openAmount: 0.00, status: 'Closed', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', purchasePerson: 'Borith Keo', productGroup: 'Cold Chain', date: '2024-03-04' },
+    { productCode: 'PRD-002', description: 'Fresh Organic Milk 1L', totalQty: 250, receiveQty: 120, closedQty: 120, openQty: 130, uom: 'Carton', totalAmount: 687.50, receiveAmount: 330.00, closedAmount: 330.00, openAmount: 357.50, status: 'Partial', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', purchasePerson: 'Dara Heng', productGroup: 'Beverages', date: '2024-03-03' },
+    { productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', totalQty: 500, receiveQty: 500, closedQty: 500, openQty: 0, uom: 'Case', totalAmount: 1600.00, receiveAmount: 1600.00, closedAmount: 1600.00, openAmount: 0.00, status: 'Closed', outlet: 'Central Warehouse', supplier: 'Mekong Beverage Ltd', purchasePerson: 'Vanna Touch', productGroup: 'Beverages', date: '2024-03-02' },
   ],
   'receive-return-purchase-order': [
-    { docNo: 'GRN-REC-081', date: '2024-03-05', poNo: 'PO-2024-041', supplier: 'Cambodia Agri-Trading Ltd', type: 'RECEIVE', items: 14, totalValue: 2750.00, handledBy: 'Dara Heng', status: 'VERIFIED' },
-    { docNo: 'RET-PO-012', date: '2024-03-04', poNo: 'PO-2024-039', supplier: 'CP Food Supplies Cambodia', type: 'RETURN', items: 2, totalValue: 145.00, handledBy: 'Sokha Ly', status: 'CREDIT_MEMO' },
-    { docNo: 'GRN-REC-082', date: '2024-03-03', poNo: 'PO-2024-042', supplier: 'Mekong Beverage Ltd', type: 'RECEIVE', items: 8, totalValue: 1280.00, handledBy: 'Vanna Touch', status: 'VERIFIED' },
+    { currency: 'USD', status: 'Completed', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', productCode: 'PRD-001', description: 'Organic Jasmine Rice 5kg', date: '2024-03-05' },
+    { currency: 'USD', status: 'Approved', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', productCode: 'PRD-003', description: 'Australian Angus Beef 500g', date: '2024-03-04' },
+    { currency: 'USD', status: 'Pending', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', productCode: 'PRD-002', description: 'Fresh Organic Milk 1L', date: '2024-03-03' },
+    { currency: 'KHR', status: 'Closed', outlet: 'Toul Kork Mart', supplier: 'Mekong Beverage Ltd', productCode: 'PRD-004', description: 'Pure Mineral Water 500ml', date: '2024-03-02' },
   ],
 
   // PAYABLE MANAGEMENT SUB-REPORTS
   'bill-aging': [
-    { code: 'SUP-001', supplier: 'Cambodia Agri-Trading Ltd', phone: '+855 12 770 112', current: 2400.00, days1to30: 1800.00, days31to60: 0.00, days61to90: 0.00, over90Days: 0.00, totalDue: 4200.00, status: 'CURRENT' },
-    { code: 'SUP-002', supplier: 'CP Food Supplies Cambodia', phone: '+855 23 881 234', current: 1250.00, days1to30: 600.00, days31to60: 450.00, days61to90: 0.00, over90Days: 0.00, totalDue: 2300.00, status: 'OVERDUE_30' },
-    { code: 'SUP-003', supplier: 'Global Dairy Import Inc', phone: '+855 11 992 001', current: 0.00, days1to30: 0.00, days31to60: 1200.00, days61to90: 800.00, over90Days: 0.00, totalDue: 2000.00, status: 'OVERDUE_60' },
-    { code: 'SUP-004', supplier: 'Mekong Beverage Ltd', phone: '+855 16 554 433', current: 890.00, days1to30: 0.00, days31to60: 0.00, days61to90: 0.00, over90Days: 0.00, totalDue: 890.00, status: 'CURRENT' },
+    { supplierCode: 'SUP-001', supplierName: 'Cambodia Agri-Trading Ltd', current: 2400.00, days1to30: 1800.00, days31to60: 0.00, days61to90: 0.00, days91to120: 0.00, over120Days: 0.00, balance: 4200.00, outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', status: 'Active', date: '2024-03-05' },
+    { supplierCode: 'SUP-002', supplierName: 'CP Food Supplies Cambodia', current: 1250.00, days1to30: 600.00, days31to60: 450.00, days61to90: 0.00, days91to120: 0.00, over120Days: 0.00, balance: 2300.00, outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', status: 'Active', date: '2024-03-04' },
+    { supplierCode: 'SUP-003', supplierName: 'Global Dairy Import Inc', current: 0.00, days1to30: 0.00, days31to60: 1200.00, days61to90: 800.00, days91to120: 500.00, over120Days: 0.00, balance: 2500.00, outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', status: 'Active', date: '2024-03-03' },
+    { supplierCode: 'SUP-004', supplierName: 'Mekong Beverage Ltd', current: 890.00, days1to30: 0.00, days31to60: 0.00, days61to90: 0.00, days91to120: 0.00, over120Days: 0.00, balance: 890.00, outlet: 'Toul Kork Mart', supplier: 'Mekong Beverage Ltd', status: 'Active', date: '2024-03-02' },
   ],
   'bill-payment': [
-    { paymentNo: 'PAY-BILL-001', date: '2024-03-06', billRef: 'BIL-2024-089', supplier: 'CP Food Supplies Cambodia', paymentMethod: 'Bank Transfer (ABA)', paidAmount: 3450.00, bankAccount: 'ABA Enterprise 001 889', paidBy: 'Finance Admin', status: 'EXECUTED' },
-    { paymentNo: 'PAY-BILL-002', date: '2024-03-05', billRef: 'BIL-2024-085', supplier: 'Mekong Beverage Ltd', paymentMethod: 'Bank Transfer (Wing)', paidAmount: 1280.00, bankAccount: 'Wing Corp 092 441', paidBy: 'Finance Admin', status: 'EXECUTED' },
-    { paymentNo: 'PAY-BILL-003', date: '2024-03-03', billRef: 'BIL-2024-081', supplier: 'Cambodia Agri-Trading Ltd', paymentMethod: 'Cheque', paidAmount: 2000.00, bankAccount: 'Canadia Bank 109 22', paidBy: 'Managing Director', status: 'CLEARED' },
+    { billPaymentCode: 'PAY-BILL-001', supplierInvoiceCode: 'INV-CP-901', paymentType: 'Bank Transfer (ABA)', billReceiptDate: '2024-03-06', billAmount: 3450.00, paidAmount: 3400.00, discount: 50.00, balance: 0.00, outlet: 'Central Warehouse', supplier: 'CP Food Supplies Cambodia', date: '2024-03-06' },
+    { billPaymentCode: 'PAY-BILL-002', supplierInvoiceCode: 'INV-MB-442', paymentType: 'Bank Transfer (Wing)', billReceiptDate: '2024-03-05', billAmount: 1300.00, paidAmount: 1280.00, discount: 20.00, balance: 0.00, outlet: 'Main Mart', supplier: 'Mekong Beverage Ltd', date: '2024-03-05' },
+    { billPaymentCode: 'PAY-BILL-003', supplierInvoiceCode: 'INV-AGRI-109', paymentType: 'Cheque', billReceiptDate: '2024-03-03', billAmount: 2000.00, paidAmount: 2000.00, discount: 0.00, balance: 0.00, outlet: 'BKK1 Branch', supplier: 'Cambodia Agri-Trading Ltd', date: '2024-03-03' },
+    { billPaymentCode: 'PAY-BILL-004', supplierInvoiceCode: 'INV-GD-550', paymentType: 'Cash', billReceiptDate: '2024-03-01', billAmount: 1500.00, paidAmount: 1000.00, discount: 0.00, balance: 500.00, outlet: 'Toul Kork Mart', supplier: 'Global Dairy Import Inc', date: '2024-03-01' },
   ],
   'bill-status': [
-    { billNo: 'BIL-2024-091', date: '2024-03-01', dueDate: '2024-03-31', supplier: 'Cambodia Agri-Trading Ltd', outlet: 'Central Warehouse', totalAmount: 4200.00, paidAmount: 1800.00, balanceDue: 2400.00, status: 'PARTIALLY_PAID' },
-    { billNo: 'BIL-2024-092', date: '2024-03-02', dueDate: '2024-03-17', supplier: 'CP Food Supplies Cambodia', outlet: 'Main Mart', totalAmount: 3450.00, paidAmount: 3450.00, balanceDue: 0.00, status: 'FULLY_PAID' },
-    { billNo: 'BIL-2024-093', date: '2024-02-20', dueDate: '2024-03-06', supplier: 'Global Dairy Import Inc', outlet: 'Central Warehouse', totalAmount: 2000.00, paidAmount: 0.00, balanceDue: 2000.00, status: 'DUE_TODAY' },
+    { billCode: 'BIL-2024-091', supplier: 'Cambodia Agri-Trading Ltd', billDate: '2024-03-01', dueDate: '2024-03-31', billAmount: 4200.00, paidAmount: 1800.00, balance: 2400.00, voidedDate: '-', outlet: 'Central Warehouse', status: 'Partially Paid', date: '2024-03-01' },
+    { billCode: 'BIL-2024-092', supplier: 'CP Food Supplies Cambodia', billDate: '2024-03-02', dueDate: '2024-03-17', billAmount: 3450.00, paidAmount: 3450.00, balance: 0.00, voidedDate: '-', outlet: 'Main Mart', status: 'Fully Paid', date: '2024-03-02' },
+    { billCode: 'BIL-2024-093', supplier: 'Global Dairy Import Inc', billDate: '2024-02-20', dueDate: '2024-03-06', billAmount: 2000.00, paidAmount: 0.00, balance: 2000.00, voidedDate: '-', outlet: 'BKK1 Branch', status: 'Unpaid', date: '2024-02-20' },
+    { billCode: 'BIL-2024-094', supplier: 'Mekong Beverage Ltd', billDate: '2024-01-15', dueDate: '2024-02-15', billAmount: 850.00, paidAmount: 0.00, balance: 0.00, voidedDate: '2024-01-20', outlet: 'Toul Kork Mart', status: 'Voided', date: '2024-01-15' },
   ],
   'freight-status': [
-    { freightNo: 'FRT-2024-011', carrier: 'Phnom Penh Cold Express', date: '2024-03-05', origin: 'Kampong Cham Depot', destination: 'Main Mart Cold Room', freightCharge: 120.00, tax: 12.00, totalCharge: 132.00, paymentStatus: 'PAID' },
-    { freightNo: 'FRT-2024-012', carrier: 'Angkor Freight Logistics', date: '2024-03-04', origin: 'Battambang Farm Hub', destination: 'Central Warehouse', freightCharge: 240.00, tax: 24.00, totalCharge: 264.00, paymentStatus: 'PENDING' },
-    { freightNo: 'FRT-2024-013', carrier: 'Fast Track Logistics KH', date: '2024-03-03', origin: 'Sihanoukville Port', destination: 'Central Warehouse Dock 1', freightCharge: 450.00, tax: 45.00, totalCharge: 495.00, paymentStatus: 'PAID' },
+    { tariffDescription: 'Cold Chain Refrigerated Freight', receiveDate: '2024-03-05', receiveCode: 'REC-2024-081', freightBillCode: 'FRT-2024-011', supplier: 'CP Food Supplies Cambodia', amount: 132.00, status: 'Received', outlet: 'Central Warehouse', convertToBill: 'yes', date: '2024-03-05' },
+    { tariffDescription: 'Bulk Grain Dry Transit Route 4', receiveDate: '2024-03-04', receiveCode: 'REC-2024-082', freightBillCode: 'FRT-2024-012', supplier: 'Cambodia Agri-Trading Ltd', amount: 264.00, status: 'Pending', outlet: 'Main Mart', convertToBill: 'no', date: '2024-03-04' },
+    { tariffDescription: 'Import Container Sihanoukville Dock', receiveDate: '2024-03-03', receiveCode: 'REC-2024-083', freightBillCode: 'FRT-2024-013', supplier: 'Global Dairy Import Inc', amount: 495.00, status: 'Verified', outlet: 'Central Warehouse', convertToBill: 'yes', date: '2024-03-03' },
+    { tariffDescription: 'Inter-City Express Courier Deliveries', receiveDate: '2024-03-02', receiveCode: 'REC-2024-084', freightBillCode: 'FRT-2024-014', supplier: 'Mekong Beverage Ltd', amount: 88.00, status: 'Received', outlet: 'BKK1 Branch', convertToBill: 'no', date: '2024-03-02' },
   ],
   'supplier-deposit-debit': [
-    { docNo: 'SDEP-2024-01', date: '2024-02-28', supplier: 'Cambodia Agri-Trading Ltd', type: 'ADVANCE_DEPOSIT', amount: 5000.00, utilizedAmount: 3000.00, balance: 2000.00, method: 'Bank Transfer (ABA)', status: 'ACTIVE' },
-    { docNo: 'SDEP-2024-02', date: '2024-03-01', supplier: 'CP Food Supplies Cambodia', type: 'SECURITY_DEPOSIT', amount: 1500.00, utilizedAmount: 0.00, balance: 1500.00, method: 'Bank Transfer (Wing)', status: 'HELD' },
-    { docNo: 'SDEB-2024-01', date: '2024-03-04', supplier: 'Global Dairy Import Inc', type: 'DEBIT_MEMO', amount: 350.00, utilizedAmount: 350.00, balance: 0.00, method: 'Credit Offset', status: 'SETTLED' },
+    { debitDate: '2024-02-28', paymentType: 'Bank Transfer (ABA)', serviceCharge: 5.00, debitAmount: 5000.00, balance: 2000.00, balanceToBase: 2000.00, status: 'Active', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', date: '2024-02-28' },
+    { debitDate: '2024-03-01', paymentType: 'Bank Transfer (Wing)', serviceCharge: 2.50, debitAmount: 1500.00, balance: 1500.00, balanceToBase: 1500.00, status: 'Held', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', date: '2024-03-01' },
+    { debitDate: '2024-03-04', paymentType: 'Credit Offset', serviceCharge: 0.00, debitAmount: 350.00, balance: 0.00, balanceToBase: 0.00, status: 'Settled', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', date: '2024-03-04' },
+    { debitDate: '2024-03-05', paymentType: 'Cheque', serviceCharge: 10.00, debitAmount: 2500.00, balance: 1200.00, balanceToBase: 1200.00, status: 'Utilized', outlet: 'Toul Kork Mart', supplier: 'Mekong Beverage Ltd', date: '2024-03-05' },
   ],
   'ap-cash-payment': [
-    { voucherNo: 'AP-CSH-101', date: '2024-03-06', supplier: 'Local Farmers Cooperative', billRef: 'BIL-AGRI-04', amountPaid: 185.00, cashAccount: 'Petty Cash Box #1', approvedBy: 'Finance Officer', status: 'PAID' },
-    { voucherNo: 'AP-CSH-102', date: '2024-03-05', supplier: 'Phnom Penh Packaging Supplies', billRef: 'BIL-PKG-88', amountPaid: 320.00, cashAccount: 'General Cash Drawer', approvedBy: 'Store Manager', status: 'PAID' },
-    { voucherNo: 'AP-CSH-103', date: '2024-03-04', supplier: 'City Disinfectant Supplies', billRef: 'BIL-CL-22', amountPaid: 95.00, cashAccount: 'Petty Cash Box #1', approvedBy: 'Finance Officer', status: 'PAID' },
+    { currency: 'USD', receiptType: 'Invoice Payment', paymentType: 'Cash Petty Drawer', amount: 185.00, amountToBase: 185.00, status: 'Paid', outlet: 'Central Warehouse', supplier: 'Cambodia Agri-Trading Ltd', date: '2024-03-06' },
+    { currency: 'USD', receiptType: 'Supplier Advance', paymentType: 'General Cash Desk', amount: 320.00, amountToBase: 320.00, status: 'Approved', outlet: 'Main Mart', supplier: 'CP Food Supplies Cambodia', date: '2024-03-05' },
+    { currency: 'USD', receiptType: 'Freight Clearance', paymentType: 'Branch Safe Box', amount: 95.00, amountToBase: 95.00, status: 'Paid', outlet: 'BKK1 Branch', supplier: 'Global Dairy Import Inc', date: '2024-03-04' },
+    { currency: 'KHR', receiptType: 'Direct Settlement', paymentType: 'Cash Counter 2', amount: 480000.00, amountToBase: 120.00, status: 'Pending', outlet: 'Toul Kork Mart', supplier: 'Mekong Beverage Ltd', date: '2024-03-03' },
   ],
   'supplier-list': [
-    { code: 'SUP-001', supplier: 'Cambodia Agri-Trading Ltd', contactPerson: 'Mr. Touch Vanna', phone: '+855 12 770 112', category: 'Grains & Rice', paymentTerm: 'Net 30', activeOrders: 3, balanceDue: 2400.00, status: 'ACTIVE' },
-    { code: 'SUP-002', supplier: 'CP Food Supplies Cambodia', contactPerson: 'Ms. Keo Sreymom', phone: '+855 23 881 234', category: 'Meat & Poultry', paymentTerm: 'Net 15', activeOrders: 2, balanceDue: 0.00, status: 'PREFERRED' },
-    { code: 'SUP-003', supplier: 'Global Dairy Import Inc', contactPerson: 'Mr. David Miller', phone: '+855 11 992 001', category: 'Dairy & Cheese', paymentTerm: 'Net 30', activeOrders: 1, balanceDue: 2000.00, status: 'ACTIVE' },
-    { code: 'SUP-004', supplier: 'Mekong Beverage Ltd', contactPerson: 'Mr. Heng Dara', phone: '+855 16 554 433', category: 'Beverages', paymentTerm: 'Immediate', activeOrders: 0, balanceDue: 0.00, status: 'ACTIVE' },
+    { supplierCode: 'SUP-001', supplierName: 'Cambodia Agri-Trading Ltd', supplier: 'Cambodia Agri-Trading Ltd', supplierGroup: 'Fresh Produce & Farms', contactName: 'Mr. Touch Vanna', phone: '+855 12 770 112', fax: '+855 23 427 101', currentBalance: 2400.00, debitDeposit: 2000.00, status: 'Active', date: '2024-03-06' },
+    { supplierCode: 'SUP-002', supplierName: 'CP Food Supplies Cambodia', supplier: 'CP Food Supplies Cambodia', supplierGroup: 'Meat & Poultry', contactName: 'Ms. Keo Sreymom', phone: '+855 23 881 234', fax: '+855 23 881 235', currentBalance: 0.00, debitDeposit: 1500.00, status: 'Preferred', date: '2024-03-05' },
+    { supplierCode: 'SUP-003', supplierName: 'Global Dairy Import Inc', supplier: 'Global Dairy Import Inc', supplierGroup: 'Dairy & Frozen', contactName: 'Mr. David Miller', phone: '+855 11 992 001', fax: '+855 23 720 990', currentBalance: 2000.00, debitDeposit: 0.00, status: 'Active', date: '2024-03-04' },
+    { supplierCode: 'SUP-004', supplierName: 'Mekong Beverage Ltd', supplier: 'Mekong Beverage Ltd', supplierGroup: 'Beverages & Drinks', contactName: 'Mr. Heng Dara', phone: '+855 16 554 433', fax: '+855 23 448 991', currentBalance: 0.00, debitDeposit: 1200.00, status: 'Active', date: '2024-03-03' },
   ],
 
   // CASH BOOK SUB-REPORTS
   'cash-in-out-status': [
-    { entryNo: 'CSH-ENTRY-001', date: '2024-03-06', account: 'Main Cash Drawer POS-1', type: 'CASH_IN', amount: 1450.00, reason: 'Retail Grocery POS Sales', authorizedBy: 'Sokha Ly', status: 'VERIFIED' },
-    { entryNo: 'CSH-ENTRY-002', date: '2024-03-06', account: 'Petty Cash Operations', type: 'CASH_OUT', amount: 65.00, reason: 'Store Cleaning Consumables', authorizedBy: 'Store Manager', status: 'APPROVED' },
-    { entryNo: 'CSH-ENTRY-003', date: '2024-03-05', account: 'Main Cash Vault', type: 'CASH_IN', amount: 4850.00, reason: 'End of Day POS Drop', authorizedBy: 'Finance Officer', status: 'RECONCILED' },
+    { payment: 'Retail POS Cash Inflow', cash: 4850.00, bankDeposit: 0.00, total: 4850.00, outlet: 'Central Warehouse', date: '2026-09-08' },
+    { payment: 'ABA PayWay Bank Deposit', cash: 0.00, bankDeposit: 3500.00, total: 3500.00, outlet: 'Main Mart', date: '2026-09-07' },
+    { payment: 'Petty Cash Store Float', cash: 500.00, bankDeposit: 0.00, total: 500.00, outlet: 'BKK1 Branch', date: '2026-09-06' },
+    { payment: 'Direct Bank Settlement', cash: 0.00, bankDeposit: 1850.00, total: 1850.00, outlet: 'Toul Kork Branch', date: '2026-09-05' },
+    { payment: 'Supplier Cash Settlement', cash: 650.00, bankDeposit: 0.00, total: 650.00, outlet: 'Central Warehouse', date: '2026-09-04' },
+    { payment: 'Customer Deposit Drop', cash: 400.00, bankDeposit: 600.00, total: 1000.00, outlet: 'Main Mart', date: '2026-09-03' },
   ],
   'cash-statement': [
-    { statementDate: '2024-03-06', account: 'Store Operating Cash Vault', openingBalance: 8500.00, totalInflow: 4850.00, totalOutflow: 1200.00, closingBalance: 12150.00, status: 'RECONCILED' },
-    { statementDate: '2024-03-05', account: 'Store Operating Cash Vault', openingBalance: 6200.00, totalInflow: 4100.00, totalOutflow: 1800.00, closingBalance: 8500.00, status: 'RECONCILED' },
-    { statementDate: '2024-03-04', account: 'Store Operating Cash Vault', openingBalance: 5100.00, totalInflow: 3800.00, totalOutflow: 2700.00, closingBalance: 6200.00, status: 'RECONCILED' },
+    { code: 'CSH-2026-001', date: '2026-09-08', type: 'Cash In', bankIn: 0.00, bankOut: 0.00, description: 'Daily retail grocery register collections', cashIn: 1450.00, cashOut: 0.00, depositIn: 0.00, depositOut: 0.00, paidToBy: 'Sokha Ly', outlet: 'Central Warehouse' },
+    { code: 'BNK-2026-002', date: '2026-09-07', type: 'Bank In', bankIn: 3200.00, bankOut: 0.00, description: 'Merchant settlement from ABA PayWay', cashIn: 0.00, cashOut: 0.00, depositIn: 0.00, depositOut: 0.00, paidToBy: 'ABA Bank Corporate', outlet: 'Main Mart' },
+    { code: 'CSH-2026-003', date: '2026-09-06', type: 'Cash Out', bankIn: 0.00, bankOut: 0.00, description: 'Store cleaning consumables & supplies', cashIn: 0.00, cashOut: 65.00, depositIn: 0.00, depositOut: 0.00, paidToBy: 'Store Cleaning Services', outlet: 'BKK1 Branch' },
+    { code: 'DEP-2026-004', date: '2026-09-05', type: 'Deposit In', bankIn: 0.00, bankOut: 0.00, description: 'Advance catering deposit from wholesale client', cashIn: 0.00, cashOut: 0.00, depositIn: 600.00, depositOut: 0.00, paidToBy: 'Dara Pich', outlet: 'Toul Kork Branch' },
+    { code: 'BNK-2026-005', date: '2026-09-04', type: 'Bank Out', bankIn: 0.00, bankOut: 1200.00, description: 'Utility payment wire transfer', cashIn: 0.00, cashOut: 0.00, depositIn: 0.00, depositOut: 0.00, paidToBy: 'EDC Electricite du Cambodge', outlet: 'Central Warehouse' },
+    { code: 'DEP-2026-006', date: '2026-09-03', type: 'Deposit Out', bankIn: 0.00, bankOut: 0.00, description: 'Refund customer security deposit', cashIn: 0.00, cashOut: 0.00, depositIn: 0.00, depositOut: 150.00, paidToBy: 'Vannak Heng', outlet: 'Main Mart' },
   ],
   'bank-transfer': [
-    { transferNo: 'BNK-TRF-088', date: '2024-03-06', fromBank: 'ABA PayWay Settlement', toBank: 'ABA Corporate Main 001', amount: 8500.00, fee: 0.00, netTransfer: 8500.00, referenceNo: 'ABA-TXN-992144', status: 'COMPLETED' },
-    { transferNo: 'BNK-TRF-089', date: '2024-03-05', fromBank: 'Wing Merchant Account', toBank: 'Canadia Operating Account', amount: 3200.00, fee: 1.50, netTransfer: 3198.50, referenceNo: 'WNG-TXN-441209', status: 'COMPLETED' },
-    { transferNo: 'BNK-TRF-090', date: '2024-03-04', fromBank: 'Cash Vault Deposit', toBank: 'ABA Corporate Main 001', amount: 5000.00, fee: 0.00, netTransfer: 5000.00, referenceNo: 'BNK-DEP-338210', status: 'COMPLETED' },
+    { code: 'TRF-2026-0001', date: '2026-09-08', employee: 'Sokha Ly', amount: 1200.00, outlet: 'Central Warehouse', status: 'NON_VOIDED', viewAs: 'detail' },
+    { code: 'TRF-2026-0002', date: '2026-09-07', employee: 'Finance Officer', amount: 3500.00, outlet: 'Main Mart', status: 'NON_VOIDED', viewAs: 'detail' },
+    { code: 'TRF-2026-0003', date: '2026-09-06', employee: 'Admin User', amount: 500.00, outlet: 'BKK1 Branch', status: 'NON_VOIDED', viewAs: 'detail' },
+    { code: 'TRF-2026-0004', date: '2026-09-05', employee: 'Sokha Ly', amount: 850.00, outlet: 'Toul Kork Branch', status: 'NON_VOIDED', viewAs: 'detail' },
+    { code: 'TRF-2026-0005', date: '2026-09-04', employee: 'Finance Officer', amount: 2100.00, outlet: 'Central Warehouse', status: 'VOIDED', viewAs: 'detail' },
   ],
 }
 
@@ -1387,6 +1689,142 @@ const COLUMN_TITLES = {
   receivedBy: 'Received By',
   currency: 'Currency',
   amount: 'Amount',
+  // Exact 15 Sale Payment Report Entity Titles
+  totalInvoice: 'Total Invoice',
+  soldQty: 'Sold QTY',
+  lineDiscount: 'Line Discount',
+  subAmount: 'Sub Amount',
+  invoiceDisc: 'Invoice Disc',
+  tax: 'Tax',
+  totalSale: 'Total Sale',
+  totalSaleWithTax: 'Total Sale With Tax',
+  markupAmount: 'Markup Amount',
+  profits: 'Profits',
+  customerCode: 'Customer Code',
+  customerName: 'Customer Name',
+  currentInvoice: 'Current Invoice',
+  days1_30: '1-30 Days',
+  days31_60: '31-60 Days',
+  days61_90: '61-90 Days',
+  days91_120: '91-120 Days',
+  over120Days: 'Over 120 Days',
+  total: 'Total',
+  paymentType: 'Payment Type',
+  invoiceCode: 'Invoice Code',
+  approveCode: 'Approve Code',
+  voidedDate: 'Voided Date',
+  reference: 'Reference',
+  creditCode: 'Credit Code',
+  creditDate: 'Credit Date',
+  creditAmount: 'Credit Amount',
+  invoiceDate: 'Invoice Date',
+  invoiceAmount: 'Invoice Amount',
+  redeem: 'Redeem',
+  paidAmount: 'Paid Amount',
+  discount: 'Discount',
+  dueDate: 'Due Date',
+  type: 'Type',
+  unitPrice: 'Unit Price',
+  no: 'Nº',
+  userName: 'User Name',
+  customerGroup: 'Customer Group',
+  salesperson: 'Salesperson',
+  invoiceType: 'Invoice Type',
+  paymentDiscount: 'Payment Discount',
+  loginTime: 'Login Time',
+  logoutTime: 'Logout Time',
+  opening: 'Opening',
+  closing: 'Closing',
+  cashSales: 'Cash Sales',
+  depositAmount: 'Deposit Amount',
+  terminal: 'Terminal',
+  user: 'User',
+  promoOnBills: 'Promotion on Bills',
+  promoOnItems: 'Promotion On items',
+  totalBeforePromo: 'Total before promotion',
+  totalDiscOnItems: 'Total discount on items',
+  totalDiscOnBills: 'Total discount on Bills',
+  totalAfterPromo: 'Total After promotion',
+  subItemCode: 'Sub item code',
+  subItemDesc: 'Sub item Description',
+  subQty: 'SubQTY',
+  subPrice: 'Sub Price',
+  subCost: 'Sub Cost',
+  subSale: 'Sub Sale',
+  subProfit: 'Sub Profit',
+  // Order Management Column Titles
+  soQuotationCode: 'SO / Quotation Code',
+  soQuotationDate: 'SO / Quotation Date',
+  note: 'Note',
+  status: 'Status',
+  shipAmount: 'Ship Amount',
+  closedAmount: 'Closed Amount',
+  openAmount: 'Open Amount',
+  soCode: 'SO Code',
+  shipCode: 'Ship Code',
+  shipDate: 'Ship Date',
+  partNumber: 'Part Number',
+  productDescription: 'Product Description',
+  uom: 'UOM',
+  orderQty: 'Order QTY',
+  orderAmount: 'Order Amount',
+  shipQty: 'Ship QTY',
+  returnAmount: 'Return Amount',
+  balanceAmount: 'Balance Amount',
+  customer: 'Customer',
+  // Consignment Column Titles
+  conCode: 'Con. Code',
+  ums: 'UMS',
+  conQty: 'Con. QTY',
+  invoiceQty: 'Invoice QTY',
+  conAmount: 'Con. Amount',
+  // Purchase Management Column Titles
+  requisitionQty: 'Requisition Qty',
+  poQty: 'PO Qty',
+  completedQty: 'Completed Qty',
+  poCode: 'PO Code',
+  supplierName: 'Supplier Name',
+  poDate: 'PO Date',
+  requireDate: 'Require Date',
+  voidDate: 'Void Date',
+  receiveAmount: 'Receive Amount',
+  receiveQty: 'Receive QTY',
+  openQty: 'Open QTY',
+  // Payable Management Column Titles
+  supplierCode: 'Supplier Code',
+  days91to120: '91-120 Days',
+  billPaymentCode: 'Bill / Payment Code',
+  supplierInvoiceCode: 'Supplier Invoice Code',
+  billReceiptDate: 'Bill/Receipt Date',
+  billAmount: 'Bill Amount',
+  billCode: 'Bill Code',
+  billDate: 'Bill Date',
+  voidedDate: 'Voided Date',
+  tariffDescription: 'Tariff Description',
+  receiveDate: 'Receive Date',
+  receiveCode: 'Receive Code',
+  freightBillCode: 'Freight Bill Code',
+  debitDate: 'Debit Date',
+  serviceCharge: 'Service Charge',
+  debitAmount: 'Debit Amount',
+  balanceToBase: 'Balance To Base',
+  amountToBase: 'Amount To Base',
+  contactName: 'Contact Name',
+  fax: 'Fax',
+  currentBalance: 'Current Balance',
+  debitDeposit: 'Debit / Deposit',
+  // Cash Book Column Titles
+  payment: 'Payment',
+  cash: 'Cash',
+  bankDeposit: 'Bank Deposit',
+  bankIn: 'Bank In',
+  bankOut: 'Bank Out',
+  cashIn: 'Cash In',
+  cashOut: 'Cash Out',
+  depositIn: 'Deposit In',
+  depositOut: 'Deposit Out',
+  paidToBy: 'Paid To / By',
+  employee: 'Employee',
 }
 
 const getColumnLabel = (key) => {
@@ -1404,7 +1842,14 @@ const getColumnAlignment = (key) => {
     'issueDate', 'dueDate', 'lastPaymentDate', 'startDate', 'endDate', 'unpaidInvoices', 'daysOverdue',
     'dispatchDate', 'trackingNo', 'shipmentStatus', 'orderStatus', 'contractNo', 'poNo', 'receivingStatus',
     'billNo', 'billRef', 'freightNo', 'voucherNo', 'statementDate', 'transferNo', 'entryNo',
-    'uom', 'stockUom', 'tranUom', 'transactionType'
+    'uom', 'stockUom', 'tranUom', 'transactionType',
+    'soQuotationCode', 'soQuotationDate', 'soCode', 'shipCode', 'shipDate', 'partNumber',
+    'conCode', 'ums',
+    'poCode', 'poDate', 'requireDate', 'voidDate',
+    'supplierCode', 'billPaymentCode', 'supplierInvoiceCode', 'billReceiptDate', 'billCode',
+    'billDate', 'voidedDate', 'receiveDate', 'receiveCode', 'freightBillCode', 'debitDate',
+    'phone', 'fax',
+    'paidToBy', 'employee', 'payment'
   ]
   const rightKeys = [
     'items', 'totalCost', 'unitCost', 'sellingPrice', 'baseCost', 'memberPrice',
@@ -1426,7 +1871,18 @@ const getColumnAlignment = (key) => {
     'profit', 'totalInvoices', 'totalAmount', 'totalPackages', 'returnQty', 'remainingQty', 'settlementAmount',
     'totalItems', 'estimatedCost', 'orderedQty', 'receivedQty', 'totalValue', 'balanceDue', 'freightCharge',
     'totalCharge', 'amountPaid', 'activeOrders', 'openingBalance', 'totalInflow', 'totalOutflow', 'closingBalance',
-    'netTransfer'
+    'netTransfer',
+    // Order Management numeric keys:
+    'shipAmount', 'closedAmount', 'openAmount', 'orderQty', 'orderAmount', 'returnAmount', 'balanceAmount',
+    // Consignment numeric keys:
+    'conQty', 'invoiceQty', 'conAmount',
+    // Purchase Management numeric keys:
+    'requisitionQty', 'poQty', 'completedQty', 'receiveAmount', 'receiveQty', 'openQty',
+    // Payable Management numeric keys:
+    'days91to120', 'billAmount', 'serviceCharge', 'debitAmount', 'balanceToBase', 'amountToBase',
+    'currentBalance', 'debitDeposit',
+    // Cash Book numeric keys:
+    'cash', 'bankDeposit', 'bankIn', 'bankOut', 'cashIn', 'cashOut', 'depositIn', 'depositOut'
   ]
   if (centerKeys.includes(key)) return 'text-center'
   if (rightKeys.includes(key)) return 'text-right'
@@ -1442,12 +1898,20 @@ const formatCellValue = (key, val) => {
     key === 'qty' ||
     key === 'requestQty' ||
     key === 'shipQty' ||
+    key === 'orderQty' ||
+    key === 'conQty' ||
+    key === 'invoiceQty' ||
     key === 'acceptQty' ||
     key === 'closedQty' ||
     key === 'voidedQty' ||
     key === 'remainQty' ||
     key === 'rejectQty' ||
     key === 'balanceQty' ||
+    key === 'requisitionQty' ||
+    key === 'poQty' ||
+    key === 'completedQty' ||
+    key === 'receiveQty' ||
+    key === 'openQty' ||
     key === 'onhand' ||
     key === 'orderPoint' ||
     key === 'orderQuantity' ||
@@ -1627,6 +2091,9 @@ export default function Report() {
       const subList = MODULE_SUB_REPORTS[parentModuleKey] || []
       const found = subList.find((s) => s.key === subReportKey)
       if (found) return found
+      if (subReportKey === 'purchase-order-products' || subReportKey === 'purchase-order-product-status') {
+        return subList.find((s) => s.key === 'purchase-order-products-status') || null
+      }
     }
     return null
   }, [isSubReport, parentModuleKey, subReportKey])
@@ -1671,6 +2138,45 @@ export default function Report() {
   const [inventoryValueFilter, setInventoryValueFilter] = useState('')
   const [onhandFilter, setOnhandFilter] = useState('all')
 
+  // Price List Specific Advance Filters State
+  const [priceCurrencyFilter, setPriceCurrencyFilter] = useState('all')
+  const [priceBookFilter, setPriceBookFilter] = useState('all')
+  const [priceOptionFilter, setPriceOptionFilter] = useState('all')
+
+  // Order Point Specific Filters State
+  const [orderPointReorderFilter, setOrderPointReorderFilter] = useState('all') // 'le', 'all', 'ge'
+  const [orderPointQtyFilter, setOrderPointQtyFilter] = useState('all') // 'gt0', 'all', 'eq0'
+
+  // Sale Payment Sub-Reports Specific Filter States
+  const [compareToFilter, setCompareToFilter] = useState('due-date') // 'due-date' | 'invoice-date'
+  const [invoiceTypeFilter, setInvoiceTypeFilter] = useState('all')
+  const [customerGroupFilter, setCustomerGroupFilter] = useState('all')
+  const [salespersonFilter, setSalespersonFilter] = useState('all')
+  const [userFilter, setUserFilter] = useState('all')
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState('all')
+  const [balanceFilter, setBalanceFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
+  const [receiptTypeFilter, setReceiptTypeFilter] = useState('all')
+  const [topByFilter, setTopByFilter] = useState('sold-qty') // 'sold-qty' | 'total-price'
+  const [topOrderByFilter, setTopOrderByFilter] = useState('desc') // 'desc' | 'asc'
+  const [topCountFilter, setTopCountFilter] = useState('10')
+  const [topQtyFilter, setTopQtyFilter] = useState('all')
+  const [topValFilter, setTopValFilter] = useState('')
+  const [shareholdersList, setShareholdersList] = useState([
+    { id: 1, name: 'Sokha Keo', percent: '60' },
+    { id: 2, name: 'Dara Heng', percent: '40' },
+  ])
+  const [showShareholder, setShowShareholder] = useState(true)
+  const [stationFilter, setStationFilter] = useState('all')
+
+  // Purchase Management Specific Advance Filters State
+  const [requisitionTypeFilter, setRequisitionTypeFilter] = useState('all')
+  const [purchasePersonFilter, setPurchasePersonFilter] = useState('all')
+
+  // Payable Management Specific Advance Filters State
+  const [convertToBillFilter, setConvertToBillFilter] = useState('all') // 'all' | 'yes' | 'no'
+  const [supplierGroupFilter, setSupplierGroupFilter] = useState('all')
+
   // Live Data & Loading State
   const [liveData, setLiveData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -1683,7 +2189,14 @@ export default function Report() {
     brands: [],
     productGroups: [],
     suppliers: [],
+    supplierGroups: [],
     products: [],
+    customerGroups: [],
+    customers: [],
+    salespersons: [],
+    users: [],
+    stations: [],
+    paymentTypes: [],
   })
 
   // Print Preview Modal State & Paper Customizations
@@ -1761,9 +2274,7 @@ export default function Report() {
       return count
     }
     if (activeDataKey === 'inventory-list') {
-      if (outletFilter !== 'all') count++
       if (brandFilter !== 'all') count++
-      if (categoryFilter !== 'all') count++
       if (expiryDayFilter !== 'all') count++
       if (inventoryValueFilter.trim()) count++
       if (onhandFilter !== 'all') count++
@@ -1772,13 +2283,304 @@ export default function Report() {
       if (viewAsFilter !== 'detailed') count++
       return count
     }
+    if (activeDataKey === 'price-list') {
+      if (brandFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (priceCurrencyFilter !== 'all') count++
+      if (priceBookFilter !== 'all') count++
+      if (priceOptionFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'order-point') {
+      if (outletFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      return count
+    }
+    if (activeDataKey === 'stock-evaluation') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      return count
+    }
+    if (activeDataKey === 'end-of-day') {
+      if (outletFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'sale-transaction') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed') count++
+      if (invoiceTypeFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (customerGroupFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (userFilter !== 'all') count++
+      if (salespersonFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'aging-invoice') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'payment-gateway') {
+      if (outletFilter !== 'all') count++
+      if (paymentTypeFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'customer-balance') {
+      if (customerFilter.trim()) count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'customer-credit-deposit') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (balanceFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (typeFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'invoice-payment') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (groupByFilter !== 'none') count++
+      return count
+    }
+    if (activeDataKey === 'ar-invoice-status') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (salespersonFilter !== 'all') count++
+      if (balanceFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (invoiceTypeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'top-bottom-sale') {
+      if (outletFilter !== 'all') count++
+      if (locationFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (customerFilter.trim()) count++
+      if (groupByFilter !== 'none') count++
+      if (topByFilter !== 'sold-qty') count++
+      if (topOrderByFilter !== 'desc') count++
+      if (topCountFilter !== '10') count++
+      if (topQtyFilter !== 'all') count++
+      if (topValFilter.trim()) count++
+      return count
+    }
+    if (activeDataKey === 'cash-receipt') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (paymentTypeFilter !== 'all') count++
+      if (receiptTypeFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'profits') {
+      if (outletFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'sale-payment-type') {
+      if (outletFilter !== 'all') count++
+      if (customerGroupFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (salespersonFilter !== 'all') count++
+      if (paymentTypeFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (invoiceTypeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'close-shift') {
+      if (outletFilter !== 'all') count++
+      if (stationFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'sale-promotion-report') {
+      if (outletFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'sale-package-item-report') {
+      if (outletFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed') count++
+      return count
+    }
+    if (activeDataKey === 'sale-order-status') {
+      if (outletFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (salespersonFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (typeFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'sale-order-shipment') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (typeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'consignment-shipment') {
+      if (outletFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      return count
+    }
+    if (activeDataKey === 'consignment-status-report') {
+      if (outletFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      if (customerFilter.trim()) count++
+      if (salespersonFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'requisition') {
+      if (outletFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (brandFilter !== 'all') count++
+      if (categoryFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (requisitionTypeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'purchase-order-status') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'purchase-order-products-status' || activeDataKey === 'purchase-order-products' || activeDataKey === 'purchase-order-product-status') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (purchasePersonFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (productGroupFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'receive-return-purchase-order') {
+      if (outletFilter !== 'all') count++
+      if (productFilter.trim()) count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'bill-aging') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'bill-payment') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      return count
+    }
+    if (activeDataKey === 'bill-status') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'freight-status') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (convertToBillFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'supplier-deposit-debit') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (balanceFilter !== 'all') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'ap-cash-payment') {
+      if (outletFilter !== 'all') count++
+      if (supplierFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'supplier-list') {
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'cash-in-out-status') {
+      if (outletFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all' && viewAsFilter !== 'standard') count++
+      return count
+    }
+    if (activeDataKey === 'cash-statement') {
+      if (outletFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (typeFilter !== 'all') count++
+      return count
+    }
+    if (activeDataKey === 'bank-transfer') {
+      if (outletFilter !== 'all') count++
+      if (groupByFilter !== 'none') count++
+      if (statusFilter !== 'all') count++
+      if (viewAsFilter !== 'detailed' && viewAsFilter !== 'all' && viewAsFilter !== 'detail') count++
+      return count
+    }
     if (outletFilter !== 'all') count++
     if (locationFilter !== 'all') count++
     if (productFilter.trim()) count++
     if (productGroupFilter !== 'all') count++
     if (categoryFilter !== 'all') count++
     if (brandFilter !== 'all') count++
-    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all') count++
+    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && activeDataKey !== 'price-list' && supplierFilter !== 'all') count++
     if (groupByFilter !== 'none') count++
     if (viewAsFilter !== 'detailed') count++
     return count
@@ -1803,6 +2605,28 @@ export default function Report() {
     onhandFilter,
     groupByFilter,
     viewAsFilter,
+    priceCurrencyFilter,
+    priceBookFilter,
+    priceOptionFilter,
+    customerFilter,
+    invoiceTypeFilter,
+    customerGroupFilter,
+    salespersonFilter,
+    userFilter,
+    paymentTypeFilter,
+    balanceFilter,
+    typeFilter,
+    receiptTypeFilter,
+    topByFilter,
+    topOrderByFilter,
+    topCountFilter,
+    topQtyFilter,
+    topValFilter,
+    stationFilter,
+    requisitionTypeFilter,
+    purchasePersonFilter,
+    convertToBillFilter,
+    supplierGroupFilter,
   ])
 
   // Handle Preset Change (Auto-populates From Date & To Date)
@@ -1818,7 +2642,7 @@ export default function Report() {
   useEffect(() => {
     const loadFilterOptions = async () => {
       try {
-        const [officesRes, sectionsRes, categoriesRes, brandsRes, groupsRes, suppliersRes, productsRes] =
+        const [officesRes, sectionsRes, categoriesRes, brandsRes, groupsRes, suppliersRes, supplierGroupsRes, productsRes, usersRes] =
           await Promise.allSettled([
             adminOfficeAPI.getAll(),
             adminSectionAPI.getAll(),
@@ -1826,7 +2650,9 @@ export default function Report() {
             adminBrandAPI.getAll(),
             adminProductGroupAPI.getAll(),
             adminSupplierAPI.getAll(),
+            adminSupplierGroupAPI.getAll(),
             adminProductAPI.getAll(),
+            userAPI.getAll(),
           ])
 
         const extractData = (res) => {
@@ -1837,15 +2663,18 @@ export default function Report() {
           return []
         }
 
-        setFilterOptions({
+        setFilterOptions((prev) => ({
+          ...prev,
           outlets: extractData(officesRes),
           locations: extractData(sectionsRes),
           categories: extractData(categoriesRes),
           brands: extractData(brandsRes),
           productGroups: extractData(groupsRes),
           suppliers: extractData(suppliersRes),
+          supplierGroups: extractData(supplierGroupsRes),
           products: extractData(productsRes),
-        })
+          users: extractData(usersRes),
+        }))
       } catch (err) {
         console.warn('Failed to load advance filter options:', err)
       }
@@ -2378,55 +3207,400 @@ export default function Report() {
         const res = await adminProductAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((p) => ({
-            code: p.code || `PRD-${p.id}`,
-            barcode: p.barCode || p.barcode || '-',
-            description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Stock Product',
-            uom: p.uom || 'Unit',
-            basePrice: Number(p.basePrice || p.sellingPrice || 0),
-          }))
+          fetched = items.map((p) => {
+            const price = Number(p.basePrice || p.sellingPrice || 0)
+            const brand = p.brand || p.brandName || (typeof p.brand === 'object' ? p.brand?.name : null) || 'Heritage Organic'
+            const category = p.category || p.categoryName || (typeof p.category === 'object' ? p.category?.name : null) || 'General'
+            const productGroup = p.productGroup || p.groupName || (typeof p.productGroup === 'object' ? p.productGroup?.name : null) || 'Grocery'
+            const currency = p.currency || (p.currencyCode === 'KHR' || (p.code && p.code.includes('KHR')) ? 'Khmer Riels' : 'Dollar')
+            const priceBook = p.priceBook || p.priceBookName || p.priceListType || 'Standard Retail'
+            return {
+              code: p.code || `PRD-${p.id}`,
+              barcode: p.barCode || p.barcode || '-',
+              description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Stock Product',
+              uom: p.uom || 'Unit',
+              basePrice: price,
+              brand,
+              category,
+              productGroup,
+              currency,
+              priceBook,
+            }
+          })
         }
       }
 
-      // 9. STOCK REPORT: Transaction History
+      // 9. STOCK REPORT: Transaction History (Live Database & Real Document Movement Ledger)
       else if (activeDataKey === 'transaction-history') {
-        const res = await fetch('/api/activity-logs').then((r) => r.json()).catch(() => null)
-        const items = res?.data || res
-        if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((l) => ({
-            transactionType: (l.action || l.type || l.docType || 'RECEIVE').toUpperCase(),
-            document: l.document || l.docNo || l.code || `DOC-${l.id || 101}`,
-            date: (l.date || l.timestamp || l.createdAt || new Date().toISOString()).slice(0, 10),
-            productCode: l.productCode || l.code || 'PRD-001',
-            description: l.description || l.product || l.details || 'Stock Item',
-            outlet: l.outlet || 'Central Warehouse',
-            location: l.location || 'Warehouse Floor A',
-            qty: Number(l.qty || 10),
-            stockUom: l.stockUom || l.uom || 'Box',
-            tranUom: l.tranUom || l.uom || 'Unit',
-            cost: Number(l.cost || l.unitCost || 2.20),
-            amount: Number(l.amount || l.totalCost || 22.00),
-            balanceQty: Number(l.balanceQty ?? 150),
-          }))
+        const [
+          stockDocsRes,
+          receiveDocsRes,
+          issueDocsRes,
+          adjDocsRes,
+          transfersRes,
+          prodsRes,
+          saleInvoicesRes,
+        ] = await Promise.allSettled([
+          adminStockDocAPI.getAll().catch(() => null),
+          adminReceiveDocAPI.getAll().catch(() => null),
+          adminIssueDocAPI.getAll().catch(() => null),
+          adminAdjustmentDocAPI.getAll().catch(() => null),
+          adminTransferAPI.getAll().catch(() => null),
+          adminProductAPI.getAll().catch(() => null),
+          adminSaleInvoiceAPI.getAll().catch(() => null),
+        ])
+
+        // Build product catalog lookup maps to match product IDs, codes, names, UOM, and costs
+        const rawProds = prodsRes.status === 'fulfilled' && prodsRes.value ? (prodsRes.value.data || prodsRes.value) : []
+        const productList = Array.isArray(rawProds) && rawProds.length > 0 ? rawProds : availableProducts
+        const prodById = new Map()
+        const prodByCode = new Map()
+        productList.forEach((p) => {
+          if (p.id != null) prodById.set(String(p.id), p)
+          if (p.code) prodByCode.set(String(p.code).toUpperCase(), p)
+        })
+
+        const findProd = (id, code) => {
+          if (id != null && prodById.has(String(id))) return prodById.get(String(id))
+          if (code && prodByCode.has(String(code).toUpperCase())) return prodByCode.get(String(code).toUpperCase())
+          return null
+        }
+
+        // Local storage collections for offline or locally created transaction documents
+        const localReceives = typeof loadCollection === 'function' ? loadCollection('ledger-receive') : []
+        const localIssues = typeof loadCollection === 'function' ? loadCollection('ledger-issue') : []
+        const localAdjusts = typeof loadCollection === 'function' ? loadCollection('ledger-adjust') : []
+        const localTransfers = typeof loadCollection === 'function' ? loadCollection('tf-transfers') : []
+        const localRequests = typeof loadCollection === 'function' ? loadCollection('tr-requests') : []
+
+        const allStockDocs = []
+        const seenDocKeys = new Set()
+
+        const addDoc = (d, defaultType) => {
+          if (!d) return
+          const docType = (d.docType || d.type || d.kind || defaultType || 'RECEIVE').toUpperCase()
+          const code = d.code || d.documentNo || d.docNo || d.id || `${docType}-${Math.random()}`
+          const key = `${docType}_${code}`
+          if (seenDocKeys.has(key)) return
+          seenDocKeys.add(key)
+          allStockDocs.push({ ...d, docType })
+        }
+
+        // 1. Stock documents from /admin/stock-documents
+        if (stockDocsRes.status === 'fulfilled' && stockDocsRes.value) {
+          const items = stockDocsRes.value.data || stockDocsRes.value
+          if (Array.isArray(items)) items.forEach((d) => addDoc(d))
+        }
+
+        // 2. Receive documents from /admin/receive-documents & local
+        if (receiveDocsRes.status === 'fulfilled' && receiveDocsRes.value) {
+          const items = receiveDocsRes.value.data || receiveDocsRes.value
+          if (Array.isArray(items)) items.forEach((d) => addDoc(d, 'RECEIVE'))
+        }
+        if (Array.isArray(localReceives)) {
+          localReceives.forEach((d) => addDoc(d, 'RECEIVE'))
+        }
+
+        // 3. Issue documents from /admin/issue-documents & local
+        if (issueDocsRes.status === 'fulfilled' && issueDocsRes.value) {
+          const items = issueDocsRes.value.data || issueDocsRes.value
+          if (Array.isArray(items)) items.forEach((d) => addDoc(d, 'ISSUE'))
+        }
+        if (Array.isArray(localIssues)) {
+          localIssues.forEach((d) => addDoc(d, 'ISSUE'))
+        }
+
+        // 4. Adjustment documents from /admin/adjustment-documents & local
+        if (adjDocsRes.status === 'fulfilled' && adjDocsRes.value) {
+          const items = adjDocsRes.value.data || adjDocsRes.value
+          if (Array.isArray(items)) items.forEach((d) => addDoc(d, 'ADJUST'))
+        }
+        if (Array.isArray(localAdjusts)) {
+          localAdjusts.forEach((d) => addDoc(d, 'ADJUST'))
+        }
+
+        const ledgerRows = []
+
+        // Process stock documents into transaction rows
+        allStockDocs.forEach((doc) => {
+          const docType = (doc.docType || 'RECEIVE').toUpperCase()
+          const docCode = doc.code || doc.documentNo || doc.docNo || `DOC-${doc.id || '101'}`
+          const dateStr = (doc.date || doc.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10)
+          const docOutlet = doc.outlet || doc.receivedBy || doc.fromOutlet || doc.office || doc.locationKey || 'Main Mart'
+          const docLocation = doc.locationKey || doc.location || doc.fromLocation || 'Warehouse Floor A'
+          const docSupplier = doc.supplier || doc.supplierName || ''
+
+          const lines = Array.isArray(doc.lines) && doc.lines.length > 0
+            ? doc.lines
+            : Array.isArray(doc.posted) && doc.posted.length > 0
+              ? doc.posted
+              : null
+
+          if (lines) {
+            lines.forEach((l) => {
+              const matchedProd = findProd(l.productId, l.code || l.productCode)
+              const pCode = l.code || l.productCode || matchedProd?.code || (l.productId ? `PRD-${l.productId}` : 'PRD-001')
+              const desc = l.nameSnapshot || l.name || l.description || matchedProd?.title || (typeof matchedProd?.name === 'object' ? matchedProd?.name?.en : matchedProd?.name) || 'Stock Product'
+              const stockUom = l.stockUom || l.uom || matchedProd?.uom || 'Unit'
+              const tranUom = l.tranUom || l.uom || matchedProd?.uom || 'Unit'
+              const cost = Number(l.unitCost != null ? l.unitCost : (l.cost != null ? l.cost : (matchedProd?.costPrice || 0)))
+
+              let qty = 0
+              let balanceQty = 0
+
+              if (docType === 'ADJUST') {
+                qty = Number(
+                  l.qtyDiff != null
+                    ? l.qtyDiff
+                    : (l.countedQty != null && l.qtyBefore != null
+                      ? Number(l.countedQty) - Number(l.qtyBefore)
+                      : (l.counted != null && l.before != null
+                        ? Number(l.counted) - Number(l.before)
+                        : (l.qty != null ? l.qty : 0)))
+                )
+                balanceQty = Number(l.qtyAfter ?? l.after ?? l.countedQty ?? l.counted ?? (matchedProd?.onHand || 0))
+              } else if (docType === 'ISSUE') {
+                qty = -Math.abs(Number(l.qty || 1))
+                balanceQty = Number(l.qtyAfter ?? l.after ?? ((matchedProd?.onHand || 0) - Math.abs(qty)))
+              } else {
+                // RECEIVE
+                qty = Math.abs(Number(l.qty || 1))
+                balanceQty = Number(l.qtyAfter ?? l.after ?? (matchedProd?.onHand || (qty + (l.before || 0))))
+              }
+
+              const lineTotal = Number(
+                l.lineTotal != null
+                  ? l.lineTotal
+                  : (l.totalCost != null ? l.totalCost : Math.round(Math.abs(qty) * cost * 100) / 100)
+              )
+
+              ledgerRows.push({
+                transactionType: docType,
+                document: docCode,
+                date: dateStr,
+                productCode: pCode,
+                description: desc,
+                outlet: docOutlet,
+                location: docLocation,
+                qty,
+                stockUom,
+                tranUom,
+                cost: Number(cost.toFixed(2)),
+                amount: Number(lineTotal.toFixed(2)),
+                balanceQty,
+                brand: matchedProd?.brand || 'Heritage Organic',
+                category: matchedProd?.category || 'General',
+                productGroup: matchedProd?.productGroup || 'Grocery',
+                supplier: docSupplier || matchedProd?.supplier || '',
+                barcode: matchedProd?.barcode || matchedProd?.barCode || l.barcode || '-',
+              })
+            })
+          } else {
+            // Header-level document without lines
+            const matchedProd = findProd(doc.productId, doc.productCode || doc.code)
+            const pCode = doc.productCode || doc.code || matchedProd?.code || `PRD-${doc.id || '001'}`
+            const desc = doc.description || doc.note || matchedProd?.title || 'Stock Transaction'
+            const qty = Number(doc.qty || (docType === 'ISSUE' ? -1 : 1))
+            const cost = Number(doc.totalCost != null && doc.qty ? doc.totalCost / doc.qty : (matchedProd?.costPrice || 0))
+            const amount = Number(doc.totalCost != null ? doc.totalCost : Math.round(Math.abs(qty) * cost * 100) / 100)
+            const balanceQty = Number(doc.balanceQty ?? matchedProd?.onHand ?? 0)
+
+            ledgerRows.push({
+              transactionType: docType,
+              document: docCode,
+              date: dateStr,
+              productCode: pCode,
+              description: desc,
+              outlet: docOutlet,
+              location: docLocation,
+              qty,
+              stockUom: doc.stockUom || doc.uom || matchedProd?.uom || 'Unit',
+              tranUom: doc.tranUom || doc.uom || matchedProd?.uom || 'Unit',
+              cost: Number(cost.toFixed(2)),
+              amount: Number(amount.toFixed(2)),
+              balanceQty,
+              brand: matchedProd?.brand || 'Heritage Organic',
+              category: matchedProd?.category || 'General',
+              productGroup: matchedProd?.productGroup || 'Grocery',
+              supplier: docSupplier || matchedProd?.supplier || '',
+              barcode: matchedProd?.barcode || matchedProd?.barCode || '-',
+            })
+          }
+        })
+
+        // 5. Process transfers from /admin/transfers & local
+        const allTransfers = []
+        if (transfersRes.status === 'fulfilled' && transfersRes.value) {
+          const items = transfersRes.value.data || transfersRes.value
+          if (Array.isArray(items)) allTransfers.push(...items)
+        }
+        if (Array.isArray(localTransfers)) allTransfers.push(...localTransfers)
+        if (Array.isArray(localRequests)) allTransfers.push(...localRequests)
+
+        const seenTransferCodes = new Set()
+        allTransfers.forEach((trf) => {
+          const trfCode = trf.code || trf.transferNo || `TRF-${trf.id || '101'}`
+          if (seenTransferCodes.has(trfCode)) return
+          seenTransferCodes.add(trfCode)
+
+          const dateStr = (trf.transferDate || trf.requestTransferDate || trf.date || trf.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10)
+          const trfOutlet = trf.fromOutlet || trf.requestOutlet || 'Main Mart'
+          const trfLocation = trf.fromLocation || trf.requestLocation || 'Warehouse Floor A'
+          const tType = trf.docType === 'SHIP' ? 'TRANSFER_OUT' : (trf.docType === 'REQUEST' ? 'TRANSFER_REQ' : 'TRANSFER')
+
+          if (Array.isArray(trf.lines) && trf.lines.length > 0) {
+            trf.lines.forEach((tl) => {
+              const matchedProd = findProd(tl.productId, tl.code || tl.productCode)
+              const pCode = tl.code || tl.productCode || matchedProd?.code || (tl.productId ? `PRD-${tl.productId}` : 'PRD-001')
+              const desc = tl.name || tl.description || matchedProd?.title || 'Transferred Item'
+              const qty = Number(tl.qty || tl.shipQty || tl.requestQty || 1)
+              const cost = Number(tl.unitCost != null ? tl.unitCost : (matchedProd?.costPrice || 0))
+              const lineTotal = Number(tl.lineTotal != null ? tl.lineTotal : Math.round(qty * cost * 100) / 100)
+              const balanceQty = Number(tl.onHand != null ? tl.onHand : (matchedProd?.onHand || 0))
+
+              ledgerRows.push({
+                transactionType: tType,
+                document: trfCode,
+                date: dateStr,
+                productCode: pCode,
+                description: desc,
+                outlet: trfOutlet,
+                location: trfLocation,
+                qty,
+                stockUom: tl.uom || tl.stockUom || matchedProd?.uom || 'Unit',
+                tranUom: tl.uom || tl.tranUom || matchedProd?.uom || 'Unit',
+                cost: Number(cost.toFixed(2)),
+                amount: Number(lineTotal.toFixed(2)),
+                balanceQty,
+                brand: matchedProd?.brand || 'Heritage Organic',
+                category: matchedProd?.category || 'General',
+                productGroup: matchedProd?.productGroup || 'Grocery',
+                supplier: matchedProd?.supplier || '',
+                barcode: matchedProd?.barcode || matchedProd?.barCode || tl.barcode || '-',
+              })
+            })
+          }
+        })
+
+        // 6. Process sales invoices
+        if (saleInvoicesRes.status === 'fulfilled' && saleInvoicesRes.value) {
+          const invoices = saleInvoicesRes.value.data || saleInvoicesRes.value
+          if (Array.isArray(invoices)) {
+            invoices.forEach((inv) => {
+              const invCode = inv.code || `INV-${inv.id}`
+              const dateStr = (inv.date || inv.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10)
+              const outlet = inv.outlet || 'Main Mart'
+              const location = 'Cashier POS'
+              const lines = Array.isArray(inv.items) && inv.items.length > 0
+                ? inv.items
+                : Array.isArray(inv.lines) && inv.lines.length > 0
+                  ? inv.lines
+                  : null
+
+              if (lines) {
+                lines.forEach((it) => {
+                  const matchedProd = findProd(it.productId, it.code || it.productCode)
+                  const pCode = it.code || it.productCode || matchedProd?.code || 'PRD-001'
+                  const desc = it.productTitle || it.name || it.description || matchedProd?.title || 'Sale Item'
+                  const qty = -Math.abs(Number(it.quantity || it.qty || 1))
+                  const cost = Number(it.costPrice != null ? it.costPrice : (matchedProd?.costPrice || 0))
+                  const amount = Number(it.total != null ? it.total : Math.round(Math.abs(qty) * cost * 100) / 100)
+
+                  ledgerRows.push({
+                    transactionType: 'SALE',
+                    document: invCode,
+                    date: dateStr,
+                    productCode: pCode,
+                    description: desc,
+                    outlet,
+                    location,
+                    qty,
+                    stockUom: it.uom || matchedProd?.uom || 'Unit',
+                    tranUom: it.uom || matchedProd?.uom || 'Unit',
+                    cost: Number(cost.toFixed(2)),
+                    amount: Number(amount.toFixed(2)),
+                    balanceQty: Number(matchedProd?.onHand || 0),
+                    brand: matchedProd?.brand || 'Standard',
+                    category: matchedProd?.category || 'General',
+                    productGroup: matchedProd?.productGroup || 'Retail Sales',
+                    supplier: matchedProd?.supplier || '',
+                    barcode: matchedProd?.barcode || it.barcode || '-',
+                  })
+                })
+              }
+            })
+          }
+        }
+
+        // 7. Ensure every product in database has representation (initial opening intake)
+        if (productList.length > 0) {
+          const handledCodes = new Set(ledgerRows.map((r) => r.productCode))
+          productList.forEach((p) => {
+            const pCode = p.code || `PRD-${p.id}`
+            if (!handledCodes.has(pCode) || ledgerRows.length === 0) {
+              const qty = Number(p.onHand ?? p.qty ?? 0)
+              const cost = Number(p.costPrice || p.averageCost || 0)
+              const amount = Number((qty * cost).toFixed(2))
+              const dateStr = (p.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10)
+
+              ledgerRows.push({
+                transactionType: 'RECEIVE',
+                document: `INIT-${pCode}`,
+                date: dateStr,
+                productCode: pCode,
+                description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Stock Product',
+                outlet: p.outlet || 'Main Mart',
+                location: 'Warehouse Floor A',
+                qty,
+                stockUom: p.uom || 'Unit',
+                tranUom: p.uom || 'Unit',
+                cost: Number(cost.toFixed(2)),
+                amount,
+                balanceQty: qty,
+                brand: p.brand || p.brandName || (typeof p.brand === 'object' ? p.brand?.name : null) || 'Heritage Organic',
+                category: p.category || p.categoryName || (typeof p.category === 'object' ? p.category?.name : null) || 'General',
+                productGroup: p.productGroup || p.groupName || (typeof p.productGroup === 'object' ? p.productGroup?.name : null) || 'Grocery',
+                supplier: p.supplier || '',
+                barcode: p.barCode || p.barcode || '-',
+              })
+            }
+          })
+        }
+
+        // Sort chronologically newest first
+        ledgerRows.sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+
+        if (ledgerRows.length > 0) {
+          fetched = ledgerRows
         }
       }
 
-      // 10. STOCK REPORT: Order Point
+      // 10. STOCK REPORT: Order Point (Real Database Product Catalog & Stock Metrics)
       else if (activeDataKey === 'order-point') {
         const res = await adminProductAPI.getAll()
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((p) => {
-            const onhand = Number(p.onHand ?? 0)
-            const orderPoint = Number(p.minStockLevel || 15)
+            const onhand = Number(p.onHand ?? p.qty ?? 0)
+            const orderPoint = Number(p.minStockLevel || p.reorderPoint || p.minQty || p.minStock || 15)
             const orderQuantity = onhand < orderPoint ? Math.max(0, orderPoint - onhand + 20) : 0
+            const brand = p.brand || p.brandName || (typeof p.brand === 'object' ? p.brand?.name : null) || 'Heritage Organic'
+            const category = p.category || p.categoryName || (typeof p.category === 'object' ? p.category?.name : null) || 'General'
+            const productGroup = p.productGroup || p.groupName || (typeof p.productGroup === 'object' ? p.productGroup?.name : null) || 'Fresh Grocery'
+            const supplier = p.supplier || p.supplierName || (typeof p.supplier === 'object' ? p.supplier?.name : null) || ''
             return {
               productCode: p.code || `PRD-${p.id}`,
-              description: p.title || p.name || 'Standard Product',
+              description: p.title || (typeof p.name === 'object' ? p.name?.en : p.name) || 'Standard Product',
               onhand,
               uom: p.uom || 'Unit',
               orderPoint,
               orderQuantity,
+              outlet: p.outlet || 'Main Mart',
+              productGroup,
+              category,
+              brand,
+              supplier,
+              barcode: p.barCode || p.barcode || '-',
             }
           })
         }
@@ -2452,6 +3626,15 @@ export default function Report() {
               sale: Number(p.saleQty ?? 15),
               return: Number(p.returnQty ?? 0),
               balance: onhand,
+              outlet: p.outlet || p.warehouse || 'Central Warehouse',
+              location: p.location || 'Main Storage',
+              productGroup: p.productGroup || p.groupName || 'Fresh Grocery',
+              category: p.category || p.categoryName || 'Produce',
+              brand: p.brand || p.brandName || 'Angkor Harvest',
+              supplier: p.supplier || p.supplierName || 'Lucky Local Supplies',
+              barcode: p.barCode || p.barcode || '',
+              status: p.status || 'Completed',
+              date: (p.date || p.createdAt || '').slice(0, 10) || new Date().toISOString().slice(0, 10),
             }
           })
         }
@@ -2564,6 +3747,15 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((po) => ({
+            productCode: po.productCode || `PRD-00${po.id || 1}`,
+            barcode: po.barcode || `8850123000${po.id || 1}`,
+            description: po.description || po.productName || 'Fresh Organic Produce',
+            uom: po.uom || 'Pack',
+            requisitionQty: Number(po.requisitionQty || po.qty || 100),
+            poQty: Number(po.poQty || 80),
+            completedQty: Number(po.completedQty || 70),
+            voidedQty: Number(po.voidedQty || 0),
+            remainQty: Number(po.remainQty || 20),
             reqNo: `PR-${po.code || po.id}`,
             date: (po.date || po.createdAt || '').slice(0, 10),
             department: po.department || 'Produce & Grocery Dept',
@@ -2571,7 +3763,10 @@ export default function Report() {
             totalItems: po.itemsCount || 8,
             estimatedCost: Number(po.totalAmount || po.amount || 1450.00),
             priority: po.priority || 'NORMAL',
-            status: (po.status || 'APPROVED').toUpperCase(),
+            status: po.status || 'Approved',
+            outlet: po.outlet || 'Central Warehouse',
+            supplier: po.supplierName || 'Cambodia Agri-Trading Ltd',
+            requisitionType: po.requisitionType || 'Normal',
           }))
         }
       }
@@ -2581,33 +3776,56 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((po) => ({
+            poCode: po.poCode || po.code || `PO-${po.id}`,
+            soCode: po.soCode || `SO-2024-00${po.id || 1}`,
+            supplierName: po.supplierName || po.supplier || 'Cambodia Agri-Trading Ltd',
+            poDate: (po.poDate || po.date || po.createdAt || '').slice(0, 10),
+            requireDate: (po.requireDate || '2024-03-10').slice(0, 10),
+            voidDate: po.voidDate || '-',
+            totalAmount: Number(po.totalAmount || po.amount || 4200.00),
+            receiveAmount: Number(po.receiveAmount || 3200.00),
+            closedAmount: Number(po.closedAmount || 3200.00),
             poNo: po.code || `PO-${po.id}`,
             date: (po.date || po.createdAt || '').slice(0, 10),
             supplier: po.supplierName || 'Cambodia Agri-Trading Ltd',
             outlet: po.outlet || 'Central Warehouse',
             term: po.paymentTerm || 'Net 30',
-            totalAmount: Number(po.totalAmount || po.amount || 4200.00),
             receivingStatus: (po.receivingStatus || 'RECEIVED').toUpperCase(),
             paymentStatus: (po.paymentStatus || 'UNPAID').toUpperCase(),
-            status: (po.status || 'OPEN').toUpperCase(),
+            status: po.status || 'Open',
           }))
         }
       }
 
-      else if (activeDataKey === 'purchase-order-products-status') {
+      else if (
+        activeDataKey === 'purchase-order-products-status' ||
+        activeDataKey === 'purchase-order-products' ||
+        activeDataKey === 'purchase-order-product-status'
+      ) {
         const res = await adminPurchaseOrderAPI.getAll().catch(() => null)
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((po) => ({
+            productCode: po.productCode || po.code || `PRD-00${po.id || 1}`,
+            description: po.description || po.productName || po.product || 'Organic Supermarket Groceries',
+            totalQty: Number(po.totalQty || po.orderedQty || po.qty || 200),
+            receiveQty: Number(po.receiveQty || po.receivedQty || 180),
+            closedQty: Number(po.closedQty || po.receiveQty || 180),
+            openQty: Number(po.openQty || (Number(po.totalQty || po.orderedQty || 200) - Number(po.receiveQty || po.receivedQty || 180))),
+            uom: po.uom || po.unit || 'Bag',
+            totalAmount: Number(po.totalAmount || po.amount || 1300.00),
+            receiveAmount: Number(po.receiveAmount || 1170.00),
+            closedAmount: Number(po.closedAmount || 1170.00),
+            openAmount: Number(po.openAmount || 130.00),
+            status: po.status || 'Open',
             poNo: po.code || `PO-${po.id}`,
-            code: `PRD-${po.id || '001'}`,
+            code: po.productCode || `PRD-${po.id || '001'}`,
             product: po.productName || 'Organic Supermarket Groceries',
             supplier: po.supplierName || 'Cambodia Agri-Trading Ltd',
-            orderedQty: po.orderedQty || 200,
-            receivedQty: po.receivedQty || 180,
-            unitCost: Number(po.unitCost || 6.50),
-            totalCost: Number(po.totalAmount || 1300.00),
-            status: (po.status || 'PARTIAL_DELIVERY').toUpperCase(),
+            purchasePerson: po.purchasePerson || po.createdByName || 'Sokha Ly',
+            productGroup: po.productGroup || 'Pantry Staples',
+            outlet: po.outlet || 'Central Warehouse',
+            date: (po.date || po.createdAt || '').slice(0, 10),
           }))
         }
       }
@@ -2638,16 +3856,19 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((bill) => ({
-            code: `SUP-${bill.id || '001'}`,
-            supplier: bill.supplier || 'Cambodia Agri-Trading Ltd',
-            phone: bill.phone || '+855 12 770 112',
-            current: Number(bill.current || bill.balance || 0),
-            days1to30: Number(bill.days1to30 || 0),
+            supplierCode: bill.supplierCode || bill.code || `SUP-00${bill.id || 1}`,
+            supplierName: bill.supplierName || bill.supplier || 'Cambodia Agri-Trading Ltd',
+            current: Number(bill.current || bill.balance || 2400.00),
+            days1to30: Number(bill.days1to30 || 1800.00),
             days31to60: Number(bill.days31to60 || 0),
             days61to90: Number(bill.days61to90 || 0),
-            over90Days: Number(bill.over90Days || 0),
-            totalDue: Number(bill.balance || bill.amount || 0),
-            status: (bill.status || 'CURRENT').toUpperCase(),
+            days91to120: Number(bill.days91to120 || 0),
+            over120Days: Number(bill.over120Days || 0),
+            balance: Number(bill.balance || bill.amount || 4200.00),
+            outlet: bill.outlet || 'Central Warehouse',
+            supplier: bill.supplierName || bill.supplier || 'Cambodia Agri-Trading Ltd',
+            status: bill.status || 'Active',
+            date: (bill.date || bill.createdAt || '2024-03-05').slice(0, 10),
           }))
         }
       }
@@ -2657,15 +3878,17 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((bill) => ({
-            paymentNo: `PAY-BILL-${bill.id || 101}`,
-            date: (bill.date || bill.createdAt || '').slice(0, 10),
-            billRef: bill.reference || `BIL-${bill.id}`,
-            supplier: bill.supplier || 'Cambodia Agri-Trading Ltd',
-            paymentMethod: bill.paymentMethod || 'Bank Transfer (ABA)',
-            paidAmount: Number(bill.paidAmount || bill.amount || 3450.00),
-            bankAccount: 'ABA Enterprise 001 889',
-            paidBy: 'Finance Admin',
-            status: 'EXECUTED',
+            billPaymentCode: bill.billPaymentCode || bill.paymentNo || `PAY-BILL-${bill.id || 101}`,
+            supplierInvoiceCode: bill.supplierInvoiceCode || bill.reference || `INV-CP-${bill.id || 901}`,
+            paymentType: bill.paymentType || bill.paymentMethod || 'Bank Transfer (ABA)',
+            billReceiptDate: (bill.billReceiptDate || bill.date || bill.createdAt || '2024-03-06').slice(0, 10),
+            billAmount: Number(bill.billAmount || bill.amount || 3450.00),
+            paidAmount: Number(bill.paidAmount || 3400.00),
+            discount: Number(bill.discount || 50.00),
+            balance: Number(bill.balance || 0.00),
+            outlet: bill.outlet || 'Central Warehouse',
+            supplier: bill.supplierName || bill.supplier || 'CP Food Supplies Cambodia',
+            date: (bill.billReceiptDate || bill.date || bill.createdAt || '2024-03-06').slice(0, 10),
           }))
         }
       }
@@ -2675,15 +3898,17 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((bill) => ({
-            billNo: bill.code || `BIL-${bill.id}`,
-            date: (bill.date || bill.createdAt || '').slice(0, 10),
-            dueDate: bill.dueDate || '2024-03-31',
-            supplier: bill.supplier || 'Cambodia Agri-Trading Ltd',
+            billCode: bill.billCode || bill.code || `BIL-2024-09${bill.id || 1}`,
+            supplier: bill.supplierName || bill.supplier || 'Cambodia Agri-Trading Ltd',
+            billDate: (bill.billDate || bill.date || bill.createdAt || '2024-03-01').slice(0, 10),
+            dueDate: (bill.dueDate || '2024-03-31').slice(0, 10),
+            billAmount: Number(bill.billAmount || bill.amount || 4200.00),
+            paidAmount: Number(bill.paidAmount || (Number(bill.billAmount || bill.amount || 4200) - Number(bill.balance || 0))),
+            balance: Number(bill.balance || 2400.00),
+            voidedDate: bill.voidedDate || '-',
             outlet: bill.outlet || 'Central Warehouse',
-            totalAmount: Number(bill.amount || 4200.00),
-            paidAmount: Number(bill.paidAmount || (Number(bill.amount || 4200) - Number(bill.balance || 0))),
-            balanceDue: Number(bill.balance || 0),
-            status: (bill.status || 'CURRENT').toUpperCase(),
+            status: bill.status || 'Partially Paid',
+            date: (bill.billDate || bill.date || bill.createdAt || '2024-03-01').slice(0, 10),
           }))
         }
       }
@@ -2693,15 +3918,16 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((b, idx) => ({
-            freightNo: `FRT-2024-${10 + (b.id || idx)}`,
-            carrier: b.carrier || 'Phnom Penh Cold Express',
-            date: (b.date || b.createdAt || '').slice(0, 10),
-            origin: 'Kampong Cham Logistics Hub',
-            destination: 'Main Mart Cold Room',
-            freightCharge: 120.00,
-            tax: 12.00,
-            totalCharge: 132.00,
-            paymentStatus: 'PAID',
+            tariffDescription: b.tariffDescription || b.carrier || 'Cold Chain Refrigerated Freight',
+            receiveDate: (b.receiveDate || b.date || b.createdAt || '2024-03-05').slice(0, 10),
+            receiveCode: b.receiveCode || `REC-2024-08${b.id || idx || 1}`,
+            freightBillCode: b.freightBillCode || `FRT-2024-01${b.id || idx || 1}`,
+            supplier: b.supplierName || b.supplier || 'CP Food Supplies Cambodia',
+            amount: Number(b.amount || b.totalCharge || 132.00),
+            status: b.status || 'Received',
+            outlet: b.outlet || 'Central Warehouse',
+            convertToBill: b.convertToBill || 'yes',
+            date: (b.receiveDate || b.date || b.createdAt || '2024-03-05').slice(0, 10),
           }))
         }
       }
@@ -2711,15 +3937,16 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((b) => ({
-            docNo: `SDEP-${b.id || 101}`,
-            date: (b.date || b.createdAt || '').slice(0, 10),
-            supplier: b.supplier || 'Cambodia Agri-Trading Ltd',
-            type: 'ADVANCE_DEPOSIT',
-            amount: Number(b.amount || 5000.00),
-            utilizedAmount: Number(b.utilizedAmount || 3000.00),
+            debitDate: (b.debitDate || b.date || b.createdAt || '2024-02-28').slice(0, 10),
+            paymentType: b.paymentType || 'Bank Transfer (ABA)',
+            serviceCharge: Number(b.serviceCharge || 5.00),
+            debitAmount: Number(b.debitAmount || b.amount || 5000.00),
             balance: Number(b.balance || 2000.00),
-            method: 'Bank Transfer (ABA)',
-            status: 'ACTIVE',
+            balanceToBase: Number(b.balanceToBase || b.balance || 2000.00),
+            status: b.status || 'Active',
+            outlet: b.outlet || 'Central Warehouse',
+            supplier: b.supplierName || b.supplier || 'Cambodia Agri-Trading Ltd',
+            date: (b.debitDate || b.date || b.createdAt || '2024-02-28').slice(0, 10),
           }))
         }
       }
@@ -2729,14 +3956,15 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((c) => ({
-            voucherNo: `AP-CSH-${c.id || 101}`,
-            date: (c.date || c.createdAt || '').slice(0, 10),
-            supplier: c.partyName || 'Local Agricultural Cooperative',
-            billRef: `BIL-REF-${c.id || 101}`,
-            amountPaid: Number(c.amount || 185.00),
-            cashAccount: 'Petty Cash Box #1',
-            approvedBy: 'Finance Officer',
-            status: 'PAID',
+            currency: c.currency || 'USD',
+            receiptType: c.receiptType || 'Invoice Payment',
+            paymentType: c.paymentType || 'Cash Petty Drawer',
+            amount: Number(c.amount || c.amountPaid || 185.00),
+            amountToBase: Number(c.amountToBase || c.amount || 185.00),
+            status: c.status || 'Paid',
+            outlet: c.outlet || 'Central Warehouse',
+            supplier: c.supplierName || c.supplier || c.partyName || 'Cambodia Agri-Trading Ltd',
+            date: (c.date || c.createdAt || '2024-03-06').slice(0, 10),
           }))
         }
       }
@@ -2746,15 +3974,17 @@ export default function Report() {
         const items = res?.data || res
         if (Array.isArray(items) && items.length > 0) {
           fetched = items.map((s) => ({
-            code: s.code || `SUP-${s.id}`,
-            supplier: s.name || s.supplierName || 'Cambodia Agri-Trading Ltd',
-            contactPerson: s.contactPerson || s.contact || 'Mr. Touch Vanna',
+            supplierCode: s.supplierCode || s.code || `SUP-00${s.id || 1}`,
+            supplierName: s.supplierName || s.name || 'Cambodia Agri-Trading Ltd',
+            supplier: s.supplierName || s.name || 'Cambodia Agri-Trading Ltd',
+            supplierGroup: s.supplierGroup || s.group || 'General Wholesale',
+            contactName: s.contactName || s.contactPerson || 'Mr. Touch Vanna',
             phone: s.phone || '+855 12 770 112',
-            category: s.category || 'Grains & Fresh Produce',
-            paymentTerm: s.paymentTerm || 'Net 30',
-            activeOrders: s.activeOrdersCount || 2,
-            balanceDue: Number(s.balanceDue || 0.00),
-            status: (s.status || 'ACTIVE').toUpperCase(),
+            fax: s.fax || '+855 23 427 101',
+            currentBalance: Number(s.currentBalance || s.balanceDue || 2400.00),
+            debitDeposit: Number(s.debitDeposit || 2000.00),
+            status: s.status || 'Active',
+            date: (s.createdAt || '2024-03-06').slice(0, 10),
           }))
         }
       }
@@ -2763,53 +3993,151 @@ export default function Report() {
       // CASH BOOK SUB-REPORTS
       // ====================================================
       else if (activeDataKey === 'cash-in-out-status' || activeDataKey === 'cash-book') {
-        const res = await adminCashOperationAPI.getAll().catch(() => null)
-        const items = res?.data || res
-        if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((c) => ({
-            entryNo: `CSH-ENTRY-${c.id || 101}`,
-            date: (c.date || c.createdAt || '').slice(0, 10),
-            account: c.account || 'Main Cash Drawer POS-1',
-            type: c.type || 'CASH_IN',
-            amount: Number(c.amount || 1450.00),
-            reason: c.description || 'Retail Grocery POS Sales Flow',
-            authorizedBy: c.authorizedBy || 'Sokha Ly',
-            status: (c.status || 'VERIFIED').toUpperCase(),
-          }))
+        const [cashRes, bankTxRes, bankTrfRes] = await Promise.all([
+          adminCashOperationAPI.getAll().catch(() => null),
+          adminBankTransactionAPI.getAll().catch(() => null),
+          adminBankTransferAPI.getAll().catch(() => null),
+        ])
+        const cashList = Array.isArray(cashRes?.data) ? cashRes.data : Array.isArray(cashRes) ? cashRes : []
+        const bankTxList = Array.isArray(bankTxRes?.data) ? bankTxRes.data : Array.isArray(bankTxRes) ? bankTxRes : []
+        const bankTrfList = Array.isArray(bankTrfRes?.data) ? bankTrfRes.data : Array.isArray(bankTrfRes) ? bankTrfRes : []
+
+        const mapped = []
+        if (cashList.length > 0) {
+          cashList.forEach((c) => {
+            const isCashIn = (c.type || '').toUpperCase().includes('IN')
+            const amt = Number(c.amount || 0)
+            mapped.push({
+              payment: c.description || c.category || (isCashIn ? 'Cash Inflow - POS Operations' : 'Cash Outflow - Petty Cash'),
+              cash: isCashIn ? amt : -amt,
+              bankDeposit: 0.00,
+              total: isCashIn ? amt : -amt,
+              outlet: c.outlet || 'Central Warehouse',
+              date: (c.transactionDate || c.date || c.createdAt || '').slice(0, 10),
+            })
+          })
+        }
+        if (bankTxList.length > 0) {
+          bankTxList.forEach((b) => {
+            const isBankIn = (b.type || '').toUpperCase().includes('IN')
+            const amt = Number(b.amount || 0)
+            mapped.push({
+              payment: b.description || b.bank || (isBankIn ? 'Bank Inflow - Deposits' : 'Bank Outflow - Disbursal'),
+              cash: 0.00,
+              bankDeposit: isBankIn ? amt : -amt,
+              total: isBankIn ? amt : -amt,
+              outlet: b.outlet || 'Main Mart',
+              date: (b.date || b.createdAt || '').slice(0, 10),
+            })
+          })
+        }
+        if (bankTrfList.length > 0) {
+          bankTrfList.forEach((t) => {
+            const amt = Number(t.amount || 0)
+            const resolvedOutlet = t.outlet || (t.fromAccount && t.fromAccount.includes('(') ? t.fromAccount.split('(')[1].replace(')', '') : '') || 'Central Warehouse'
+            mapped.push({
+              payment: t.note || `Bank Transfer: ${t.fromAccount || 'Account'} → ${t.toAccount || 'Bank'}`,
+              cash: 0.00,
+              bankDeposit: amt,
+              total: amt,
+              outlet: resolvedOutlet,
+              date: (t.date || t.createdAt || '').slice(0, 10),
+            })
+          })
+        }
+        if (mapped.length > 0) {
+          fetched = mapped
         }
       }
 
       else if (activeDataKey === 'cash-statement') {
-        const res = await adminCashOperationAPI.getAll().catch(() => null)
-        const items = res?.data || res
-        if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((c) => ({
-            statementDate: (c.date || c.createdAt || '').slice(0, 10),
-            account: 'Store Operating Cash Vault',
-            openingBalance: 8500.00,
-            totalInflow: Number(c.amount || 4850.00),
-            totalOutflow: 1200.00,
-            closingBalance: 12150.00,
-            status: 'RECONCILED',
-          }))
+        const [cashRes, bankTxRes, bankTrfRes] = await Promise.all([
+          adminCashOperationAPI.getAll().catch(() => null),
+          adminBankTransactionAPI.getAll().catch(() => null),
+          adminBankTransferAPI.getAll().catch(() => null),
+        ])
+        const cashList = Array.isArray(cashRes?.data) ? cashRes.data : Array.isArray(cashRes) ? cashRes : []
+        const bankTxList = Array.isArray(bankTxRes?.data) ? bankTxRes.data : Array.isArray(bankTxRes) ? bankTxRes : []
+        const bankTrfList = Array.isArray(bankTrfRes?.data) ? bankTrfRes.data : Array.isArray(bankTrfRes) ? bankTrfRes : []
+
+        const mapped = []
+        cashList.forEach((c) => {
+          const isCashIn = (c.type || '').toUpperCase().includes('IN')
+          const amt = Number(c.amount || 0)
+          mapped.push({
+            code: c.code || `CSH-${c.id || 101}`,
+            date: (c.transactionDate || c.date || c.createdAt || '').slice(0, 10),
+            type: isCashIn ? 'Cash In' : 'Cash Out',
+            bankIn: 0.00,
+            bankOut: 0.00,
+            description: c.description || c.category || (isCashIn ? 'Cash Inflow' : 'Cash Outflow'),
+            cashIn: isCashIn ? amt : 0.00,
+            cashOut: isCashIn ? 0.00 : amt,
+            depositIn: 0.00,
+            depositOut: 0.00,
+            paidToBy: c.partyName || c.employee || c.username || 'Finance Department',
+            outlet: c.outlet || 'Central Warehouse',
+          })
+        })
+        bankTxList.forEach((b) => {
+          const isBankIn = (b.type || '').toUpperCase().includes('IN')
+          const amt = Number(b.amount || 0)
+          mapped.push({
+            code: b.code || `BNK-${b.id || 201}`,
+            date: (b.date || b.createdAt || '').slice(0, 10),
+            type: isBankIn ? 'Bank In' : 'Bank Out',
+            bankIn: isBankIn ? amt : 0.00,
+            bankOut: isBankIn ? 0.00 : amt,
+            description: b.description || b.bank || (isBankIn ? 'Bank Deposit' : 'Bank Withdrawal'),
+            cashIn: 0.00,
+            cashOut: 0.00,
+            depositIn: 0.00,
+            depositOut: 0.00,
+            paidToBy: b.partyName || b.bank || 'Bank Transfer',
+            outlet: b.outlet || 'Main Mart',
+          })
+        })
+        bankTrfList.forEach((t) => {
+          const amt = Number(t.amount || 0)
+          const resolvedOutlet = t.outlet || (t.fromAccount && t.fromAccount.includes('(') ? t.fromAccount.split('(')[1].replace(')', '') : '') || 'Central Warehouse'
+          const resolvedEmployee = t.employee || (t.note && t.note.includes('by ') ? t.note.split('by ')[1].trim() : '') || t.username || 'Finance Officer'
+          mapped.push({
+            code: t.code || `TRF-${t.id || 301}`,
+            date: (t.date || t.createdAt || '').slice(0, 10),
+            type: 'Bank In',
+            bankIn: amt,
+            bankOut: 0.00,
+            description: t.note || `Transfer ${t.fromAccount || ''} to ${t.toAccount || ''}`,
+            cashIn: 0.00,
+            cashOut: 0.00,
+            depositIn: 0.00,
+            depositOut: 0.00,
+            paidToBy: resolvedEmployee || t.reference || t.fromAccount || 'Internal Transfer',
+            outlet: resolvedOutlet,
+          })
+        })
+        if (mapped.length > 0) {
+          fetched = mapped
         }
       }
 
       else if (activeDataKey === 'bank-transfer') {
-        const res = await adminCashOperationAPI.getAll().catch(() => null)
-        const items = res?.data || res
-        if (Array.isArray(items) && items.length > 0) {
-          fetched = items.map((c) => ({
-            transferNo: `BNK-TRF-${c.id || 101}`,
-            date: (c.date || c.createdAt || '').slice(0, 10),
-            fromBank: 'ABA PayWay Settlement',
-            toBank: 'ABA Corporate Main 001',
-            amount: Number(c.amount || 8500.00),
-            fee: 0.00,
-            netTransfer: Number(c.amount || 8500.00),
-            referenceNo: `ABA-TXN-${890000 + (c.id || 1)}`,
-            status: 'COMPLETED',
-          }))
+        const res = await adminBankTransferAPI.getAll().catch(() => null)
+        const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+        if (items.length > 0) {
+          fetched = items.map((t) => {
+            const resolvedOutlet = t.outlet || (t.fromAccount && t.fromAccount.includes('(') ? t.fromAccount.split('(')[1].replace(')', '') : '') || 'Central Warehouse'
+            const resolvedEmployee = t.employee || (t.note && t.note.includes('by ') ? t.note.split('by ')[1].trim() : '') || t.username || 'Finance Officer'
+            return {
+              code: t.code || `TRF-${t.id || 101}`,
+              date: (t.date || t.createdAt || '').slice(0, 10),
+              employee: resolvedEmployee,
+              amount: Number(t.amount || 0),
+              outlet: resolvedOutlet,
+              status: (t.status || 'NON_VOIDED').toUpperCase(),
+              viewAs: 'detail',
+            }
+          })
         }
       }
     } catch (err) {
@@ -2843,21 +4171,26 @@ export default function Report() {
   const displayedRecords = useMemo(() => {
     let list = liveData
 
-    // 1. Date Range Filter
-    if (fromDate) {
-      list = list.filter((r) => !r.date || r.date >= fromDate)
-    }
-    if (toDate) {
-      list = list.filter((r) => !r.date || r.date <= toDate)
+    // 1. Date Range Filter (Bypassed for Inventory in Stock, Price List, Order Point & Supplier List)
+    if (activeDataKey !== 'inventory-list' && activeDataKey !== 'price-list' && activeDataKey !== 'order-point' && activeDataKey !== 'supplier-list') {
+      if (fromDate) {
+        list = list.filter((r) => !r.date || r.date >= fromDate)
+      }
+      if (toDate) {
+        list = list.filter((r) => !r.date || r.date <= toDate)
+      }
     }
 
-    // 2. Customer Filter
-    if (customerFilter.trim()) {
+    // 2. Customer Filter (Bypassed for Price List, Order Point & Stock Evaluation)
+    if (activeDataKey !== 'price-list' && activeDataKey !== 'order-point' && activeDataKey !== 'stock-evaluation' && customerFilter.trim()) {
       const q = customerFilter.trim().toLowerCase()
       list = list.filter((r) =>
         (r.customer && r.customer.toLowerCase().includes(q)) ||
+        (r.customerName && r.customerName.toLowerCase().includes(q)) ||
         (r.supplier && r.supplier.toLowerCase().includes(q)) ||
-        (r.receivedBy && r.receivedBy.toLowerCase().includes(q))
+        (r.receivedBy && r.receivedBy.toLowerCase().includes(q)) ||
+        (r.document && r.document.toLowerCase().includes(q)) ||
+        (r.transactionType && r.transactionType.toLowerCase().includes(q))
       )
     }
 
@@ -2885,8 +4218,10 @@ export default function Report() {
         (r.name && r.name.toLowerCase().includes(q)) ||
         (r.code && r.code.toLowerCase().includes(q)) ||
         (r.productCode && r.productCode.toLowerCase().includes(q)) ||
+        (r.partNumber && r.partNumber.toLowerCase().includes(q)) ||
         (r.barcode && r.barcode.toLowerCase().includes(q)) ||
         (r.description && r.description.toLowerCase().includes(q)) ||
+        (r.productDescription && r.productDescription.toLowerCase().includes(q)) ||
         (r.documentCode && r.documentCode.toLowerCase().includes(q)) ||
         (r.document && r.document.toLowerCase().includes(q)) ||
         (Array.isArray(r.products) && r.products.some((p) => String(p).toLowerCase().includes(q))) ||
@@ -2915,10 +4250,14 @@ export default function Report() {
       list = list.filter((r) => r.productGroup && r.productGroup.toLowerCase() === q)
     }
 
-    // 8. Supplier Filter (Hidden on Transferred, Adjustment, Issued & Inventory List reports)
-    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all') {
+    // 8. Supplier Filter (Hidden on Transferred, Adjustment, Issued, Inventory List & Stock Evaluation reports)
+    if (activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && activeDataKey !== 'stock-evaluation' && supplierFilter !== 'all') {
       const q = supplierFilter.toLowerCase()
-      list = list.filter((r) => r.supplier && r.supplier.toLowerCase().includes(q))
+      list = list.filter((r) =>
+        (r.supplier && r.supplier.toLowerCase().includes(q)) ||
+        (r.supplierName && r.supplierName.toLowerCase().includes(q)) ||
+        (r.supplierCode && r.supplierCode.toLowerCase().includes(q))
+      )
     }
 
     // 8b. Adjust Type Filter (For Adjustment report)
@@ -3190,6 +4529,285 @@ export default function Report() {
       }
     }
 
+    // Special Advance Filters for Price List
+    if (activeDataKey === 'price-list') {
+      // Currency Filter
+      if (priceCurrencyFilter !== 'all') {
+        const q = priceCurrencyFilter.toLowerCase()
+        list = list.filter((r) => {
+          const c = String(r.currency || '').toLowerCase()
+          if (q.includes('dollar')) return c.includes('dollar') || c.includes('usd') || c.includes('$')
+          if (q.includes('riel')) return c.includes('riel') || c.includes('khr') || c.includes('៛')
+          return c === q
+        })
+      }
+
+      // Price Book Filter
+      if (priceBookFilter !== 'all') {
+        const q = priceBookFilter.toLowerCase()
+        list = list.filter((r) => r.priceBook && r.priceBook.toLowerCase() === q)
+      }
+
+      // Price Option Filter: 'gte-0', 'gt-0', 'eq-0'
+      if (priceOptionFilter !== 'all') {
+        list = list.filter((r) => {
+          const val = Number(r.basePrice ?? r.price ?? 0)
+          if (priceOptionFilter === 'gte-0') return val >= 0
+          if (priceOptionFilter === 'gt-0') return val > 0
+          if (priceOptionFilter === 'eq-0') return val === 0
+          return true
+        })
+      }
+    }
+
+    // Special Filters & Grouping for Order Point
+    if (activeDataKey === 'order-point') {
+      // 1. Re-Order Point Dropdown: Onhand <= Order Point ('le'), All ('all'), Onhand => Order Point ('ge')
+      if (orderPointReorderFilter === 'le') {
+        list = list.filter((r) => Number(r.onhand ?? 0) <= Number(r.orderPoint ?? 0))
+      } else if (orderPointReorderFilter === 'ge') {
+        list = list.filter((r) => Number(r.onhand ?? 0) >= Number(r.orderPoint ?? 0))
+      }
+
+      // 2. Order Quantity Dropdown: Order QTY > 0 ('gt0'), All Order QTY ('all'), Order QTY = 0 ('eq0')
+      if (orderPointQtyFilter === 'gt0') {
+        list = list.filter((r) => Number(r.orderQuantity ?? 0) > 0)
+      } else if (orderPointQtyFilter === 'eq0') {
+        list = list.filter((r) => Number(r.orderQuantity ?? 0) === 0)
+      }
+
+      // 3. Group By Sorting for Order Point
+      if (groupByFilter !== 'none') {
+        list = [...list].sort((a, b) => {
+          if (groupByFilter === 'outlet') return (a.outlet || '').localeCompare(b.outlet || '')
+          if (groupByFilter === 'by-group') return (a.productGroup || '').localeCompare(b.productGroup || '')
+          if (groupByFilter === 'category') return (a.category || '').localeCompare(b.category || '')
+          if (groupByFilter === 'brand') return (a.brand || '').localeCompare(b.brand || '')
+          if (groupByFilter === 'supplier') return (a.supplier || '').localeCompare(b.supplier || '')
+          if (groupByFilter === 'product') return (a.description || '').localeCompare(b.description || '')
+          return 0
+        })
+      }
+    }
+
+    // Special Filters & Grouping for Stock Evaluation
+    if (activeDataKey === 'stock-evaluation') {
+      // 1. Transaction Status Filter
+      if (statusFilter !== 'all') {
+        const q = statusFilter.toLowerCase()
+        list = list.filter((r) => (r.status && r.status.toLowerCase() === q) || (r.transactionStatus && r.transactionStatus.toLowerCase() === q))
+      }
+
+      // 2. Group By Sorting for Stock Evaluation
+      if (groupByFilter !== 'none') {
+        list = [...list].sort((a, b) => {
+          if (groupByFilter === 'outlet') return (a.outlet || '').localeCompare(b.outlet || '')
+          if (groupByFilter === 'location') return (a.location || '').localeCompare(b.location || '')
+          if (groupByFilter === 'product') return (a.description || a.productCode || '').localeCompare(b.description || b.productCode || '')
+          if (groupByFilter === 'by-group') return (a.productGroup || '').localeCompare(b.productGroup || '')
+          if (groupByFilter === 'category') return (a.category || '').localeCompare(b.category || '')
+          if (groupByFilter === 'brand') return (a.brand || '').localeCompare(b.brand || '')
+          if (groupByFilter === 'status') return (a.status || '').localeCompare(b.status || '')
+          return 0
+        })
+      }
+    }
+
+    // Special Advance Filters & Sorting for Sale Payment, Order Management, Consignment, Purchase & Payable Management Reports
+    if (
+      SALE_PAYMENT_REPORT_SCHEMAS[activeDataKey] ||
+      ORDER_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] ||
+      CONSIGNMENT_REPORT_SCHEMAS[activeDataKey] ||
+      PURCHASE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] ||
+      PAYABLE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] ||
+      CASH_BOOK_REPORT_SCHEMAS[activeDataKey]
+    ) {
+      // 1. Invoice Type Filter
+      if (invoiceTypeFilter !== 'all') {
+        const q = invoiceTypeFilter.toLowerCase()
+        list = list.filter((r) => r.invoiceType && r.invoiceType.toLowerCase() === q)
+      }
+
+      // 2. Customer Group Filter
+      if (customerGroupFilter !== 'all') {
+        const q = customerGroupFilter.toLowerCase()
+        list = list.filter((r) => r.customerGroup && r.customerGroup.toLowerCase() === q)
+      }
+
+      // 3. Salesperson Filter
+      if (salespersonFilter !== 'all') {
+        const q = salespersonFilter.toLowerCase()
+        list = list.filter((r) => r.salesperson && r.salesperson.toLowerCase() === q)
+      }
+
+      // 4. User Filter
+      if (userFilter !== 'all') {
+        const q = userFilter.toLowerCase()
+        list = list.filter((r) =>
+          (r.user && r.user.toLowerCase() === q) ||
+          (r.userName && r.userName.toLowerCase() === q)
+        )
+      }
+
+      // 5. Payment Type Filter
+      if (paymentTypeFilter !== 'all') {
+        const q = paymentTypeFilter.toLowerCase()
+        list = list.filter((r) => r.paymentType && r.paymentType.toLowerCase().includes(q))
+      }
+
+      // 6. Station Filter (for close-shift)
+      if (stationFilter !== 'all') {
+        const q = stationFilter.toLowerCase()
+        list = list.filter((r) =>
+          (r.station && r.station.toLowerCase() === q) ||
+          (r.terminal && r.terminal.toLowerCase() === q)
+        )
+      }
+
+      // 7. Balance Filter (for customer-credit-deposit, ar-invoice-status, supplier-deposit-debit)
+      if (balanceFilter === 'gt0' || balanceFilter === 'positive') {
+        list = list.filter((r) => Number(r.balance ?? 0) > 0)
+      } else if (balanceFilter === 'eq0' || balanceFilter === 'zero') {
+        list = list.filter((r) => Number(r.balance ?? 0) === 0)
+      } else if (balanceFilter === 'negative') {
+        list = list.filter((r) => Number(r.balance ?? 0) < 0)
+      }
+
+      // 8. Type Filter (for customer-credit-deposit)
+      if (typeFilter !== 'all') {
+        const q = typeFilter.toLowerCase()
+        list = list.filter((r) => r.type && r.type.toLowerCase() === q)
+      }
+
+      // 9. Receipt Type Filter (for cash-receipt)
+      if (receiptTypeFilter !== 'all') {
+        const q = receiptTypeFilter.toLowerCase()
+        list = list.filter((r) => r.receiptType && r.receiptType.toLowerCase() === q)
+      }
+
+      // 9b. Requisition Type Filter (for requisition)
+      if (requisitionTypeFilter !== 'all') {
+        const q = requisitionTypeFilter.toLowerCase()
+        list = list.filter((r) => r.requisitionType && r.requisitionType.toLowerCase() === q)
+      }
+
+      // 9c. Purchase Person Filter (for purchase-order-products-status)
+      if (purchasePersonFilter !== 'all') {
+        const q = purchasePersonFilter.toLowerCase()
+        list = list.filter((r) => r.purchasePerson && r.purchasePerson.toLowerCase() === q)
+      }
+
+      // 9d. Convert To Bill Filter (for freight-status)
+      if (activeDataKey === 'freight-status' && convertToBillFilter !== 'all') {
+        const q = convertToBillFilter.toLowerCase()
+        list = list.filter((r) => r.convertToBill && r.convertToBill.toLowerCase() === q)
+      }
+
+      // 9e. Supplier Group Filter (for supplier-list)
+      if (activeDataKey === 'supplier-list' && supplierGroupFilter !== 'all') {
+        const q = supplierGroupFilter.toLowerCase()
+        list = list.filter((r) => r.supplierGroup && r.supplierGroup.toLowerCase() === q)
+      }
+
+      // 10. Status Filter for Sale Payment, Purchase, Payable Management & Cash Book Reports
+      if (statusFilter !== 'all') {
+        const q = statusFilter.toLowerCase()
+        if (activeDataKey === 'bank-transfer') {
+          if (q === 'none-void' || q === 'non_voided' || q === 'non-void') {
+            list = list.filter((r) => !String(r.status || '').toLowerCase().includes('void'))
+          } else if (q === 'voided') {
+            list = list.filter((r) => String(r.status || '').toLowerCase().includes('void'))
+          } else {
+            list = list.filter((r) => String(r.status || '').toLowerCase() === q)
+          }
+        } else {
+          list = list.filter((r) => r.status && r.status.toLowerCase() === q)
+        }
+      }
+
+      // 10b. View As Filter for Cash Book Reports
+      if (activeDataKey === 'cash-in-out-status' && (viewAsFilter === 'summary' || viewAsFilter === 'Summary')) {
+        const mapSummary = {}
+        list.forEach((item) => {
+          const k = item.payment || 'Other Payment'
+          if (!mapSummary[k]) {
+            mapSummary[k] = { payment: k, cash: 0, bankDeposit: 0, total: 0, outlet: item.outlet }
+          }
+          mapSummary[k].cash += Number(item.cash || 0)
+          mapSummary[k].bankDeposit += Number(item.bankDeposit || 0)
+          mapSummary[k].total += Number(item.total || 0)
+        })
+        list = Object.values(mapSummary)
+      } else if (activeDataKey === 'bank-transfer' && (viewAsFilter === 'summary' || viewAsFilter === 'Summary')) {
+        const mapEmp = {}
+        list.forEach((item) => {
+          const emp = item.employee || 'Other'
+          if (!mapEmp[emp]) {
+            mapEmp[emp] = { code: `SUM-${emp.replace(/\s+/g, '-').toUpperCase()}`, date: item.date || 'Multiple', employee: emp, amount: 0, outlet: item.outlet, status: item.status }
+          }
+          mapEmp[emp].amount += Number(item.amount || 0)
+        })
+        list = Object.values(mapEmp)
+      }
+
+      // 11. Top and Bottom Sale Controls
+      if (activeDataKey === 'top-bottom-sale') {
+        // Sold QTY filter
+        if (topQtyFilter === 'gt0') {
+          list = list.filter((r) => Number(r.soldQty ?? 0) > 0)
+        } else if (topQtyFilter === 'eq0') {
+          list = list.filter((r) => Number(r.soldQty ?? 0) === 0)
+        }
+
+        // Value filter (min total price)
+        if (topValFilter && !isNaN(Number(topValFilter))) {
+          const minVal = Number(topValFilter)
+          list = list.filter((r) => Number(r.totalPrice ?? 0) >= minVal)
+        }
+
+        // Sorting by Sold QTY or Total Price
+        list = [...list].sort((a, b) => {
+          const valA = topByFilter === 'sold-qty' ? Number(a.soldQty ?? 0) : Number(a.totalPrice ?? 0)
+          const valB = topByFilter === 'sold-qty' ? Number(b.soldQty ?? 0) : Number(b.totalPrice ?? 0)
+          return topOrderByFilter === 'asc' ? valA - valB : valB - valA
+        })
+
+        // Limit count (Top N)
+        const count = parseInt(topCountFilter, 10)
+        if (!isNaN(count) && count > 0) {
+          list = list.slice(0, count)
+        }
+      }
+
+      // 12. Group By Sorting for Sale Payment, Purchase & Payable Management Reports
+      if (groupByFilter !== 'none' && activeDataKey !== 'top-bottom-sale') {
+        list = [...list].sort((a, b) => {
+          if (groupByFilter === 'outlet') return String(a.outlet || '').localeCompare(String(b.outlet || ''))
+          if (groupByFilter === 'location') return String(a.location || '').localeCompare(String(b.location || ''))
+          if (groupByFilter === 'customer') return String(a.customer || a.customerName || '').localeCompare(String(b.customer || b.customerName || ''))
+          if (groupByFilter === 'supplier') return String(a.supplier || a.supplierName || '').localeCompare(String(b.supplier || b.supplierName || ''))
+          if (groupByFilter === 'supplier-name') return String(a.supplierName || a.supplier || '').localeCompare(String(b.supplierName || b.supplier || ''))
+          if (groupByFilter === 'supplier-group') return String(a.supplierGroup || '').localeCompare(String(b.supplierGroup || ''))
+          if (groupByFilter === 'convert-to-bill') return String(a.convertToBill || '').localeCompare(String(b.convertToBill || ''))
+          if (groupByFilter === 'purchase-person' || groupByFilter === 'purchasePerson') return String(a.purchasePerson || '').localeCompare(String(b.purchasePerson || ''))
+          if (groupByFilter === 'requisition-type' || groupByFilter === 'requisitionType') return String(a.requisitionType || '').localeCompare(String(b.requisitionType || ''))
+          if (groupByFilter === 'salesperson') return String(a.salesperson || '').localeCompare(String(b.salesperson || ''))
+          if (groupByFilter === 'invoice-type' || groupByFilter === 'invoiceType') return String(a.invoiceType || a.type || '').localeCompare(String(b.invoiceType || b.type || ''))
+          if (groupByFilter === 'payment-type') return String(a.paymentType || '').localeCompare(String(b.paymentType || ''))
+          if (groupByFilter === 'receipt-type') return String(a.receiptType || '').localeCompare(String(b.receiptType || ''))
+          if (groupByFilter === 'status') return String(a.status || '').localeCompare(String(b.status || ''))
+          if (groupByFilter === 'type') return String(a.type || '').localeCompare(String(b.type || ''))
+          if (groupByFilter === 'employee') return String(a.employee || '').localeCompare(String(b.employee || ''))
+          if (groupByFilter === 'date') return String(a.date || '').localeCompare(String(b.date || ''))
+          if (groupByFilter === 'product') return String(a.description || a.productDescription || a.productCode || a.code || '').localeCompare(String(b.description || b.productDescription || b.productCode || b.code || ''))
+          if (groupByFilter === 'by-group' || groupByFilter === 'product-group') return String(a.productGroup || a.group || '').localeCompare(String(b.productGroup || b.group || ''))
+          if (groupByFilter === 'category') return String(a.category || '').localeCompare(String(b.category || ''))
+          if (groupByFilter === 'brand') return String(a.brand || '').localeCompare(String(b.brand || ''))
+          return 0
+        })
+      }
+    }
+
     return list
   }, [
     liveData,
@@ -3216,12 +4834,56 @@ export default function Report() {
     productGroupFilter,
     groupByFilter,
     viewAsFilter,
+    priceCurrencyFilter,
+    priceBookFilter,
+    priceOptionFilter,
+    orderPointReorderFilter,
+    orderPointQtyFilter,
+    compareToFilter,
+    invoiceTypeFilter,
+    customerGroupFilter,
+    salespersonFilter,
+    userFilter,
+    paymentTypeFilter,
+    balanceFilter,
+    typeFilter,
+    receiptTypeFilter,
+    topByFilter,
+    topOrderByFilter,
+    topCountFilter,
+    topQtyFilter,
+    topValFilter,
+    stationFilter,
+    requisitionTypeFilter,
+    purchasePersonFilter,
+    convertToBillFilter,
+    supplierGroupFilter,
+    showShareholder,
+    shareholdersList,
   ])
 
-  // Table Columns extracted dynamically - strictly follows schema for all 11 Stock Reports
+  // Table Columns extracted dynamically - strictly follows schema for Stock and Sale Payment Reports
   const tableColumns = useMemo(() => {
     if (STOCK_REPORT_SCHEMAS[activeDataKey]) {
       return STOCK_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (SALE_PAYMENT_REPORT_SCHEMAS[activeDataKey]) {
+      return SALE_PAYMENT_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (ORDER_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]) {
+      return ORDER_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (CONSIGNMENT_REPORT_SCHEMAS[activeDataKey]) {
+      return CONSIGNMENT_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (PURCHASE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]) {
+      return PURCHASE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (PAYABLE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]) {
+      return PAYABLE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey]
+    }
+    if (CASH_BOOK_REPORT_SCHEMAS[activeDataKey]) {
+      return CASH_BOOK_REPORT_SCHEMAS[activeDataKey]
     }
     if (!displayedRecords || displayedRecords.length === 0) return []
     return Object.keys(displayedRecords[0])
@@ -3354,6 +5016,28 @@ export default function Report() {
     setSupplierFilter('all')
     setGroupByFilter('none')
     setViewAsFilter('detailed')
+    setPriceCurrencyFilter('all')
+    setPriceBookFilter('all')
+    setPriceOptionFilter('all')
+    setCompareToFilter('due-date')
+    setInvoiceTypeFilter('all')
+    setCustomerGroupFilter('all')
+    setSalespersonFilter('all')
+    setUserFilter('all')
+    setPaymentTypeFilter('all')
+    setBalanceFilter('all')
+    setTypeFilter('all')
+    setReceiptTypeFilter('all')
+    setTopByFilter('sold-qty')
+    setTopOrderByFilter('desc')
+    setTopCountFilter('10')
+    setTopQtyFilter('all')
+    setTopValFilter('')
+    setStationFilter('all')
+    setRequisitionTypeFilter('all')
+    setPurchasePersonFilter('all')
+    setConvertToBillFilter('all')
+    setSupplierGroupFilter('all')
     showNotification?.({
       type: 'info',
       title: 'Advance Filters Reset',
@@ -3381,7 +5065,11 @@ export default function Report() {
     exportStyledExcel({
       sheetName: `${reportHeading}`.slice(0, 31),
       title: `B'Groceries - ${reportHeading}`,
-      subtitle: `Period: ${fromDate || 'Start'} to ${toDate || 'End'} | Exported: ${new Date().toLocaleString()}`,
+      subtitle: activeDataKey === 'inventory-list'
+        ? `Inventory in Stock Report | Exported: ${new Date().toLocaleString()}`
+        : activeDataKey === 'price-list'
+          ? `Price List Report | Exported: ${new Date().toLocaleString()}`
+          : `Period: ${fromDate || 'Start'} to ${toDate || 'End'} | Exported: ${new Date().toLocaleString()}`,
       headers,
       dataRows,
       fileName: `${reportHeading.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`,
@@ -3555,43 +5243,99 @@ export default function Report() {
           }`}>
           {/* PRIMARY CONTROLS ROW */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 items-end">
-            {/* From Date */}
-            <div className="sm:col-span-2">
-              <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                From Date
-              </label>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => {
-                  setFromDate(e.target.value)
-                  setDatePreset('custom')
-                }}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
-                  }`}
-              />
-            </div>
-
-            {/* To Date */}
-            <div className="sm:col-span-2">
-              <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                To Date
-              </label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => {
-                  setToDate(e.target.value)
-                  setDatePreset('custom')
-                }}
-                className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
-                  }`}
-              />
-            </div>
-
             {activeDataKey === 'inventory-list' ? (
               <>
-                {/* Product - Textbox Search Icon */}
+                {/* 1. Outlet Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Outlet ({filterOptions.outlets.length} Live)
+                  </label>
+                  <select
+                    value={outletFilter}
+                    onChange={(e) => setOutletFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Outlets</option>
+                    {filterOptions.outlets.map((o) => (
+                      <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                        {o.description || o.name || o.code}
+                      </option>
+                    ))}
+                    {filterOptions.outlets.length === 0 && (
+                      <>
+                        <option value="Main Mart">Main Mart</option>
+                        <option value="Central Warehouse">Central Warehouse</option>
+                        <option value="BKK1 Branch">BKK1 Branch</option>
+                        <option value="Toul Kork Mart">Toul Kork Mart</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {/* 2. Category Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Category ({filterOptions.categories.length} Live)
+                  </label>
+                  <select
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Categories</option>
+                    {filterOptions.categories.map((c) => (
+                      <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                        {c.description || c.name || c.code}
+                      </option>
+                    ))}
+                    {filterOptions.categories.length === 0 && (
+                      <>
+                        <option value="Produce">Produce</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Meat">Meat</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Grains">Grains</option>
+                        <option value="Spices">Spices</option>
+                        <option value="Beverages">Beverages</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {/* 3. Product Group Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Product Group ({filterOptions.productGroups.length} Live)
+                  </label>
+                  <select
+                    value={productGroupFilter}
+                    onChange={(e) => setProductGroupFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Product Groups</option>
+                    {filterOptions.productGroups.map((pg) => (
+                      <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                        {pg.description || pg.name || pg.code}
+                      </option>
+                    ))}
+                    {filterOptions.productGroups.length === 0 && (
+                      <>
+                        <option value="Fresh Grocery">Fresh Grocery</option>
+                        <option value="Pantry Staples">Pantry Staples</option>
+                        <option value="Cold Chain">Cold Chain</option>
+                        <option value="Beverages">Beverages</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {/* 4. Product Search with Modal trigger */}
                 <div className="sm:col-span-2">
                   <div className="flex items-center justify-between mb-1">
                     <label className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -3656,9 +5400,77 @@ export default function Report() {
                     ))}
                   </datalist>
                 </div>
+              </>
+            ) : activeDataKey === 'price-list' ? (
+              <>
+                {/* 1. Product - Textbox Search Icon */}
+                <div className="sm:col-span-5">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                      Product ({availableProducts.length} Live)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductModalQuery(productFilter)
+                        setProductModalCategory('all')
+                        setShowProductModal(true)
+                      }}
+                      className="text-[10px] font-bold text-blue-500 hover:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                      title="Open full catalog search popup"
+                    >
+                      <span>🔍 Browse</span>
+                    </button>
+                  </div>
+                  <div className="relative flex items-center group">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductModalQuery(productFilter)
+                        setProductModalCategory('all')
+                        setShowProductModal(true)
+                      }}
+                      className="absolute left-2.5 p-0.5 text-slate-400 hover:text-blue-500 transition cursor-pointer"
+                      title="Click search icon to open product search popup"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
 
-                {/* Product Group - DropDown */}
-                <div className="sm:col-span-2">
+                    <input
+                      type="text"
+                      list="live-products-datalist-price-top"
+                      placeholder="Search SKU, barcode or name..."
+                      value={productFilter}
+                      onChange={(e) => setProductFilter(e.target.value)}
+                      className={`w-full rounded-xl border pl-8 pr-7 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                        isDark ? 'border-slate-700 bg-slate-950 text-white placeholder-slate-500' : 'border-slate-300 bg-slate-50 text-slate-900 placeholder-slate-400'
+                      }`}
+                    />
+
+                    {productFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setProductFilter('')}
+                        className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                        title="Clear product filter"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <datalist id="live-products-datalist-price-top">
+                    {availableProducts.map((p) => (
+                      <option key={p.id || p.code} value={p.title || p.name}>
+                        {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                      </option>
+                    ))}
+                  </datalist>
+                </div>
+
+                {/* 2. Product Group - DropDown */}
+                <div className="sm:col-span-3">
                   <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Product Group ({filterOptions.productGroups.length} Live)
                   </label>
@@ -3686,9 +5498,418 @@ export default function Report() {
                   </select>
                 </div>
               </>
+            ) : activeDataKey === 'order-point' ? (
+              <>
+                {/* 1. Re-Order Point - Dropdown - Onhand <= Order Point - All - Onhand => Order Point */}
+                <div className="sm:col-span-3 lg:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Re-Order Point
+                  </label>
+                  <select
+                    value={orderPointReorderFilter}
+                    onChange={(e) => setOrderPointReorderFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="le">Onhand &lt;= Order Point</option>
+                    <option value="all">All</option>
+                    <option value="ge">Onhand =&gt; Order Point</option>
+                  </select>
+                </div>
+
+                {/* 2. Order Quantity - DropDown - Order QTY > 0 - All Order QTY - Order QTY = 0 */}
+                <div className="sm:col-span-3 lg:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Order Quantity
+                  </label>
+                  <select
+                    value={orderPointQtyFilter}
+                    onChange={(e) => setOrderPointQtyFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="gt0">Order QTY &gt; 0</option>
+                    <option value="all">All Order QTY</option>
+                    <option value="eq0">Order QTY = 0</option>
+                  </select>
+                </div>
+              </>
+            ) : activeDataKey === 'stock-evaluation' ? (
+              <>
+                {/* 1. From Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 2. To Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+              </>
+            ) : activeDataKey === 'aging-invoice' ? (
+              <>
+                {/* 1. From Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 2. To Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 3. Compare To - Dropdown - Due Date, Invoice Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Compare To
+                  </label>
+                  <select
+                    value={compareToFilter}
+                    onChange={(e) => setCompareToFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="due-date">Due Date</option>
+                    <option value="invoice-date">Invoice Date</option>
+                  </select>
+                </div>
+              </>
+            ) : activeDataKey === 'profits' ? (
+              <>
+                {/* 1. From Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 2. To Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+              </>
+            ) : activeDataKey === 'close-shift' ? (
+              <>
+                {/* 1. From Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 2. To Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                {/* 3. Search Button */}
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-0 pointer-events-none">
+                    Search
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateReport}
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 px-3 py-2 text-xs font-bold text-white transition active:scale-95 shadow-sm cursor-pointer"
+                  >
+                    <span>🔍</span>
+                    <span>Search</span>
+                  </button>
+                </div>
+              </>
+            ) : (activeDataKey === 'sale-promotion-report' || activeDataKey === 'sale-package-item-report') ? (
+              <>
+                {/* 1. Date Preset Dropdown */}
+                <div className={datePreset === 'custom' ? 'sm:col-span-3' : 'sm:col-span-3'}>
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Date Range
+                  </label>
+                  <select
+                    value={datePreset}
+                    onChange={(e) => handleDatePresetChange(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="this-week">This Week</option>
+                    <option value="last-week">Last Week</option>
+                    <option value="this-month">This Month</option>
+                    <option value="last-month">Last Month</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+
+                {/* 2. From Date & To Date (Enabled if Custom Range) */}
+                {datePreset === 'custom' && (
+                  <>
+                    <div className="sm:col-span-2">
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        From Date
+                      </label>
+                      <input
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => setFromDate(e.target.value)}
+                        className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                          isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                        }`}
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        To Date
+                      </label>
+                      <input
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => setToDate(e.target.value)}
+                        className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                          isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                        }`}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            ) : activeDataKey === 'supplier-list' ? (
+              <>
+                {/* 1. Supplier Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                  </label>
+                  <select
+                    value={supplierFilter}
+                    onChange={(e) => setSupplierFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Suppliers</option>
+                    {(filterOptions?.suppliers || []).map((s) => (
+                      <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                        {s.description || s.name || s.code}
+                      </option>
+                    ))}
+                    {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                      <>
+                        <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                        <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                        <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                        <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                {/* 2. Supplier Group Dropdown */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Supplier Group ({filterOptions?.supplierGroups?.length || 0} Live)
+                  </label>
+                  <select
+                    value={supplierGroupFilter}
+                    onChange={(e) => setSupplierGroupFilter(e.target.value)}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <option value="all">All Supplier Groups</option>
+                    {(filterOptions?.supplierGroups || []).map((g) => (
+                      <option key={g.id || g.code || g.name} value={g.description || g.name || g.code}>
+                        {g.description || g.name || g.code}
+                      </option>
+                    ))}
+                    {(!filterOptions?.supplierGroups || filterOptions.supplierGroups.length === 0) && (
+                      <>
+                        <option value="Fresh Produce & Farms">Fresh Produce & Farms</option>
+                        <option value="Meat & Poultry">Meat & Poultry</option>
+                        <option value="Dairy & Frozen">Dairy & Frozen</option>
+                        <option value="Beverages & Drinks">Beverages & Drinks</option>
+                        <option value="Dry Goods & Staples">Dry Goods & Staples</option>
+                        <option value="General Wholesale">General Wholesale</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              </>
+            ) : (SALE_PAYMENT_REPORT_SCHEMAS[activeDataKey] || ORDER_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] || CONSIGNMENT_REPORT_SCHEMAS[activeDataKey] || PURCHASE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] || PAYABLE_MANAGEMENT_REPORT_SCHEMAS[activeDataKey] || CASH_BOOK_REPORT_SCHEMAS[activeDataKey]) ? (
+              <>
+                {/* Sale Payment, Order Management, Consignment, Purchase, Payable & Cash Book sub-reports with From Date to Date */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${
+                      isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                    }`}
+                  />
+                </div>
+              </>
             ) : (
               <>
-                {/* Date Preset Dropdown */}
+                {/* Fallback generic primary controls */}
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    From Date
+                  </label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => {
+                      setFromDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                      }`}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    To Date
+                  </label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value)
+                      setDatePreset('custom')
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold outline-none focus:border-blue-400 ${isDark ? 'border-slate-700 bg-slate-950 text-white' : 'border-slate-300 bg-slate-50 text-slate-900'
+                      }`}
+                  />
+                </div>
+
                 <div className="sm:col-span-2">
                   <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Date Range
@@ -3710,7 +5931,6 @@ export default function Report() {
                   </select>
                 </div>
 
-                {/* Customer */}
                 <div className="sm:col-span-2">
                   <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                     Customer / Party
@@ -3728,7 +5948,18 @@ export default function Report() {
             )}
 
             {/* ACTION BUTTONS */}
-            <div className="sm:col-span-4 flex flex-wrap items-center gap-2 justify-end">
+            <div
+              className={`flex flex-wrap items-center gap-2 justify-start ${
+                activeDataKey === 'order-point' || activeDataKey === 'stock-evaluation' ||
+                ['end-of-day', 'sale-transaction', 'payment-gateway', 'customer-balance', 'customer-credit-deposit', 'invoice-payment', 'ar-invoice-status', 'top-bottom-sale', 'cash-receipt', 'sale-payment-type', 'profits', 'sale-order-status', 'sale-order-shipment', 'consignment-shipment', 'consignment-status-report', 'requisition', 'purchase-order-status', 'purchase-order-products-status', 'purchase-order-products', 'purchase-order-product-status', 'receive-return-purchase-order', 'bill-aging', 'bill-payment', 'bill-status', 'freight-status', 'supplier-deposit-debit', 'ap-cash-payment', 'supplier-list', 'cash-in-out-status', 'cash-statement', 'bank-transfer'].includes(activeDataKey)
+                  ? 'sm:col-span-8 lg:col-span-8'
+                  : activeDataKey === 'aging-invoice' || activeDataKey === 'close-shift'
+                  ? 'sm:col-span-6 lg:col-span-6'
+                  : (activeDataKey === 'sale-promotion-report' || activeDataKey === 'sale-package-item-report')
+                  ? (datePreset === 'custom' ? 'sm:col-span-5 lg:col-span-5' : 'sm:col-span-9 lg:col-span-9')
+                  : 'sm:col-span-4'
+              }`}
+            >
               {/* Generated Button */}
               <button
                 type="button"
@@ -3800,6 +6031,66 @@ export default function Report() {
                 )}
               </button>
             </div>
+
+            {/* Dynamic Shareholder Inputs for Profits Report */}
+            {activeDataKey === 'profits' && showShareholder && (
+              <div className="col-span-full bg-slate-950/40 border border-slate-800/80 rounded-2xl p-3.5 space-y-2.5 mt-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] font-bold text-slate-300">Shareholders Distribution</span>
+                    <span className="text-[10px] text-slate-500 font-semibold">(Configurable equity split)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShareholdersList([...shareholdersList, { id: Date.now(), name: '', percent: '' }])}
+                    className="text-[11px] font-bold text-blue-400 hover:text-blue-300 inline-flex items-center gap-1.5 cursor-pointer bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 px-3 py-1 rounded-xl transition"
+                  >
+                    <span>+ Add Shareholder</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                  {shareholdersList.map((sh, idx) => (
+                    <div key={sh.id || idx} className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-2">
+                      <input
+                        type="text"
+                        placeholder="Shareholder Name"
+                        value={sh.name}
+                        onChange={(e) => {
+                          const updated = [...shareholdersList]
+                          updated[idx].name = e.target.value
+                          setShareholdersList(updated)
+                        }}
+                        className="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white outline-none focus:border-blue-400 placeholder-slate-500"
+                      />
+                      <div className="relative flex items-center min-w-[75px]">
+                        <input
+                          type="number"
+                          placeholder="%"
+                          value={sh.percent}
+                          onChange={(e) => {
+                            const updated = [...shareholdersList]
+                            updated[idx].percent = e.target.value
+                            setShareholdersList(updated)
+                          }}
+                          className="w-full rounded-lg border border-slate-700 bg-slate-950 pl-2.5 pr-5 py-1.5 text-xs font-semibold text-white outline-none focus:border-blue-400 placeholder-slate-500"
+                        />
+                        <span className="absolute right-2 text-slate-400 text-xs font-bold">%</span>
+                      </div>
+                      {shareholdersList.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setShareholdersList(shareholdersList.filter((_, i) => i !== idx))}
+                          className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition text-xs cursor-pointer"
+                          title="Remove Shareholder"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ACTIVE FILTER CHIPS (Visible when any filter is active) */}
@@ -3925,7 +6216,7 @@ export default function Report() {
                       <button type="button" onClick={() => setGroupByFilter('none')} className="hover:text-white">✕</button>
                     </span>
                   )}
-                  {viewAsFilter !== 'detailed' && (
+                  {activeDataKey !== 'price-list' && activeDataKey !== 'order-point' && activeDataKey !== 'stock-evaluation' && viewAsFilter !== 'detailed' && (
                     <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
                       View As: {viewAsFilter}
                       <button type="button" onClick={() => setViewAsFilter('detailed')} className="hover:text-white">✕</button>
@@ -3949,16 +6240,64 @@ export default function Report() {
                       <button type="button" onClick={() => setOnhandFilter('all')} className="hover:text-white">✕</button>
                     </span>
                   )}
-                  {activeDataKey === 'inventory-list' && statusFilter !== 'all' && (
+                  {activeDataKey === 'price-list' && priceCurrencyFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-blue-500/20 border border-blue-500/40 text-blue-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Currency: {priceCurrencyFilter}
+                      <button type="button" onClick={() => setPriceCurrencyFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'price-list' && priceBookFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Price Book: {priceBookFilter}
+                      <button type="button" onClick={() => setPriceBookFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'price-list' && priceOptionFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Price Option: {priceOptionFilter === 'gte-0' ? 'Price >= 0' : priceOptionFilter === 'gt-0' ? 'Price > 0' : 'Price = 0'}
+                      <button type="button" onClick={() => setPriceOptionFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'freight-status' && convertToBillFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Convert To Bill: {convertToBillFilter === 'yes' ? 'Yes' : 'No'}
+                      <button type="button" onClick={() => setConvertToBillFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {(activeDataKey === 'supplier-deposit-debit' || activeDataKey === 'customer-credit-deposit' || activeDataKey === 'ar-invoice-status') && balanceFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Balance: {balanceFilter === 'positive' ? 'Has Balance' : balanceFilter === 'zero' ? 'Zero Balance' : balanceFilter}
+                      <button type="button" onClick={() => setBalanceFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {statusFilter !== 'all' && (
                     <span className="inline-flex items-center gap-1 bg-orange-500/20 border border-orange-500/40 text-orange-300 px-2.5 py-0.5 rounded-lg text-[11px]">
                       Status: {statusFilter}
                       <button type="button" onClick={() => setStatusFilter('all')} className="hover:text-white">✕</button>
                     </span>
                   )}
-                  {activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && supplierFilter !== 'all' && (
+                  {requisitionTypeFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-violet-500/20 border border-violet-500/40 text-violet-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Req Type: {requisitionTypeFilter}
+                      <button type="button" onClick={() => setRequisitionTypeFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {purchasePersonFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Purchase Person: {purchasePersonFilter}
+                      <button type="button" onClick={() => setPurchasePersonFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey !== 'transferred' && activeDataKey !== 'adjustment' && activeDataKey !== 'issued' && activeDataKey !== 'inventory-list' && activeDataKey !== 'price-list' && activeDataKey !== 'order-point' && activeDataKey !== 'stock-evaluation' && activeDataKey !== 'requisition' && supplierFilter !== 'all' && (
                     <span className="inline-flex items-center gap-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 px-2.5 py-0.5 rounded-lg text-[11px]">
                       Supplier: {supplierFilter}
                       <button type="button" onClick={() => setSupplierFilter('all')} className="hover:text-white">✕</button>
+                    </span>
+                  )}
+                  {activeDataKey === 'supplier-list' && supplierGroupFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 bg-violet-500/20 border border-violet-500/40 text-violet-300 px-2.5 py-0.5 rounded-lg text-[11px]">
+                      Supplier Group: {supplierGroupFilter}
+                      <button type="button" onClick={() => setSupplierGroupFilter('all')} className="hover:text-white">✕</button>
                     </span>
                   )}
                 </>
@@ -5040,6 +7379,4647 @@ export default function Report() {
                     </button>
                   </div>
                 </div>
+              ) : activeDataKey === 'price-list' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  {/* 1. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Currency - Dropdown -Dollar - Khmer Riels */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Currency
+                    </label>
+                    <select
+                      value={priceCurrencyFilter}
+                      onChange={(e) => setPriceCurrencyFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Currencies</option>
+                      <option value="Dollar">Dollar</option>
+                      <option value="Khmer Riels">Khmer Riels</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Price Book - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Price Book
+                    </label>
+                    <select
+                      value={priceBookFilter}
+                      onChange={(e) => setPriceBookFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Price Books</option>
+                      <option value="Standard Retail">Standard Retail</option>
+                      <option value="Wholesale">Wholesale</option>
+                      <option value="VIP Member">VIP Member</option>
+                      <option value="Promotion Price">Promotion Price</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Price Option - Dropdown - Price >= 0 - Price > 0 - Price = 0 */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Price Option
+                    </label>
+                    <select
+                      value={priceOptionFilter}
+                      onChange={(e) => setPriceOptionFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Prices</option>
+                      <option value="gte-0">Price &gt;= 0</option>
+                      <option value="gt-0">Price &gt; 0</option>
+                      <option value="eq-0">Price = 0</option>
+                    </select>
+                  </div>
+
+                  {/* 6. Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'order-point' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-order-point"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-order-point">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 3. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 4. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions.suppliers.length} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {filterOptions.suppliers.map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.name || s.description || s.code}>
+                          {s.name || s.description || s.code}
+                        </option>
+                      ))}
+                      {filterOptions.suppliers.length === 0 && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                          <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                          <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                          <option value="Lucky Local Supplies">Lucky Local Supplies</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="product">By Product</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Quick Action: Reset inside panel */}
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="w-full rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-3 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer"
+                    >
+                      ✕ Reset Advance
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'stock-evaluation' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Location - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location ({filterOptions.locations.length} Live)
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      {filterOptions.locations.map((l) => (
+                        <option key={l.id || l.name || l.code} value={l.description || l.name || l.code}>
+                          {l.description || l.name || l.code}
+                        </option>
+                      ))}
+                      {filterOptions.locations.length === 0 && (
+                        <>
+                          <option value="Main Storage">Main Storage</option>
+                          <option value="Cold Room">Cold Room</option>
+                          <option value="Front Shelf A">Front Shelf A</option>
+                          <option value="Backroom Rack">Backroom Rack</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product ({availableProducts.length} Live)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-stock-eval"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-stock-eval">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 4. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Coca-Cola">Coca-Cola</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Transaction Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Transaction Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Draft">Draft</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None (Standard)</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                      <option value="status">By Transaction Status</option>
+                    </select>
+                  </div>
+
+                  {/* 9. Reset inside panel */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'end-of-day' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-transaction' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      <option value="POS Counter 1">POS Counter 1</option>
+                      <option value="POS Counter 2">POS Counter 2</option>
+                      <option value="Main Storage">Main Storage</option>
+                      <option value="Cold Room">Cold Room</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                      <option value="detailed">Detailed</option>
+                    </select>
+                  </div>
+
+                  {/* Invoice Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Invoice Type
+                    </label>
+                    <select
+                      value={invoiceTypeFilter}
+                      onChange={(e) => setInvoiceTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Invoice Types</option>
+                      <option value="Standard">Standard</option>
+                      <option value="Tax Invoice">Tax Invoice</option>
+                      <option value="Credit Invoice">Credit Invoice</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="invoiceType">By Invoice Type</option>
+                      <option value="product">By Product</option>
+                      <option value="customer">By Customer</option>
+                      <option value="salesperson">By Salesperson</option>
+                    </select>
+                  </div>
+
+                  {/* Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Search product"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+                      <input
+                        type="text"
+                        placeholder="Search product..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 placeholder-slate-500 transition"
+                      />
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 text-slate-400 hover:text-white text-xs"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Product Group */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      <option value="Fresh Grocery">Fresh Grocery</option>
+                      <option value="Pantry Staples">Pantry Staples</option>
+                      <option value="Cold Chain">Cold Chain</option>
+                      <option value="Beverages">Beverages</option>
+                    </select>
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      <option value="Produce">Produce</option>
+                      <option value="Dairy">Dairy</option>
+                      <option value="Meat">Meat</option>
+                      <option value="Beverages">Beverages</option>
+                      <option value="Grains">Grains</option>
+                    </select>
+                  </div>
+
+                  {/* Brand */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      <option value="Angkor Harvest">Angkor Harvest</option>
+                      <option value="CP Foods">CP Foods</option>
+                      <option value="Heritage Organic">Heritage Organic</option>
+                      <option value="Coca-Cola">Coca-Cola</option>
+                      <option value="Lucky Local">Lucky Local</option>
+                    </select>
+                  </div>
+
+                  {/* Customer Group */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer Group
+                    </label>
+                    <select
+                      value={customerGroupFilter}
+                      onChange={(e) => setCustomerGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Customer Groups</option>
+                      <option value="Supermarket Wholesale">Supermarket Wholesale</option>
+                      <option value="Restaurant & F&B">Restaurant &amp; F&amp;B</option>
+                      <option value="Bakery Chain">Bakery Chain</option>
+                      <option value="Hotel & Luxury">Hotel &amp; Luxury</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Fresh Table Deli">Fresh Table Deli</option>
+                    </select>
+                  </div>
+
+                  {/* User */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      User
+                    </label>
+                    <select
+                      value={userFilter}
+                      onChange={(e) => setUserFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Users</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                      <option value="Vanna Touch">Vanna Touch</option>
+                      <option value="Dara Heng">Dara Heng</option>
+                      <option value="Kalyan Meng">Kalyan Meng</option>
+                    </select>
+                  </div>
+
+                  {/* Salesperson */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Salesperson
+                    </label>
+                    <select
+                      value={salespersonFilter}
+                      onChange={(e) => setSalespersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Salespersons</option>
+                      <option value="Borith Keo">Borith Keo</option>
+                      <option value="Chheang Meng">Chheang Meng</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                      <option value="Dara Heng">Dara Heng</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'aging-invoice' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      <option value="Main Storage">Main Storage</option>
+                      <option value="Cold Room">Cold Room</option>
+                      <option value="POS Counter 1">POS Counter 1</option>
+                      <option value="POS Counter 2">POS Counter 2</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Fresh Table Deli">Fresh Table Deli</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="customer">By Customer</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Aging Matrix (Summary)</option>
+                      <option value="detailed">Aging Invoices (Detailed)</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'payment-gateway' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Payment Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Payment Type
+                    </label>
+                    <select
+                      value={paymentTypeFilter}
+                      onChange={(e) => setPaymentTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Payment Types</option>
+                      <option value="ABA PayWay">ABA PayWay</option>
+                      <option value="Wing Bank KHQR">Wing Bank KHQR</option>
+                      <option value="Visa Card">Visa Card</option>
+                      <option value="ACLEDA KHQR">ACLEDA KHQR</option>
+                      <option value="TrueMoney">TrueMoney</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="payment-type">By Payment Type</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Voided">Voided</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'customer-balance' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Fresh Table Deli">Fresh Table Deli</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Summary View</option>
+                      <option value="detailed">Detailed Statement</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'customer-credit-deposit' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                    </select>
+                  </div>
+
+                  {/* Balance */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Balance
+                    </label>
+                    <select
+                      value={balanceFilter}
+                      onChange={(e) => setBalanceFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Balances</option>
+                      <option value="gt0">Balance &gt; 0</option>
+                      <option value="eq0">Balance = 0</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="type">By Type</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Deposit">Deposit</option>
+                      <option value="Credit">Credit</option>
+                    </select>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Active">Active</option>
+                      <option value="Closed">Closed</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'invoice-payment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'ar-invoice-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                    </select>
+                  </div>
+
+                  {/* Salesperson */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Salesperson
+                    </label>
+                    <select
+                      value={salespersonFilter}
+                      onChange={(e) => setSalespersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Salespersons</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                      <option value="Chheang Meng">Chheang Meng</option>
+                      <option value="Borith Keo">Borith Keo</option>
+                    </select>
+                  </div>
+
+                  {/* Balance */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Balance
+                    </label>
+                    <select
+                      value={balanceFilter}
+                      onChange={(e) => setBalanceFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Balances</option>
+                      <option value="gt0">Balance &gt; 0 (Unpaid)</option>
+                      <option value="eq0">Balance = 0 (Paid)</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="salesperson">By Salesperson</option>
+                      <option value="type">By Type</option>
+                    </select>
+                  </div>
+
+                  {/* Invoice Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Invoice Type
+                    </label>
+                    <select
+                      value={invoiceTypeFilter}
+                      onChange={(e) => setInvoiceTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Standard">Standard</option>
+                      <option value="Credit Sale">Credit Sale</option>
+                      <option value="Wholesale">Wholesale</option>
+                      <option value="Contract">Contract</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'top-bottom-sale' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Location
+                    </label>
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Locations</option>
+                      <option value="Cold Storage #1">Cold Storage #1</option>
+                      <option value="Meat Freezer #1">Meat Freezer #1</option>
+                      <option value="Warehouse Floor A">Warehouse Floor A</option>
+                      <option value="Main Shelf B">Main Shelf B</option>
+                      <option value="Aisle 3 Chiller">Aisle 3 Chiller</option>
+                    </select>
+                  </div>
+
+                  {/* Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-bold text-purple-400 hover:text-purple-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Search product"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+                      <input
+                        type="text"
+                        placeholder="Search product..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 placeholder-slate-500 transition"
+                      />
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 text-slate-400 hover:text-white text-xs"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Fresh Table Deli">Fresh Table Deli</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="location">By Location</option>
+                      <option value="product">By Product</option>
+                      <option value="customer">By Customer</option>
+                    </select>
+                  </div>
+
+                  {/* By - Sold QTY, Total price */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      By
+                    </label>
+                    <select
+                      value={topByFilter}
+                      onChange={(e) => setTopByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="sold-qty">Sold QTY</option>
+                      <option value="total-price">Total Price</option>
+                    </select>
+                  </div>
+
+                  {/* Order By - Largest to smallest, Smallest to Largest */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Order By
+                    </label>
+                    <select
+                      value={topOrderByFilter}
+                      onChange={(e) => setTopOrderByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="desc">Largest to Smallest</option>
+                      <option value="asc">Smallest to Largest</option>
+                    </select>
+                  </div>
+
+                  {/* Top - Textbox */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Top
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 10"
+                      value={topCountFilter}
+                      onChange={(e) => setTopCountFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    />
+                  </div>
+
+                  {/* Sold QTY - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Sold QTY
+                    </label>
+                    <select
+                      value={topQtyFilter}
+                      onChange={(e) => setTopQtyFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All QTY</option>
+                      <option value="gt0">QTY &gt; 0</option>
+                      <option value="eq0">QTY = 0</option>
+                    </select>
+                  </div>
+
+                  {/* Value - Textbox */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Value
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Min Total Price..."
+                      value={topValFilter}
+                      onChange={(e) => setTopValFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    />
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'cash-receipt' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                    </select>
+                  </div>
+
+                  {/* Payment Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Payment Type
+                    </label>
+                    <select
+                      value={paymentTypeFilter}
+                      onChange={(e) => setPaymentTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Methods</option>
+                      <option value="Cash">Cash</option>
+                      <option value="ABA PayWay">ABA PayWay</option>
+                      <option value="Wing Bank">Wing Bank</option>
+                    </select>
+                  </div>
+
+                  {/* Receipt Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Receipt Type
+                    </label>
+                    <select
+                      value={receiptTypeFilter}
+                      onChange={(e) => setReceiptTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Receipt Types</option>
+                      <option value="Invoice Payment">Invoice Payment</option>
+                      <option value="Direct Sale">Direct Sale</option>
+                      <option value="Deposit Receipt">Deposit Receipt</option>
+                      <option value="Advance Payment">Advance Payment</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="payment-type">By Payment Type</option>
+                      <option value="receipt-type">By Receipt Type</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Pending">Pending</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'profits' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {/* Show Shareholder - Checkbox */}
+                  <div className="flex items-center gap-3 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                    <input
+                      id="advance-show-shareholder"
+                      type="checkbox"
+                      checked={showShareholder}
+                      onChange={(e) => setShowShareholder(e.target.checked)}
+                      className="w-4 h-4 rounded text-blue-600 bg-slate-900 border-slate-700 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label htmlFor="advance-show-shareholder" className="text-xs font-bold text-slate-300 cursor-pointer select-none">
+                      Show Shareholder Distribution
+                    </label>
+                  </div>
+
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-payment-type' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Customer Group */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer Group
+                    </label>
+                    <select
+                      value={customerGroupFilter}
+                      onChange={(e) => setCustomerGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Groups</option>
+                      <option value="Supermarket Wholesale">Supermarket Wholesale</option>
+                      <option value="Restaurant & F&B">Restaurant &amp; F&amp;B</option>
+                      <option value="Bakery Chain">Bakery Chain</option>
+                      <option value="Hotel & Luxury">Hotel &amp; Luxury</option>
+                    </select>
+                  </div>
+
+                  {/* Customer */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Bayon Bakery Kitchen">Bayon Bakery Kitchen</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Fresh Table Deli">Fresh Table Deli</option>
+                    </select>
+                  </div>
+
+                  {/* Salesperson */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Salesperson
+                    </label>
+                    <select
+                      value={salespersonFilter}
+                      onChange={(e) => setSalespersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Salespersons</option>
+                      <option value="Borith Keo">Borith Keo</option>
+                      <option value="Chheang Meng">Chheang Meng</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                    </select>
+                  </div>
+
+                  {/* Payment Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Payment Type
+                    </label>
+                    <select
+                      value={paymentTypeFilter}
+                      onChange={(e) => setPaymentTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="ABA PayWay">ABA PayWay</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Wing Bank">Wing Bank</option>
+                      <option value="Visa Card">Visa Card</option>
+                      <option value="ACLEDA KHQR">ACLEDA KHQR</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="payment-type">By Payment Type</option>
+                      <option value="customer-group">By Customer Group</option>
+                      <option value="customer">By Customer</option>
+                      <option value="salesperson">By Salesperson</option>
+                      <option value="invoice-type">By Invoice Type</option>
+                    </select>
+                  </div>
+
+                  {/* Invoice Type */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Invoice Type
+                    </label>
+                    <select
+                      value={invoiceTypeFilter}
+                      onChange={(e) => setInvoiceTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Invoice Types</option>
+                      <option value="Standard">Standard</option>
+                      <option value="Tax Invoice">Tax Invoice</option>
+                      <option value="Credit Invoice">Credit Invoice</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'close-shift' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Station */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Station
+                    </label>
+                    <select
+                      value={stationFilter}
+                      onChange={(e) => setStationFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Stations</option>
+                      <option value="Station POS-01">Station POS-01</option>
+                      <option value="Station POS-02">Station POS-02</option>
+                      <option value="Station POS-03">Station POS-03</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-promotion-report' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* Group By */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="promo-type">By Promotion Type</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-package-item-report' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+                  {/* Outlet */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="Main Mart">Main Mart</option>
+                      <option value="Central Warehouse">Central Warehouse</option>
+                      <option value="BKK1 Branch">BKK1 Branch</option>
+                      <option value="Toul Kork Mart">Toul Kork Mart</option>
+                    </select>
+                  </div>
+
+                  {/* View As */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-order-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Customer - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Bayon Market Toul Kork">Bayon Market Toul Kork</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Lucky Supermarket Group">Lucky Supermarket Group</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Salesperson - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Salesperson
+                    </label>
+                    <select
+                      value={salespersonFilter}
+                      onChange={(e) => setSalespersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Salespersons</option>
+                      <option value="Borith Keo">Borith Keo</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                      <option value="Dara Heng">Dara Heng</option>
+                      <option value="Vanna Touch">Vanna Touch</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="salesperson">By Salesperson</option>
+                      <option value="type">By Type</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 6. Type - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Sales Order">Sales Order</option>
+                      <option value="Quotation">Quotation</option>
+                    </select>
+                  </div>
+
+                  {/* 7. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Draft">Draft</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'sale-order-shipment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Customer - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Bayon Market Toul Kork">Bayon Market Toul Kork</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                      <option value="Lucky Supermarket Group">Lucky Supermarket Group</option>
+                      <option value="Angkor Organic Cafe">Angkor Organic Cafe</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-black text-purple-400 hover:text-purple-300 underline cursor-pointer inline-flex items-center gap-1"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-so-ship"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-so-ship">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 4. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                      <option value="type">By Type</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Type - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Direct Delivery">Direct Delivery</option>
+                      <option value="Partial Shipment">Partial Shipment</option>
+                      <option value="Standard Shipment">Standard Shipment</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'consignment-shipment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Customer - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Khmer Heritage Farm">Khmer Heritage Farm</option>
+                      <option value="Kampot Organic Spice Co">Kampot Organic Spice Co</option>
+                      <option value="Mondulkiri Fresh Honey">Mondulkiri Fresh Honey</option>
+                      <option value="Bayon Market Toul Kork">Bayon Market Toul Kork</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-black text-purple-400 hover:text-purple-300 underline cursor-pointer inline-flex items-center gap-1"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-csg-ship"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-csg-ship">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 4. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 7. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="category">By Category</option>
+                      <option value="brand">By Brand</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'consignment-status-report' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Customer - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Customer
+                    </label>
+                    <select
+                      value={customerFilter}
+                      onChange={(e) => setCustomerFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="">All Customers</option>
+                      <option value="Khmer Heritage Farm">Khmer Heritage Farm</option>
+                      <option value="Kampot Organic Spice Co">Kampot Organic Spice Co</option>
+                      <option value="Mondulkiri Fresh Honey">Mondulkiri Fresh Honey</option>
+                      <option value="Bayon Market Toul Kork">Bayon Market Toul Kork</option>
+                      <option value="Rosewood Phnom Penh">Rosewood Phnom Penh</option>
+                      <option value="Sovann Phka Mart">Sovann Phka Mart</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Salesperson - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Salesperson
+                    </label>
+                    <select
+                      value={salespersonFilter}
+                      onChange={(e) => setSalespersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Salespersons</option>
+                      <option value="Borith Keo">Borith Keo</option>
+                      <option value="Sokha Ly">Sokha Ly</option>
+                      <option value="Dara Heng">Dara Heng</option>
+                      <option value="Vanna Touch">Vanna Touch</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="customer">By Customer</option>
+                      <option value="salesperson">By Salesperson</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 6. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Active">Active</option>
+                      <option value="Near Reconcile">Near Reconcile</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Pending">Pending</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'requisition' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Product - Search Icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-black text-purple-400 hover:text-purple-300 underline cursor-pointer inline-flex items-center gap-1"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-req"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-req">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 3. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({filterOptions.productGroups.length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {filterOptions.productGroups.map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {filterOptions.productGroups.length === 0 && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 4. Brand - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Brand ({filterOptions.brands.length} Live)
+                    </label>
+                    <select
+                      value={brandFilter}
+                      onChange={(e) => setBrandFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Brands</option>
+                      {filterOptions.brands.map((b) => (
+                        <option key={b.id || b.name || b.code} value={b.description || b.name || b.code}>
+                          {b.description || b.name || b.code}
+                        </option>
+                      ))}
+                      {filterOptions.brands.length === 0 && (
+                        <>
+                          <option value="Heritage Organic">Heritage Organic</option>
+                          <option value="Angkor Harvest">Angkor Harvest</option>
+                          <option value="CP Foods">CP Foods</option>
+                          <option value="Lucky Local">Lucky Local</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 5. Category - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Category ({filterOptions.categories.length} Live)
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Categories</option>
+                      {filterOptions.categories.map((c) => (
+                        <option key={c.id || c.name || c.code} value={c.description || c.name || c.code}>
+                          {c.description || c.name || c.code}
+                        </option>
+                      ))}
+                      {filterOptions.categories.length === 0 && (
+                        <>
+                          <option value="Produce">Produce</option>
+                          <option value="Dairy">Dairy</option>
+                          <option value="Meat">Meat</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grains">Grains</option>
+                          <option value="Spices">Spices</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="brand">By Brand</option>
+                      <option value="category">By Category</option>
+                      <option value="status">By Status</option>
+                      <option value="requisition-type">By Requisition Type</option>
+                    </select>
+                  </div>
+
+                  {/* 7. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Voided">Voided</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Requisition Type - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Requisition Type
+                    </label>
+                    <select
+                      value={requisitionTypeFilter}
+                      onChange={(e) => setRequisitionTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Stock Replenishment">Stock Replenishment</option>
+                      <option value="Emergency Order">Emergency Order</option>
+                      <option value="Special Order">Special Order</option>
+                      <option value="Project Requisition">Project Requisition</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'purchase-order-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions.suppliers.length} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {filterOptions.suppliers.map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {filterOptions.suppliers.length === 0 && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                          <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                          <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Purchase Order Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Purchase Order Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Open">Open</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Partial">Partial</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Pending">Pending</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (activeDataKey === 'purchase-order-products-status' || activeDataKey === 'purchase-order-products' || activeDataKey === 'purchase-order-product-status') ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({(filterOptions?.outlets || []).length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({(filterOptions?.suppliers || []).length} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                          <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                          <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Purchase Person - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Purchase Person
+                    </label>
+                    <select
+                      value={purchasePersonFilter}
+                      onChange={(e) => setPurchasePersonFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Purchase Persons</option>
+                      {(filterOptions?.users || []).map((u) => (
+                        <option key={u.id || u.username} value={u.name || u.username}>
+                          {u.name || u.username}
+                        </option>
+                      ))}
+                      {(!filterOptions?.users || filterOptions.users.length === 0) && (
+                        <>
+                          <option value="Sokha Ly">Sokha Ly</option>
+                          <option value="Borith Keo">Borith Keo</option>
+                          <option value="Dara Heng">Dara Heng</option>
+                          <option value="Vanna Touch">Vanna Touch</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 4. Product - Search Icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-black text-purple-400 hover:text-purple-300 underline cursor-pointer inline-flex items-center gap-1"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-pop-status"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-pop-status">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 5. Product Group - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Product Group ({(filterOptions?.productGroups || []).length} Live)
+                    </label>
+                    <select
+                      value={productGroupFilter}
+                      onChange={(e) => setProductGroupFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Product Groups</option>
+                      {(filterOptions?.productGroups || []).map((pg) => (
+                        <option key={pg.id || pg.name || pg.code} value={pg.description || pg.name || pg.code}>
+                          {pg.description || pg.name || pg.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.productGroups || filterOptions.productGroups.length === 0) && (
+                        <>
+                          <option value="Fresh Grocery">Fresh Grocery</option>
+                          <option value="Pantry Staples">Pantry Staples</option>
+                          <option value="Cold Chain">Cold Chain</option>
+                          <option value="Beverages">Beverages</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 6. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="purchase-person">By Purchase Person</option>
+                      <option value="product">By Product</option>
+                      <option value="by-group">By Product Group</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 7. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* 8. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Open">Open</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Partial">Partial</option>
+                      <option value="Cancelled">Cancelled</option>
+                      <option value="Pending">Pending</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'receive-return-purchase-order' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Mart">Toul Kork Mart</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Product - Search icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                        Product
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="text-[10px] font-black text-purple-400 hover:text-purple-300 underline cursor-pointer inline-flex items-center gap-1"
+                        title="Open full catalog search popup"
+                      >
+                        <span>🔍 Browse</span>
+                      </button>
+                    </div>
+                    <div className="relative flex items-center group">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductModalQuery(productFilter)
+                          setProductModalCategory('all')
+                          setShowProductModal(true)
+                        }}
+                        className="absolute left-2.5 p-0.5 text-slate-400 hover:text-purple-400 transition cursor-pointer"
+                        title="Click search icon to open product search popup"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+
+                      <input
+                        type="text"
+                        list="live-products-datalist-rr-po"
+                        placeholder="Search product SKU/name..."
+                        value={productFilter}
+                        onChange={(e) => setProductFilter(e.target.value)}
+                        className="w-full rounded-xl border border-slate-700 bg-slate-950 pl-8 pr-7 py-2 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-purple-400 transition"
+                      />
+
+                      {productFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setProductFilter('')}
+                          className="absolute right-2 p-1 text-slate-400 hover:text-white rounded-md transition text-xs cursor-pointer"
+                          title="Clear product filter"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    <datalist id="live-products-datalist-rr-po">
+                      {availableProducts.map((p) => (
+                        <option key={p.id || p.code} value={p.title || p.name}>
+                          {p.code ? `[${p.code}] ` : ''}{p.title || p.name}
+                        </option>
+                      ))}
+                    </datalist>
+                  </div>
+
+                  {/* 3. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions.suppliers.length} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {filterOptions.suppliers.map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {filterOptions.suppliers.length === 0 && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="CP Food Supplies Cambodia">CP Food Supplies Cambodia</option>
+                          <option value="Global Dairy Import Inc">Global Dairy Import Inc</option>
+                          <option value="Mekong Beverage Ltd">Mekong Beverage Ltd</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 4. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="product">By Product</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 5. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* 6. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Closed">Closed</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'bill-aging' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'bill-payment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="payment-type">By Payment Type</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'bill-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Partially Paid">Partially Paid</option>
+                      <option value="Fully Paid">Fully Paid</option>
+                      <option value="Unpaid">Unpaid</option>
+                      <option value="Voided">Voided</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'freight-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="convert-to-bill">By Convert To Bill</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Convert To Bill - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Convert To Bill
+                    </label>
+                    <select
+                      value={convertToBillFilter}
+                      onChange={(e) => setConvertToBillFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All</option>
+                      <option value="yes">Yes / Converted</option>
+                      <option value="no">No / Not Converted</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Received">Received</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Verified">Verified</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'supplier-deposit-debit' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="payment-type">By Payment Type</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Balance - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Balance
+                    </label>
+                    <select
+                      value={balanceFilter}
+                      onChange={(e) => setBalanceFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All</option>
+                      <option value="positive">Has Balance (&gt; 0)</option>
+                      <option value="zero">Zero Balance (= 0)</option>
+                    </select>
+                  </div>
+
+                  {/* 5. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Active">Active</option>
+                      <option value="Held">Held</option>
+                      <option value="Settled">Settled</option>
+                      <option value="Utilized">Utilized</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'ap-cash-payment' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions?.outlets?.length || 0} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {(filterOptions?.outlets || []).map((o) => (
+                        <option key={o.id || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.outlets || filterOptions.outlets.length === 0) && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                          <option value="SR Depot">SR Depot</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Supplier - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Supplier ({filterOptions?.suppliers?.length || 0} Live)
+                    </label>
+                    <select
+                      value={supplierFilter}
+                      onChange={(e) => setSupplierFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Suppliers</option>
+                      {(filterOptions?.suppliers || []).map((s) => (
+                        <option key={s.id || s.name || s.code} value={s.description || s.name || s.code}>
+                          {s.description || s.name || s.code}
+                        </option>
+                      ))}
+                      {(!filterOptions?.suppliers || filterOptions.suppliers.length === 0) && (
+                        <>
+                          <option value="Cambodia Agri-Trading Ltd">Cambodia Agri-Trading Ltd</option>
+                          <option value="Golden Harvest Supplies">Golden Harvest Supplies</option>
+                          <option value="Mekong Distribution Corp">Mekong Distribution Corp</option>
+                          <option value="Phnom Penh Beverage Supply">Phnom Penh Beverage Supply</option>
+                          <option value="Khmer Fresh Farms Co.">Khmer Fresh Farms Co.</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 3. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="supplier">By Supplier</option>
+                      <option value="payment-type">By Payment Type</option>
+                      <option value="receipt-type">By Receipt Type</option>
+                      <option value="status">By Status</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* 5. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'supplier-list' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+                  {/* 1. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="status">By Status</option>
+                      <option value="supplier-name">By Supplier Name</option>
+                      <option value="supplier-group">By Supplier Group</option>
+                    </select>
+                  </div>
+
+                  {/* 2. Status - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="Active">Active</option>
+                      <option value="Preferred">Preferred</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Suspended">Suspended</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'cash-in-out-status' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. View As - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      View As
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detailed">Standard View</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'cash-statement' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="type">By Type</option>
+                      <option value="date">By Date</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Type - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type
+                    </label>
+                    <select
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="Cash In">Cash In</option>
+                      <option value="Cash Out">Cash Out</option>
+                      <option value="Bank In">Bank In</option>
+                      <option value="Bank Out">Bank Out</option>
+                      <option value="Deposit In">Deposit In</option>
+                      <option value="Deposit Out">Deposit Out</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
+              ) : activeDataKey === 'bank-transfer' ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  {/* 1. Outlet - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Outlet ({filterOptions.outlets.length} Live)
+                    </label>
+                    <select
+                      value={outletFilter}
+                      onChange={(e) => setOutletFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All Outlets</option>
+                      {filterOptions.outlets.map((o) => (
+                        <option key={o.id || o.name || o.code} value={o.description || o.name || o.code}>
+                          {o.description || o.name || o.code}
+                        </option>
+                      ))}
+                      {filterOptions.outlets.length === 0 && (
+                        <>
+                          <option value="Central Warehouse">Central Warehouse</option>
+                          <option value="Main Mart">Main Mart</option>
+                          <option value="BKK1 Branch">BKK1 Branch</option>
+                          <option value="Toul Kork Branch">Toul Kork Branch</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* 2. Group By - Dropdown */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Group By
+                    </label>
+                    <select
+                      value={groupByFilter}
+                      onChange={(e) => setGroupByFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="none">None</option>
+                      <option value="outlet">By Outlet</option>
+                      <option value="employee">By Employee</option>
+                      <option value="status">By Status</option>
+                      <option value="date">By Date</option>
+                    </select>
+                  </div>
+
+                  {/* 3. Type (Status) - Dropdown: All - None-Void - Voided */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type (Status)
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="all">All</option>
+                      <option value="none-void">None-Void</option>
+                      <option value="voided">Voided</option>
+                    </select>
+                  </div>
+
+                  {/* 4. Type (View As) - Dropdown: Summary - Detail */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      Type (View As)
+                    </label>
+                    <select
+                      value={viewAsFilter}
+                      onChange={(e) => setViewAsFilter(e.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-semibold text-white outline-none focus:border-purple-400 transition"
+                    >
+                      <option value="detail">Detail</option>
+                      <option value="summary">Summary</option>
+                    </select>
+                  </div>
+
+                  {/* Reset */}
+                  <div className="col-span-full flex justify-end pt-2 border-t border-slate-800/80 mt-1">
+                    <button
+                      type="button"
+                      onClick={handleResetAdvanceFilters}
+                      className="rounded-xl border border-purple-500/40 bg-purple-500/15 py-2 px-4 text-xs font-bold text-purple-300 hover:bg-purple-500/25 transition active:scale-95 text-center cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <span>✕</span>
+                      <span>Reset Advance Filters</span>
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                   {/* 1. Outlet Dropdown (Live from offices) */}
@@ -5412,6 +12392,7 @@ export default function Report() {
                         const align = getColumnAlignment(col)
                         const isCode = col.toLowerCase().includes('no') || col.toLowerCase().includes('id') || col.toLowerCase().includes('code')
                         const isStatus = col === 'status' || col === 'priority'
+                        const isTransactionType = col === 'transactionType'
                         const isNumeric = typeof val === 'number' || (col.toLowerCase().includes('cost') || col.toLowerCase().includes('price') || col.toLowerCase().includes('valuation') || col.toLowerCase().includes('amount') || col.toLowerCase().includes('total'))
                         const formatted = formatCellValue(col, val)
 
@@ -5423,6 +12404,18 @@ export default function Report() {
                                 : 'text-blue-700 bg-blue-50 border-blue-200'
                                 }`}>
                                 {formatted}
+                              </span>
+                            ) : isTransactionType ? (
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                                ['RECEIVE', 'INITIAL', 'TRANSFER_IN'].includes(String(val).toUpperCase())
+                                  ? (isDark ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 'bg-emerald-50 text-emerald-700 border-emerald-200')
+                                  : ['ISSUE', 'TRANSFER_OUT', 'SALE'].includes(String(val).toUpperCase())
+                                    ? (isDark ? 'bg-rose-500/15 text-rose-400 border-rose-500/30' : 'bg-rose-50 text-rose-700 border-rose-200')
+                                    : ['ADJUST'].includes(String(val).toUpperCase())
+                                      ? (isDark ? 'bg-amber-500/15 text-amber-400 border-amber-500/30' : 'bg-amber-50 text-amber-700 border-amber-200')
+                                      : (isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' : 'bg-blue-50 text-blue-700 border-blue-200')
+                              }`}>
+                                ● {String(val).replace(/_/g, ' ')}
                               </span>
                             ) : isStatus ? (
                               <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${isDark
@@ -5667,12 +12660,21 @@ export default function Report() {
                           RPT-STK-{activeDataKey?.toUpperCase()}-{Date.now().toString().slice(-6)}
                         </span>
                       </p>
-                      <p>
-                        <span className="text-slate-500">Period:</span>{' '}
-                        <span className="font-bold text-slate-900">
-                          {fromDate || 'All Dates'} to {toDate || 'Present'}
-                        </span>
-                      </p>
+                      {activeDataKey !== 'inventory-list' && activeDataKey !== 'price-list' ? (
+                        <p>
+                          <span className="text-slate-500">Period:</span>{' '}
+                          <span className="font-bold text-slate-900">
+                            {fromDate || 'All Dates'} to {toDate || 'Present'}
+                          </span>
+                        </p>
+                      ) : (
+                        <p>
+                          <span className="text-slate-500">Report Scope:</span>{' '}
+                          <span className="font-bold text-slate-900">
+                            {activeDataKey === 'price-list' ? 'Current Price List' : 'Current Inventory in Stock'}
+                          </span>
+                        </p>
+                      )}
                       <p>
                         <span className="text-slate-500">Printed:</span> {new Date().toLocaleString()}
                       </p>
@@ -5770,7 +12772,7 @@ export default function Report() {
                               const val = row[col]
                               const align = getColumnAlignment(col)
                               const isCode = col.toLowerCase().includes('no') || col.toLowerCase().includes('id') || col.toLowerCase().includes('code')
-                              const isStatus = col === 'status' || col === 'priority'
+                              const isStatus = col === 'status' || col === 'priority' || col === 'transactionType'
                               const isDate = col.toLowerCase().includes('date')
                               const formatted = formatCellValue(col, val)
 
