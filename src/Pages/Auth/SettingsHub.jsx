@@ -7,6 +7,7 @@ import settingIcon from '../../assets/icon/3dicons-setting-dynamic-color.png'
 import mapPinIcon from '../../assets/icon/3dicons-map-pin-dynamic-color.png'
 import locationIcon from '../../assets/icon/3dicons-location-dynamic-color.png'
 import boyIcon from '../../assets/icon/3dicons-boy-dynamic-color.png'
+import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
 import keyIcon from '../../assets/icon/3dicons-key-dynamic-color.png'
 import calculatorIcon from '../../assets/icon/3dicons-calculator-dynamic-color.png'
 import dollarIcon from '../../assets/icon/3dicons-dollar-dynamic-color.png'
@@ -65,16 +66,16 @@ export const SETTINGS_MODULES = [
   },
   {
     key: 'users',
-    icon: boyIcon,
-    en: 'User',
+    icon: shieldIcon,
+    en: 'Users',
     kh: 'អ្នកប្រើប្រាស់',
-    descEn: 'View of users information',
-    descKh: 'មើលព័ត៌មានអ្នកប្រើប្រាស់',
+    descEn: 'Manage system users and access permissions',
+    descKh: 'គ្រប់គ្រងអ្នកប្រើប្រាស់ និងសិទ្ធិចូលប្រើ',
     color: '#77BC1F',
     bg: 'rgba(119, 188, 31, 0.12)',
     category: 'access',
     tag: 'Staff',
-    route: '/admin/settings/users',
+    route: '/admin/users',
   },
   {
     key: 'role',

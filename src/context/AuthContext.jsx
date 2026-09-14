@@ -22,7 +22,12 @@ export const AuthProvider = ({ children }) => {
   })
 
   // Track whether the session expired due to inactivity (so UI can show a message)
-  const [sessionExpired, setSessionExpired] = useState(false)
+  const [sessionExpired, setSessionExpired] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sessionExpired') === 'true'
+    }
+    return false
+  })
 
   // Ref for the inactivity timer so we can clear/reset it
   const inactivityTimer = useRef(null)
@@ -49,11 +54,36 @@ export const AuthProvider = ({ children }) => {
     setUser(null)
     setIsLoggedIn(false)
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    localStorage.setItem('isLoggedIn', 'false')
     if (inactivityTimer.current) {
       clearTimeout(inactivityTimer.current)
       inactivityTimer.current = null
     }
   }, [])
+
+  // Listen to custom session_timeout events (e.g. from API 401s or manual test)
+  useEffect(() => {
+    const handleTimeoutEvent = () => {
+      setSessionExpired(true)
+      localStorage.setItem('sessionExpired', 'true')
+      logout()
+    }
+    window.addEventListener('session_timeout', handleTimeoutEvent)
+    return () => window.removeEventListener('session_timeout', handleTimeoutEvent)
+  }, [logout])
+
+  // Expose convenient test trigger for developers in browser console
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__triggerSessionTimeout = () => {
+        setSessionExpired(true)
+        localStorage.setItem('sessionExpired', 'true')
+        logout()
+        window.dispatchEvent(new CustomEvent('session_timeout'))
+      }
+    }
+  }, [logout])
 
   // ---- Inactivity auto-logout ----
   const resetInactivityTimer = useCallback(() => {
@@ -65,7 +95,11 @@ export const AuthProvider = ({ children }) => {
     inactivityTimer.current = setTimeout(() => {
       // Session expired due to inactivity
       setSessionExpired(true)
+      localStorage.setItem('sessionExpired', 'true')
       logout()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('session_timeout'))
+      }
     }, INACTIVITY_TIMEOUT_MS)
   }, [logout])
 
@@ -114,6 +148,7 @@ export const AuthProvider = ({ children }) => {
   // login(data) accepts the backend AuthResponse: { token, tokenType, user }
   const login = (data) => {
     setSessionExpired(false)
+    localStorage.removeItem('sessionExpired')
     if (data?.token) {
       localStorage.setItem('token', data.token)
     }
@@ -137,7 +172,10 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(true)
   }
 
-  const clearSessionExpired = () => setSessionExpired(false)
+  const clearSessionExpired = () => {
+    setSessionExpired(false)
+    localStorage.removeItem('sessionExpired')
+  }
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, user, login, logout, sessionExpired, clearSessionExpired }}>

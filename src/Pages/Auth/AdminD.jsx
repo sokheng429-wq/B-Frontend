@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { adminProductAPI, applicationAPI, jobAPI, memberAPI, userAPI } from '../../api/api'
 import { useLanguage } from '../../context/LanguageContext'
 import { useNotifications } from '../../context/NotificationContext'
@@ -8,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext'
 import DashboardOverview from './Dashboard/DashboardOverview'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
 import ThemeToggle from '../../components/ThemeToggle'
+import { getCompanySettings, formatDateTimeByPattern, TIMEZONES } from '../../utils/companySettings'
 import './AdminD.css'
 import sunIcon from '../../assets/icon/3dicons-sun-dynamic-color.png'
 import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
@@ -16,13 +17,8 @@ import mailIcon from '../../assets/icon/3dicons-mail-dynamic-color.png'
 import trophyIcon from '../../assets/icon/3dicons-trophy-dynamic-color.png'
 import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
 import giftIcon from '../../assets/icon/3dicons-gift-box-dynamic-color.png'
-import travelIcon from '../../assets/icon/3dicons-travel-dynamic-color.png'
 import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
-import toolsIcon from '../../assets/icon/3dicons-tools-dynamic-color.png'
-import canIcon from '../../assets/icon/3dicons-can-dynamic-color.png'
-import rocketIcon from '../../assets/icon/3dicons-rocket-dynamic-color.png'
-import cupIcon from '../../assets/icon/3dicons-cup-dynamic-color.png'
-import boyIcon from '../../assets/icon/3dicons-boy-dynamic-color.png'
+import settingIcon from '../../assets/icon/3dicons-setting-dynamic-color.png'
 import AddProducts from './AddProducts'
 import Addjobs from './Addjobs'
 import AddMember from './Addmember'
@@ -184,6 +180,8 @@ const TEXTS = {
   promotions: { en: 'Promotions', kh: 'ការផ្សព្វផ្សាយ' },
   partners: { en: 'Partners', kh: 'ដៃគូ' },
   drivers: { en: 'Delivery Drivers', kh: 'អ្នកដឹកជញ្ជូន' },
+  integration: { en: 'Integration', kh: 'ការរួមបញ្ចូល' },
+  settings: { en: 'Settings', kh: 'ការកំណត់' },
   addProduct: { en: 'Add Product', kh: 'បន្ថែមផលិតផល' },
   editProduct: { en: 'Edit Product', kh: 'កែប្រែផលិតផល' },
   deleteProduct: { en: 'Delete Product', kh: 'លុបផលិតផល' },
@@ -207,11 +205,7 @@ const TEXTS = {
   addPartner: { en: 'Add Partner', kh: 'បន្ថែមដៃគូ' },
   editPartner: { en: 'Edit Partner', kh: 'កែប្រែដៃគូ' },
   deletePartner: { en: 'Delete Partner', kh: 'លុបដៃគូ' },
-  updatePartner: { en: 'Update Partner', kh: 'ធ្វើបច្ចុប្បន្នភាពដៃគូ' },
-  shop: { en: 'Shop', kh: 'ហាង' },
-  career: { en: 'Career', kh: 'ការងារ' },
-  team: { en: 'Team', kh: 'ក្រុម' },
-  backToSite: { en: 'Back to Site', kh: 'ត្រឡប់ទៅគេហទំព័រ' },
+  backToSite: { en: 'LOG OUT', kh: 'ចាកចេញ' },
   overviewTitle: { en: 'Dashboard Overview', kh: 'ទិដ្ឋភាពទូទៅនៃផ្ទាំងគ្រប់គ្រង' },
   prodCategoryTitle: { en: 'Products by Category', kh: 'ផលិតផលតាមប្រភេទ' },
   prodCategorySub: { en: 'Distribution across categories', kh: 'ការបែងចែកតាមប្រភេទនីមួយៗ' },
@@ -236,12 +230,35 @@ const TEXTS = {
   applicationReceived: { en: 'New application received', kh: 'បានទទួលពាក្យសុំថ្មី' },
 }
 
+function EyeSmallIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  )
+}
+
+function EyeOffSmallIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+    </svg>
+  )
+}
+
 function AdminD() {
   const { lang } = useLanguage()
   const location = useLocation()
-  const { user } = useAuth()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const { isDark } = useTheme()
   const [isFullscreen, setIsFullscreen] = useState(() => (typeof document !== 'undefined' ? Boolean(document.fullscreenElement) : false))
+
+  const handleLogout = () => {
+    if (logout) logout()
+    navigate('/login', { replace: true })
+  }
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement))
@@ -272,7 +289,7 @@ function AdminD() {
       console.error('Fullscreen toggle error:', e)
     }
   }
-  
+
   // Extract and normalize role from all common schemas
   const userRole = (() => {
     let r = user?.role || ''
@@ -288,7 +305,7 @@ function AdminD() {
           const parsed = JSON.parse(stored)
           r = parsed.role || (Array.isArray(parsed.roles) ? parsed.roles[0] : '') || ''
         }
-      } catch {}
+      } catch { }
     }
     const clean = (r || 'ADMIN').replace(/^ROLE_/, '').toUpperCase()
     return clean || 'ADMIN'
@@ -336,9 +353,18 @@ function AdminD() {
     cashBook: false,
     employee: false,
     report: false,
-    integration: false,
     settings: false,
+    integration: false
   })
+
+  // Auto-expand settings dropdown when on settings or users routes
+  useEffect(() => {
+    const p = location.pathname
+    if (p.startsWith('/admin/settings') || p.startsWith('/admin/users') || p === '/manage-users') {
+      setOpenDropdowns((prev) => (prev.settings ? prev : { ...prev, settings: true }))
+    }
+  }, [location.pathname])
+
   const [showNotifications, setShowNotifications] = useState(false)
   const [dashboardData, setDashboardData] = useState(EMPTY_DASHBOARD_DATA)
   const [dashboardLoading, setDashboardLoading] = useState(false)
@@ -346,6 +372,64 @@ function AdminD() {
   const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0)
   const notificationRef = useRef(null)
   const isOverview = location.pathname === '/admin'
+
+  // Real-time live clock linked with Company Profile settings & TimeZone
+  const [companySettings, setCompanySettings] = useState(getCompanySettings)
+  const [clockDate, setClockDate] = useState(new Date())
+
+  useEffect(() => {
+    const timer = setInterval(() => setClockDate(new Date()), 1000)
+    const onSettingsUpdate = (e) => {
+      if (e?.detail) {
+        setCompanySettings(e.detail)
+      } else {
+        setCompanySettings(getCompanySettings())
+      }
+    }
+    const onStorage = (e) => {
+      if (e.key === 'bg_company_profile_settings') {
+        setCompanySettings(getCompanySettings())
+      }
+    }
+    window.addEventListener('company_settings_updated', onSettingsUpdate)
+    window.addEventListener('storage', onStorage)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('company_settings_updated', onSettingsUpdate)
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [])
+
+  const formattedLiveClock = useMemo(() => {
+    return formatDateTimeByPattern(
+      clockDate,
+      companySettings.dateFormat || 'MM/DD/YYYY',
+      companySettings.timeFormat || 'hh:mm A',
+      companySettings.timeZone || 'Asia/Phnom_Penh'
+    )
+  }, [clockDate, companySettings.dateFormat, companySettings.timeFormat, companySettings.timeZone])
+
+  const clockTzCity = useMemo(() => {
+    const found = TIMEZONES.find((t) => t.id === companySettings.timeZone)
+    return found?.city || 'Phnom Penh'
+  }, [companySettings.timeZone])
+
+  const [showClockText, setShowClockText] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('bg_show_clock') !== 'false'
+    }
+    return true
+  })
+
+  const toggleClockText = () => {
+    setShowClockText((prev) => {
+      const next = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bg_show_clock', String(next))
+      }
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!isOverview) return undefined
@@ -522,12 +606,12 @@ function AdminD() {
   const monthlyProducts = useMemo(() => {
     const year = new Date().getFullYear()
     const counts = Array(12).fill(0)
-    ;(dashboardData.products || []).forEach((p) => {
-      const ts = toTimestamp(p.createdAt || p.createDate)
-      if (!ts) return
-      const d = new Date(ts)
-      if (d.getFullYear() === year) counts[d.getMonth()]++
-    })
+      ; (dashboardData.products || []).forEach((p) => {
+        const ts = toTimestamp(p.createdAt || p.createDate)
+        if (!ts) return
+        const d = new Date(ts)
+        if (d.getFullYear() === year) counts[d.getMonth()]++
+      })
     return MONTHS.map((m, i) => ({ ...m, value: counts[i] }))
   }, [dashboardData.products])
 
@@ -633,7 +717,13 @@ function AdminD() {
       if (path.startsWith('/admin/members/edit')) return <MemberForm />
       return <MemberDetailPage />
     }
-    if (path === '/manage-users' || path.startsWith('/admin/users') || path === '/admin/manage-users') {
+    if (
+      path === '/manage-users' ||
+      path.startsWith('/admin/users') ||
+      path === '/admin/manage-users' ||
+      path === '/admin/settings/users' ||
+      path.startsWith('/admin/settings/users')
+    ) {
       return <ManageUsers />
     }
     if (path === '/add-promotion' || path.startsWith('/admin/promotions')) {
@@ -943,12 +1033,12 @@ function AdminD() {
       return <Report />
     }
 
-    if (path.startsWith('/admin/integration')) {
-      return <Integration />
-    }
-
     if (path.startsWith('/settings')) {
       return <SettingsHub />
+    }
+
+    if (path.startsWith('/admin/integration')) {
+      return <Integration />
     }
 
     return (
@@ -974,9 +1064,8 @@ function AdminD() {
   }
 
   return (
-    <div className={`admin-dashboard-root flex h-screen w-full overflow-hidden ${
-      isDark ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-slate-50'
-    }`}>
+    <div className={`admin-dashboard-root flex h-screen w-full overflow-hidden ${isDark ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-slate-50'
+      }`}>
       {/* Mobile Backdrop Overlay */}
       {sidebarOpen && (
         <div
@@ -987,20 +1076,17 @@ function AdminD() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:relative inset-y-0 left-0 h-full max-h-screen border-r flex flex-col flex-shrink-0 z-50 transition-all duration-300 overflow-hidden ${
-          isDark
-            ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-700/50'
-            : 'bg-white border-slate-200 shadow-sm'
-        } ${
-          sidebarOpen
+        className={`fixed lg:relative inset-y-0 left-0 h-full max-h-screen border-r flex flex-col flex-shrink-0 z-50 transition-all duration-300 overflow-hidden ${isDark
+          ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-slate-700/50'
+          : 'bg-white border-slate-200 shadow-sm'
+          } ${sidebarOpen
             ? 'w-72 min-w-[18rem] max-w-[18rem] translate-x-0 shadow-2xl lg:shadow-none'
             : 'w-0 min-w-0 max-w-0 -translate-x-full lg:w-0 lg:min-w-0 lg:max-w-0 border-0 opacity-0 pointer-events-none'
-        }`}
+          }`}
       >
         {/* Brand Header - Fixed */}
-        <div className={`flex items-center justify-between px-5 py-5 border-b flex-shrink-0 backdrop-blur-sm ${
-          isDark ? 'border-slate-700/50 bg-slate-900/90' : 'border-slate-200 bg-white/95'
-        }`}>
+        <div className={`flex items-center justify-between px-5 py-5 border-b flex-shrink-0 backdrop-blur-sm ${isDark ? 'border-slate-700/50 bg-slate-900/90' : 'border-slate-200 bg-white/95'
+          }`}>
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 min-w-[40px] rounded-xl bg-gradient-to-br from-green-500 to-green-700 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-green-500/30">
               B
@@ -1013,9 +1099,8 @@ function AdminD() {
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className={`lg:hidden flex h-8 w-8 items-center justify-center rounded-lg transition ${
-              isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-            }`}
+            className={`lg:hidden flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+              }`}
             aria-label="Close Sidebar"
           >
             ✕
@@ -1348,41 +1433,37 @@ function AdminD() {
                   <div className="mt-1.5 ml-4 pl-3 border-l-2 border-red-500/30 space-y-1 py-1">
                     <Link
                       to="/admin/payable-management/enter-bill"
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/admin/payable-management/enter-bill')
-                          ? 'bg-red-500/20 text-red-300 font-bold'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname.startsWith('/admin/payable-management/enter-bill')
+                        ? 'bg-red-500/20 text-red-300 font-bold'
+                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        }`}
                     >
                       <span className="text-sm">📄</span> {lang === 'en' ? 'Enter Bill' : 'បញ្ចូលប៊ីល'}
                     </Link>
                     <Link
                       to="/admin/payable-management/bill-payment"
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/admin/payable-management/bill-payment')
-                          ? 'bg-red-500/20 text-red-300 font-bold'
-                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                      }`}
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname.startsWith('/admin/payable-management/bill-payment')
+                        ? 'bg-red-500/20 text-red-300 font-bold'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`}
                     >
                       <span className="text-sm">💳</span> {lang === 'en' ? 'Bill Payment' : 'ការបង់ប្រាក់ប៊ីល'}
                     </Link>
                     <Link
                       to="/admin/payable-management/enter-freight"
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/admin/payable-management/enter-freight')
-                          ? 'bg-amber-500/20 text-amber-300 font-bold'
-                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                      }`}
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname.startsWith('/admin/payable-management/enter-freight')
+                        ? 'bg-amber-500/20 text-amber-300 font-bold'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`}
                     >
                       <span className="text-sm">🚚</span> {lang === 'en' ? 'Enter Freight' : 'វិក័យប័ត្រដឹកជញ្ជូន'}
                     </Link>
                     <Link
                       to="/admin/payable-management/supplier-deposit"
-                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
-                        location.pathname.startsWith('/admin/payable-management/supplier-deposit')
-                          ? 'bg-purple-500/20 text-purple-300 font-bold'
-                          : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                      }`}
+                      className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname.startsWith('/admin/payable-management/supplier-deposit')
+                        ? 'bg-purple-500/20 text-purple-300 font-bold'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`}
                     >
                       <span className="text-sm">💎</span> {lang === 'en' ? 'Supplier Deposit' : 'ប្រាក់កក់អ្នកផ្គត់ផ្គង់'}
                     </Link>
@@ -1488,17 +1569,21 @@ function AdminD() {
                 <div className="flex items-stretch">
                   <Link
                     to="/admin/integration"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname === '/admin/integration' ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-l-xl border-y border-l border-cyan-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/integration') ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-l-xl border-y border-l border-cyan-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
-                    <span className="text-lg">🔗</span>
-                    <span className="truncate">{lang === 'en' ? 'Integration' : 'ការរួមបញ្ចូល'}</span>
+                    <img src={linkIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{TEXTS.integration[lang]}</span>
                   </Link>
                   <button
                     type="button"
+                    aria-label={lang === 'en' ? 'Toggle integration menu' : 'បើកម៉ឺនុយការរួមបញ្ចូល'}
+                    aria-expanded={openDropdowns.integration}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/integration') ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-r-xl border-y border-r border-cyan-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                     onClick={() => toggleDropdown('integration')}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname === '/admin/integration' ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-r-xl border-y border-r border-cyan-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                   >
-                    <span className={`transition-transform duration-200 ${openDropdowns.integration ? 'rotate-180' : ''}`}><ChevronDownIcon /></span>
+                    <span className={`transition-transform duration-200 ${openDropdowns.integration ? 'rotate-180' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
                   </button>
                 </div>
                 {openDropdowns.integration && (
@@ -1516,32 +1601,21 @@ function AdminD() {
                 )}
               </div>
 
-              {/* 13. Notifications & Stored History */}
-              <div className="mb-2">
-                <Link
-                  to="/admin/notifications"
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin/notifications' || location.pathname.startsWith('/admin/history') ? 'bg-gradient-to-r from-purple-500/20 to-indigo-600/10 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
-                >
-                  <span className="text-lg">🔔</span>
-                  <span className="truncate">{TEXTS.auditHistory[lang]}</span>
-                </Link>
-              </div>
-
-              {/* 6. Inventory Settings Hub */}
+              {/* 13. Settings */}
               <div className="mb-2">
                 <div className="flex items-stretch">
                   <Link
                     to="/admin/settings"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/settings') ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-l-xl border-y border-l border-cyan-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
+                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/settings') || location.pathname.startsWith('/admin/users') || location.pathname === '/manage-users' ? 'bg-gradient-to-r from-teal-500/20 to-teal-600/10 text-teal-400 rounded-l-xl border-y border-l border-teal-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
                   >
-                    <span className="text-lg">⚙️</span>
-                    <span className="truncate">{lang === 'en' ? 'Settings' : 'ការកំណត់'}</span>
+                    <img src={settingIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
+                    <span className="truncate">{TEXTS.settings[lang]}</span>
                   </Link>
                   <button
                     type="button"
                     aria-label={lang === 'en' ? 'Toggle settings menu' : 'បើកម៉ឺនុយការកំណត់'}
                     aria-expanded={openDropdowns.settings}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/settings') ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-600/10 text-cyan-400 rounded-r-xl border-y border-r border-cyan-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
+                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/settings') || location.pathname.startsWith('/admin/users') || location.pathname === '/manage-users' ? 'bg-gradient-to-r from-teal-500/20 to-teal-600/10 text-teal-400 rounded-r-xl border-y border-r border-teal-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
                     onClick={() => toggleDropdown('settings')}
                   >
                     <span className={`transition-transform duration-200 ${openDropdowns.settings ? 'rotate-180' : ''}`}>
@@ -1550,7 +1624,7 @@ function AdminD() {
                   </button>
                 </div>
                 {openDropdowns.settings && (
-                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-cyan-500/30 space-y-1 py-1">
+                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-teal-500/30 space-y-1 py-1">
                     <Link to="/admin/settings" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">⚙️</span> {lang === 'en' ? 'All Settings' : 'ការកំណត់ទាំងអស់'}
                     </Link>
@@ -1563,9 +1637,18 @@ function AdminD() {
                     <Link to="/admin/settings/location" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">📍</span> {lang === 'en' ? 'Location' : 'ទីតាំង'}
                     </Link>
-                    <Link to="/admin/settings/users" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">👤</span> {lang === 'en' ? 'User' : 'អ្នកប្រើប្រាស់'}
-                    </Link>
+                    {isAdmin && (
+                      <Link
+                        to="/admin/users"
+                        className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors ${location.pathname.startsWith('/admin/users') || location.pathname === '/manage-users' || location.pathname === '/admin/settings/users'
+                            ? 'bg-teal-500/20 text-teal-300 font-bold'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                          }`}
+                      >
+                        <img src={shieldIcon} alt="" className="w-4 h-4 object-contain drop-shadow" />
+                        <span>{TEXTS.users[lang]}</span>
+                      </Link>
+                    )}
                     <Link to="/admin/settings/role" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
                       <span className="text-sm">🔑</span> {lang === 'en' ? 'Role' : 'តួនាទី'}
                     </Link>
@@ -1605,168 +1688,49 @@ function AdminD() {
                   </div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* Information Side Group (ADMIN only) */}
-          {isAdmin && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between px-3 mb-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  {TEXTS.informationSide[lang]}
-                </span>
-                <Link
-                  to="/admin/information"
-                  className="text-[10px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wider"
-                  title={lang === 'en' ? 'Open Information Hub' : 'បើកផ្ទាំងព័ត៌មាន'}
-                >
-                  {lang === 'en' ? 'Hub' : 'ផ្ទាំង'} ↗
-                </Link>
-              </div>
-
-              {/* 1. Jobs & Careers */}
-              <div className="mb-2">
-                <div className="flex items-stretch">
-                  <Link
-                    to="/admin/jobs"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' || location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400 rounded-l-xl border-y border-l border-orange-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
-                  >
-                    <img src={targetIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-                    <span className="truncate">{TEXTS.jobs[lang]}</span>
-                  </Link>
-                  <button
-                    type="button"
-                    aria-label={lang === 'en' ? 'Toggle jobs menu' : 'បើកម៉ឺនុយការងារ'}
-                    aria-expanded={openDropdowns.jobs}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/jobs') || location.pathname === '/add-jobs' || location.pathname.startsWith('/admin/applications') ? 'bg-gradient-to-r from-orange-500/20 to-orange-600/10 text-orange-400 rounded-r-xl border-y border-r border-orange-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
-                    onClick={() => toggleDropdown('jobs')}
-                  >
-                    <span className={`transition-transform duration-200 ${openDropdowns.jobs ? 'rotate-180' : ''}`}>
-                      <ChevronDownIcon />
-                    </span>
-                  </button>
-                </div>
-                {openDropdowns.jobs && (
-                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-orange-500/30 space-y-1 py-1">
-                    <Link to="/admin/jobs" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">💼</span> {lang === 'en' ? 'Manage Jobs' : 'គ្រប់គ្រងការងារ'}
-                    </Link>
-                    <Link to="/admin/jobs/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addJob[lang]}
-                    </Link>
-                    <Link to="/admin/applications" className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="flex items-center gap-2">
-                        <span className="text-sm">📋</span> {TEXTS.applications[lang]}
-                      </span>
-                      {Number(dashboardData.applications?.length) > 0 && (
-                        <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-400 border border-orange-500/40">
-                          {dashboardData.applications.length}
-                        </span>
-                      )}
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* 2. Company Info (Members & Partners) */}
-              <div className="mb-2">
-                <div className="flex items-stretch">
-                  <Link
-                    to="/admin/members"
-                    className={`flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' || location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400 rounded-l-xl border-y border-l border-blue-500/30 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-l-xl'}`}
-                  >
-                    <img src={trophyIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-                    <span className="truncate">{TEXTS.companyInfo[lang]}</span>
-                  </Link>
-                  <button
-                    type="button"
-                    aria-label={lang === 'en' ? 'Toggle company menu' : 'បើកម៉ឺនុយក្រុមហ៊ុន'}
-                    aria-expanded={openDropdowns.members}
-                    className={`flex w-9 items-center justify-center text-sm transition-all ${location.pathname.startsWith('/admin/members') || location.pathname === '/add-member' || location.pathname.startsWith('/admin/partners') || location.pathname === '/add-partner' ? 'bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-400 rounded-r-xl border-y border-r border-blue-500/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white hover:rounded-r-xl'}`}
-                    onClick={() => toggleDropdown('members')}
-                  >
-                    <span className={`transition-transform duration-200 ${openDropdowns.members ? 'rotate-180' : ''}`}>
-                      <ChevronDownIcon />
-                    </span>
-                  </button>
-                </div>
-                {openDropdowns.members && (
-                  <div className="mt-1.5 ml-4 pl-3 border-l-2 border-blue-500/30 space-y-1 py-1">
-                    <Link to="/admin/members" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">👥</span> {TEXTS.members[lang]}
-                    </Link>
-                    <Link to="/admin/members/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addMember[lang]}
-                    </Link>
-                    <Link to="/admin/partners" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">🤝</span> {TEXTS.partners[lang]}
-                    </Link>
-                    <Link to="/admin/partners/add" className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-                      <span className="text-sm">➕</span> {TEXTS.addPartner[lang]}
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* 3. User Access & Roles */}
+              {/* 14. Notifications & Stored History */}
               <div className="mb-2">
                 <Link
-                  to="/admin/users"
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname.startsWith('/admin/users') || location.pathname === '/manage-users' ? 'bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
+                  to="/admin/notifications"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname === '/admin/notifications' || location.pathname.startsWith('/admin/history') ? 'bg-gradient-to-r from-purple-500/20 to-indigo-600/10 text-purple-400 border border-purple-500/30 shadow-lg shadow-purple-500/10 font-bold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`}
                 >
-                  <img src={shieldIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-                  <span>{TEXTS.users[lang]}</span>
+                  <span className="text-lg">🔔</span>
+                  <span className="truncate">{TEXTS.auditHistory[lang]}</span>
                 </Link>
               </div>
             </div>
           )}
-
-          {/* Public Storefront Group */}
-          <div className="mb-6">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 block mb-2">{lang === 'en' ? 'Public Storefront' : 'ទំព័រសាធារណៈ'}</span>
-            <Link to="/products" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <img src={canIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-              <span>{TEXTS.shop[lang]}</span>
-            </Link>
-            <Link to="/career" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <img src={rocketIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-              <span>{TEXTS.career[lang]}</span>
-            </Link>
-            <Link to="/member" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
-              <img src={cupIcon} alt="" className="w-5 h-5 object-contain drop-shadow" />
-              <span>{TEXTS.team[lang]}</span>
-            </Link>
-          </div>
         </nav>
 
         {/* Footer - Fixed at bottom */}
-        <div className={`px-4 py-4 border-t flex-shrink-0 backdrop-blur-sm ${
-          isDark ? 'border-slate-700/50 bg-slate-950/90' : 'border-slate-200 bg-white/95'
-        }`}>
-          <Link to="/" className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold border rounded-lg transition-all ${
-            isDark
-              ? 'text-slate-400 hover:text-white border-slate-700 hover:border-green-500/50 hover:bg-slate-800'
-              : 'text-slate-600 hover:text-[#232F3F] border-slate-200 hover:border-green-500/50 hover:bg-slate-100'
+        <div className={`px-4 py-4 border-t flex-shrink-0 backdrop-blur-sm ${isDark ? 'border-slate-700/50 bg-slate-950/90' : 'border-slate-200 bg-white/95'
           }`}>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold border rounded-lg transition-all cursor-pointer ${isDark
+              ? 'text-rose-400 hover:text-white border-slate-700 hover:border-rose-500/50 hover:bg-rose-600/20'
+              : 'text-rose-600 hover:text-rose-700 border-slate-200 hover:border-rose-300 hover:bg-rose-50'
+              }`}
+          >
             <ArrowLeftIcon />
             <span>{TEXTS.backToSite[lang]}</span>
-          </Link>
+          </button>
         </div>
       </aside>
 
       {/* Main content */}
       <main className={`flex-1 min-w-0 h-full max-h-screen flex flex-col transition-all duration-300 overflow-hidden ${isDark ? 'bg-transparent' : 'bg-slate-50'}`}>
         {/* Top bar */}
-        <header className={`flex-shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 backdrop-blur-xl border-b transition-colors ${
-          isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white/95 border-slate-200 shadow-xs'
-        }`}>
+        <header className={`flex-shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-6 lg:px-8 py-3 sm:py-4 backdrop-blur-xl border-b transition-colors ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white/95 border-slate-200 shadow-xs'
+          }`}>
           <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
             <button
-              className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border transition-all shrink-0 ${
-                isDark
-                  ? 'bg-slate-800 border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 shadow-lg hover:shadow-green-500/30'
-                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-green-500 hover:text-white hover:scale-105 shadow-xs'
-              }`}
+              className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border transition-all shrink-0 ${isDark
+                ? 'bg-slate-800 border-slate-700 text-green-400 hover:bg-green-500 hover:text-white hover:scale-105 shadow-lg hover:shadow-green-500/30'
+                : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-green-500 hover:text-white hover:scale-105 shadow-xs'
+                }`}
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle Sidebar"
               title={sidebarOpen ? (lang === 'en' ? 'Hide sidebar' : 'លាក់របារចំហៀង') : (lang === 'en' ? 'Show sidebar' : 'បង្ហាញរបារចំហៀង')}
@@ -1778,15 +1742,71 @@ function AdminD() {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Live Time Zone Clock linked with Company Profile Settings */}
+            {showClockText ? (
+              <div
+                className={`hidden md:inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 transition-all shadow-xs ${
+                  isDark
+                    ? 'border-slate-700/80 bg-slate-800/80 text-white'
+                    : 'border-slate-200 bg-slate-50 text-slate-900'
+                }`}
+                title={
+                  lang === 'en'
+                    ? `Live Time Zone: ${companySettings.timeZone || 'Asia/Phnom_Penh'} (${clockTzCity})`
+                    : `ម៉ោងជាក់ស្តែង៖ ${companySettings.timeZone || 'Asia/Phnom_Penh'} (${clockTzCity})`
+                }
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-mono font-bold tracking-tight">
+                  {formattedLiveClock}
+                </span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-bold uppercase ${
+                  isDark ? 'bg-slate-700 text-cyan-400' : 'bg-slate-200 text-cyan-700'
+                }`}>
+                  {clockTzCity}
+                </span>
+                <button
+                  type="button"
+                  onClick={toggleClockText}
+                  className={`ml-0.5 rounded-lg p-1 transition-colors cursor-pointer ${
+                    isDark ? 'text-slate-400 hover:text-white hover:bg-slate-700' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200'
+                  }`}
+                  title={lang === 'en' ? 'Hide live time' : 'លាក់ម៉ោង'}
+                  aria-label="Toggle time visibility"
+                >
+                  <EyeSmallIcon />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={toggleClockText}
+                className={`hidden md:inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 transition-all shadow-xs cursor-pointer ${
+                  isDark
+                    ? 'border-slate-700/80 bg-slate-800/80 text-slate-300 hover:text-white hover:border-slate-600'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                }`}
+                title={lang === 'en' ? `Show live time (${clockTzCity})` : `បង្ហាញម៉ោង (${clockTzCity})`}
+                aria-label="Show live time"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <EyeOffSmallIcon />
+              </button>
+            )}
+
             {/* Fullscreen Button */}
             <button
               type="button"
               onClick={toggleFullscreen}
-              className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all shrink-0 ${
-                isDark
-                  ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-600'
-                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:text-[#232F3F]'
-              }`}
+              className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all shrink-0 ${isDark
+                ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-600'
+                : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:text-[#232F3F]'
+                }`}
               title={
                 isFullscreen
                   ? (lang === 'en' ? 'Exit Full Screen' : 'ចាកចេញពីពេញអេក្រង់')
@@ -1804,11 +1824,10 @@ function AdminD() {
             {/* Notification Bell with Dropdown */}
             <div className="relative" ref={notificationRef}>
               <button
-                className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all ${
-                  isDark
-                    ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:border-slate-600'
-                    : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:border-slate-300'
-                }`}
+                className={`relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl border transition-all ${isDark
+                  ? 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:border-slate-600'
+                  : 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 hover:border-slate-300'
+                  }`}
                 onClick={() => setShowNotifications(!showNotifications)}
                 aria-label="Notifications"
               >
@@ -1821,13 +1840,11 @@ function AdminD() {
               </button>
 
               {showNotifications && (
-                <div className={`absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200 ${
-                  isDark ? 'bg-slate-900 border-slate-700 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-300/50'
-                }`}>
-                  {/* Header */}
-                  <div className={`flex items-center justify-between px-4 py-3 border-b ${
-                    isDark ? 'border-slate-700' : 'border-slate-200'
+                <div className={`absolute right-0 top-full mt-2 w-72 sm:w-80 md:w-96 border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-200 ${isDark ? 'bg-slate-900 border-slate-700 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-300/50'
                   }`}>
+                  {/* Header */}
+                  <div className={`flex items-center justify-between px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-200'
+                    }`}>
                     <h3 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{lang === 'en' ? 'Notifications' : 'ការជូនដំណឹង'}</h3>
                     <div className="flex items-center gap-2">
                       {unreadCount > 0 && (

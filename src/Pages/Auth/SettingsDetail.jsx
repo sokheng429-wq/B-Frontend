@@ -21,6 +21,7 @@ import folderIcon from '../../assets/icon/3dicons-folder-dynamic-color.png'
 import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
 
 import './ProductsHub.css'
+import CompanyProfile from './CompanyProfile'
 
 // THE 16 SETTINGS CONFIGURATION MASTER
 export const SETTINGS_MAP = {
@@ -62,7 +63,7 @@ export const SETTINGS_MAP = {
     descEn: 'View of users information',
     descKh: 'មើលព័ត៌មានអ្នកប្រើប្រាស់',
     color: '#77BC1F',
-    route: '/admin/settings/users',
+    route: '/admin/users',
   },
   role: {
     key: 'role',
@@ -283,18 +284,20 @@ export default function SettingsDetail({ settingType: propSettingType }) {
               ← {lang === 'en' ? 'All Settings' : 'ការកំណត់ទាំងអស់'}
             </Link>
 
-            <button
-              type="button"
-              onClick={handleSave}
-              className="inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-black text-white shadow-lg transition active:scale-95 hover:brightness-110"
-              style={{
-                background: `linear-gradient(135deg, ${config.color}, #4338ca)`,
-                boxShadow: `0 8px 20px -6px ${config.color}80`,
-              }}
-            >
-              <span>💾</span>
-              <span>{lang === 'en' ? 'Save Changes' : 'រក្សាទុកការកែប្រែ'}</span>
-            </button>
+            {currentKey !== 'company' && (
+              <button
+                type="button"
+                onClick={handleSave}
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-black text-white shadow-lg transition active:scale-95 hover:brightness-110"
+                style={{
+                  background: `linear-gradient(135deg, ${config.color}, #4338ca)`,
+                  boxShadow: `0 8px 20px -6px ${config.color}80`,
+                }}
+              >
+                <span>💾</span>
+                <span>{lang === 'en' ? 'Save Changes' : 'រក្សាទុកការកែប្រែ'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -339,107 +342,12 @@ export default function SettingsDetail({ settingType: propSettingType }) {
       )}
 
       {/* 3. SETTING-SPECIFIC INTERACTIVE CONTENT VIEWER */}
-      <div className="rounded-3xl border border-slate-800 bg-[#0f172a]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl shadow-black/40 space-y-6">
-
-        {/* 1. COMPANY */}
-        {currentKey === 'company' && (
-          <div className="space-y-6">
-            <div className="border-b border-slate-800 pb-4">
-              <h2 className="text-lg font-black text-white">Company Information & Legal Profile</h2>
-              <p className="text-xs text-slate-400">View and update registered legal business identity, tax credentials, and headquarters contacts.</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Company Legal Name</label>
-                <input
-                  type="text"
-                  defaultValue="B'Groceries Supermarket Co., Ltd."
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Trade Brand Name</label>
-                <input
-                  type="text"
-                  defaultValue="B'Groceries Mart"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">VAT TIN Identification #</label>
-                <input
-                  type="text"
-                  defaultValue="K008-902203114"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-mono font-bold text-emerald-400 outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Business Registration No</label>
-                <input
-                  type="text"
-                  defaultValue="00048291/2022"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-mono text-white outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Hotline Contact</label>
-                <input
-                  type="text"
-                  defaultValue="+855 (0) 23 888 999"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Official Email</label>
-                <input
-                  type="email"
-                  defaultValue="bgroceriescompany@gmail.com"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-none focus:border-blue-400"
-                />
-              </div>
-
-              <div className="sm:col-span-2 lg:col-span-3 space-y-1">
-                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Headquarters Address</label>
-                <input
-                  type="text"
-                  defaultValue="Building #18, Preah Monivong Blvd, Sangkat Boeung Keng Kang I, Khan Boeung Keng Kang, Phnom Penh, Cambodia"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-xs font-semibold text-white outline-none focus:border-blue-400"
-                />
-              </div>
-            </div>
-
-            {/* Legal Signatories */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">Authorized Legal Signatories</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60">
-                  <p className="text-[10px] text-slate-400 uppercase">Managing Director</p>
-                  <p className="font-bold text-white mt-0.5">Sokheng Mean</p>
-                  <p className="text-[11px] text-emerald-400">Authorized Signatory</p>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60">
-                  <p className="text-[10px] text-slate-400 uppercase">Operations Director</p>
-                  <p className="font-bold text-white mt-0.5">Borith Keo</p>
-                  <p className="text-[11px] text-blue-400">Inventory & Logistics</p>
-                </div>
-                <div className="p-3 rounded-xl border border-slate-800 bg-slate-900/60">
-                  <p className="text-[10px] text-slate-400 uppercase">Chief Financial Officer</p>
-                  <p className="font-bold text-white mt-0.5">Sreypov Lim</p>
-                  <p className="text-[11px] text-purple-400">Tax & Treasury</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 2. OUTLET */}
-        {currentKey === 'outlet' && (
+      {currentKey === 'company' ? (
+        <CompanyProfile />
+      ) : (
+        <div className="rounded-3xl border border-slate-800 bg-[#0f172a]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl shadow-black/40 space-y-6">
+          {/* 2. OUTLET */}
+          {currentKey === 'outlet' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
               <div>
@@ -1077,8 +985,8 @@ export default function SettingsDetail({ settingType: propSettingType }) {
             </div>
           </div>
         )}
-
       </div>
+      )}
     </div>
   )
 }

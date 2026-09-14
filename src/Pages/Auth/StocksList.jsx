@@ -542,11 +542,11 @@ export const StocksList = () => {
   // shared adaptive select styling — green focus ring
   const selectCls = isDark
     ? 'w-full rounded-lg border border-slate-700/70 bg-slate-950/60 px-3 py-2.5 text-sm font-medium text-white outline-none transition focus:border-green-400 focus:bg-slate-950 focus:ring-4 focus:ring-green-500/10 hover:border-slate-600'
-    : 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 outline-none transition focus:border-green-500 focus:bg-white focus:ring-4 focus:ring-green-500/10 hover:border-slate-400 shadow-xs'
+    : 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-950 outline-none transition focus:border-green-500 focus:bg-white focus:ring-4 focus:ring-green-500/10 hover:border-slate-400 shadow-xs'
 
   const ghostBtnCls = isDark
     ? 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 px-3.5 py-2.5 text-xs font-bold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40'
-    : 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 shadow-xs'
+    : 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-950 transition hover:border-slate-400 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 shadow-xs'
 
   // cell renderer per column key (used by both thead labels and tbody cells)
   const renderCell = (product, key) => {
@@ -563,12 +563,12 @@ export const StocksList = () => {
               <span className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ring-1 ${isDark ? 'ring-slate-700' : 'ring-slate-200'}`} style={{ backgroundColor: 'rgba(119,188,31,0.12)' }}>🥫</span>
             )}
             <span className="min-w-0">
-              <span className={`block max-w-[240px] truncate font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{(lang === 'kh' ? product.name?.kh : product.name?.en) || '—'}</span>
+              <span className={`block max-w-[240px] truncate font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>{(lang === 'kh' ? product.name?.kh : product.name?.en) || '—'}</span>
             </span>
           </button>
         )
       case 'category':
-        return <span className={isDark ? 'text-slate-400' : 'text-slate-600'}>{categoryLabel(product.category)}</span>
+        return <span className={`font-semibold ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{categoryLabel(product.category)}</span>
       case 'status': {
         const meta = STATUS_META[stockState(product.onHand)]
         return (
@@ -579,26 +579,26 @@ export const StocksList = () => {
       }
       case 'onHand':
         return (
-          <span className={`inline-flex items-center gap-1.5 font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
+          <span className={`inline-flex items-center gap-1.5 font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>
             {stockState(product.onHand) === 'low' && <span style={{ color: ORANGE }}><AlertIcon size={13} /></span>}
-            {Number(product.onHand) || 0} <span className={`text-xs font-normal ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{TEXTS.units[lang]}</span>
+            {Number(product.onHand) || 0} <span className={`text-xs font-semibold ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>{TEXTS.units[lang]}</span>
           </span>
         )
       case 'basePrice':
         return (
-          <span className={`font-semibold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>
+          <span className={`font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>
             {formatPrice(product.basePrice)}
             {product.oldPrice > product.basePrice && (
-              <span className={`ml-1.5 text-xs line-through ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>{formatPrice(product.oldPrice)}</span>
+              <span className={`ml-1.5 text-xs line-through ${isDark ? 'text-slate-600' : 'text-slate-500'}`}>{formatPrice(product.oldPrice)}</span>
             )}
           </span>
         )
       case 'barcode':
-        return <span className={`font-mono text-xs ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{product.barCode || `#${product.id}`}</span>
+        return <span className={`font-mono text-xs font-bold ${isDark ? 'text-slate-300' : 'text-slate-950'}`}>{product.barCode || `#${product.id}`}</span>
       default: {
         const def = COLUMN_DEFS.find((c) => c.key === key)
         const value = def?.bool ? (product[key] ? '✓' : '✗') : (product[key] ?? '')
-        return <span className={def?.bool ? 'font-semibold' : (isDark ? 'text-slate-200' : 'text-slate-700')} style={{ color: def?.bool ? (product[key] ? GREEN : '#FB7185') : undefined }}>{value || '—'}</span>
+        return <span className={def?.bool ? 'font-bold' : (isDark ? 'text-slate-200' : 'text-slate-950 font-semibold')} style={{ color: def?.bool ? (product[key] ? GREEN : '#FB7185') : undefined }}>{value || '—'}</span>
       }
     }
   }
@@ -619,7 +619,7 @@ export const StocksList = () => {
             <ChevronLeftIcon /> {TEXTS.back[lang]}
           </Link>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className={`text-2xl font-extrabold tracking-tight md:text-3xl ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.heroTitle[lang]}</h1>
+            <h1 className={`text-2xl font-extrabold tracking-tight md:text-3xl ${isDark ? 'text-white' : 'text-slate-950'}`}>{TEXTS.heroTitle[lang]}</h1>
             <span
               className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold"
               style={source === 'live'
@@ -629,7 +629,7 @@ export const StocksList = () => {
               ● {source === 'live' ? TEXTS.liveData[lang] : TEXTS.demoData[lang]}
             </span>
           </div>
-          <p className={`mt-1 max-w-2xl text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{TEXTS.heroSub[lang]}</p>
+          <p className={`mt-1 max-w-2xl text-sm font-medium ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{TEXTS.heroSub[lang]}</p>
         </div>
         {/* Import / Template / Export / Create */}
         <div className="flex flex-wrap items-center gap-2">
@@ -691,15 +691,15 @@ export const StocksList = () => {
                 color:
                   kpi.tone === 'orange' ? ORANGE
                     : kpi.tone === 'red' ? '#FB7185'
-                      : kpi.tone === 'navy' ? (isDark ? '#CBD5E1' : '#232F3F')
+                      : kpi.tone === 'navy' ? (isDark ? '#CBD5E1' : '#0f172a')
                         : GREEN,
               }}
             >
               {kpi.icon}
             </span>
             <span className="min-w-0">
-              <span className={`block truncate text-2xl font-extrabold leading-tight ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{kpi.value}</span>
-              <span className={`block text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{kpi.label[lang]}</span>
+              <span className={`block truncate text-2xl font-black leading-tight ${isDark ? 'text-white' : 'text-slate-950'}`}>{kpi.value}</span>
+              <span className={`block text-xs font-bold ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{kpi.label[lang]}</span>
             </span>
           </button>
         ))}
@@ -732,10 +732,10 @@ export const StocksList = () => {
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(1) }}
               placeholder={TEXTS.searchPlaceholder[lang]}
-              className={`w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm outline-none transition focus:ring-4 focus:ring-green-500/10 ${
+              className={`w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm font-medium outline-none transition focus:ring-4 focus:ring-green-500/10 ${
                 isDark
                   ? 'border-slate-700/70 bg-slate-950/60 text-white placeholder:text-slate-500 focus:border-green-400 focus:bg-slate-950'
-                  : 'border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-green-500 focus:bg-white shadow-xs'
+                  : 'border-slate-300 bg-white text-slate-950 placeholder:text-slate-400 focus:border-green-500 focus:bg-white shadow-xs'
               }`}
             />
           </div>
@@ -760,8 +760,8 @@ export const StocksList = () => {
             aria-expanded={showAdvanced}
             className={`inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-bold transition ${
               showAdvanced || activeFilterCount > 0
-                ? (isDark ? 'border-green-400 text-green-300' : 'border-green-500 text-green-700 bg-green-50/50')
-                : (isDark ? 'border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-100 shadow-xs')
+                ? (isDark ? 'border-green-400 text-green-300' : 'border-green-600 text-green-800 bg-green-50')
+                : (isDark ? 'border-slate-700 text-slate-300 hover:border-slate-600 hover:bg-slate-800' : 'border-slate-300 text-slate-950 hover:border-slate-400 hover:bg-slate-100 shadow-xs')
             }`}
           >
             <FunnelIcon /> {TEXTS.filters[lang]}
@@ -785,7 +785,7 @@ export const StocksList = () => {
         {showAdvanced && (
           <div className={`border-b p-4 ${isDark ? 'border-slate-700/60 bg-slate-800/30' : 'border-slate-200 bg-slate-50'}`}>
             <div className="mb-3 flex items-center justify-between">
-              <p className={`text-xs font-bold uppercase tracking-[0.16em] ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>{TEXTS.filters[lang]}</p>
+              <p className={`text-xs font-bold uppercase tracking-[0.16em] ${isDark ? 'text-slate-500' : 'text-slate-900'}`}>{TEXTS.filters[lang]}</p>
               <button
                 type="button"
                 onClick={clearFilters}
@@ -797,21 +797,21 @@ export const StocksList = () => {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{TEXTS.productType[lang]}</span>
+                <span className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{TEXTS.productType[lang]}</span>
                 <select value={productType} onChange={(e) => { setProductType(e.target.value); setPage(1) }} className={selectCls}>
                   <option value="all">{TEXTS.allTypes[lang]}</option>
                   {uniqueValues('productGroup').map((v) => <option key={v} value={v}>{v}</option>)}
                 </select>
               </label>
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{TEXTS.brand[lang]}</span>
+                <span className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{TEXTS.brand[lang]}</span>
                 <select value={brand} onChange={(e) => { setBrand(e.target.value); setPage(1) }} className={selectCls}>
                   <option value="all">{TEXTS.allBrands[lang]}</option>
                   {uniqueValues('brand').map((v) => <option key={v} value={v}>{v}</option>)}
                 </select>
               </label>
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{TEXTS.colCategory[lang]}</span>
+                <span className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{TEXTS.colCategory[lang]}</span>
                 <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1) }} className={selectCls}>
                   <option value="all">{TEXTS.allCats[lang]}</option>
                   {usedCategories.map((cat) => (
@@ -820,7 +820,7 @@ export const StocksList = () => {
                 </select>
               </label>
               <label className="block space-y-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-slate-400">{TEXTS.supplier[lang]}</span>
+                <span className={`text-xs font-bold uppercase tracking-wide ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{TEXTS.supplier[lang]}</span>
                 <select value={supplier} onChange={(e) => { setSupplier(e.target.value); setPage(1) }} className={selectCls}>
                   <option value="all">{TEXTS.allSuppliers[lang]}</option>
                   {uniqueValues('supplier').map((v) => <option key={v} value={v}>{v}</option>)}
@@ -834,8 +834,8 @@ export const StocksList = () => {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
-              <tr className={`border-b text-xs font-bold uppercase tracking-wide ${
-                isDark ? 'border-slate-700/60 bg-slate-800/40 text-slate-400' : 'border-slate-200 bg-slate-100 text-slate-600'
+              <tr className={`border-b text-xs font-black uppercase tracking-wide ${
+                isDark ? 'border-slate-700/60 bg-slate-800/40 text-slate-300' : 'border-slate-200 bg-slate-100 text-slate-950'
               }`}>
                 <th className="w-12 px-4 py-3">
                   <input
@@ -847,7 +847,7 @@ export const StocksList = () => {
                   />
                 </th>
                 {activeCols.map((col) => (
-                  <th key={col.key} className="whitespace-nowrap px-3 py-3">
+                  <th key={col.key} className={`whitespace-nowrap px-3 py-3 ${isDark ? 'text-slate-300' : 'text-slate-950'}`}>
                     {typeof col.label === 'object' ? col.label[lang] : col.label}
                   </th>
                 ))}
@@ -861,7 +861,7 @@ export const StocksList = () => {
                     <span className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full ${
                       isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-200 text-slate-400'
                     }`}><SearchIcon /></span>
-                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{TEXTS.noResults[lang]}</p>
+                    <p className={`text-sm font-semibold ${isDark ? 'text-slate-400' : 'text-slate-900'}`}>{TEXTS.noResults[lang]}</p>
                   </td>
                 </tr>
               ) : (
@@ -927,7 +927,7 @@ export const StocksList = () => {
 
         {/* Pagination */}
         <div className={`flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
-          <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
+          <p className={`text-xs font-semibold ${isDark ? 'text-slate-500' : 'text-slate-800'}`}>
             {filtered.length > 0
               ? `${TEXTS.showing[lang]} ${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)} ${TEXTS.of[lang]} ${filtered.length} ${TEXTS.productsWord[lang]}`
               : ''}
@@ -942,8 +942,8 @@ export const StocksList = () => {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage <= 1}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+              className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-950 hover:bg-slate-100 shadow-xs'
               }`}
             >
               {TEXTS.prev[lang]}
@@ -962,7 +962,7 @@ export const StocksList = () => {
                         ? 'bg-green-500 text-slate-950 shadow-md shadow-green-500/20'
                         : isDark
                           ? 'border border-slate-700 text-slate-300 hover:bg-slate-800'
-                          : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+                          : 'border border-slate-300 bg-white text-slate-950 hover:bg-slate-100 shadow-xs'
                     }`}
                   >
                     {n}
@@ -973,8 +973,8 @@ export const StocksList = () => {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage >= totalPages}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+              className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-950 hover:bg-slate-100 shadow-xs'
               }`}
             >
               {TEXTS.next[lang]}
@@ -1000,7 +1000,7 @@ export const StocksList = () => {
           >
             {/* header */}
             <div className={`flex items-center justify-between border-b px-5 py-4 ${isDark ? 'border-slate-700/60' : 'border-slate-200'}`}>
-              <h3 className={`text-base font-extrabold ${isDark ? 'text-white' : 'text-[#232F3F]'}`}>{TEXTS.chooseColumn[lang]}</h3>
+              <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-slate-950'}`}>{TEXTS.chooseColumn[lang]}</h3>
               <button
                 type="button"
                 onClick={() => setShowColModal(false)}
@@ -1016,8 +1016,8 @@ export const StocksList = () => {
             {/* two-column checkbox grid (scrollable — 27 columns) */}
             <div className="grid max-h-[55vh] grid-cols-1 gap-x-6 gap-y-1 overflow-y-auto p-5 sm:grid-cols-2">
               {/* Status pill column (derived, not a DTO field) */}
-              <label className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                colDraft.has('status') ? (isDark ? 'text-white' : 'text-[#232F3F]') : (isDark ? 'text-slate-400' : 'text-slate-500')
+              <label className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-bold transition ${
+                colDraft.has('status') ? (isDark ? 'text-white' : 'text-slate-950') : (isDark ? 'text-slate-400' : 'text-slate-700')
               } ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>
                 <input type="checkbox" checked={colDraft.has('status')} onChange={() => toggleColDraft('status')} className="h-4 w-4 cursor-pointer rounded accent-green-500" />
                 {TEXTS.colStatus[lang]}
@@ -1027,8 +1027,8 @@ export const StocksList = () => {
                 return (
                   <label
                     key={col.key}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                      checked ? (isDark ? 'text-white' : 'text-[#232F3F]') : (isDark ? 'text-slate-400' : 'text-slate-500')
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm font-bold transition ${
+                      checked ? (isDark ? 'text-white' : 'text-slate-950') : (isDark ? 'text-slate-400' : 'text-slate-700')
                     } ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}
                   >
                     <input
@@ -1059,7 +1059,7 @@ export const StocksList = () => {
                   type="button"
                   onClick={() => setShowColModal(false)}
                   className={`rounded-lg border px-5 py-2 text-sm font-bold transition ${
-                    isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
+                    isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 bg-white text-slate-950 hover:bg-slate-100 shadow-xs'
                   }`}
                 >
                   {TEXTS.cancel[lang]}

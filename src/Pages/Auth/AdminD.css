@@ -425,24 +425,24 @@ a:focus-visible {
 .light-theme main .text-2xl.font-black,
 [data-theme="light"] main .text-3xl.font-black,
 [data-theme="light"] main .text-2xl.font-black {
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 .light-theme main h4.text-slate-300,
 .light-theme main h3.text-white,
 [data-theme="light"] main h4.text-slate-300,
 [data-theme="light"] main h3.text-white {
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 .light-theme main p.text-white,
 [data-theme="light"] main p.text-white {
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 .light-theme main span.text-white:not(.btn-brand):not(button *):not(a.bg-gradient-to-r *):not([class*="bg-emerald-500"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-cyan"]),
 [data-theme="light"] main span.text-white:not(.btn-brand):not(button *):not(a.bg-gradient-to-r *):not([class*="bg-emerald-500"]):not([class*="bg-green"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-cyan"]) {
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 /* 6. SECONDARY CONTAINERS, TABS & ROWS */
@@ -556,7 +556,7 @@ a:focus-visible {
 [data-theme="light"] main textarea {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 .light-theme main input::placeholder,
@@ -575,13 +575,13 @@ a:focus-visible {
 [data-theme="light"] main table th {
   background-color: #f1f5f9 !important;
   border-bottom-color: #cbd5e1 !important;
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 .light-theme main tbody tr,
 [data-theme="light"] main tbody tr {
   background-color: #ffffff !important;
-  color: #1e293b !important;
+  color: #0f172a !important;
 }
 
 .light-theme main tbody tr:hover,
@@ -592,7 +592,7 @@ a:focus-visible {
 .light-theme main table td,
 [data-theme="light"] main table td {
   border-color: #e2e8f0 !important;
-  color: #334155 !important;
+  color: #0f172a !important;
 }
 
 .light-theme main tfoot tr,
@@ -601,7 +601,7 @@ a:focus-visible {
 [data-theme="light"] main tfoot td {
   background-color: #f1f5f9 !important;
   border-top-color: #cbd5e1 !important;
-  color: #232F3F !important;
+  color: #0f172a !important;
 }
 
 /* 11. QUICK ACTIONS & ERP BANNER */
@@ -618,7 +618,7 @@ a:focus-visible {
 
 /* 12. PROTECT WHITE TEXT ON COLORED BUTTONS & BADGES */
 .light-theme main button.bg-gradient-to-r,
-.light-theme main a.bg-gradient-to-r,
+.light-theme main a.bg-gradient-to-r:not(.hub-hero-card):not(.hub-card),
 .light-theme main button.bg-cyan-500,
 .light-theme main a.bg-cyan-500,
 .light-theme main button.bg-green-500,
@@ -630,7 +630,7 @@ a:focus-visible {
 .light-theme main button.bg-indigo-600,
 .light-theme main a.bg-indigo-600,
 [data-theme="light"] main button.bg-gradient-to-r,
-[data-theme="light"] main a.bg-gradient-to-r,
+[data-theme="light"] main a.bg-gradient-to-r:not(.hub-hero-card):not(.hub-card),
 [data-theme="light"] main button.bg-cyan-500,
 [data-theme="light"] main a.bg-cyan-500,
 [data-theme="light"] main button.bg-green-500,
@@ -645,11 +645,33 @@ a:focus-visible {
 }
 
 .light-theme main button.bg-gradient-to-r *,
-.light-theme main a.bg-gradient-to-r *,
+.light-theme main a.bg-gradient-to-r:not(.hub-hero-card):not(.hub-card) *,
 [data-theme="light"] main button.bg-gradient-to-r *,
-[data-theme="light"] main a.bg-gradient-to-r * {
+[data-theme="light"] main a.bg-gradient-to-r:not(.hub-hero-card):not(.hub-card) * {
   color: #ffffff !important;
 }
+
+/* 13. HUB HERO FEATURED CARDS (Stocks, Purchase, Cash Book) */
+.light-theme main .hub-hero-card,
+[data-theme="light"] main .hub-hero-card {
+  color: #0f172a !important;
+}
+
+.light-theme main .hub-hero-card h3,
+[data-theme="light"] main .hub-hero-card h3 {
+  color: #0f172a !important;
+}
+
+.light-theme main .hub-hero-card p,
+[data-theme="light"] main .hub-hero-card p {
+  color: #334155 !important;
+}
+
+.light-theme main .hub-hero-card .hero-tag,
+[data-theme="light"] main .hub-hero-card .hero-tag {
+  color: #020617 !important;
+}
+
 
 
 

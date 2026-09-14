@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
+import { useTheme } from '../../context/ThemeContext'
 import moneyBagIcon from '../../assets/icon/3dicons-money-bag-dynamic-color.png'
 import folderFavIcon from '../../assets/icon/3dicons-folder-fav-dynamic-color.png'
 import linkIcon from '../../assets/icon/3dicons-link-dynamic-color.png'
@@ -140,10 +141,15 @@ function ChevronIcon() {
 }
 
 function ModuleCard({ item, lang }) {
+  const { isDark } = useTheme()
   return (
     <Link
       to={item.route || '/admin/purchase-management'}
-      className="hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border border-slate-800 bg-[#141922]/90 p-4 sm:p-5 text-left transition-all duration-300 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-xl hover:shadow-black/40"
+      className={`hub-card group relative overflow-hidden flex flex-col justify-between rounded-2xl border p-4 sm:p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+        isDark
+          ? 'border-slate-800 bg-[#141922]/90 hover:border-slate-700 hover:bg-[#1a2230] hover:shadow-black/40'
+          : 'border-slate-200 bg-slate-50/70 hover:border-slate-300 hover:bg-white hover:shadow-slate-200/60 shadow-xs'
+      }`}
     >
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-10 blur-2xl transition-opacity group-hover:opacity-25"
@@ -153,7 +159,9 @@ function ModuleCard({ item, lang }) {
       <div className="relative space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div
-            className="hub-icon flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-xl ring-1 transition-all duration-300 group-hover:scale-110"
+            className={`hub-icon flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-xl ring-1 transition-all duration-300 group-hover:scale-110 ${
+              isDark ? 'ring-white/10 shadow-black/30' : 'ring-black/5 shadow-slate-200/50'
+            }`}
             style={{
               background: item.bg,
               borderColor: item.color + '40',
@@ -176,17 +184,23 @@ function ModuleCard({ item, lang }) {
         </div>
 
         <div>
-          <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-green-300 transition-colors font-['Montserrat']">
+          <h3 className={`text-sm sm:text-base font-bold tracking-tight transition-colors font-['Montserrat'] ${
+            isDark ? 'text-white group-hover:text-green-300' : 'text-slate-950 group-hover:text-green-700'
+          }`}>
             {lang === 'kh' ? item.kh : item.en}
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2">
+          <p className={`mt-1 text-xs leading-relaxed line-clamp-2 ${
+            isDark ? 'text-slate-400' : 'text-slate-700 font-medium'
+          }`}>
             {lang === 'kh' ? item.descKh : item.descEn}
           </p>
         </div>
       </div>
 
       <div
-        className="relative mt-4 flex items-center justify-between pt-3 border-t border-slate-800/80 text-xs font-bold transition-all"
+        className={`relative mt-4 flex items-center justify-between pt-3 border-t text-xs font-bold transition-all ${
+          isDark ? 'border-slate-800/80' : 'border-slate-200'
+        }`}
         style={{ color: item.color }}
       >
         <span>{lang === 'kh' ? 'បើកដំណើរការ' : 'Open Module'}</span>
@@ -199,6 +213,7 @@ function ModuleCard({ item, lang }) {
 }
 
 export default function PurchaseManagement() {
+  const { isDark } = useTheme()
   const { lang } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('all')
@@ -235,9 +250,13 @@ export default function PurchaseManagement() {
   )
 
   return (
-    <div className="space-y-6 text-slate-100" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+    <div className={`space-y-6 ${isDark ? 'text-slate-100' : 'text-slate-800'}`} style={{ fontFamily: 'Montserrat, sans-serif' }}>
       {/* 1. HERO BANNER */}
-      <section className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] p-5 sm:p-7 shadow-2xl shadow-green-500/10">
+      <section className={`relative overflow-hidden rounded-3xl border p-5 sm:p-7 shadow-2xl ${
+        isDark
+          ? 'border-green-500/20 bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#0b0f17] shadow-green-500/10'
+          : 'border-green-500/20 bg-gradient-to-br from-green-50/70 via-white to-slate-50 shadow-slate-200/50'
+      }`}>
         <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#7EB631]/15 blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 left-1/4 h-px w-2/3 bg-gradient-to-r from-transparent via-[#7EB631]/40 to-transparent" />
 
@@ -245,7 +264,11 @@ export default function PurchaseManagement() {
           <div className="space-y-4">
             <Link
               to="/admin"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-950/60 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition hover:border-[#7EB631] hover:text-white active:scale-95"
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] transition active:scale-95 ${
+                isDark
+                  ? 'border-slate-700/80 bg-slate-950/60 text-green-300 hover:border-[#7EB631] hover:text-white'
+                  : 'border-slate-200 bg-white text-green-700 hover:border-[#7EB631] hover:text-slate-950 shadow-xs'
+              }`}
             >
               <ChevronLeftIcon /> {lang === 'en' ? 'Dashboard' : 'ផ្ទាំងគ្រប់គ្រង'}
             </Link>
@@ -258,13 +281,13 @@ export default function PurchaseManagement() {
                 <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#7EB631]">
                   {lang === 'en' ? "B'Groceries Procurement & Sourcing" : 'ការបញ្ជាទិញ និងផ្គត់ផ្គង់'}
                 </p>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-950'}`}>
                   {lang === 'en' ? 'Purchase Management Hub' : 'មជ្ឈមណ្ឌលគ្រប់គ្រងការបញ្ជាទិញទំនិញ'}
                 </h1>
               </div>
             </div>
 
-            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-slate-300">
+            <p className={`max-w-2xl text-xs sm:text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>
               {lang === 'en'
                 ? 'Supermarket procurement central — manage vendor relationships, supplier groups, automatic reorder forecasting, purchase requisitions, PO issuing and receiving docks.'
                 : 'មជ្ឈមណ្ឌលលទ្ធកម្មផ្សារទំនើប — គ្រប់គ្រងទំនាក់ទំនងអ្នកផ្គត់ផ្គង់ ការបញ្ជាទិញស្តុកដោយស្វ័យប្រវត្តិ លិខិតស្នើសុំទិញ ការចេញ PO និងការទទួលទំនិញចូលស្តុក។'}
@@ -273,22 +296,22 @@ export default function PurchaseManagement() {
 
           {/* Quick Stats Widget */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:flex lg:flex-col shrink-0 min-w-[220px]">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <div className={`rounded-2xl border p-3.5 shadow-md ${isDark ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-white shadow-xs'}`}>
+              <div className={`flex items-center justify-between text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600 font-semibold'}`}>
                 <span>{lang === 'en' ? 'Procurement Nodes' : 'ម៉ូឌុលលទ្ធកម្ម'}</span>
-                <span className="text-emerald-400">● Active</span>
+                <span className="text-emerald-500 font-bold">● Active</span>
               </div>
-              <p className="mt-1 font-mono text-2xl font-black text-white">
+              <p className={`mt-1 font-mono text-2xl font-black ${isDark ? 'text-white' : 'text-slate-950'}`}>
                 {ALL_PURCHASE_MODULES.length}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 shadow-md">
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
+            <div className={`rounded-2xl border p-3.5 shadow-md ${isDark ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-white shadow-xs'}`}>
+              <div className={`flex items-center justify-between text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-600 font-semibold'}`}>
                 <span>{lang === 'en' ? 'Receiving Dock' : 'ច្រកទទួលទំនិញ'}</span>
-                <span className="text-blue-400">● Live</span>
+                <span className="text-blue-500 font-bold">● Live</span>
               </div>
-              <p className="mt-1 font-mono text-xs font-semibold text-slate-300">
+              <p className={`mt-1 font-mono text-xs font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Barcode Integrated
               </p>
             </div>
@@ -297,7 +320,9 @@ export default function PurchaseManagement() {
       </section>
 
       {/* 2. SEARCH & CATEGORY FILTER BAR */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-slate-800/80 bg-[#1e293b]/70 backdrop-blur-md p-3.5 shadow-lg">
+      <div className={`flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border p-3.5 shadow-lg ${
+        isDark ? 'border-slate-800/80 bg-[#1e293b]/70 backdrop-blur-md' : 'border-slate-200 bg-white shadow-slate-200/50'
+      }`}>
         <div className="relative flex-1 max-w-md">
           <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs">
             🔍
@@ -311,13 +336,17 @@ export default function PurchaseManagement() {
                 ? 'Search suppliers, POs, requisitions, receiving, RTV...'
                 : 'ស្វែងរកអ្នកផ្គត់ផ្គង់ បញ្ជាទិញ ស្នើសុំ ការទទួលទំនិញ...'
             }
-            className="w-full rounded-xl border border-slate-700/80 bg-slate-950/90 py-2 pl-9 pr-8 text-xs font-semibold text-white placeholder-slate-500 outline-none transition focus:border-[#7EB631] focus:ring-2 focus:ring-[#7EB631]/20"
+            className={`w-full rounded-xl border py-2 pl-9 pr-8 text-xs font-semibold outline-none transition focus:ring-2 focus:ring-[#7EB631]/20 ${
+              isDark
+                ? 'border-slate-700/80 bg-slate-950/90 text-white placeholder-slate-500 focus:border-[#7EB631]'
+                : 'border-slate-300 bg-slate-50 text-slate-950 placeholder-slate-400 focus:border-[#7EB631] focus:bg-white shadow-xs'
+            }`}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-400 hover:text-slate-950'}`}
             >
               ✕
             </button>
@@ -334,15 +363,21 @@ export default function PurchaseManagement() {
               key={tab.key}
               type="button"
               onClick={() => setActiveCategory(tab.key)}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${activeCategory === tab.key
-                ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20 font-black'
-                : 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
-                }`}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap active:scale-95 ${
+                activeCategory === tab.key
+                  ? 'bg-[#7EB631] text-slate-950 shadow-md shadow-green-600/20 font-black'
+                  : isDark
+                    ? 'bg-slate-900/80 text-slate-400 border border-slate-700/60 hover:text-white hover:border-slate-500'
+                    : 'bg-slate-100 text-slate-700 border border-slate-200 hover:text-slate-950 hover:bg-slate-200/70'
+              }`}
             >
               <span>{lang === 'kh' ? tab.kh : tab.en}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${activeCategory === tab.key ? 'bg-slate-950 text-green-300' : 'bg-slate-800 text-slate-400'
-                  }`}
+                className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
+                  activeCategory === tab.key
+                    ? 'bg-slate-950 text-green-300'
+                    : isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-200 text-slate-700'
+                }`}
               >
                 {tab.count}
               </span>
@@ -351,26 +386,32 @@ export default function PurchaseManagement() {
         </div>
       </div>
 
-      {/* 3. FEATURED ACTION CARD */}
+      {/* 3. FEATURED ACTION CARD: SUPPLIER MASTER DIRECTORY */}
       {(!searchQuery || 'suppliers'.includes(searchQuery.toLowerCase())) && (
         <Link
           to="/admin/products/suppliers"
-          className="group relative overflow-hidden flex flex-col gap-3 rounded-2xl border border-green-500/40 bg-gradient-to-r from-green-500/15 via-emerald-500/10 to-slate-900/60 p-4 sm:p-5 transition-all duration-300 hover:-translate-y-1 hover:border-green-400 hover:shadow-xl hover:shadow-green-500/10 sm:flex-row sm:items-center sm:justify-between"
+          className={`hub-hero-card group relative overflow-hidden flex flex-col gap-4 rounded-3xl border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:flex-row sm:items-center sm:justify-between ${
+            isDark
+              ? 'border-[#77BC1F]/30 bg-gradient-to-r from-[#77BC1F]/15 via-slate-900/90 to-[#0f172a]/90 hover:border-[#77BC1F]/60 shadow-lg shadow-black/40 hover:shadow-[#77BC1F]/10'
+              : 'border-[#77BC1F]/40 bg-gradient-to-r from-emerald-50/90 via-green-50/50 to-white hover:border-[#77BC1F] shadow-md shadow-emerald-500/5 hover:shadow-xl hover:shadow-emerald-500/15'
+          }`}
         >
-          <div className="flex items-center gap-3.5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/20 text-2xl ring-1 ring-green-400/40 shadow-md">
+          <div className="flex items-center gap-4">
+            <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl ring-1 shadow-md transition-transform duration-300 group-hover:scale-110 ${
+              isDark ? 'bg-[#77BC1F]/20 ring-[#77BC1F]/40 text-[#77BC1F] shadow-[#77BC1F]/20' : 'bg-white ring-[#77BC1F]/30 text-[#77BC1F] shadow-sm'
+            }`}>
               🏭
             </span>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-white font-['Montserrat']">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h3 className={`text-base sm:text-lg font-black tracking-tight font-['Montserrat'] ${isDark ? 'text-white' : 'text-slate-950'}`}>
                   {lang === 'en' ? 'Supplier Master Directory' : 'បញ្ជីអ្នកផ្គត់ផ្គង់មេ'}
                 </h3>
-                <span className="rounded-full bg-[#7EB631] px-2 py-0.5 text-[10px] font-black text-slate-950 uppercase tracking-wider">
+                <span className="hero-tag rounded-full bg-[#77BC1F] px-2.5 py-0.5 text-[10px] font-black text-slate-950 uppercase tracking-wider shadow-xs">
                   Live Master
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
+              <p className={`mt-1 max-w-2xl text-xs sm:text-sm font-medium leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 {lang === 'en'
                   ? 'Access live supplier database with automated SP-#### codes, tax registration, payment terms, and direct purchase links.'
                   : 'ចូលទៅកាន់បញ្ជីអ្នកផ្គត់ផ្គង់ជាក់ស្តែង ជាមួយកូដ SP-#### ស្វ័យប្រវត្តិ លេខពន្ធ និងលក្ខខណ្ឌទូទាត់។'}
@@ -378,29 +419,35 @@ export default function PurchaseManagement() {
             </div>
           </div>
 
-          <span className="inline-flex items-center gap-1.5 self-start sm:self-center text-xs font-bold text-green-300 transition-transform group-hover:translate-x-1 shrink-0">
+          <div className={`inline-flex items-center gap-2 self-start sm:self-center rounded-xl px-4 py-2.5 text-xs font-black transition-all duration-300 shrink-0 shadow-sm ${
+            isDark
+              ? 'bg-[#77BC1F]/20 text-[#77BC1F] ring-1 ring-[#77BC1F]/40 group-hover:bg-[#77BC1F] group-hover:text-slate-950 group-hover:shadow-md group-hover:shadow-[#77BC1F]/20'
+              : 'bg-[#77BC1F] text-slate-950 ring-1 ring-[#77BC1F]/60 group-hover:bg-[#68a71b] group-hover:shadow-md group-hover:shadow-green-600/20'
+          }`}>
             <span>{lang === 'en' ? 'Open Directory' : 'បើកបញ្ជី'}</span>
-            <ChevronIcon />
-          </span>
+            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </div>
         </Link>
       )}
 
       {/* 4. VENDOR MASTER DATA */}
       {masterFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 ${
+          isDark ? 'border-slate-800 bg-slate-900/80 shadow-black/20' : 'border-slate-200 bg-white shadow-slate-200/50'
+        }`}>
+          <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
             <div className="flex items-center gap-3">
               <div className="h-5 w-1.5 rounded-full bg-[#7EB631]" />
               <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                <h2 className={`text-base font-bold font-['Montserrat'] ${isDark ? 'text-white' : 'text-slate-950'}`}>
                   {lang === 'en' ? 'Suppliers & Product Sourcing' : 'អ្នកផ្គត់ផ្គង់ និងការស្វែងរកទំនិញ'}
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                   {lang === 'en' ? 'Supplier registry, groupings, item mapping, and low-stock replenishment' : 'បញ្ជីអ្នកផ្គត់ផ្គង់ ក្រុម ការភ្ជាប់ទំនិញ និងការបំពេញស្តុកទាប'}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-400">{masterFiltered.length} items</span>
+            <span className={`text-xs font-mono font-semibold ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{masterFiltered.length} items</span>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -413,22 +460,24 @@ export default function PurchaseManagement() {
 
       {/* 5. PROCUREMENT WORKFLOW */}
       {procFiltered.length > 0 && (
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+        <section className={`rounded-3xl border p-5 sm:p-6 shadow-xl space-y-4 ${
+          isDark ? 'border-slate-800 bg-slate-900/80 shadow-black/20' : 'border-slate-200 bg-white shadow-slate-200/50'
+        }`}>
+          <div className={`flex items-center justify-between pb-2 border-b ${isDark ? 'border-slate-800/80' : 'border-slate-200'}`}>
             <div className="flex items-center gap-3">
               <div className="h-5 w-1.5 rounded-full bg-[#06b6d4]" />
               <div>
-                <h2 className="text-base font-bold text-white font-['Montserrat']">
+                <h2 className={`text-base font-bold font-['Montserrat'] ${isDark ? 'text-white' : 'text-slate-950'}`}>
                   {lang === 'en' ? 'Purchase Workflow & Receiving' : 'លំហូរការបញ្ជាទិញ និងការទទួល'}
                 </h2>
-                <p className="text-[11px] text-slate-400">
+                <p className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                   {lang === 'en'
                     ? 'Purchase requisitions, purchase order documents, goods receipt notes and return to vendor'
                     : 'លិខិតស្នើសុំទិញ ឯកសារបញ្ជាទិញ ប័ណ្ណទទួលទំនិញ និងការប្រគល់ត្រឡប់'}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-400">{procFiltered.length} items</span>
+            <span className={`text-xs font-mono font-semibold ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>{procFiltered.length} items</span>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -441,17 +490,23 @@ export default function PurchaseManagement() {
 
       {/* Empty Search State */}
       {filteredModules.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/60 p-12 text-center space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-3xl">
+        <div className={`rounded-2xl border border-dashed p-12 text-center space-y-3 ${
+          isDark ? 'border-slate-700 bg-slate-950/60' : 'border-slate-300 bg-slate-50'
+        }`}>
+          <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-3xl ${
+            isDark ? 'bg-slate-900' : 'bg-slate-200'
+          }`}>
             🔍
           </div>
-          <p className="text-sm font-bold text-white">
+          <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-950'}`}>
             {lang === 'en' ? `No modules found matching "${searchQuery}"` : `រកមិនឃើញម៉ូឌុលដែលត្រូវនឹង "${searchQuery}" ទេ`}
           </p>
           <button
             type="button"
             onClick={() => setSearchQuery('')}
-            className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-slate-700"
+            className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition ${
+              isDark ? 'border-slate-700 bg-slate-800 text-white hover:bg-slate-700' : 'border-slate-300 bg-white text-slate-950 hover:bg-slate-100 shadow-xs'
+            }`}
           >
             {lang === 'en' ? 'Clear Search' : 'សម្អាតការស្វែងរក'}
           </button>

@@ -1,87 +1,217 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../context/LanguageContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { authAPI } from '../../api/api'
-import { useTelegramLogin } from '../../hooks/useTelegramLogin'
 import { Logo } from '../../components/Logo'
-import bagIcon from '../../assets/icon/3dicons-bag-dynamic-color.png'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
+import ThemeToggle from '../../components/ThemeToggle'
+
+import cubeIcon from '../../assets/icon/3dicons-cube-dynamic-color.png'
+import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
 import shieldIcon from '../../assets/icon/3dicons-shield-dynamic-color.png'
-import flashIcon from '../../assets/icon/3dicons-flash-dynamic-color.png'
-import giftIcon from '../../assets/icon/3dicons-gift-box-dynamic-color.png'
-import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
-import lockIcon from '../../assets/icon/3dicons-lock-dynamic-color.png'
+import mapPinIcon from '../../assets/icon/3dicons-map-pin-dynamic-color.png'
+
 import './Login.css'
 
+export const OUTLET_OPTIONS = [
+  { value: 'Main Store Warehouse', label: 'Main Store & Central Warehouse', location: 'St. 271, Phnom Penh', code: 'HQ-WH1' },
+  { value: 'Central Cold Storage', label: 'Central Cold Storage & Logistics', location: 'Sen Sok, Phnom Penh', code: 'COLD-02' },
+  { value: 'Express Mart BKK1', label: 'Express Mart — BKK1 Branch', location: 'St. 57, BKK1', code: 'RET-BKK' },
+  { value: 'Toul Kork Branch', label: 'Toul Kork Retail Branch', location: 'St. 315, Toul Kork', code: 'RET-TK1' },
+  { value: 'Chbar Ampov Depot', label: 'Chbar Ampov Distribution Depot', location: 'National Road 1', code: 'DEP-CA1' },
+  { value: 'Siem Reap Hub', label: 'Siem Reap Regional Hub', location: 'Airport Road, Siem Reap', code: 'HUB-SR1' },
+]
+
 const TEXTS = {
-  eyebrow: { en: "Welcome back to B'Groceries", kh: "សូមស្វាគមន៍មកកាន់ B'Groceries" },
-  title1: { en: 'Fresh groceries are just ', kh: 'គ្រឿងទេសស្រស់ៗត្រឹមតែ ' },
-  titleHighlight: { en: 'one click away', kh: 'ចុចចូលគណនី' },
-  subtitle: { en: 'Pick up where you left off — your cart, exclusive member savings, and orders are waiting for you.', kh: 'បន្តពីកន្លែងដែលអ្នកបានចាកចេញ — កន្ត្រកទំនិញ ការបញ្ចុះតម្លៃសមាជិក និងការបញ្ជាទិញកំពុងរង់ចាំអ្នក។' },
-  testimonial: { en: '"Fast 30-minute delivery and guaranteed farm-fresh produce. My family\'s trusted daily grocery choice!"', kh: '"ការដឹកជញ្ជូនលឿនត្រឹម ៣០នាទី និងបន្លែផ្លែឈើស្រស់ពីកសិដ្ឋាន។ ជម្រើសទិញទំនិញប្រចាំថ្ងៃដែលទុកចិត្ត!"' },
-  author: { en: 'Sophea K., Gold Member', kh: 'សុភា គ., សមាជិកកម្រិត Gold' },
-  perk1: { en: 'Fast 30-Min Cold Express Delivery', kh: 'ដឹកជញ្ជូនត្រជាក់រហ័ស ៣០នាទី' },
-  perk2: { en: '100% Organic & Farm Certified', kh: 'កសិផលសរីរាង្គ ១០០% ស្រស់ពីចម្ការ' },
-  perk3: { en: 'Member Cashbacks & Flash Deals', kh: 'ប្រាក់ត្រឡប់មកវិញ & ប្រូម៉ូសិនពិសេស' },
-  heading: { en: 'Log in to your account', kh: 'ចូលគណនីរបស់អ្នក' },
-  newHere: { en: 'New here?', kh: 'ទើបតែមកដល់ថ្មី?' },
-  createAccount: { en: 'Create an account', kh: 'បង្កើតគណនីឥតគិតថ្លៃ' },
-  nameLabel: { en: 'Username, Email or Phone', kh: 'ឈ្មោះអ្នកប្រើ អ៊ីមែល ឬលេខទូរស័ព្ទ' },
-  namePlaceholder: { en: 'e.g. sokheng or 012 345 678', kh: 'ឧ. sokheng ឬ ០១២ ៣៤៥ ៦៧៨' },
-  passwordLabel: { en: 'Password', kh: 'ពាក្យសម្ងាត់' },
-  passwordPlaceholder: { en: 'Enter your password', kh: 'បញ្ចូលពាក្យសម្ងាត់របស់អ្នក' },
-  rememberMe: { en: 'Remember me', kh: 'ចងចាំខ្ញុំ' },
-  forgotPassword: { en: 'Forgot password?', kh: 'ភ្លេចពាក្យសម្ងាត់?' },
-  loginBtn: { en: 'Log in', kh: 'ចូលគណនី' },
-  footerNote: { en: "By continuing, you agree to B'Groceries' Terms of Service and Privacy Policy.", kh: 'ដោយបន្ត អ្នកយល់ព្រមនឹងលក្ខខណ្ឌសេវាកម្ម និងគោលការណ៍ឯកជនភាពរបស់ B\'Groceries។' },
-  socialNote: { en: 'Secure 1-click login with your favorite provider.', kh: 'ចូលគណនីភ្លាមៗដោយសុវត្ថិភាពត្រឹមតែ ១ចុច។' },
+  portalBadge: {
+    en: "B'GROCERIES • INVENTORY OPS",
+    kh: "B'GROCERIES • ប្រតិបត្តិការស្តុក",
+  },
+  welcomeGreeting: {
+    en: 'INVENTORY MANAGEMENT SYSTEM',
+    kh: 'ប្រព័ន្ធគ្រប់គ្រងស្តុកទំនិញ',
+  },
+  welcomeHeadline: {
+    en: 'INVENTORY MANAGEMENT SYSTEM',
+    kh: 'ការគ្រប់គ្រងស្តុក និងប្រតិបត្តិការហាងតាមពេលវេលាជាក់ស្តែង។',
+  },
+  welcomeSub: {
+    en: 'WELCOME BACK ADMIN',
+    kh: 'ការទទួលទំនិញចូលឃ្លាំងកណ្តាល ការសមកាលកម្មទិន្នន័យស្តុកភ្លាមៗ និងការគ្រប់គ្រងសាខាហាងទំនើបនៅកម្ពុជា។',
+  },
+  cardTitle: {
+    en: 'Sign In',
+    kh: 'ចូលប្រព័ន្ធ',
+  },
+  cardSubtitle: {
+    en: 'Select your store outlet and sign in with your staff account.',
+    kh: 'សូមជ្រើសរើសសាខាហាង និងបញ្ចូលគណនីរបស់អ្នកដើម្បីចាប់ផ្តើម។',
+  },
+  outletLabel: {
+    en: 'STORE OUTLET',
+    kh: 'សាខាហាង / ឃ្លាំង',
+  },
+  loginLabel: {
+    en: 'USERNAME / LOGIN',
+    kh: 'ឈ្មោះអ្នកប្រើ ឬ អ៊ីមែល',
+  },
+  loginPlaceholder: {
+    en: 'Enter username or work email',
+    kh: 'បញ្ចូលឈ្មោះអ្នកប្រើ ឬ អ៊ីមែល',
+  },
+  passwordLabel: {
+    en: 'PASSWORD',
+    kh: 'ពាក្យសម្ងាត់',
+  },
+  passwordPlaceholder: {
+    en: 'Enter your password',
+    kh: 'បញ្ចូលពាក្យសម្ងាត់របស់អ្នក',
+  },
+  rememberMe: {
+    en: 'Remember this device',
+    kh: 'ចងចាំឧបករណ៍នេះ',
+  },
+  forgotPassword: {
+    en: 'Need password help?',
+    kh: 'ត្រូវការជំនួយពាក្យសម្ងាត់?',
+  },
+  signInBtn: {
+    en: 'Sign In to Portal',
+    kh: 'ចូលប្រព័ន្ធគ្រប់គ្រង',
+  },
+  signingIn: {
+    en: 'Signing in…',
+    kh: 'កំពុងចូលគណនី…',
+  },
+  systemActive: {
+    en: 'Store Network Online',
+    kh: 'ប្រព័ន្ធហាងកំពុងដំណើរការ',
+  },
+  securityNote: {
+    en: 'Enterprise Encrypted • Authorized Staff Only',
+    kh: 'ប្រព័ន្ធការពារសុវត្ថិភាពខ្ពស់ • សម្រាប់តែបុគ្គលិកមានសិទ្ធិ',
+  },
+  modalTitle: {
+    en: 'Need Help with Your Password?',
+    kh: 'ត្រូវការជំនួយជាមួយពាក្យសម្ងាត់?',
+  },
+  modalHeadline: {
+    en: 'Contact Your Store Manager or IT Admin',
+    kh: 'សូមទាក់ទងអ្នកគ្រប់គ្រងហាង ឬ IT Admin',
+  },
+  modalDesc: {
+    en: 'For store data security and financial compliance, staff passwords are reset by your Store Manager or Head Office IT. Reach out via Telegram or direct hotline.',
+    kh: 'ដើម្បីសុវត្ថិភាពទិន្នន័យ និងហិរញ្ញវត្ថុហាង ពាក្យសម្ងាត់ត្រូវបានកំណត់ឡើងវិញដោយផ្ទាល់ដោយអ្នកគ្រប់គ្រង ឬ IT។ សូមទាក់ទងតាមតេឡេក្រាម ឬលេខទូរស័ព្ទខាងក្រោម។',
+  },
+  adminManagerLabel: {
+    en: 'Store Operations Desk',
+    kh: 'ផ្នែកប្រតិបត្តិការហាង',
+  },
+  adminHotlineLabel: {
+    en: 'Support Hotline',
+    kh: 'លេខទូរស័ព្ទជំនួយ',
+  },
+  adminTelegramLabel: {
+    en: 'Direct Telegram',
+    kh: 'តេឡេក្រាមជំនួយ',
+  },
+  modalCloseBtn: {
+    en: 'Understood, Back to Sign In',
+    kh: 'យល់ព្រម, ត្រឡប់ទៅចូលគណនីវិញ',
+  },
 }
 
 export const Login = () => {
   const { lang } = useLanguage()
-  const { login, sessionExpired, clearSessionExpired } = useAuth()
+  const { isDark } = useTheme()
+  const { user, isLoggedIn, login, sessionExpired, clearSessionExpired } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
+
+  // Contact Admin modal state
+  const [showAdminModal, setShowAdminModal] = useState(() => searchParams.get('help') === 'admin')
+
+  // If user is already authenticated, redirect to appropriate destination
+  useEffect(() => {
+    if (isLoggedIn) {
+      const uRole = (user?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
+      if (['ADMIN', 'STORE', 'SUPERADMIN', 'MANAGER'].includes(uRole)) {
+        navigate('/admin', { replace: true })
+      } else {
+        navigate('/', { replace: true })
+      }
+    }
+  }, [isLoggedIn, user, navigate])
 
   // Form state
-  const [form, setForm] = useState({ identifier: '', password: '', remember: false })
+  const [form, setForm] = useState({
+    outlet: typeof window !== 'undefined' ? localStorage.getItem('selectedOutlet') || 'Main Store Warehouse' : 'Main Store Warehouse',
+    identifier: '',
+    password: '',
+    remember: false,
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('sessionExpired') === 'true') {
-      localStorage.removeItem('sessionExpired')
-      return 'Your session expired due to inactivity. Please log in again.'
-    }
-    return ''
-  })
-  const [socialBusy, setSocialBusy] = useState('')
+  const [error, setError] = useState('')
 
-  // Clear session expired flag
+  // Custom Outlet dropdown state
+  const [isOutletDropdownOpen, setIsOutletDropdownOpen] = useState(false)
+  const outletDropdownRef = useRef(null)
+
+  // Close custom outlet dropdown on outside click
   useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (outletDropdownRef.current && !outletDropdownRef.current.contains(e.target)) {
+        setIsOutletDropdownOpen(false)
+      }
+    }
+    if (isOutletDropdownOpen) {
+      document.addEventListener('mousedown', handleOutsideClick)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [isOutletDropdownOpen])
+
+  // Current selected outlet details
+  const selectedOutletObj = OUTLET_OPTIONS.find((o) => o.value === form.outlet) || OUTLET_OPTIONS[0]
+
+  // Only clear session expired when user submits or interacts
+  const handleDismissSessionExpired = () => {
     if (sessionExpired) {
       clearSessionExpired()
     }
-  }, [sessionExpired, clearSessionExpired])
+  }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
   }
 
-  // Password Submit
+  // Submit Login
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedOutlet', form.outlet)
+      }
+
       const res = await authAPI.login(form.identifier, form.password)
       login(res.data)
       const uRole = (res.data?.user?.role || res.data?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
       if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
-        const destination = location.state?.from?.pathname || '/admin'
+        const fromPath = location.state?.from?.pathname
+        const destination = (fromPath && fromPath !== '/') ? fromPath : '/admin'
         navigate(destination, { replace: true })
       } else {
-        navigate('/', { replace: true })
+        const fromPath = location.state?.from?.pathname
+        const destination = fromPath || '/'
+        navigate(destination, { replace: true })
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.')
@@ -90,284 +220,601 @@ export const Login = () => {
     }
   }
 
-  // Telegram login
-  const { handleTelegramLogin, isPolling: isTelegramPolling, error: telegramError } = useTelegramLogin({
-    onAuth: async (userData) => {
-      setError('')
-      setSocialBusy('telegram')
-      try {
-        const loginData = {
-          token: userData.token || userData.jwt,
-          tokenType: userData.tokenType || 'Bearer',
-          user: userData.user,
-        }
-        login(loginData)
-        const uRole = (userData.user?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
-        if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
-          const destination = location.state?.from?.pathname || '/admin'
-          navigate(destination, { replace: true })
-        } else {
-          navigate('/', { replace: true })
-        }
-      } catch (err) {
-        setError(err.message)
-        setSocialBusy('')
-      }
-    },
-    onError: (err) => {
-      setError(err.message)
-      setSocialBusy('')
-    },
-  })
+  // Strictly lock html & body scroll so the Login page is completely fixed
+  useEffect(() => {
+    const prevBodyOverflow = document.body.style.overflow
+    const prevHtmlOverflow = document.documentElement.style.overflow
+    const prevBodyHeight = document.body.style.height
+    const prevHtmlHeight = document.documentElement.style.height
+    const prevBodyOverscroll = document.body.style.overscrollBehavior
+
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.height = '100%'
+    document.documentElement.style.height = '100%'
+    document.body.style.overscrollBehavior = 'none'
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow
+      document.documentElement.style.overflow = prevHtmlOverflow
+      document.body.style.height = prevBodyHeight
+      document.documentElement.style.height = prevHtmlHeight
+      document.body.style.overscrollBehavior = prevBodyOverscroll
+    }
+  }, [])
 
   return (
-    <div className="auth auth--login">
-      {/* Left Hero & Trust Showcase Panel */}
-      <div className="auth-panel">
-        <div className="auth-panel-top">
-          <Logo />
-        </div>
-
-        <div className="auth-panel-body">
-          <div className="auth-panel-eyebrow-wrap">
-            <span className="auth-panel-eyebrow">
-              <img src={flashIcon} alt="" className="h-4 w-4 object-contain inline-block mr-1" />
-              {TEXTS.eyebrow[lang]}
-            </span>
-          </div>
-
-          <h2 className="auth-panel-title">
-            {TEXTS.title1[lang]}
-            <span className="text-emerald-400">{TEXTS.titleHighlight[lang]}</span>
-          </h2>
-
-          <p className="auth-panel-subtitle">{TEXTS.subtitle[lang]}</p>
-
-          {/* Key Value Perks with 3D Icons */}
-          <div className="auth-perks-list">
-            <div className="auth-perk-item">
-              <div className="auth-perk-icon-box bg-emerald-500/15 border border-emerald-500/30">
-                <img src={flashIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
-              </div>
-              <div className="auth-perk-text">
-                <h4 className="text-white font-bold text-xs">{TEXTS.perk1[lang]}</h4>
-              </div>
-            </div>
-
-            <div className="auth-perk-item">
-              <div className="auth-perk-icon-box bg-lime-500/15 border border-lime-500/30">
-                <img src={bagIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
-              </div>
-              <div className="auth-perk-text">
-                <h4 className="text-white font-bold text-xs">{TEXTS.perk2[lang]}</h4>
-              </div>
-            </div>
-
-            <div className="auth-perk-item">
-              <div className="auth-perk-icon-box bg-amber-500/15 border border-amber-500/30">
-                <img src={giftIcon} alt="" className="h-6 w-6 object-contain drop-shadow" />
-              </div>
-              <div className="auth-perk-text">
-                <h4 className="text-white font-bold text-xs">{TEXTS.perk3[lang]}</h4>
-              </div>
-            </div>
-          </div>
-
-          {/* Testimonial Card */}
-          <div className="auth-panel-card">
-            <div className="flex items-center gap-1 mb-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <img key={i} src={starIcon} alt="" className="h-4 w-4 object-contain" />
-              ))}
-            </div>
-            <p className="italic text-slate-100 text-xs leading-relaxed">{TEXTS.testimonial[lang]}</p>
-            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/10">
-              <div className="w-6 h-6 rounded-full bg-emerald-500/30 flex items-center justify-center font-bold text-emerald-300 text-[10px]">
-                S
-              </div>
-              <span className="auth-panel-card-author text-xs font-semibold text-emerald-300">
-                {TEXTS.author[lang]}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Ambient floating blobs */}
-        <div className="auth-panel-blob auth-panel-blob--1" />
-        <div className="auth-panel-blob auth-panel-blob--2" />
+    <div className={`login-page-root ${isDark ? 'theme-dark' : 'theme-light'}`}>
+      {/* Background ambient lighting - strictly contained to avoid scroll */}
+      <div className="login-ambient-container" aria-hidden="true">
+        <div className="login-ambient-blob blob-1" />
+        <div className="login-ambient-blob blob-2" />
       </div>
 
-      {/* Right Form Panel */}
-      <div className="auth-form-side">
-        <div className="auth-form-wrap">
-          <div className="auth-mobile-logo">
-            <Logo />
-          </div>
-
-          <div className="auth-header-block">
-            <div className="flex items-center justify-between">
-              <h1 className="auth-title">{TEXTS.heading[lang]}</h1>
-              <img src={shieldIcon} alt="" className="h-8 w-8 object-contain drop-shadow hidden sm:block" />
+      <div className="login-split-container">
+        {/* =========================================================
+            LEFT SHOWCASE SIDE: BRAND & OPERATIONAL CAPABILITIES
+           ========================================================= */}
+        <div className="login-brand-panel">
+          {/* Top Brand Bar */}
+          <div className="brand-panel-top">
+            <div className="brand-logo-wrap">
+              <Logo />
             </div>
-            <p className="auth-subtitle">
-              {TEXTS.newHere[lang]}{' '}
-              <Link to="/register" className="auth-link-highlight">
-                {TEXTS.createAccount[lang]}
-              </Link>
-            </p>
+            <div className="brand-badge-pill">
+              <span className="brand-badge-dot" />
+              <span>{TEXTS.portalBadge[lang]}</span>
+            </div>
           </div>
 
-          {/* LOGIN FORM */}
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <div className="field">
-              <label htmlFor="identifier">
-                <span className="field-icon">👤</span>
-                {TEXTS.nameLabel[lang]}
-              </label>
-              <div className="input-wrap">
-                <input
-                  id="identifier"
-                  name="identifier"
-                  type="text"
-                  placeholder={TEXTS.namePlaceholder[lang]}
-                  value={form.identifier}
-                  onChange={handleChange}
-                  required
-                  autoFocus
-                  autoComplete="username"
-                />
+          {/* Hero Content */}
+          <div className="brand-panel-hero">
+            <div className="brand-hero-tag">
+              <span className="hero-tag-text">{TEXTS.welcomeGreeting[lang]}</span>
+            </div>
+
+            <h1 className="brand-hero-title">
+              {TEXTS.welcomeHeadline[lang]}
+            </h1>
+
+            <p className="brand-hero-subtitle">
+              {TEXTS.welcomeSub[lang]}
+            </p>
+
+            {/* 3 Live Feature Glassmorphic Cards */}
+            <div className="brand-feature-cards">
+              <div className="brand-feature-card">
+                <span className="feature-icon-box">
+                  <img src={cubeIcon} alt="" className="feature-3d-img" />
+                </span>
+                <div className="feature-card-body">
+                  <h3 className="feature-card-title">
+                    {lang === 'en' ? 'CENTRAL RECEIVING & STOCKS' : 'ការទទួលទំនិញ និងស្តុកកណ្តាល'}
+                  </h3>
+                  <p className="feature-card-desc">
+                    {lang === 'en' ? 'PO tracking, barcode receiving, and inventory valuation' : 'តាមដាន PO ទទួលទំនិញដោយបារកូដ និងគណនាតម្លៃស្តុក'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="brand-feature-card brand-feature-card--orange">
+                <span className="feature-icon-box">
+                  <img src={chartIcon} alt="" className="feature-3d-img" />
+                </span>
+                <div className="feature-card-body">
+                  <h3 className="feature-card-title">
+                    {lang === 'en' ? 'MULTI-BRANCH OPERATIONS' : 'ប្រតិបត្តិការបណ្តាញសាខា'}
+                  </h3>
+                  <p className="feature-card-desc">
+                    {lang === 'en' ? 'Real-time synchronization between retail outlets & central cold storage' : 'សមកាលកម្មទិន្នន័យរវាងសាខាលក់ និងឃ្លាំងត្រជាក់កណ្តាល'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="brand-feature-card">
+                <span className="feature-icon-box">
+                  <img src={shieldIcon} alt="" className="feature-3d-img" />
+                </span>
+                <div className="feature-card-body">
+                  <h3 className="feature-card-title">
+                    {lang === 'en' ? 'ROLE & CASHBOOK CONTROL' : 'ការគ្រប់គ្រងសិទ្ធិ និងសៀវភៅសាច់ប្រាក់'}
+                  </h3>
+                  <p className="feature-card-desc">
+                    {lang === 'en' ? 'Fine-grained staff access, cash in/out registers & audit logs' : 'កំណត់សិទ្ធិបុគ្គលិក កត់ត្រាចំណូលចំណាយ និងកំណត់ហេតុ'}
+                  </p>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div className="field">
-              <label htmlFor="password">
-                <span className="field-icon">🔑</span>
-                {TEXTS.passwordLabel[lang]}
-              </label>
-              <div className="input-wrap input-wrap--password">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder={TEXTS.passwordPlaceholder[lang]}
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                  autoComplete="current-password"
-                />
+          {/* Bottom Footer Status */}
+          <div className="brand-panel-footer">
+            <div className="footer-status-pill">
+              <span className="status-live-dot" />
+              <span>INVENTORY MANAGEMENT SYSTEM V1.1</span>
+            </div>
+          </div>
+        </div>
+
+        {/* =========================================================
+            RIGHT INTERACTIVE SIDE: MODERN HUMAN FORM
+           ========================================================= */}
+        <div className="login-form-panel">
+          {/* Top Quick Actions Bar (Live status + Theme toggle + Language) */}
+          <div className="form-panel-topbar">
+            <div className="live-status-indicator">
+              <span className="live-pulse-dot" />
+              <span className="live-status-text">{TEXTS.systemActive[lang]}</span>
+            </div>
+
+            <div className="topbar-controls">
+              <ThemeToggle />
+              <LanguageSwitcher />
+            </div>
+          </div>
+
+          {/* Centered Login Card */}
+          <div className="login-form-card">
+            {/* Top Glowing Hairline Accent */}
+            <div className="form-card-top-accent" aria-hidden="true" />
+
+            {/* Mobile Header Logo */}
+            <div className="form-mobile-logo">
+              <Logo />
+            </div>
+
+            {/* Form Title & Subtitle */}
+            <div className="form-card-header">
+              <h2 className="form-title">{TEXTS.cardTitle[lang]}</h2>
+              <p className="form-subtitle">{TEXTS.cardSubtitle[lang]}</p>
+            </div>
+
+            {/* Session Timeout Banner */}
+            {sessionExpired && (
+              <div
+                className="login-error-banner animate-in fade-in duration-200"
+                style={{
+                  borderColor: 'rgba(245, 158, 11, 0.45)',
+                  background: 'rgba(245, 158, 11, 0.14)',
+                  color: '#fbbf24',
+                }}
+              >
+                <span className="error-icon text-lg">⏰</span>
+                <span className="error-text">
+                  {lang === 'en'
+                    ? 'Your session has timed out due to inactivity. Please log in again.'
+                    : 'សម័យការរបស់អ្នកបានផុតកំណត់ដោយសារគ្មានសកម្មភាព។ សូមចូលប្រើប្រាស់ម្តងទៀត។'}
+                </span>
                 <button
                   type="button"
-                  className="password-toggle-btn"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex="-1"
-                  title={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={handleDismissSessionExpired}
+                  className="error-close-btn"
+                  aria-label="Dismiss session expired alert"
                 >
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                  ✕
                 </button>
-              </div>
-            </div>
-
-            {/* Remember Me & Forgot Password below Password Textbox */}
-            <div className="field-inline">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="remember"
-                  checked={form.remember}
-                  onChange={handleChange}
-                />
-                <span>{TEXTS.rememberMe[lang]}</span>
-              </label>
-
-              <Link to="/forgot-password" className="link-muted text-xs hover:text-emerald-400 font-semibold">
-                {TEXTS.forgotPassword[lang]}
-              </Link>
-            </div>
-
-            {error && (
-              <div className="auth-error-alert animate-shake">
-                <span>⚠️ {error}</span>
-                <button type="button" onClick={() => setError('')} className="auth-error-dismiss">✕</button>
               </div>
             )}
 
-            <button type="submit" className="btn-submit btn-submit--gradient" disabled={loading}>
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <SpinnerIcon /> {lang === 'en' ? 'Authenticating…' : 'កំពុងផ្ទៀងផ្ទាត់…'}
-                </span>
-              ) : (
-                <span>{TEXTS.loginBtn[lang]} →</span>
-              )}
-            </button>
-          </form>
+            {/* Error Banner */}
+            {error && (
+              <div className="login-error-banner animate-shake">
+                <span className="error-icon"><AlertCircleIcon /></span>
+                <span className="error-text">{error}</span>
+                <button type="button" onClick={() => setError('')} className="error-close-btn" aria-label="Dismiss error">✕</button>
+              </div>
+            )}
 
-          {/* Social login */}
-          <div className="auth-divider">
-            <span>{lang === 'en' ? 'or continue with' : 'ឬបន្តជាមួយ'}</span>
+            {/* Credentials Form */}
+            <form onSubmit={handleSubmit} className="login-interactive-form" noValidate>
+              {/* 1. USERNAME / IDENTIFIER */}
+              <div className="form-field-group">
+                <label htmlFor="identifier" className="form-field-label">
+                  <UserIcon />
+                  <span>{TEXTS.loginLabel[lang]}</span>
+                </label>
+                <div className="form-input-container">
+                  <input
+                    id="identifier"
+                    name="identifier"
+                    type="text"
+                    placeholder={TEXTS.loginPlaceholder[lang]}
+                    value={form.identifier}
+                    onChange={handleChange}
+                    required
+                    autoFocus
+                    autoComplete="username"
+                    className="form-custom-input"
+                  />
+                </div>
+              </div>
+
+              {/* 2. PASSWORD FIELD */}
+              <div className="form-field-group">
+                <label htmlFor="password" className="form-field-label">
+                  <LockIcon />
+                  <span>{TEXTS.passwordLabel[lang]}</span>
+                </label>
+                <div className="form-input-container input-with-action">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={TEXTS.passwordPlaceholder[lang]}
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                    autoComplete="current-password"
+                    className="form-custom-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="password-toggle-btn"
+                    tabIndex="-1"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. STORE OUTLET SELECTION (CUSTOM MODERN DROPDOWN) */}
+              <div className="form-field-group" ref={outletDropdownRef}>
+                <label className="form-field-label">
+                  <BuildingIcon />
+                  <span>{TEXTS.outletLabel[lang]}</span>
+                </label>
+                <div className="custom-outlet-dropdown">
+                  <button
+                    type="button"
+                    className={`outlet-trigger-btn ${isOutletDropdownOpen ? 'outlet-trigger-btn--open' : ''}`}
+                    onClick={() => setIsOutletDropdownOpen((prev) => !prev)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isOutletDropdownOpen}
+                  >
+                    <span className="outlet-trigger-icon-box">
+                      <BuildingIcon />
+                    </span>
+                    <div className="outlet-trigger-info">
+                      <div className="outlet-trigger-headline">
+                        <span className="outlet-trigger-name">{selectedOutletObj.label}</span>
+                        <span className="outlet-trigger-code-chip">{selectedOutletObj.code}</span>
+                      </div>
+                      <div className="outlet-trigger-sub-row">
+                        <span className="outlet-trigger-loc">
+                          <PinDotIcon />
+                          <span>{selectedOutletObj.location}</span>
+                        </span>
+                        <span className="outlet-status-pill">
+                          <span className="outlet-status-dot" />
+                          <span>{lang === 'en' ? 'Active' : 'ដំណើរការ'}</span>
+                        </span>
+                      </div>
+                    </div>
+                    <span className={`outlet-trigger-chevron ${isOutletDropdownOpen ? 'rotated' : ''}`}>
+                      <ChevronDownIcon />
+                    </span>
+                  </button>
+
+                  {isOutletDropdownOpen && (
+                    <div className="outlet-dropdown-menu animate-scaleUp" role="listbox">
+                      {/* Top Hairline Gradient Ribbon */}
+                      <div className="outlet-dropdown-ribbon" aria-hidden="true" />
+
+                      {/* Header bar */}
+                      <div className="outlet-menu-header">
+                        <span className="outlet-menu-header-title">
+                          {lang === 'en' ? 'Select Store Outlet' : 'ជ្រើសរើសសាខាហាង'}
+                        </span>
+                        <span className="outlet-menu-header-count">
+                          {OUTLET_OPTIONS.length} {lang === 'en' ? 'Branches' : 'សាខា'}
+                        </span>
+                      </div>
+
+                      {/* Outlet list options */}
+                      <div className="outlet-options-scroll">
+                        {OUTLET_OPTIONS.map((opt) => {
+                          const isSelected = form.outlet === opt.value
+                          return (
+                            <div
+                              key={opt.value}
+                              role="option"
+                              aria-selected={isSelected}
+                              className={`outlet-option-item ${isSelected ? 'outlet-option-item--selected' : ''}`}
+                              onClick={() => {
+                                setForm((prev) => ({ ...prev, outlet: opt.value }))
+                                setIsOutletDropdownOpen(false)
+                              }}
+                            >
+                              <span className="outlet-option-icon-box">
+                                <BuildingIcon />
+                              </span>
+                              <div className="outlet-option-text">
+                                <div className="outlet-option-title-row">
+                                  <span className="outlet-option-title">{opt.label}</span>
+                                  <span className="outlet-option-code-pill">{opt.code}</span>
+                                </div>
+                                <div className="outlet-option-sub-row">
+                                  <span className="outlet-option-loc">
+                                    <PinDotIcon />
+                                    <span>{opt.location}</span>
+                                  </span>
+                                </div>
+                              </div>
+                              {isSelected ? (
+                                <span className="outlet-check-badge">
+                                  <CheckIcon />
+                                </span>
+                              ) : (
+                                <span className="outlet-hover-arrow">
+                                  <ArrowRightMiniIcon />
+                                </span>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Footer note */}
+                      <div className="outlet-menu-footer">
+                        <span className="outlet-footer-dot" />
+                        <span>{lang === 'en' ? 'Multi-Branch Inventory Live Sync' : 'សមកាលកម្មទិន្នន័យស្តុកតាមសាខាជាក់ស្តែង'}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Remember Me & Help Links */}
+              <div className="form-meta-row">
+                <label className="remember-me-toggle">
+                  <input
+                    type="checkbox"
+                    name="remember"
+                    checked={form.remember}
+                    onChange={handleChange}
+                    className="remember-checkbox"
+                  />
+                  <span className="remember-label-text">{TEXTS.rememberMe[lang]}</span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAdminModal(true)}
+                  className="contact-admin-link"
+                >
+                  {TEXTS.forgotPassword[lang]}
+                </button>
+              </div>
+
+              {/* Submit CTA Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="login-submit-button"
+              >
+                {loading ? (
+                  <span className="submit-loading-content">
+                    <SpinnerIcon />
+                    <span>{TEXTS.signingIn[lang]}</span>
+                  </span>
+                ) : (
+                  <span className="submit-normal-content">
+                    <span>{TEXTS.signInBtn[lang]}</span>
+                    <ArrowRightIcon />
+                  </span>
+                )}
+              </button>
+            </form>
+
+            {/* Footer Trust & Security Badge */}
+            <div className="form-security-footer">
+              <ShieldCheckIcon />
+              <span>{TEXTS.securityNote[lang]}</span>
+            </div>
           </div>
-
-          <div className="social-auth">
-            <a
-              href="http://localhost:8081/oauth2/authorization/google"
-              className="social-btn social-btn--gmail group"
-            >
-              <GmailIcon />
-              <span>Google</span>
-            </a>
-
-            <a
-              href="http://localhost:8081/oauth2/authorization/facebook"
-              className="social-btn social-btn--facebook group"
-            >
-              <FacebookIcon />
-              <span>Facebook</span>
-            </a>
-
-            <button
-              type="button"
-              onClick={handleTelegramLogin}
-              disabled={isTelegramPolling || socialBusy === 'telegram'}
-              className="social-btn social-btn--telegram group"
-            >
-              {isTelegramPolling || socialBusy === 'telegram' ? <SpinnerIcon /> : <TelegramIcon />}
-              <span>Telegram</span>
-            </button>
-          </div>
-
-          <p className="auth-social-note">{TEXTS.socialNote[lang]}</p>
-          <p className="auth-footer-note">{TEXTS.footerNote[lang]}</p>
         </div>
       </div>
+
+      {/* =========================================================
+          CONTACT STORE MANAGER / IT ADMIN MODAL
+         ========================================================= */}
+      {showAdminModal && (
+        <div className="admin-modal-backdrop animate-fadeIn" onClick={() => setShowAdminModal(false)}>
+          <div className="admin-modal-window animate-scaleUp" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <div className="modal-title-wrap">
+                <span className="modal-title-icon">
+                  <img src={mapPinIcon} alt="" className="w-5 h-5 object-contain" />
+                </span>
+                <span className="modal-title-text">{TEXTS.modalTitle[lang]}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(false)}
+                className="modal-close-icon-btn"
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="admin-modal-content">
+              <div className="modal-hero-brief">
+                <div className="modal-avatar-badge">
+                  <img src={shieldIcon} alt="" className="w-9 h-9 object-contain drop-shadow" />
+                </div>
+                <div>
+                  <h3 className="modal-headline">{TEXTS.modalHeadline[lang]}</h3>
+                  <p className="modal-description">{TEXTS.modalDesc[lang]}</p>
+                </div>
+              </div>
+
+              <div className="modal-contact-details">
+                <div className="contact-detail-row">
+                  <span className="contact-k">
+                    <StorePinIcon />
+                    <span>Selected Branch:</span>
+                  </span>
+                  <span className="contact-v branch-highlight">{form.outlet}</span>
+                </div>
+                <div className="contact-detail-row">
+                  <span className="contact-k">
+                    <SupportDeskIcon />
+                    <span>{TEXTS.adminManagerLabel[lang]}:</span>
+                  </span>
+                  <span className="contact-v">Floor Manager & IT Desk</span>
+                </div>
+                <div className="contact-detail-row">
+                  <span className="contact-k">
+                    <PhoneIcon />
+                    <span>{TEXTS.adminHotlineLabel[lang]}:</span>
+                  </span>
+                  <a href="tel:+85523999888" className="contact-link font-mono">+855 23 999 888</a>
+                </div>
+                <div className="contact-detail-row">
+                  <span className="contact-k">
+                    <TelegramIcon />
+                    <span>{TEXTS.adminTelegramLabel[lang]}:</span>
+                  </span>
+                  <a href="https://t.me/bgroceries_support" target="_blank" rel="noreferrer" className="contact-link telegram-link font-mono">
+                    @bgroceries_support
+                  </a>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAdminModal(false)}
+                className="modal-dismiss-button"
+              >
+                {TEXTS.modalCloseBtn[lang]}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-/* Brand logos for the social buttons */
-const GmailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 48 48">
-    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+// Inline SVGs for crisp precision
+const BuildingIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+    <path d="M9 22v-4h6v4" />
+    <path d="M8 6h.01M16 6h.01M12 6h.01M8 10h.01M16 10h.01M12 10h.01M8 14h.01M16 14h.01M12 14h.01" />
   </svg>
 )
 
-const TelegramIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" fill="#229ED9" />
+const UserIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
   </svg>
 )
 
-const FacebookIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047v-2.66c0-3.026 1.792-4.697 4.533-4.697 1.313 0 2.686.235 2.686.235v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.265h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" fill="#1877F2" />
+const LockIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+)
+
+const EyeIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)
+
+const EyeOffIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+)
+
+const ChevronDownIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+)
+
+const ArrowRightIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+)
+
+const ShieldCheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
   </svg>
 )
 
 const SpinnerIcon = () => (
-  <svg className="spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" strokeDasharray="40 20" strokeLinecap="round" />
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="animate-spin">
+    <path d="M12 2a10 10 0 0 1 10 10" />
+  </svg>
+)
+
+const AlertCircleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+)
+
+const StorePinIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+)
+
+const SupportDeskIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+  </svg>
+)
+
+const PhoneIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+)
+
+const TelegramIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13" />
+    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const PinDotIcon = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+)
+
+const ArrowRightMiniIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
   </svg>
 )
 

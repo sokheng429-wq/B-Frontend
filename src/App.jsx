@@ -5,6 +5,7 @@ import Header2 from './components/Header2'
 import Footer from './components/Footer'
 import PageTransition from './components/PageTransition'
 import ScrollToTop from './components/ScrollToTop'
+import SessionTimeoutModal from './components/SessionTimeoutModal'
 import Home from './Pages/Home/Home'
 import Login from './Pages/Auth/Login'
 import Register from './Pages/Auth/Register'
@@ -98,46 +99,50 @@ const AdminRoute = ({ children }) => {
 function App() {
   const location = useLocation()
   const isAdmin = location.pathname.startsWith('/admin')
+  const isAuth = ['/login', '/forgot-password', '/register', '/oauth2/redirect'].includes(location.pathname)
   const useHeader2 = ['/products', '/promotion', '/partners', '/product-detail', '/orders', '/tracking', '/cart'].includes(location.pathname)
 
   return (
     <>
       <ScrollToTop />
-      {!isAdmin && (useHeader2 ? <Header2 /> : <Header />)}
+      <SessionTimeoutModal />
+      {!isAdmin && !isAuth && (useHeader2 ? <Header2 /> : <Header />)}
       <PageTransition key={location.pathname}>
         <Routes location={location}>
 
-          <Route path="/" element={<Home />} />
+          {/* Root page: redirects unauthenticated users to /login, renders Home once logged in */}
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<Navigate to="/login?help=admin" replace />} />
+          <Route path="/register" element={<Navigate to="/login" replace />} />
           <Route path="/oauth2/redirect" element={<OAuth2Redirect />} />
 
-          {/* Customer Standard & Interactive Pages */}
-          <Route path="/products" element={<ShopLayout><PopularProducts /></ShopLayout>} />
-          <Route path="/product-detail" element={<ShopLayout><Productdetail /></ShopLayout>} />
-          <Route path="/product-details" element={<ShopLayout><Productdetail /></ShopLayout>} />
+          {/* Customer Standard & Interactive Pages (Require Login) */}
+          <Route path="/products" element={<ProtectedRoute><ShopLayout><PopularProducts /></ShopLayout></ProtectedRoute>} />
+          <Route path="/product-detail" element={<ProtectedRoute><ShopLayout><Productdetail /></ShopLayout></ProtectedRoute>} />
+          <Route path="/product-details" element={<ProtectedRoute><ShopLayout><Productdetail /></ShopLayout></ProtectedRoute>} />
 
-          <Route path="/promotion" element={<ShopLayout><Promotion /></ShopLayout>} />
+          <Route path="/promotion" element={<ProtectedRoute><ShopLayout><Promotion /></ShopLayout></ProtectedRoute>} />
 
-          <Route path="/career" element={<Career />} />
-          <Route path="/career-detail" element={<Careerdetail />} />
-          <Route path="/career-details" element={<Careerdetail />} />
-          <Route path="/career-detail/:id" element={<Careerdetail />} />
+          <Route path="/career" element={<ProtectedRoute><Career /></ProtectedRoute>} />
+          <Route path="/career-detail" element={<ProtectedRoute><Careerdetail /></ProtectedRoute>} />
+          <Route path="/career-details" element={<ProtectedRoute><Careerdetail /></ProtectedRoute>} />
+          <Route path="/career-detail/:id" element={<ProtectedRoute><Careerdetail /></ProtectedRoute>} />
 
-          <Route path="/member" element={<Member />} />
+          <Route path="/member" element={<ProtectedRoute><Member /></ProtectedRoute>} />
           <Route path="/member-detail" element={<AdminRoute><Memberdetail /></AdminRoute>} />
 
-          <Route path="/partners" element={<ShopLayout><Partners /></ShopLayout>} />
-          <Route path="/orders" element={<ShopLayout><OrderHistory /></ShopLayout>} />
-          <Route path="/tracking" element={<ShopLayout><Tracking /></ShopLayout>} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/terms-privacy" element={<TermsPrivacy />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/shipping" element={<ShippingDelivery />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/apply-now" element={<ApplyNow />} />
+          <Route path="/partners" element={<ProtectedRoute><ShopLayout><Partners /></ShopLayout></ProtectedRoute>} />
+          <Route path="/orders" element={<ProtectedRoute><ShopLayout><OrderHistory /></ShopLayout></ProtectedRoute>} />
+          <Route path="/tracking" element={<ProtectedRoute><ShopLayout><Tracking /></ShopLayout></ProtectedRoute>} />
+          <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
+          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+          <Route path="/terms-privacy" element={<ProtectedRoute><TermsPrivacy /></ProtectedRoute>} />
+          <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
+          <Route path="/shipping" element={<ProtectedRoute><ShippingDelivery /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+          <Route path="/apply-now" element={<ProtectedRoute><ApplyNow /></ProtectedRoute>} />
 
           {/* Admin Back office Management (ADMIN only) */}
           {/* Specific routes MUST come before wildcard routes */}
@@ -197,10 +202,11 @@ function App() {
           <Route path="/admin/*" element={<AdminRoute><AdminD /></AdminRoute>} />
 
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>
       </PageTransition>
-      {!isAdmin && <Footer />}
+      {!isAdmin && !isAuth && <Footer />}
     </>
   )
 }

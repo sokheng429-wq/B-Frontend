@@ -71,3 +71,31 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+
+/* Slide-over Drawer Animations */
+@keyframes drawerSlideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideLeft {
+  animation: drawerSlideLeft 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: overlayFadeIn 0.2s ease-out forwards;
+}
+

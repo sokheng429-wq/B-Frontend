@@ -74,3 +74,39 @@ textarea:focus-visible {
     gap: 0.5rem;
   }
 }
+
+/* ===== LIGHT MODE ENHANCEMENTS ===== */
+.light-theme .scrollbar-thin::-webkit-scrollbar-track,
+[data-theme="light"] .scrollbar-thin::-webkit-scrollbar-track,
+.light-theme .overflow-x-auto::-webkit-scrollbar-track,
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light-theme .scrollbar-thin::-webkit-scrollbar-thumb,
+[data-theme="light"] .scrollbar-thin::-webkit-scrollbar-thumb,
+.light-theme .overflow-x-auto::-webkit-scrollbar-thumb,
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.light-theme .scrollbar-thin::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .scrollbar-thin::-webkit-scrollbar-thumb:hover,
+.light-theme .overflow-x-auto::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Crisp high-contrast text in light mode for all products catalog */
+.light-theme table th,
+[data-theme="light"] table th {
+  color: #0f172a !important;
+  font-weight: 800;
+}
+
+.light-theme table td,
+[data-theme="light"] table td {
+  color: #0f172a !important;
+}
+

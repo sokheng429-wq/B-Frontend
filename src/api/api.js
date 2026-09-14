@@ -25,11 +25,9 @@ async function request(path, options = {}) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       localStorage.setItem('isLoggedIn', 'false')
-      if (err?.error === 'SESSION_TIMEOUT') {
-        localStorage.setItem('sessionExpired', 'true')
-      }
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-        window.location.href = '/login'
+      localStorage.setItem('sessionExpired', 'true')
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('session_timeout'))
       }
       throw new Error(err?.message || (res.status === 401 ? 'Session expired. Please log in again.' : 'Access denied.'))
     }
@@ -1537,6 +1535,28 @@ export const adminBankTransferAPI = {
     }),
 
   getNextCode: () => request('/admin/bank-transfers/next-code'),
+}
+
+// ===== COMPANY SETTINGS API =====
+export const companyAPI = {
+  get: () => request('/company').catch(() => null),
+  update: (data) => request('/company', { method: 'PUT', body: JSON.stringify(data) }).catch(() => null),
+  checkBackend: async () => {
+    try {
+      const startTime = performance.now()
+      const res = await fetch('/api/company', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {}),
+        },
+      })
+      const latency = Math.round(performance.now() - startTime)
+      const data = await res.json().catch(() => null)
+      return { ok: res.ok, status: res.status, statusText: res.statusText, latency, data }
+    } catch (err) {
+      return { ok: false, status: 0, statusText: 'Network Error', error: err.message }
+    }
+  },
 }
 
 
