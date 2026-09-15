@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -20,7 +20,7 @@ export default function SessionTimeoutModal() {
   }, [sessionExpired, location.pathname, navigate])
 
   // Acknowledge timeout and auto-focus login credentials field
-  const handleAcknowledge = () => {
+  const handleAcknowledge = useCallback(() => {
     clearSessionExpired()
     setTimeout(() => {
       const input = document.getElementById('identifier')
@@ -28,7 +28,7 @@ export default function SessionTimeoutModal() {
         input.focus()
       }
     }, 100)
-  }
+  }, [clearSessionExpired])
 
   // Handle keyboard shortcuts: Enter or Escape to acknowledge and go to login
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function SessionTimeoutModal() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [sessionExpired, location.pathname])
+  }, [sessionExpired, location.pathname, handleAcknowledge])
 
   // Flow rule: Only pop up the modal once redirected to /login!
   if (!sessionExpired || location.pathname !== '/login') return null

@@ -22,6 +22,10 @@ import starIcon from '../../assets/icon/3dicons-star-dynamic-color.png'
 
 import './ProductsHub.css'
 import CompanyProfile from './CompanyProfile'
+import OutletManagement from './OutletManagement'
+import LocationManagement from './LocationManagement'
+import UserManagement from './UserManagement'
+import RoleManagement from './RoleManagement'
 
 // THE 16 SETTINGS CONFIGURATION MASTER
 export const SETTINGS_MAP = {
@@ -63,7 +67,7 @@ export const SETTINGS_MAP = {
     descEn: 'View of users information',
     descKh: 'មើលព័ត៌មានអ្នកប្រើប្រាស់',
     color: '#77BC1F',
-    route: '/admin/users',
+    route: '/admin/settings/users',
   },
   role: {
     key: 'role',
@@ -284,7 +288,7 @@ export default function SettingsDetail({ settingType: propSettingType }) {
               ← {lang === 'en' ? 'All Settings' : 'ការកំណត់ទាំងអស់'}
             </Link>
 
-            {currentKey !== 'company' && (
+            {currentKey !== 'company' && currentKey !== 'outlet' && currentKey !== 'location' && currentKey !== 'users' && currentKey !== 'role' && (
               <button
                 type="button"
                 onClick={handleSave}
@@ -344,176 +348,16 @@ export default function SettingsDetail({ settingType: propSettingType }) {
       {/* 3. SETTING-SPECIFIC INTERACTIVE CONTENT VIEWER */}
       {currentKey === 'company' ? (
         <CompanyProfile />
+      ) : currentKey === 'outlet' ? (
+        <OutletManagement />
+      ) : currentKey === 'location' ? (
+        <LocationManagement />
+      ) : currentKey === 'users' ? (
+        <UserManagement />
+      ) : currentKey === 'role' ? (
+        <RoleManagement />
       ) : (
         <div className="rounded-3xl border border-slate-800 bg-[#0f172a]/90 backdrop-blur-md p-5 sm:p-7 shadow-xl shadow-black/40 space-y-6">
-          {/* 2. OUTLET */}
-          {currentKey === 'outlet' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-black text-white">Outlets & Store Branches</h2>
-                <p className="text-xs text-slate-400">Manage 4 retail locations, operating schedules, and assigned POS checkouts.</p>
-              </div>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-3.5 py-2 text-xs font-bold text-white transition active:scale-95"
-              >
-                <span>+</span>
-                <span>Add Branch Outlet</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {[
-                { code: 'OUT-01', name: 'Main Mart Toul Kork', pos: '4 Registers', address: '#128 St. 598 Toul Kork, Phnom Penh', hours: '06:00 - 22:00', manager: 'Dara Vorn', phone: '023 888 901', status: 'ACTIVE' },
-                { code: 'OUT-02', name: 'BKK1 Flagship Store', pos: '6 Registers', address: '#45 St. 51 BKK1, Phnom Penh', hours: '06:00 - 23:00', manager: 'Piseth Chan', phone: '023 888 902', status: 'ACTIVE' },
-                { code: 'OUT-03', name: 'Sen Sok Mega Mart', pos: '8 Registers', address: '#88 St. 1003 Sen Sok, Phnom Penh', hours: '07:00 - 22:00', manager: 'Bunroeun Sok', phone: '023 888 903', status: 'ACTIVE' },
-                { code: 'OUT-04', name: 'Chbar Ampov Express', pos: '3 Registers', address: 'National Road 1, Chbar Ampov', hours: '06:30 - 21:30', manager: 'Channa Seng', phone: '023 888 904', status: 'ACTIVE' },
-              ].map((out) => (
-                <div key={out.code} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-3 hover:border-emerald-500/40 transition">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{out.code}</span>
-                      <h3 className="text-sm font-bold text-white mt-1">{out.name}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">{out.address}</p>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">● {out.status}</span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80 text-[11px]">
-                    <div>
-                      <span className="text-slate-500 block">Terminals:</span>
-                      <span className="font-bold text-slate-200">{out.pos}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Hours:</span>
-                      <span className="font-bold text-slate-200">{out.hours}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Manager:</span>
-                      <span className="font-bold text-slate-200">{out.manager}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 3. LOCATION */}
-        {currentKey === 'location' && (
-          <div className="space-y-6">
-            <div className="border-b border-slate-800 pb-4">
-              <h2 className="text-lg font-black text-white">Warehouses & Storage Zones</h2>
-              <p className="text-xs text-slate-400">Physical picking zones, temperature-controlled cold rooms, and staging bins.</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { code: 'LOC-CW01', name: 'Central Warehouse - Dry Grocery', type: 'Ambient Storage', temp: '24°C', cap: '2,500 CBM', aisles: 'A1 - F8' },
-                { code: 'LOC-CR02', name: 'Cold Room A - Dairy & Deli', type: 'Chilled Storage', temp: '2°C to 4°C', cap: '800 CBM', aisles: 'C1 - C12' },
-                { code: 'LOC-FZ03', name: 'Deep Freezer B - Meat & Seafood', type: 'Frozen Storage', temp: '-18°C', cap: '600 CBM', aisles: 'F1 - F6' },
-                { code: 'LOC-PR04', name: 'Produce Fresh Staging Bay', type: 'Rapid Turnover', temp: '15°C', cap: '400 CBM', aisles: 'Bay 1 - 3' },
-                { code: 'LOC-PK05', name: 'Fast-Pick Front Line Staging', type: 'Retail Picking', temp: '22°C', cap: '300 CBM', aisles: 'P1 - P4' },
-              ].map((loc) => (
-                <div key={loc.code} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-2 hover:border-cyan-500/40 transition">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] text-cyan-400 font-bold">{loc.code}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">{loc.temp}</span>
-                  </div>
-                  <h3 className="text-xs font-bold text-white">{loc.name}</h3>
-                  <div className="text-[11px] text-slate-400 space-y-0.5 pt-1">
-                    <p>Type: <span className="text-slate-300 font-semibold">{loc.type}</span></p>
-                    <p>Capacity: <span className="text-slate-300 font-semibold">{loc.cap}</span></p>
-                    <p>Racks: <span className="text-slate-300 font-semibold">{loc.aisles}</span></p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 4. USER */}
-        {currentKey === 'users' && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-lg font-black text-white">System Users & Staff Accounts</h2>
-                <p className="text-xs text-slate-400">View user access credentials, assigned outlets, and status.</p>
-              </div>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-lime-600 hover:bg-lime-500 px-3.5 py-2 text-xs font-bold text-white transition active:scale-95"
-              >
-                <span>+</span>
-                <span>Add User Account</span>
-              </button>
-            </div>
-
-            <div className="overflow-x-auto rounded-2xl border border-slate-800">
-              <table className="w-full text-left text-xs">
-                <thead className="border-b border-slate-800 bg-slate-950/80 font-bold uppercase text-slate-400 text-[10px]">
-                  <tr>
-                    <th className="p-3">Staff Name</th>
-                    <th className="p-3">Username</th>
-                    <th className="p-3">Role</th>
-                    <th className="p-3">Assigned Outlet</th>
-                    <th className="p-3">Last Active</th>
-                    <th className="p-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 bg-slate-950/30">
-                  {[
-                    { name: 'Super Administrator', user: 'admin', role: 'Super Administrator', outlet: 'All Outlets', last: 'Just now', status: 'ACTIVE' },
-                    { name: 'Piseth Chan', user: 'piseth.c', role: 'Store Manager', outlet: 'BKK1 Flagship', last: '10 mins ago', status: 'ACTIVE' },
-                    { name: 'Sreynoch Heng', user: 'sreynoch.h', role: 'Cashier', outlet: 'Main Mart Toul Kork', last: '2 hours ago', status: 'ACTIVE' },
-                    { name: 'Rithy Kong', user: 'rithy.k', role: 'Inventory Auditor', outlet: 'Sen Sok Mega Mart', last: 'Yesterday', status: 'ACTIVE' },
-                    { name: 'Bopha Chem', user: 'bopha.c', role: 'Cashier', outlet: 'Chbar Ampov Express', last: '2 days ago', status: 'ACTIVE' },
-                  ].map((u) => (
-                    <tr key={u.user} className="hover:bg-slate-900/40">
-                      <td className="p-3 font-bold text-white">{u.name}</td>
-                      <td className="p-3 font-mono text-slate-400">{u.user}</td>
-                      <td className="p-3 text-cyan-300 font-semibold">{u.role}</td>
-                      <td className="p-3 text-slate-300">{u.outlet}</td>
-                      <td className="p-3 text-slate-400">{u.last}</td>
-                      <td className="p-3">
-                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">● {u.status}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* 5. ROLE */}
-        {currentKey === 'role' && (
-          <div className="space-y-6">
-            <div className="border-b border-slate-800 pb-4">
-              <h2 className="text-lg font-black text-white">Role-Based Access Control (RBAC)</h2>
-              <p className="text-xs text-slate-400">Defined security roles and their granular access permissions matrix.</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                { role: 'Super Administrator', desc: 'Full unrestricted access across all 7 hubs, financials, and 16 settings.', users: 1, color: '#A855F7' },
-                { role: 'Store Manager', desc: 'Outlet sales management, cashier oversight, manual discount overrides, and daily reports.', users: 4, color: '#3B82F6' },
-                { role: 'Cashier', desc: 'POS checkout terminal, receipt issue, cash drawer access, shift closure.', users: 18, color: '#10B981' },
-                { role: 'Inventory Auditor', desc: 'Stock cards, physical counts, movement audits, and barcode catalogue.', users: 3, color: '#F59E0B' },
-                { role: 'Purchasing Officer', desc: 'Requisition processing, purchase orders, receiving inspection, vendor list.', users: 2, color: '#06B6D4' },
-              ].map((r) => (
-                <div key={r.role} className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-2 hover:border-purple-500/40 transition">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-white">{r.role}</h3>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full" style={{ background: `${r.color}20`, color: r.color }}>{r.users} Staff</span>
-                  </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">{r.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* 6. TAX */}
         {currentKey === 'tax' && (

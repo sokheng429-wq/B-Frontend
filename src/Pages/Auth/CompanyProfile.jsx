@@ -182,6 +182,20 @@ export default function CompanyProfile() {
     return () => clearInterval(timer)
   }, [])
 
+  // Sync from backend database on mount
+  useEffect(() => {
+    companyAPI
+      .get()
+      .then((res) => {
+        if (res?.data) {
+          setFormData((prev) => ({ ...prev, ...res.data }))
+          if (res.data.logoUrl) setLogoPreview(res.data.logoUrl)
+          saveCompanySettings(res.data)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
@@ -277,6 +291,11 @@ export default function CompanyProfile() {
   const handleCheckBackend = async () => {
     setBackendStatus((prev) => ({ ...prev, checking: true, checked: false }))
     const res = await companyAPI.checkBackend()
+    if (res?.data?.data) {
+      setFormData((prev) => ({ ...prev, ...res.data.data }))
+      if (res.data.data.logoUrl) setLogoPreview(res.data.data.logoUrl)
+      saveCompanySettings(res.data.data)
+    }
     setBackendStatus({
       checking: false,
       checked: true,

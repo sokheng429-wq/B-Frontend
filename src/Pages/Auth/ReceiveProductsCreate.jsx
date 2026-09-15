@@ -515,7 +515,9 @@ export const ReceiveProductsCreate = ({ products, onPosted, onClose }) => {
               <div className="border-y border-dashed border-slate-300 py-1.5">
                 <p>{t('Code', 'កូដ')}: {code}</p>
                 <p>{t('Date', 'កាលបរិច្ឆេទ')}: {receiveDate}</p>
-                {supplierName && <p>{t('Supplier', 'អ្នកផ្គត់ផ្គង់')}: {supplierName}</p>}
+                {(suppliers.find((s) => String(s.id) === String(supplier))?.name || supplier) && (
+                  <p>{t('Supplier', 'អ្នកផ្គត់ផ្គង់')}: {suppliers.find((s) => String(s.id) === String(supplier))?.name || supplier}</p>
+                )}
                 <p>{t('Receive Type', 'ប្រភេទនៃការទទួល')}: {receiveType}</p>
               </div>
               <p className="mt-1.5">{t('Items', 'ទំនិញ')}: {lines.length} · {t('Total', 'សរុប')}: ${postedDoc.totalCost.toFixed(2)}</p>

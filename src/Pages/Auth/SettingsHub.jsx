@@ -75,7 +75,7 @@ export const SETTINGS_MODULES = [
     bg: 'rgba(119, 188, 31, 0.12)',
     category: 'access',
     tag: 'Staff',
-    route: '/admin/users',
+    route: '/admin/settings/users',
   },
   {
     key: 'role',

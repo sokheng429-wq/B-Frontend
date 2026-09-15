@@ -396,7 +396,7 @@ export const Suppliers = () => {
       filename: 'b-groceries-suppliers.xlsx',
       sheetName: 'Suppliers',
       title: 'SUPPLIER DIRECTORY & BALANCES REPORT',
-      subtitle: `Supplier Group: ${supplierGroup} · Status: ${status}`,
+      subtitle: `Supplier Group: ${group} · Status: ${status}`,
       headers: header,
       data: rows,
       summary: {

@@ -406,7 +406,14 @@ export const applicationAPI = {
 // Admin management endpoints live under /api/admin/users (ROLE_ADMIN required).
 // updateProfile is the signed-in user's own Account Details page (no admin role).
 export const userAPI = {
-  getAll: () => request('/admin/users'),
+  getAll: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.search) query.append('search', params.search)
+    if (params.searchBy) query.append('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') query.append('status', params.status)
+    const qs = query.toString()
+    return request(`/admin/users${qs ? `?${qs}` : ''}`)
+  },
 
   getById: (id) => request(`/admin/users/${id}`),
 
@@ -418,6 +425,9 @@ export const userAPI = {
 
   delete: (id) =>
     request(`/admin/users/${id}`, { method: 'DELETE' }),
+
+  toggleStatus: (id, enabled) =>
+    request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ enabled }) }),
 
   // Update the signed-in user's own profile (Account Details page). Returns
   // AuthResponse { token, tokenType, user } — token re-issued in case the phone changed.
@@ -1558,6 +1568,67 @@ export const companyAPI = {
     }
   },
 }
+
+// ===== OUTLET API =====
+export const outletAPI = {
+  getAll: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.search) query.append('search', params.search)
+    if (params.searchBy) query.append('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') query.append('status', params.status)
+    const qs = query.toString()
+    return request(`/admin/outlets${qs ? `?${qs}` : ''}`)
+  },
+  getById: (id) => request(`/admin/outlets/${id}`),
+  create: (data) => request('/admin/outlets', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/outlets/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/outlets/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/outlets/next-code'),
+  toggleStatus: (id, active) =>
+    request(`/admin/outlets/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+}
+
+// ===== LOCATION API =====
+export const locationAPI = {
+  getAll: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.search) query.append('search', params.search)
+    if (params.searchBy) query.append('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL') query.append('status', params.status)
+    if (params.outlet && params.outlet !== 'ALL' && params.outlet !== 'All') query.append('outlet', params.outlet)
+    const qs = query.toString()
+    return request(`/admin/locations${qs ? `?${qs}` : ''}`)
+  },
+  getById: (id) => request(`/admin/locations/${id}`),
+  create: (data) => request('/admin/locations', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/locations/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/locations/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/locations/next-code'),
+  toggleStatus: (id, active) =>
+    request(`/admin/locations/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+}
+
+// ===== ROLE API =====
+export const roleAPI = {
+  getAll: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.search) query.append('search', params.search)
+    if (params.searchBy) query.append('searchBy', params.searchBy)
+    if (params.status && params.status !== 'ALL' && params.status !== 'All') query.append('status', params.status)
+    const qs = query.toString()
+    return request(`/admin/roles${qs ? `?${qs}` : ''}`)
+  },
+  getById: (id) => request(`/admin/roles/${id}`),
+  create: (data) => request('/admin/roles', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id, data) => request(`/admin/roles/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id) => request(`/admin/roles/${id}`, { method: 'DELETE' }),
+  getNextCode: () => request('/admin/roles/next-code'),
+  toggleStatus: (id, active) =>
+    request(`/admin/roles/${id}/status`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+}
+
+
+
 
 
 

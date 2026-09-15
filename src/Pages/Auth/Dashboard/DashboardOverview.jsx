@@ -30,6 +30,7 @@ export default function DashboardOverview({
   recentActivity,
   formatTime,
   TEXTS,
+  companySettings,
 }) {
   const { isDark } = useTheme()
 
@@ -65,6 +66,7 @@ export default function DashboardOverview({
         lang={lang}
         onRefresh={() => setDashboardRefreshKey((k) => k + 1)}
         isRefreshing={dashboardLoading}
+        companySettings={companySettings}
       />
 
       {/* ── 2. EXECUTIVE STAT CARDS ── */}
@@ -233,7 +235,9 @@ export default function DashboardOverview({
               : 'border-emerald-200 bg-emerald-50/80'
           }`}>
             <p className={`text-[11px] font-bold ${isDark ? 'text-emerald-400' : 'text-emerald-800'}`}>
-              {lang === 'en' ? 'B’Groceries ERP Suite v2.0' : 'ប្រព័ន្ធគ្រប់គ្រង B’Groceries ២.០'}
+              {lang === 'en'
+                ? `${companySettings?.company || "B'Groceries"} ERP Suite v2.0`
+                : `${companySettings?.secondLanguage || companySettings?.company || "ប៊ី ហ្រ្គូសឺរីស៍"} ប្រព័ន្ធគ្រប់គ្រង ២.០`}
             </p>
             <p className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-emerald-700/80'}`}>
               {lang === 'en' ? 'All systems active and operational' : 'ប្រព័ន្ធទាំងអស់ដំណើរការយ៉ាងល្អ'}

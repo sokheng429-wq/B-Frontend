@@ -1,12 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme } from '../../../context/ThemeContext'
+import { getCompanySettings, TIMEZONES } from '../../../utils/companySettings'
 import bagIcon from '../../../assets/icon/3dicons-bag-dynamic-color.png'
 import mailIcon from '../../../assets/icon/3dicons-mail-dynamic-color.png'
 
-export default function RealTimeClock({ lang, onRefresh, isRefreshing }) {
+export default function RealTimeClock({ lang, onRefresh, isRefreshing, companySettings: propSettings }) {
   const { isDark } = useTheme()
   const [time, setTime] = useState(() => new Date())
+  const [companySettings, setCompanySettings] = useState(() => propSettings || getCompanySettings())
+
+  useEffect(() => {
+    if (propSettings) setCompanySettings(propSettings)
+  }, [propSettings])
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e?.detail) setCompanySettings(e.detail)
+      else setCompanySettings(getCompanySettings())
+    }
+    window.addEventListener('company_settings_updated', handleUpdate)
+    return () => window.removeEventListener('company_settings_updated', handleUpdate)
+  }, [])
+
+  const activeTz = companySettings?.timeZone || 'Asia/Phnom_Penh'
+  const tzObj = useMemo(() => TIMEZONES.find((t) => t.id === activeTz) || TIMEZONES[0], [activeTz])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -123,7 +141,9 @@ export default function RealTimeClock({ lang, onRefresh, isRefreshing }) {
               }`}>
                 {lang === 'en' ? dateEn : dateKh}
               </p>
-              <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>GMT+7 (Phnom Penh)</span>
+              <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                GMT{tzObj.offset} ({tzObj.city})
+              </span>
             </div>
           </div>
 

@@ -7,6 +7,7 @@ import { Logo } from './Logo'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { isStaffOrAdminRole } from '../utils/roleUtils'
 
 const NAV_LINKS = [
   { label: { en: 'Home', kh: 'ទំព័រដើម' }, href: '/' },
@@ -15,7 +16,7 @@ const NAV_LINKS = [
   { label: { en: 'Partners', kh: 'ដៃគូ' }, href: '/partners' },
 ]
 
-// Only visible to ADMIN users.
+// Visible to staff / admin users.
 const ADMIN_LINK = { label: { en: 'Manage', kh: 'គ្រប់គ្រង' }, href: '/admin' }
 
 export const Header2 = () => {
@@ -24,7 +25,7 @@ export const Header2 = () => {
   const { totalItems } = useCart()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const isAdmin = user?.role === 'ADMIN'
+  const isAdmin = isStaffOrAdminRole(user)
 
   const isActive = (href) => {
     if (href === '/') return location.pathname === '/'

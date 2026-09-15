@@ -166,7 +166,7 @@ export const TransferProductsCreate = ({ products, onCreated, onClose }) => {
       filename: `transfer-products-${docCode}.xlsx`,
       sheetName: 'Transfer Lines',
       title: `TRANSFER PRODUCTS ITEMS - ${docCode}`,
-      subtitle: `Outlet: ${requestOutlet} · Location: ${requestLocation} · Lines: ${lines.length}`,
+      subtitle: `Outlet: ${fromOutlet} · Location: ${fromLocation} · Lines: ${lines.length}`,
       headers,
       data: dataRows,
     })

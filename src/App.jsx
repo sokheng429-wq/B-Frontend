@@ -31,65 +31,48 @@ import Partners from './Pages/Shop/Partners'
 import OrderHistory from './Pages/Shop/OrderHistory'
 import Tracking from './Pages/Shop/Tracking'
 import ShopLayout from './components/ShopSidebar'
-
-const ALLOWED_ADMIN_ROLES = ['ADMIN', 'STORE', 'SUPERADMIN', 'MANAGER']
+import { isStaffOrAdminRole } from './utils/roleUtils'
 
 // Standard authenticated user guard (redirects unauthenticated users to /login)
 const ProtectedRoute = ({ children }) => {
   const { isLoggedIn } = useAuth()
   const location = useLocation()
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const storedIsLoggedIn = typeof window !== 'undefined' ? localStorage.getItem('isLoggedIn') === 'true' : false
+  const effectiveLoggedIn = isLoggedIn || storedIsLoggedIn || Boolean(token)
 
-  if (!isLoggedIn || !token) {
+  if (!effectiveLoggedIn || !token) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   return children
 }
 
-// ADMIN and STORE (Online Store) may open the admin panel; STORE only sees
-// the products-side sections (Products, Promotions, Partners) via AdminD.
+// Allow any authenticated user who has an assigned role to access the admin panel
 const AdminRoute = ({ children }) => {
   const { user, isLoggedIn } = useAuth()
   const location = useLocation()
 
   // 1. Must be logged in and possess a token
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
-  if (!isLoggedIn || !token) {
+  const storedIsLoggedIn = typeof window !== 'undefined' ? localStorage.getItem('isLoggedIn') === 'true' : false
+  const effectiveLoggedIn = isLoggedIn || storedIsLoggedIn || Boolean(token)
+
+  if (!effectiveLoggedIn || !token) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // 2. Extract and normalize role from various backend response formats
-  let rawRole = ''
-  if (user) {
-    if (typeof user.role === 'string') rawRole = user.role
-    else if (Array.isArray(user.roles) && user.roles.length > 0) {
-      const first = user.roles[0]
-      rawRole = typeof first === 'string' ? first : first.name || first.role || ''
-    } else if (typeof user.roleName === 'string') {
-      rawRole = user.roleName
-    }
-  }
-
-  // Also check direct localStorage fallback
-  if (!rawRole && typeof window !== 'undefined') {
+  // Synchronize user from localStorage if state is in-flight
+  let effectiveUser = user
+  if (!effectiveUser && typeof window !== 'undefined') {
     try {
       const stored = localStorage.getItem('user')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (typeof parsed?.role === 'string') rawRole = parsed.role
-        else if (Array.isArray(parsed?.roles) && parsed.roles.length > 0) {
-          const first = parsed.roles[0]
-          rawRole = typeof first === 'string' ? first : first.name || first.role || ''
-        }
-      }
-    } catch { }
+      if (stored) effectiveUser = JSON.parse(stored)
+    } catch {}
   }
 
-  const role = rawRole.replace(/^ROLE_/, '').toUpperCase()
-
-  // 3. Only allow verified administrative roles
-  if (!ALLOWED_ADMIN_ROLES.includes(role)) {
+  // 2. Allow any user with an assigned staff / administrative role
+  if (!isStaffOrAdminRole(effectiveUser)) {
     return <Navigate to="/" replace />
   }
 

@@ -7,6 +7,7 @@ import { authAPI } from '../../api/api'
 import { Logo } from '../../components/Logo'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
 import ThemeToggle from '../../components/ThemeToggle'
+import { isStaffOrAdminRole } from '../../utils/roleUtils'
 
 import cubeIcon from '../../assets/icon/3dicons-cube-dynamic-color.png'
 import chartIcon from '../../assets/icon/3dicons-chart-dynamic-color.png'
@@ -137,8 +138,7 @@ export const Login = () => {
   // If user is already authenticated, redirect to appropriate destination
   useEffect(() => {
     if (isLoggedIn) {
-      const uRole = (user?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
-      if (['ADMIN', 'STORE', 'SUPERADMIN', 'MANAGER'].includes(uRole)) {
+      if (isStaffOrAdminRole(user)) {
         navigate('/admin', { replace: true })
       } else {
         navigate('/', { replace: true })
@@ -203,8 +203,8 @@ export const Login = () => {
 
       const res = await authAPI.login(form.identifier, form.password)
       login(res.data)
-      const uRole = (res.data?.user?.role || res.data?.role || '').toString().toUpperCase().replace(/^ROLE_/, '')
-      if (uRole === 'ADMIN' || uRole === 'STORE' || uRole === 'SUPERADMIN' || uRole === 'MANAGER') {
+      const loggedInUser = res.data?.user || res.data
+      if (isStaffOrAdminRole(loggedInUser)) {
         const fromPath = location.state?.from?.pathname
         const destination = (fromPath && fromPath !== '/') ? fromPath : '/admin'
         navigate(destination, { replace: true })
